@@ -84,7 +84,7 @@ namespace AKStreamWeb.Services
 
 
             var retUpdate = ORMHelper.Db.Update<RecordPlan>().Set(x => x.Enable, enable)
-                .Where(x => x.Name.Equals( name))
+                .Where(x => x.Name.Equals(name))
                 .ExecuteAffrows();
             if (retUpdate > 0)
                 return true;
@@ -106,7 +106,7 @@ namespace AKStreamWeb.Services
 
             /*联同子类一起查出*/
             return ORMHelper.Db.Select<RecordPlan>().IncludeMany(a => a.TimeRangeList)
-                .WhereIf(!UtilsHelper.StringIsNullEx(name) ,
+                .WhereIf(!UtilsHelper.StringIsNullEx(name),
                     x => x.Name.Equals(name))
                 .ToList();
             /*联同子类一起查出*/
@@ -227,8 +227,8 @@ namespace AKStreamWeb.Services
             RecordPlan retSelect = null!;
 
             retSelect = ORMHelper.Db.Select<RecordPlan>().Where(x =>
-                x.Name.Equals(sdp.Name))
-               .First();
+                    x.Name.Equals(sdp.Name))
+                .First();
 
 
             if (retSelect != null)

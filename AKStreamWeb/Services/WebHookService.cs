@@ -131,6 +131,7 @@ namespace AKStreamWeb.Services
                     obj.MediaServerStreamInfo.IsRecorded = true;
                 }
             }
+
             return new ResToWebHookOnRecordMP4()
             {
                 Code = 0,

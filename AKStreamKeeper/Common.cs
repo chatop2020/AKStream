@@ -602,7 +602,7 @@ namespace AKStreamKeeper
                 try
                 {
                     var httpRet = NetHelper.HttpPostRequest(_akStreamKeeperConfig.AkStreamWebRegisterUrl, null, reqData,
-                        "utf-8", _akStreamKeeperConfig.HttpClientTimeoutSec*1000);
+                        "utf-8", _akStreamKeeperConfig.HttpClientTimeoutSec * 1000);
                     if (!string.IsNullOrEmpty(httpRet))
                     {
                         if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))

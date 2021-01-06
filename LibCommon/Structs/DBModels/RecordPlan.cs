@@ -39,6 +39,7 @@ namespace LibCommon.Structs.DBModels
         /// 录制计划名称
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// 是否启用该录制计划(true为启用)
         /// </summary>

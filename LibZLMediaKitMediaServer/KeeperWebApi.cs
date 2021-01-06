@@ -38,13 +38,13 @@ namespace LibZLMediaKitMediaServer
             set => _httpClientTimeout = value;
         }
 
-        public KeeperWebApi(string ipAddress, ushort webApiPort, string accessKey,int httpClientTimeoutSec=5)
+        public KeeperWebApi(string ipAddress, ushort webApiPort, string accessKey, int httpClientTimeoutSec = 5)
         {
             _ipAddress = ipAddress;
             _webApiPort = webApiPort;
             _accessKey = accessKey;
             _baseUrl = $"http://{_ipAddress}:{_webApiPort}";
-            _httpClientTimeout = httpClientTimeoutSec*1000;
+            _httpClientTimeout = httpClientTimeoutSec * 1000;
         }
 
 
@@ -568,7 +568,7 @@ namespace LibZLMediaKitMediaServer
                 Dictionary<string, string> headers = new Dictionary<string, string>();
                 headers.Add("AccessKey", _accessKey);
 
-                var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8", _httpClientTimeout*12);
+                var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8", _httpClientTimeout * 12);
                 if (!string.IsNullOrEmpty(httpRet))
                 {
                     if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))

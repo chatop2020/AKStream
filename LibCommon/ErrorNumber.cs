@@ -37,9 +37,9 @@ namespace LibCommon
         Sys_DB_RecordNotExists = -1024, //数据库中指定记录不存在
         Sys_VideoChannelNotActived = -1025, //音视频通实例没有激活
         Sys_HttpClientTimeout = -1026, //http客户端请求超时
-        Sys_DB_RecordPlanNotExists=-1027,//录制计划不存在
-        Sys_RecordPlanTimeLimitExcept=-1028,//录制计划时间间隔异常
-        Sys_DB_RecordPlanAlreadyExists=-1029,//数据库中指定录制计划已经存在
+        Sys_DB_RecordPlanNotExists = -1027, //录制计划不存在
+        Sys_RecordPlanTimeLimitExcept = -1028, //录制计划时间间隔异常
+        Sys_DB_RecordPlanAlreadyExists = -1029, //数据库中指定录制计划已经存在
         Sip_StartExcept = -2000, //启动Sip服务异常
         Sip_StopExcept = -2001, //停止Sip服务异常
         Sip_Except_DisposeSipDevice = -2002, //Sip网关内部异常(销毁Sip设备时)

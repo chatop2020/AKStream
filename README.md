@@ -12,6 +12,6 @@
 # AKStream结构
 -------
 * 放一张AKStream的完整结构图，以供理解AKStream的动作原理（采用StreamNode的图，原理是一样的）
-* 具体详细说明请阅读项目 **WIKI**
+* 具体详细说明请阅读项目 **WIKI（正在完善中...）**
 ![68747470733a2f2f692e6c6f6c692e6e65742f323032302f30392f32392f78776b6557386167597370484b55742e6a7067](https://i.loli.net/2021/01/06/RPEOJKbCcxkuViA.jpg)
 

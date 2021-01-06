@@ -27,6 +27,13 @@ namespace AKStreamKeeper.Attributes
         /// <param name="context"></param>
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            if (context.HttpContext.Request.Method.Trim().ToUpper().Equals("OPTIONS"))//为兼容ajax的options请求
+            {
+                var res=new EmptyResult();
+                context.Result = res;
+                return;
+            }
+            
             if (Common.IsDebug)
             {
                 return;

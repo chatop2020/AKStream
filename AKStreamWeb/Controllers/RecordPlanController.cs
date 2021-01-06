@@ -26,8 +26,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         [Route("DeleteRecordPlanByName")]
         [HttpGet]
- 
-        public bool DeleteRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey,string name)
+        public bool DeleteRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey, string name)
         {
             ResponseStruct rs;
             var ret = RecordPlanService.DeleteRecordPlanByName(name, out rs);
@@ -37,7 +36,6 @@ namespace AKStreamWeb.Controllers
             }
 
             return ret;
-            
         }
 
 
@@ -47,7 +45,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         [Route("OnOrOffRecordPlanByName")]
         [HttpGet]
-        public bool OnOrOffRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey,string name, bool enable)
+        public bool OnOrOffRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey, string name, bool enable)
         {
             ResponseStruct rs;
             var ret = RecordPlanService.OnOrOffRecordPlanByName(name, enable, out rs);
@@ -69,7 +67,8 @@ namespace AKStreamWeb.Controllers
         ///
         [Route("SetRecordPlanByName")]
         [HttpPost]
-        public bool SetRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey,string name, ReqSetRecordPlan sdp)
+        public bool SetRecordPlanByName([FromHeader(Name = "AccessKey")] string AccessKey, string name,
+            ReqSetRecordPlan sdp)
         {
             ResponseStruct rs;
             var ret = RecordPlanService.SetRecordPlanByName(name, sdp, out rs);
@@ -88,7 +87,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         [Route("CreateRecordPlan")]
         [HttpPost]
-        public bool CreateRecordPlan([FromHeader(Name = "AccessKey")] string AccessKey,ReqSetRecordPlan sdp)
+        public bool CreateRecordPlan([FromHeader(Name = "AccessKey")] string AccessKey, ReqSetRecordPlan sdp)
         {
             ResponseStruct rs;
             var ret = RecordPlanService.CreateRecordPlan(sdp, out rs);
@@ -108,7 +107,7 @@ namespace AKStreamWeb.Controllers
         ///
         [Route("GetRecordPlanList")]
         [HttpPost]
-        public List<RecordPlan> GetRecordPlanList([FromHeader(Name = "AccessKey")] string AccessKey,string? name)
+        public List<RecordPlan> GetRecordPlanList([FromHeader(Name = "AccessKey")] string AccessKey, string? name)
         {
             ResponseStruct rs;
             var ret = RecordPlanService.GetRecordPlanList(name, out rs);

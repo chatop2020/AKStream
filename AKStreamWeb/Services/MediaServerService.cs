@@ -688,7 +688,7 @@ namespace AKStreamWeb.Services
                 var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(mainId));
                 if (obj != null)
                 {
-                    recorded = (bool)obj.MediaServerStreamInfo.IsRecorded;
+                    recorded = (bool) obj.MediaServerStreamInfo.IsRecorded;
                     Common.VideoChannelMediaInfos.Remove(obj);
                 }
 
@@ -1024,11 +1024,11 @@ namespace AKStreamWeb.Services
 
             lock (Common.VideoChannelMediaInfosLock)
             {
-               var obj =Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-               if (obj != null && obj.MediaServerStreamInfo != null)
-               {
-                   obj.MediaServerStreamInfo.IsRecorded = false;
-               } 
+                var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                if (obj != null && obj.MediaServerStreamInfo != null)
+                {
+                    obj.MediaServerStreamInfo.IsRecorded = false;
+                }
             }
 
             return ret;
@@ -1106,12 +1106,13 @@ namespace AKStreamWeb.Services
 
             lock (Common.VideoChannelMediaInfosLock)
             {
-                var obj =Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
                 if (obj != null && obj.MediaServerStreamInfo != null)
                 {
                     obj.MediaServerStreamInfo.IsRecorded = true;
-                } 
+                }
             }
+
             return ret;
         }
 
@@ -1853,7 +1854,7 @@ namespace AKStreamWeb.Services
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
-                    return null;   
+                    return null;
                 }
             }
 
@@ -2623,10 +2624,10 @@ namespace AKStreamWeb.Services
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
-                    return null;   
+                    return null;
                 }
             }
-            
+
             VideoChannel ret = null;
             try
             {
@@ -2857,9 +2858,10 @@ namespace AKStreamWeb.Services
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
-                    return null;   
+                    return null;
                 }
             }
+
             try
             {
                 var rAffrows = ORMHelper.Db.Update<VideoChannel>()

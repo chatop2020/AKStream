@@ -34,7 +34,9 @@ namespace LibCommon
                 || tmp.Equals("connection refused connection refused")
                 || tmp.Equals("the operation has timed out.")
                 || tmp.Equals("an error occurred while sending the request. the response ended prematurely.")
-                || tmp.Equals("an error occurred while sending the request. unable to read data from the transport connection: connection reset by peer."))
+                || tmp.Equals(
+                    "an error occurred while sending the request. unable to read data from the transport connection: connection reset by peer.")
+            )
             {
                 return true;
             }

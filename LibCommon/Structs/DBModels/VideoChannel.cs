@@ -214,7 +214,7 @@ namespace LibCommon.Structs.DBModels
             get => _autoRecord;
             set => _autoRecord = value;
         }
-        
+
         /// <summary>
         /// 录制计划模板名称
         /// </summary>

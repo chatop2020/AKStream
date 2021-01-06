@@ -15,13 +15,14 @@ namespace LibZLMediaKitMediaServer
         private int _httpClientTimeout;
 
 
-        public WebApiHelper(string ipAddress, ushort webApiPort, string secret, int httpClientTimeoutSec=5,string baseUri = "",
+        public WebApiHelper(string ipAddress, ushort webApiPort, string secret, int httpClientTimeoutSec = 5,
+            string baseUri = "",
             bool useSSL = false)
         {
             _webApiPort = webApiPort;
             _secret = secret;
             _ipAddress = ipAddress.Trim();
-            _httpClientTimeout = httpClientTimeoutSec*1000;
+            _httpClientTimeout = httpClientTimeoutSec * 1000;
             if (!string.IsNullOrEmpty(baseUri))
             {
                 _baseUri = baseUri;
@@ -751,7 +752,7 @@ namespace LibZLMediaKitMediaServer
             {
                 req.Secret = this._secret;
                 string reqData = JsonHelper.ToJson(req);
-                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout*12);
+                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout * 12);
                 if (!string.IsNullOrEmpty(httpRet))
                 {
                     if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))

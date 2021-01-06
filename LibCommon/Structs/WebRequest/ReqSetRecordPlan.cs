@@ -42,8 +42,8 @@ namespace LibCommon.Structs.WebRequest
         /// <summary>
         /// 计划名称
         /// </summary>
-      public string Name { get; set; }
-        
+        public string Name { get; set; }
+
         /// <summary>
         /// 录制计划的描述
         /// </summary>

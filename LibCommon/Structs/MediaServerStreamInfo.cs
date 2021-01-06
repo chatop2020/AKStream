@@ -82,7 +82,7 @@ namespace LibCommon.Structs
         private string? _params = null;
         private List<string> _playUrl = new List<string>();
         private uint? ssrc;
-        private bool? _isRecorded=false;
+        private bool? _isRecorded = false;
         private PushStreamSocketType? _pushSocketType = null;
         private List<MediaServerStreamPlayerInfo> _playerList = new List<MediaServerStreamPlayerInfo>();
 
