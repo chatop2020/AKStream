@@ -1,0 +1,90 @@
+using LibCommon;
+using LibCommon.Structs;
+using LibCommon.Structs.DBModels;
+using LibCommon.Structs.WebRequest;
+using LibCommon.Structs.WebResponse;
+using LibLogger;
+
+namespace AKStreamWeb.Services
+{
+    public static class SystemService
+    {
+        /// <summary>
+        /// 获取系统性能信息
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static PerformanceInfo GetSystemPerformanceInfo(out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            Logger.Info($"[{Common.LoggerHead}]->获取系统性能信息成功->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
+
+            return Common.WebPerformanceInfo;
+        }
+
+        /// <summary>
+        /// 获取部门信息
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static ResGetDepartmentInfo GetDeptartmentInfoList(ReqGetDepartmentInfo req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (req == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->获取部门信息列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
+                return null;
+            }
+
+            if (req.IncludeSubDepartment != null && req.IncludeSubDepartment == true)
+            {
+                if (string.IsNullOrEmpty(req.DepartmentId) || !req.DepartmentId.ToLower().Trim().Equals("string"))
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_ParamsIsNotRight,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] + ",条件要求包含下级部门数据，但部门代码条件为空",
+                    };
+                    Logger.Warn(
+                        $"[{Common.LoggerHead}]->获取部门信息列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
+
+                    return null;
+                }
+            }
+
+            var ret = ORMHelper.Db.Select<VideoChannel>().Where("1=1").WhereIf(req.IncludeSubDepartment == true,
+                    x => x.PDepartmentId.Equals(req.DepartmentId))
+                .WhereIf(
+                    (req.IncludeSubDepartment == null || req.IncludeSubDepartment == false) &&
+                    !string.IsNullOrEmpty(req.DepartmentId), x => x.DepartmentId.Equals(req.DepartmentId))
+                .ToList<DepartmentInfo>();
+            if (ret != null)
+            {
+                Logger.Info($"[{Common.LoggerHead}]->获取部门信息列表成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(ret)}");
+            }
+            else
+            {
+                Logger.Warn($"[{Common.LoggerHead}]->获取部门信息列表失败->{JsonHelper.ToJson(req)}->结果为空");
+            }
+
+            return new ResGetDepartmentInfo()
+            {
+                DepartmentInfoList = ret,
+            };
+        }
+    }
+}

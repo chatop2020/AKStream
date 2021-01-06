@@ -1,0 +1,18 @@
+{
+  "IpV4Address": "192.168.2.94",
+  "IpV6Address": "fe80::8:807:2143:28a1%5",
+  "WebApiPort": 6880,
+  "MediaServerPath": "/Users/chatop/Projects/Clion/ZLMediaKit/release/mac/Debug/MediaServer",
+  "AkStreamWebRegisterUrl": "http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive",
+  "CustomRecordPathList": [
+    "/Users/chatop/Downloads/record1",
+    "/Users/chatop/Downloads/record2"
+  ],
+  "UseSsl": false,
+  "MinRtpPort": 10001,
+  "MaxRtpPort": 20000,
+  "FFmpegPath": "/usr/local/bin/ffmpeg",
+  "AccessKey": "O7O4S089-PGDW6HTM-T4CV6K74-V6RIP1I6-9300G54F-Z03TI40Q",
+  "RtpPortCdTime": 3600,
+  "HttpClientTimeoutSec": 5
+}

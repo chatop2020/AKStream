@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>GB28181SipGate</RootNamespace>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
+      <ProjectReference Include="..\LibLogger\LibLogger.csproj" />
+      <ProjectReference Include="..\LibSystemInfo\LibSystemInfo.csproj" />
+      <ProjectReference Include="..\SipSorcery\SIPSorcery.csproj" />
+    </ItemGroup>
+
+</Project>

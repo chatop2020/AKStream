@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.1</TargetFrameworks>
+        <RootNamespace>Logger</RootNamespace>
+       
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="log4net" Version="2.0.11" />
+    </ItemGroup>
+
+</Project>
