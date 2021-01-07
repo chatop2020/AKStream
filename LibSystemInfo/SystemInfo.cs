@@ -98,7 +98,20 @@ namespace LibSystemInfo
                     {
                         case OperatingSystemType.Windows:
                             _globalSystemInfo.CpuLoad = CPUWinLoadValue.CPULOAD;
-                            _globalSystemInfo.NetWorkStat = NetWorkWinValue.GetNetworkStat();
+                            /*
+                             * 由于.net core下无法正确获取到windows的流量信息，这边将Windows系统的网络参数略过
+                             * 在Windows平台上，需要自己把各配置文件写好，系统自动生成可能会存在问题
+                             */
+                            //_globalSystemInfo.NetWorkStat = NetWorkWinValue.GetNetworkStat();
+                            _globalSystemInfo.NetWorkStat = new NetWorkStat();
+                            _globalSystemInfo.NetWorkStat.Mac = "00:00:00:00:00";
+                            _globalSystemInfo.NetWorkStat.UpdateTime = DateTime.Now;
+                            _globalSystemInfo.NetWorkStat.CurrentRecvBytes = 0;
+                            _globalSystemInfo.NetWorkStat.CurrentSendBytes = 0;
+                            _globalSystemInfo.NetWorkStat.TotalRecvBytes = 0;
+                            _globalSystemInfo.NetWorkStat.TotalSendBytes = 0;
+                            
+
                             if ((j % 10 == 0 || j == 1) &&
                                 _operatingSystemType == OperatingSystemType.Windows) //10秒更新一次内存情况
                             {
