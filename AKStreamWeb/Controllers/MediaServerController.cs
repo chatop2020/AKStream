@@ -5,7 +5,9 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
+using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse;
+using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,65 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体相关接口")]
     public class MediaServerController : ControllerBase
     {
+        /// <summary>
+        /// 添加一个裁剪合并任务
+        /// </summary>
+        /// <returns></returns>
+        [Route("CutOrMergeVideoFile")]
+        [HttpPost]
+        [AuthVerify]
+        public ResKeeperCutMergeTaskResponse CutOrMergeVideoFile(ReqKeeperCutOrMergeVideoFile rcmv)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.CutOrMergeVideoFile(rcmv, out rs);
+            if (rs.Code != ErrorNumber.None)
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 获取裁剪合并任务状态
+        /// </summary>
+        /// <returns></returns>
+        [Route("GetMergeTaskStatus")]
+        [HttpGet]
+        [AuthVerify]
+        public ResKeeperCutMergeTaskStatusResponse  GetMergeTaskStatus(string mediaServerId, string taskId)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.GetMergeTaskStatus(mediaServerId, taskId, out rs);
+            if (rs.Code != ErrorNumber.None)
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 获取裁剪合并任务积压列表
+        /// </summary>
+        /// <returns></returns>
+        [Route("GetBacklogTaskList")]
+        [HttpGet]
+        [AuthVerify]
+        public ResKeeperCutMergeTaskStatusResponseList GetBacklogTaskList(string mediaServerId)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.GetBacklogTaskList(mediaServerId, out rs);
+            if (rs.Code != ErrorNumber.None)
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
         /// <summary>
         /// 获取在线音视频列表信息（支持分页，不支持排序）
         /// </summary>

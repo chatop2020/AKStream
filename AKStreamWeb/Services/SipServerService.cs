@@ -6,6 +6,7 @@ using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
+using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibGB28181SipServer;
 using LibLogger;
@@ -41,7 +42,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(channelId))
+            if (UtilsHelper.StringIsNullEx(deviceId) || UtilsHelper.StringIsNullEx(channelId))
             {
                 rs = new ResponseStruct()
                 {
@@ -506,7 +507,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(channelId))
+            if (UtilsHelper.StringIsNullEx(deviceId) || UtilsHelper.StringIsNullEx(channelId))
             {
                 rs = new ResponseStruct()
                 {
@@ -556,6 +557,85 @@ namespace AKStreamWeb.Services
 
             return false;
         }
+        
+        
+        /// <summary>
+        /// PTZ控制
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+         public static bool PtzCtrl(ReqPtzCtrl ptzCmd, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(ptzCmd.DeviceId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+          
+
+            var tmpSipDevice = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(ptzCmd.DeviceId));
+
+            if (tmpSipDevice == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_DeviceNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+
+            SipChannel tmpSipChannel = null;
+            if (!UtilsHelper.StringIsNullEx(ptzCmd.ChannelId))
+            {
+                 tmpSipChannel = tmpSipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(ptzCmd.ChannelId));
+                if (tmpSipChannel == null)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sip_ChannelNotExists,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_ChannelNotExists],
+                    };
+                    Logger.Warn(
+                        $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+
+                    return false;
+                }
+            }
+
+            PtzCtrl ptzCtrl= new PtzCtrl();
+            ptzCtrl.Speed = ptzCmd.Speed;
+            ptzCtrl.SipChannel = tmpSipChannel == null ? null : tmpSipChannel;
+            ptzCtrl.SipDevice = tmpSipDevice;
+            ptzCtrl.PtzCommandType = ptzCmd.PtzCommandType;
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            var ptz = sipMethodProxy.PtzMove(ptzCtrl, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || ptz == false)
+            {
+                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+            Logger.Info($"[{Common.LoggerHead}]->PTZ控制成功->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}");
+
+            return true;
+
+        }
 
         /// <summary>
         /// 根据ID获取Sip通道
@@ -571,7 +651,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (string.IsNullOrEmpty(deviceId) || string.IsNullOrEmpty(channelId))
+            if (UtilsHelper.StringIsNullEx(deviceId) || UtilsHelper.StringIsNullEx(channelId))
             {
                 rs = new ResponseStruct()
                 {
@@ -629,7 +709,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (string.IsNullOrEmpty(deviceId))
+            if (UtilsHelper.StringIsNullEx(deviceId))
             {
                 rs = new ResponseStruct()
                 {

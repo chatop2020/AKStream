@@ -5,6 +5,7 @@ using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.GB28181;
+using LibCommon.Structs.WebRequest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -18,6 +19,29 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
+        
+        /// <summary>
+        /// ptz控制
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="deviceId"></param>
+        /// <param name="ptzCmd"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("PtzCtrl")]
+        [HttpPost]
+        public bool PtzCtrl(
+            [FromHeader(Name = "AccessKey")] string AccessKey,ReqPtzCtrl ptzCmd)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.PtzCtrl(ptzCmd, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
        
         /// <summary>
         /// 请求gb28181直播流

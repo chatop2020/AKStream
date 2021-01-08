@@ -40,6 +40,9 @@ namespace LibCommon
         Sys_DB_RecordPlanNotExists = -1027, //录制计划不存在
         Sys_RecordPlanTimeLimitExcept = -1028, //录制计划时间间隔异常
         Sys_DB_RecordPlanAlreadyExists = -1029, //数据库中指定录制计划已经存在
+        Sys_DvrCutMergeTimeLimit=-1030,//裁剪时间限制，超过120分钟任务不允许执行
+        Sys_DvrCutMergeFileNotFound=-1031,//时间周期内没有找到相关视频文件
+        Sys_DvrCutProcessQueueLimit = -1032, //处理队列已满，请稍后再试
         Sip_StartExcept = -2000, //启动Sip服务异常
         Sip_StopExcept = -2001, //停止Sip服务异常
         Sip_Except_DisposeSipDevice = -2002, //Sip网关内部异常(销毁Sip设备时)
@@ -116,6 +119,9 @@ namespace LibCommon
             ErrorDic[ErrorNumber.Sys_VideoChannelNotActived] = "音视频通道实例没有激活,或音视频通道数据库配置有异常，请激活并检查";
             ErrorDic[ErrorNumber.Sys_HttpClientTimeout] = "http客户端请求超时或服务不可达";
             ErrorDic[ErrorNumber.Sys_DB_RecordPlanAlreadyExists] = "数据库中指定录制计划已经存在";
+            ErrorDic[ErrorNumber.Sys_DvrCutMergeTimeLimit] = "裁剪时间限制，超过120分钟任务不允许执行";
+            ErrorDic[ErrorNumber.Sys_DvrCutMergeFileNotFound] = "时间周期内没有找到相关视频文件";
+            ErrorDic[ErrorNumber.Sys_DvrCutProcessQueueLimit] = "处理队列已满，请稍后再试";
             ErrorDic[ErrorNumber.Sip_StartExcept] = "启动Sip服务异常";
             ErrorDic[ErrorNumber.Sip_StopExcept] = "停止Sip服务异常";
             ErrorDic[ErrorNumber.Sip_Except_DisposeSipDevice] = "Sip网关内部异常(销毁Sip设备时)";

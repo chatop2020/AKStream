@@ -17,6 +17,7 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体服务器治理的相关接口")]
     public class AKStreamKeeperController : ControllerBase
     {
+        /*
         /// <summary>
         /// 添加一个裁剪合并任务
         /// </summary>
@@ -84,6 +85,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
+        */
 
 
         /// <summary>
