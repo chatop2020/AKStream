@@ -291,7 +291,7 @@ namespace AKStreamWeb
                     $"[{LoggerHead}]->数据库连接异常,系统无法运行->\r\n{JsonHelper.ToJson(rsa, Formatting.Indented)}\r\n系统支持以下数据库连接,请根据下表正确设置dBType字段->\r\n{supportDataBaseList}");
                 Environment.Exit(0); //退出程序
             }
-           
+
 
             SipServer = new SipServer();
             SipMsgProcess.OnRegisterReceived += SipServerCallBack.OnRegister;
@@ -318,8 +318,9 @@ namespace AKStreamWeb
                     $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序
             }
-            _autoLive= new AutoLive();
-            _autoRecord= new AutoRecord();
+
+            _autoLive = new AutoLive();
+            _autoRecord = new AutoRecord();
             _autoTaskOther = new AutoTaskOther();
         }
     }

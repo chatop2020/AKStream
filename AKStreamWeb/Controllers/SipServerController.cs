@@ -31,10 +31,11 @@ namespace AKStreamWeb.Controllers
         [Route("GetHistroyRecordFileList")]
         [HttpPost]
         public bool GetHistroyRecordFileList(
-            [FromHeader(Name = "AccessKey")] string AccessKey,string deviceId, string channelId,SipQueryRecordFile queryRecordFile)
+            [FromHeader(Name = "AccessKey")] string AccessKey, string deviceId, string channelId,
+            SipQueryRecordFile queryRecordFile)
         {
             ResponseStruct rs;
-            var ret = SipServerService.GetHistroyRecordFileList(deviceId,channelId,queryRecordFile, out rs);
+            var ret = SipServerService.GetHistroyRecordFileList(deviceId, channelId, queryRecordFile, out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);
@@ -42,19 +43,19 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
-        
-      /// <summary>
-      /// ptz控制接口
-      /// </summary>
-      /// <param name="AccessKey"></param>
-      /// <param name="ptzCmd"></param>
-      /// <returns></returns>
-      /// <exception cref="AkStreamException"></exception>
+
+
+        /// <summary>
+        /// ptz控制接口
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="ptzCmd"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
         [Route("PtzCtrl")]
         [HttpPost]
         public bool PtzCtrl(
-            [FromHeader(Name = "AccessKey")] string AccessKey,ReqPtzCtrl ptzCmd)
+            [FromHeader(Name = "AccessKey")] string AccessKey, ReqPtzCtrl ptzCmd)
         {
             ResponseStruct rs;
             var ret = SipServerService.PtzCtrl(ptzCmd, out rs);
@@ -65,7 +66,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-       
+
         /// <summary>
         /// 请求gb28181直播流
         /// </summary>

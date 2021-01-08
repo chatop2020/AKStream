@@ -40,8 +40,8 @@ namespace LibCommon
         Sys_DB_RecordPlanNotExists = -1027, //录制计划不存在
         Sys_RecordPlanTimeLimitExcept = -1028, //录制计划时间间隔异常
         Sys_DB_RecordPlanAlreadyExists = -1029, //数据库中指定录制计划已经存在
-        Sys_DvrCutMergeTimeLimit=-1030,//裁剪时间限制，超过120分钟任务不允许执行
-        Sys_DvrCutMergeFileNotFound=-1031,//时间周期内没有找到相关视频文件
+        Sys_DvrCutMergeTimeLimit = -1030, //裁剪时间限制，超过120分钟任务不允许执行
+        Sys_DvrCutMergeFileNotFound = -1031, //时间周期内没有找到相关视频文件
         Sys_DvrCutProcessQueueLimit = -1032, //处理队列已满，请稍后再试
         Sip_StartExcept = -2000, //启动Sip服务异常
         Sip_StopExcept = -2001, //停止Sip服务异常

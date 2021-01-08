@@ -28,7 +28,7 @@ namespace AKStreamWeb.Services
         /// <param name="rcmv"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        private static List<CutMergeStruct> analysisVideoFile(ReqKeeperCutOrMergeVideoFile  rcmv, out ResponseStruct rs)
+        private static List<CutMergeStruct> analysisVideoFile(ReqKeeperCutOrMergeVideoFile rcmv, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -48,7 +48,7 @@ namespace AKStreamWeb.Services
                 .ToList(); //取条件范围的前60分钟及后60分钟内的所有数据
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
-            if (mediaServer == null || mediaServer.KeeperWebApi==null || !mediaServer.IsKeeperRunning)
+            if (mediaServer == null || mediaServer.KeeperWebApi == null || !mediaServer.IsKeeperRunning)
             {
                 rs = new ResponseStruct()
                 {
@@ -63,7 +63,7 @@ namespace AKStreamWeb.Services
             {
                 for (int i = 0; i <= videoList.Count - 1; i++)
                 {
-                    if (!mediaServer.KeeperWebApi.FileExists(out _,videoList[i].VideoPath))
+                    if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
                     {
                         continue;
                     }
@@ -300,14 +300,15 @@ namespace AKStreamWeb.Services
             return null!;
         }
 
-        
-    /// <summary>
+
+        /// <summary>
         /// 裁剪或合并视频文件
         /// </summary>
         /// <param name="rcmv"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public static ResKeeperCutMergeTaskResponse  CutOrMergeVideoFile(ReqKeeperCutOrMergeVideoFile  rcmv, out ResponseStruct rs)
+        public static ResKeeperCutMergeTaskResponse CutOrMergeVideoFile(ReqKeeperCutOrMergeVideoFile rcmv,
+            out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -350,7 +351,7 @@ namespace AKStreamWeb.Services
             var mergeList = analysisVideoFile(rcmv, out rs);
             if (mergeList != null && mergeList.Count > 0)
             {
-               ReqKeeperCutMergeTask  task = new ReqKeeperCutMergeTask()
+                ReqKeeperCutMergeTask task = new ReqKeeperCutMergeTask()
                 {
                     CutMergeFileList = mergeList,
                     CallbakUrl = rcmv.CallbackUrl,
@@ -363,7 +364,7 @@ namespace AKStreamWeb.Services
                 try
                 {
                     var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
-                    if (mediaServer == null ||mediaServer.KeeperWebApi==null || mediaServer.IsKeeperRunning==false)
+                    if (mediaServer == null || mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
                     {
                         rs = new ResponseStruct()
                         {
@@ -374,7 +375,7 @@ namespace AKStreamWeb.Services
                         return null!;
                     }
 
-                    var ret = mediaServer.KeeperWebApi.AddCutOrMergeTask(out rs,task);
+                    var ret = mediaServer.KeeperWebApi.AddCutOrMergeTask(out rs, task);
                     if (ret == null || rs.Code != ErrorNumber.None)
                     {
                         return null!;
@@ -413,7 +414,7 @@ namespace AKStreamWeb.Services
         /// <param name="taskId"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public static ResKeeperCutMergeTaskStatusResponse  GetMergeTaskStatus(string mediaServerId, string taskId,
+        public static ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus(string mediaServerId, string taskId,
             out ResponseStruct rs)
         {
             rs = new ResponseStruct()
@@ -433,7 +434,7 @@ namespace AKStreamWeb.Services
             }
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(mediaServerId));
-            if (mediaServer == null || mediaServer.KeeperWebApi==null || mediaServer.IsKeeperRunning==false)
+            if (mediaServer == null || mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
             {
                 rs = new ResponseStruct()
                 {
@@ -443,7 +444,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            var ret = mediaServer.KeeperWebApi.GetMergeTaskStatus(out rs ,taskId);
+            var ret = mediaServer.KeeperWebApi.GetMergeTaskStatus(out rs, taskId);
             if (rs.Code == ErrorNumber.None)
             {
                 return ret;
@@ -463,7 +464,8 @@ namespace AKStreamWeb.Services
         /// <param name="mediaServerId"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public static  ResKeeperCutMergeTaskStatusResponseList GetBacklogTaskList(string mediaServerId, out ResponseStruct rs)
+        public static ResKeeperCutMergeTaskStatusResponseList GetBacklogTaskList(string mediaServerId,
+            out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -482,7 +484,7 @@ namespace AKStreamWeb.Services
             }
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(mediaServerId));
-            if (mediaServer == null ||mediaServer.KeeperWebApi==null ||mediaServer.IsKeeperRunning==false)
+            if (mediaServer == null || mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
             {
                 rs = new ResponseStruct()
                 {
@@ -506,7 +508,7 @@ namespace AKStreamWeb.Services
             return null;
         }
 
-        
+
         /// <summary>
         /// 获取在线音视频列表信息（支持分页，不支持排序）
         /// </summary>

@@ -1,11 +1,8 @@
-using System;
 using System.Threading;
-using System.Timers;
 using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs.DBModels;
 using LibLogger;
-using Timer = System.Timers.Timer;
 
 namespace AKStreamWeb.AutoTask
 {
@@ -34,7 +31,6 @@ namespace AKStreamWeb.AutoTask
                                     {
                                         Logger.Warn(
                                             $"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
-
                                     }
                                     else
                                     {
@@ -67,7 +63,6 @@ namespace AKStreamWeb.AutoTask
                 }
                 catch
                 {
-                  
                 }
             })).Start();
         }

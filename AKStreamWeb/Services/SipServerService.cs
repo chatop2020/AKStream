@@ -18,7 +18,6 @@ namespace AKStreamWeb.Services
 {
     public static class SipServerService
     {
-        
         /// <summary>
         /// 获取sip设备的历史录制文件列表
         /// </summary>
@@ -27,7 +26,8 @@ namespace AKStreamWeb.Services
         /// <param name="queryRecordFile"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-         public static bool GetHistroyRecordFileList(string deviceId, string channelId, SipQueryRecordFile queryRecordFile, out ResponseStruct rs)
+        public static bool GetHistroyRecordFileList(string deviceId, string channelId,
+            SipQueryRecordFile queryRecordFile, out ResponseStruct rs)
         {
             ServerInstance mediaServer;
             VideoChannel videoChannel;
@@ -42,27 +42,29 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
-            
+
             SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
-            var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile,out rs); //获取历史文件
-            if (!rs.Code.Equals(ErrorNumber.None) ||got==false)
+            var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
+            if (!rs.Code.Equals(ErrorNumber.None) || got == false)
             {
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
-            Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件成功->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->加载可能较慢，请定时刷新SipChannel下的LastRecordInfos字段");
+
+            Logger.Warn(
+                $"[{Common.LoggerHead}]->获取Sip设备历史录制文件成功->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->加载可能较慢，请定时刷新SipChannel下的LastRecordInfos字段");
 
             return true;
-
-
         }
-        
-        
+
+
         /// <summary>
         ///  检查livevideo,stopvideo的相关参数
         /// </summary>
@@ -602,8 +604,8 @@ namespace AKStreamWeb.Services
 
             return false;
         }
-        
-        
+
+
         /// <summary>
         /// PTZ控制
         /// </summary>
@@ -611,7 +613,7 @@ namespace AKStreamWeb.Services
         /// <param name="channelId"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-         public static bool PtzCtrl(ReqPtzCtrl ptzCmd, out ResponseStruct rs)
+        public static bool PtzCtrl(ReqPtzCtrl ptzCmd, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -625,11 +627,12 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
-          
+
 
             var tmpSipDevice = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(ptzCmd.DeviceId));
 
@@ -640,7 +643,8 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
@@ -648,7 +652,7 @@ namespace AKStreamWeb.Services
             SipChannel tmpSipChannel = null;
             if (!UtilsHelper.StringIsNullEx(ptzCmd.ChannelId))
             {
-                 tmpSipChannel = tmpSipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(ptzCmd.ChannelId));
+                tmpSipChannel = tmpSipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(ptzCmd.ChannelId));
                 if (tmpSipChannel == null)
                 {
                     rs = new ResponseStruct()
@@ -663,7 +667,7 @@ namespace AKStreamWeb.Services
                 }
             }
 
-            PtzCtrl ptzCtrl= new PtzCtrl();
+            PtzCtrl ptzCtrl = new PtzCtrl();
             ptzCtrl.Speed = ptzCmd.Speed;
             ptzCtrl.SipChannel = tmpSipChannel == null ? null : tmpSipChannel;
             ptzCtrl.SipDevice = tmpSipDevice;
@@ -672,14 +676,16 @@ namespace AKStreamWeb.Services
             var ptz = sipMethodProxy.PtzMove(ptzCtrl, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || ptz == false)
             {
-                Logger.Warn($"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
-            Logger.Info($"[{Common.LoggerHead}]->PTZ控制成功->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}");
+
+            Logger.Info(
+                $"[{Common.LoggerHead}]->PTZ控制成功->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}");
 
             return true;
-
         }
 
         /// <summary>

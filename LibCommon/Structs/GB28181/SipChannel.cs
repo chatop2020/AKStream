@@ -23,8 +23,10 @@ namespace LibCommon.Structs.GB28181
         private DateTime _lastUpdateTime;
         private SipChannelType _sipChannelType;
         private DevStatus _sipChannelStatus;
+
         private Catalog.Item _sipChannelDesc = null!;
-      //  private MediaServerStreamInfo? _channelMediaServerStreamInfo;
+
+        //  private MediaServerStreamInfo? _channelMediaServerStreamInfo;
         private SIPRequest _inviteSipRequest; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPResponse _inviteSipResponse; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPRequest _lastSipRequest; //保存最后一次sipRequest

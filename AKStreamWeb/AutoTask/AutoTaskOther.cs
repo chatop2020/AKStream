@@ -20,14 +20,16 @@ namespace AKStreamWeb.AutoTask
                 {
                     count = 0;
                 }
+
                 count++;
                 try
                 {
-                    if (count % 3600 == 0)//3600秒一次
+                    if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
                     }
-                    if (count % 3600 == 0)//3600秒一次
+
+                    if (count % 3600 == 0) //3600秒一次
                     {
                         foreach (var mediaServer in Common.MediaServerList)
                         {
@@ -37,27 +39,27 @@ namespace AKStreamWeb.AutoTask
                             }
                         }
                     }
-                    
                 }
                 catch
                 {
                     //
                 }
+
                 Thread.Sleep(1000);
             }
         }
-        
-         private void doDeleteFor24HourAgo()
+
+        private void doDeleteFor24HourAgo()
         {
             try
             {
                 List<RecordFile> retList = null!;
                 retList = ORMHelper.Db.Select<RecordFile>()
                     .Where(x => x.Deleted == true)
-                    .Where(x=>x.Undo==true)
+                    .Where(x => x.Undo == true)
                     .Where(x => ((DateTime) x.UpdateTime!).AddHours(24) <= DateTime.Now)
                     .ToList();
-                
+
                 if (retList != null && retList.Count > 0)
                 {
                     var deleteFileList = retList.Select(x => x.VideoPath).ToList();
@@ -67,11 +69,11 @@ namespace AKStreamWeb.AutoTask
                         Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(retList[0].MediaServerId));
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
-                        var delRet = mediaServer.KeeperWebApi.DeleteFileList( out _ ,deleteFileList);
+                        var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
 
                         foreach (var ret in retList)
                         {
-                            var o=delRet.PathList.FindLast(x => x.Equals(ret.VideoPath));
+                            var o = delRet.PathList.FindLast(x => x.Equals(ret.VideoPath));
                             if (string.IsNullOrEmpty(o))
                             {
                                 var o2 = deleteFileIdList.FindLast(x => x.Equals(ret.Id));
@@ -81,7 +83,8 @@ namespace AKStreamWeb.AutoTask
                                 }
                             }
                         }
-                        if (deleteFileIdList!=null && deleteFileIdList.Count>0)
+
+                        if (deleteFileIdList != null && deleteFileIdList.Count > 0)
                         {
                             var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
                                 .Set(x => x.Undo, false)
@@ -96,21 +99,19 @@ namespace AKStreamWeb.AutoTask
                     $"[{Common.LoggerHead}]->删除被软件删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
             }
         }
-         
-         public AutoTaskOther()
-         {
-             new Thread(new ThreadStart(delegate
-             {
-                 try
-                 {
-                     run();
-                 }
-                 catch
-                 {
-                  
-                 }
-             })).Start();
-         }
-         
+
+        public AutoTaskOther()
+        {
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    run();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
     }
 }

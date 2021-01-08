@@ -48,7 +48,7 @@ namespace AKStreamWeb.Controllers
         [Route("GetMergeTaskStatus")]
         [HttpGet]
         [AuthVerify]
-        public ResKeeperCutMergeTaskStatusResponse  GetMergeTaskStatus(string mediaServerId, string taskId)
+        public ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus(string mediaServerId, string taskId)
         {
             ResponseStruct rs;
             var ret = MediaServerService.GetMergeTaskStatus(mediaServerId, taskId, out rs);
@@ -79,7 +79,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
+
         /// <summary>
         /// 获取在线音视频列表信息（支持分页，不支持排序）
         /// </summary>

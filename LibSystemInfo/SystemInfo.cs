@@ -110,7 +110,7 @@ namespace LibSystemInfo
                             _globalSystemInfo.NetWorkStat.CurrentSendBytes = 0;
                             _globalSystemInfo.NetWorkStat.TotalRecvBytes = 0;
                             _globalSystemInfo.NetWorkStat.TotalSendBytes = 0;
-                            
+
 
                             if ((j % 10 == 0 || j == 1) &&
                                 _operatingSystemType == OperatingSystemType.Windows) //10秒更新一次内存情况

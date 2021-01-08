@@ -234,17 +234,16 @@ namespace AKStreamWeb.Services
                 (videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true)
             ) //当enabled为false，或者要求没有人观看时自动断流的，就断流
             {
-               var ret= MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out ResponseStruct rs);
-               if (!rs.Code.Equals(ErrorNumber.None) || ret == false)
-               {
-                   Logger.Warn($"[{Common.LoggerHead}]->无人观看时断流失败->{videoChannel.MainId}->{JsonHelper.ToJson(rs)}");
-  
-               }
-               else
-               {
-                   Logger.Info($"[{Common.LoggerHead}]->无人观看时断流成功->{videoChannel.MainId}");
- 
-               }
+                var ret = MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
+                    out ResponseStruct rs);
+                if (!rs.Code.Equals(ErrorNumber.None) || ret == false)
+                {
+                    Logger.Warn($"[{Common.LoggerHead}]->无人观看时断流失败->{videoChannel.MainId}->{JsonHelper.ToJson(rs)}");
+                }
+                else
+                {
+                    Logger.Info($"[{Common.LoggerHead}]->无人观看时断流成功->{videoChannel.MainId}");
+                }
             }
 
             return new ResToWebHookOnStreamNoneReader()
@@ -335,7 +334,6 @@ namespace AKStreamWeb.Services
                 };
             }
 
-          
 
             lock (Common.VideoChannelMediaInfosLock)
             {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Timers;
 using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs;
@@ -190,7 +189,7 @@ namespace AKStreamWeb.AutoTask
                         .Where(x => x.RecordDate == day).ExecuteAffrows();
                     MediaServerService.DeleteRecordFileList(deleteFileList, out _);
                     Logger.Info(
-                            $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
+                        $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
                 }
 
                 Thread.Sleep(100);
@@ -202,7 +201,10 @@ namespace AKStreamWeb.AutoTask
             while (true)
             {
                 ResponseStruct rs = null;
+
                 var recordPlanList = RecordPlanService.GetRecordPlanList("", out rs);
+
+
                 var videoChannelList = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
                     .Where(x => !string.IsNullOrEmpty(x.RecordPlanName))
                     .Where(x => x.AutoRecord.Equals(true)).ToList();
@@ -296,14 +298,17 @@ namespace AKStreamWeb.AutoTask
                                                             DeleteFileByDay(willDeleteDays, obj.MediaServerStreamInfo);
                                                             p = true;
                                                         }
+
                                                         if (p)
                                                         {
                                                             fileSize = getRecordFileSize(videoChannel
                                                                 .MainId); //删除完一天以后再取一下文件总长度
                                                         }
+
                                                         if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
                                                         {
-                                                            deleteFileOneByOne(fileSize,obj.MediaServerStreamInfo,recordPlan);
+                                                            deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                recordPlan);
                                                         }
                                                     }
 
