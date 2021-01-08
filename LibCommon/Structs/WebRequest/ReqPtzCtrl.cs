@@ -3,6 +3,9 @@ using LibCommon.Enums;
 
 namespace LibCommon.Structs.WebRequest
 {
+    /// <summary>
+    /// ptz控制请求结构
+    /// </summary>
     [Serializable]
     public class ReqPtzCtrl
     {
@@ -21,7 +24,7 @@ namespace LibCommon.Structs.WebRequest
         }
 
         /// <summary>
-        /// 移动速度0-255
+        /// 移动速度1-254
         /// </summary>
         public int Speed
         {

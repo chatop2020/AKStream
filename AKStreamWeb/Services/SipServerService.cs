@@ -18,6 +18,51 @@ namespace AKStreamWeb.Services
 {
     public static class SipServerService
     {
+        
+        /// <summary>
+        /// 获取sip设备的历史录制文件列表
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="queryRecordFile"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+         public static bool GetHistroyRecordFileList(string deviceId, string channelId, SipQueryRecordFile queryRecordFile, out ResponseStruct rs)
+        {
+            ServerInstance mediaServer;
+            VideoChannel videoChannel;
+            SipDevice sipDevice;
+            SipChannel sipChannel;
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var ret = CheckIt(deviceId, channelId, out rs, out mediaServer, out videoChannel, out sipChannel,
+                out sipDevice);
+            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+            
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile,out rs); //获取历史文件
+            if (!rs.Code.Equals(ErrorNumber.None) ||got==false)
+            {
+                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+            Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备历史录制文件成功->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->加载可能较慢，请定时刷新SipChannel下的LastRecordInfos字段");
+
+            return true;
+
+
+        }
+        
+        
         /// <summary>
         ///  检查livevideo,stopvideo的相关参数
         /// </summary>

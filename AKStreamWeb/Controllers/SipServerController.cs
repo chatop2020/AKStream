@@ -19,15 +19,38 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
-        
         /// <summary>
-        /// ptz控制
+        /// 获取Sip设备的历史录像文件列表
         /// </summary>
         /// <param name="AccessKey"></param>
         /// <param name="deviceId"></param>
-        /// <param name="ptzCmd"></param>
-        /// <returns></returns>
+        /// <param name="channelId"></param>
+        /// <param name="queryRecordFile"></param>
+        /// <returns>返回true/false,如果是true,则从SipChannel的LastRecordInfos字段中获取历史文件列表，历史文件可能很多，加载时间会比较长</returns>
         /// <exception cref="AkStreamException"></exception>
+        [Route("GetHistroyRecordFileList")]
+        [HttpPost]
+        public bool GetHistroyRecordFileList(
+            [FromHeader(Name = "AccessKey")] string AccessKey,string deviceId, string channelId,SipQueryRecordFile queryRecordFile)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.GetHistroyRecordFileList(deviceId,channelId,queryRecordFile, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
+        
+      /// <summary>
+      /// ptz控制接口
+      /// </summary>
+      /// <param name="AccessKey"></param>
+      /// <param name="ptzCmd"></param>
+      /// <returns></returns>
+      /// <exception cref="AkStreamException"></exception>
         [Route("PtzCtrl")]
         [HttpPost]
         public bool PtzCtrl(
