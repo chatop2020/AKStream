@@ -9,72 +9,65 @@ using Timer = System.Timers.Timer;
 
 namespace AKStreamWeb.AutoTask
 {
-    public class AutoLive: IDisposable
+    public class AutoLive
     {
-        private Timer _loopTimer;
-        
-        private void startTimer()
+        private void KeepLive()
         {
-            if (_loopTimer == null)
+            while (true)
             {
-                _loopTimer = new Timer(1000);
-                _loopTimer.Enabled = true; //启动Elapsed事件触发
-                _loopTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
-                _loopTimer.AutoReset = true; //需要自动reset
-                _loopTimer.Start(); //启动计时器
-            }
-        }
-        
-        private void OnTimedEvent(object source, ElapsedEventArgs e)
-        {
-            var dbRet = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
-                .Where(x => x.AutoVideo.Equals(true)).Where(x => x.NoPlayerBreak.Equals(false)).ToList();
-            if (dbRet != null && dbRet.Count > 0)
-            {
-                foreach (var obj in dbRet)
+                var dbRet = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
+                    .Where(x => x.AutoVideo.Equals(true)).Where(x => x.NoPlayerBreak.Equals(false)).ToList();
+                if (dbRet != null && dbRet.Count > 0)
                 {
-                    if (obj != null)
+                    foreach (var obj in dbRet)
                     {
-
-                        var listRet=Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(obj.MainId));
-                        if (listRet == null)
+                        if (obj != null)
                         {
-                            var streamLiveRet = MediaServerService.StreamLive(obj.MediaServerId, obj.MainId,
-                                out ResponseStruct rs);
-                            if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
-                            {
-                                Logger.Warn($"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
 
-                            }
-                            else
+                            var listRet = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(obj.MainId));
+                            if (listRet == null)
                             {
-                                Logger.Info($"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                var streamLiveRet = MediaServerService.StreamLive(obj.MediaServerId, obj.MainId,
+                                    out ResponseStruct rs);
+                                if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
+                                {
+                                    Logger.Warn(
+                                        $"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
+
+                                }
+                                else
+                                {
+                                    Logger.Info(
+                                        $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                }
                             }
                         }
+
+                        Thread.Sleep(100);
                     }
-                    Thread.Sleep(100);
                 }
+                Thread.Sleep(1000);
             }
         }
 
         
-        public void Dispose()
-        {
-            if (_loopTimer != null)
-            {
-                _loopTimer.Dispose();
-                _loopTimer = null!;
-            }
-        }
+       
 
-        ~AutoLive()
-        {
-            Dispose(); //释放非托管资源
-        }
+       
 
         public AutoLive()
         {
-            startTimer();  
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    KeepLive();
+                }
+                catch
+                {
+                  
+                }
+            })).Start();
         }
     }
 }
