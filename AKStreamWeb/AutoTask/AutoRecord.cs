@@ -14,103 +14,352 @@ namespace AKStreamWeb.AutoTask
 {
     public class AutoRecord
     {
+        /// <summary>
+        /// 获取记录日期列表
+        /// </summary>
+        /// <param name="plan"></param>
+        /// <returns></returns>
+        private List<string> getRecordFileDataList(string mainId)
+        {
+            List<string?> ret = null!;
+            ret = ORMHelper.Db.Select<RecordFile>()
+                .Where(x => x.MainId.Equals(mainId))
+                .Where(x => x.Deleted == false)
+                .GroupBy(x => x.RecordDate)
+                .OrderBy(x => x.Value.RecordDate)
+                .ToList(a => a.Value.RecordDate);
 
-        private void doDeleteFor24HourAgo()
+            if (ret != null && ret.Count > 0)
+            {
+                return ret!;
+            }
+
+            return null!;
+        }
+
+        /// <summary>
+        /// 获取录制文件总长度
+        /// </summary>
+        /// <param name="mainId"></param>
+        /// <returns></returns>
+        private decimal getRecordFileSize(string mainId)
         {
             try
             {
-                List<RecordFile> retList = null!;
-                retList = ORMHelper.Db.Select<RecordFile>()
-                    .Where(x => x.Deleted == true)
-                    .Where(x=>x.Undo==true)
-                    .Where(x => ((DateTime) x.UpdateTime!).AddHours(24) <= DateTime.Now)
-                    .ToList();
-                
-                if (retList != null && retList.Count > 0)
+                var result = ORMHelper.Db.Select<RecordFile>()
+                    .Where(x => x.MainId.Equals(mainId))
+                    .Where(x => x.Deleted == false)
+                    .Sum(x => x.FileSize);
+                return result;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// 检查是否在时间范围内
+        /// </summary>
+        /// <param name="sdp"></param>
+        /// <returns></returns>
+        private bool checkTimeRange(RecordPlan sdp)
+        {
+            if (sdp.TimeRangeList != null && sdp.TimeRangeList.Count > 0)
+            {
+                bool haveFalse = false;
+                foreach (var sdpTimeRange in sdp.TimeRangeList)
                 {
-                    var deleteFileList = retList.Select(x => x.VideoPath).ToList();
-                    var deleteFileIdList = retList.Select(x => x.Id).ToList();
-
-                    var mediaServer =
-                        Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(retList[0].MediaServerId));
-                    if (mediaServer != null && mediaServer.IsKeeperRunning)
+                    if (sdpTimeRange != null && sdpTimeRange.WeekDay == DateTime.Now.DayOfWeek &&
+                        isTimeRange(sdpTimeRange))
                     {
-                        var delRet = mediaServer.KeeperWebApi.DeleteFileList( out _ ,deleteFileList);
+                        return true; //有当天计划并在时间反问内返回true
+                    }
 
-                        foreach (var ret in retList)
+                    if (sdpTimeRange != null && sdpTimeRange.WeekDay == DateTime.Now.DayOfWeek &&
+                        !isTimeRange(sdpTimeRange))
+                    {
+                        haveFalse = true; //当天计划存在，但不在范围，先做个标记，因为也许会有多个星期n的情况
+                    }
+                }
+
+                if (haveFalse)
+                {
+                    return false; //如果循环以外，haveFalse为true,说明真的不在范围内
+                }
+            }
+
+            return false; //如果是空的，就直接返回否
+        }
+
+
+        /// <summary>
+        /// 检查时间范围
+        /// </summary>
+        /// <param name="d"></param>
+        /// <returns></returns>
+        private bool isTimeRange(RecordPlanRange d)
+        {
+            TimeSpan nowDt = DateTime.Now.TimeOfDay;
+            string start = d.StartTime.ToString("HH:mm:ss");
+            string end = d.EndTime.ToString("HH:mm:ss");
+            TimeSpan workStartDt = DateTime.Parse(start).TimeOfDay;
+            TimeSpan workEndDt = DateTime.Parse(end).TimeOfDay;
+
+            if (nowDt > workStartDt && nowDt < workEndDt)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 文件一个一个删除
+        /// </summary>
+        /// <param name="videoSize"></param>
+        /// <param name="sdp"></param>
+        private void deleteFileOneByOne(decimal videoSize, MediaServerStreamInfo mediaInfo, RecordPlan plan)
+        {
+            ReqGetRecordFileList req = new ReqGetRecordFileList();
+            req.MainId = mediaInfo.Stream;
+            req.MediaServerId = mediaInfo.MediaServerId;
+            req.OrderBy = new List<OrderByStruct>();
+            req.OrderBy.Add(new OrderByStruct()
+            {
+                FieldName = "starttime",
+                OrderByDir = OrderByDir.ASC,
+            });
+            req.PageIndex = 1;
+            req.PageSize = 100;
+
+
+            long deleteSize = 0;
+
+            while (videoSize - deleteSize > plan.LimitSpace)
+            {
+                var recordFileList = MediaServerService.GetRecordFileList(req, out ResponseStruct rs);
+                if (!rs.Code.Equals(ErrorNumber.None))
+                {
+                    break;
+                }
+
+                if (recordFileList != null && recordFileList.RecordFileList != null &&
+                    recordFileList.RecordFileList.Count > 0)
+                {
+                    foreach (var ret in recordFileList.RecordFileList)
+                    {
+                        if (ret != null)
                         {
-                            var o=delRet.PathList.FindLast(x => x.Equals(ret.VideoPath));
-                            if (string.IsNullOrEmpty(o))
+                            if (MediaServerService.DeleteRecordFile(ret.Id, out rs))
                             {
-                                var o2 = deleteFileIdList.FindLast(x => x.Equals(ret.Id));
-                                if (o2 != null && o2 > 0)
-                                {
-                                    deleteFileIdList.Remove(o2);
-                                }
+                                deleteSize += (long) ret.FileSize!;
+                                Logger.Info(
+                                    $"[{Common.LoggerHead}]->删除一个录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->DBId:{ret.Id}->FilePath:{ret.VideoPath}");
                             }
+
+                            Thread.Sleep(20);
                         }
-                        if (deleteFileIdList!=null && deleteFileIdList.Count>0)
+
+                        if ((videoSize - deleteSize) < plan.LimitSpace)
                         {
-                            var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
-                                .Set(x => x.Undo, false)
-                                .Where(x => deleteFileIdList.Contains(x.Id)).ExecuteAffrows();
+                            break;
                         }
                     }
                 }
             }
-            catch (Exception ex)
+        }
+
+
+        /// <summary>
+        /// 一天一天删除文件
+        /// </summary>
+        /// <param name="days"></param>
+        /// <param name="sdp"></param>
+        private void DeleteFileByDay(List<string> days, MediaServerStreamInfo mediaInfo)
+        {
+            foreach (var day in days)
             {
-                Logger.Warn(
-                    $"[{Common.LoggerHead}]->删除被软件删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
+                var deleteList = ORMHelper.Db.Select<RecordFile>().Where(x => x.RecordDate == day).ToList();
+                if (deleteList != null && deleteList.Count > 0)
+                {
+                    var deleteFileList = deleteList.Select(x => x.Id).ToList();
+
+                    ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
+                        .Set(x => x.Deleted, true)
+                        .Where(x => x.RecordDate == day).ExecuteAffrows();
+                    MediaServerService.DeleteRecordFileList(deleteFileList, out _);
+                    Logger.Info(
+                            $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
+                }
+
+                Thread.Sleep(100);
             }
         }
+
         private void KeepRecord()
         {
             while (true)
             {
-                doDeleteFor24HourAgo();//删除24小时前被软删除的过期失效的文件
-                var recordPlanList = RecordPlanService.GetRecordPlanList("", out ResponseStruct rs);
+                ResponseStruct rs = null;
+                var recordPlanList = RecordPlanService.GetRecordPlanList("", out rs);
                 var videoChannelList = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
                     .Where(x => !string.IsNullOrEmpty(x.RecordPlanName))
                     .Where(x => x.AutoRecord.Equals(true)).ToList();
-                if (!rs.Code.Equals(ErrorNumber.None) || recordPlanList==null || recordPlanList.Count<=0)
+                if (rs.Code.Equals(ErrorNumber.None) && recordPlanList != null && recordPlanList.Count > 0)
                 {
-                    continue;
-                }
-
-                try
-                {
-                    foreach (var obj in Common.VideoChannelMediaInfos)
+                    try
                     {
-                        if (obj != null)
+                        foreach (var obj in Common.VideoChannelMediaInfos)
                         {
-                            var videoChannel = videoChannelList.FindLast(x => x.MainId.Equals(obj.MainId));
-                            if (videoChannel != null)
+                            if (obj != null && obj.MediaServerStreamInfo != null)
                             {
-                                //启用了自动录制
-                                var recordPlan =
-                                    recordPlanList.FindLast(x => x.Name.Equals(videoChannel.RecordPlanName));
-                                if (recordPlan != null)
+                                var videoChannel = videoChannelList.FindLast(x => x.MainId.Equals(obj.MainId));
+                                if (videoChannel != null)
                                 {
-                                    //说明绑定了录制模板
-                                    
+                                    //启用了自动录制
+                                    var recordPlan =
+                                        recordPlanList.FindLast(x => x.Name.Equals(videoChannel.RecordPlanName));
+                                    if (recordPlan != null && recordPlan.Enable == true)
+                                    {
+                                        //说明绑定了录制模板
+                                        var fileSize = getRecordFileSize(videoChannel.MainId); //得到文件总长度
+                                        var fileDateList = getRecordFileDataList(videoChannel.MainId); //得到记录天数列表
+                                        var inRange = checkTimeRange(recordPlan);
+                                        bool stopIt = false;
+                                        if (!inRange)
+                                        {
+                                            stopIt = true;
+                                        }
+
+                                        if (inRange && recordPlan.LimitDays >= fileDateList.Count &&
+                                            recordPlan.LimitSpace >= fileSize)
+                                        {
+                                            stopIt = false;
+                                        }
+
+                                        if (inRange && (recordPlan.LimitDays < fileDateList.Count ||
+                                                        recordPlan.LimitSpace < fileSize))
+                                        {
+                                            stopIt = true;
+                                        }
+
+                                        if (stopIt)
+                                        {
+                                            switch (recordPlan.OverStepPlan)
+                                            {
+                                                case OverStepPlan.StopDvr:
+                                                    string info =
+                                                        $"自动停止录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                    info += (recordPlan.LimitDays < fileDateList.Count)
+                                                        ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                        : "";
+                                                    info +=
+                                                        $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                    info += !inRange ? "->超出录制模板规定的时间区间" : "";
+                                                    Logger.Info(
+                                                        $"[{Common.LoggerHead}]->{info}");
+                                                    MediaServerService.StopRecord(videoChannel.MediaServerId,
+                                                        videoChannel.MainId, out rs);
+                                                    break;
+                                                case OverStepPlan.DeleteFile:
+                                                    if (!inRange)
+                                                    {
+                                                        string info3 = "超出录制模板规定的时间区间";
+                                                        Logger.Info(
+                                                            $"[{Common.LoggerHead}]->自动停止录制文件条件被触发->{info3}");
+                                                        MediaServerService.StopRecord(videoChannel.MediaServerId,
+                                                            videoChannel.MainId, out rs);
+                                                    }
+                                                    else
+                                                    {
+                                                        string info2 =
+                                                            $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                        info2 += (recordPlan.LimitDays < fileDateList.Count)
+                                                            ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                            : "";
+                                                        info2 +=
+                                                            $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                        Logger.Info(
+                                                            $"[{Common.LoggerHead}]->{info2}");
+                                                        bool p = false;
+                                                        if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                        {
+                                                            int? loopCount = fileDateList.Count - recordPlan.LimitDays;
+
+                                                            List<string> willDeleteDays = new List<string>();
+                                                            for (int i = 0; i < loopCount; i++)
+                                                            {
+                                                                willDeleteDays.Add(fileDateList[i]!);
+                                                            }
+
+                                                            DeleteFileByDay(willDeleteDays, obj.MediaServerStreamInfo);
+                                                            p = true;
+                                                        }
+                                                        if (p)
+                                                        {
+                                                            fileSize = getRecordFileSize(videoChannel
+                                                                .MainId); //删除完一天以后再取一下文件总长度
+                                                        }
+                                                        if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                        {
+                                                            deleteFileOneByOne(fileSize,obj.MediaServerStreamInfo,recordPlan);
+                                                        }
+                                                    }
+
+                                                    break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (obj.MediaServerStreamInfo.IsRecorded == false)
+                                            {
+                                                Logger.Info(
+                                                    $"[{Common.LoggerHead}]->自动启动录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}" +
+                                                    $"限制录制文件天数:{recordPlan.LimitDays}>实际录制文件天数:{fileDateList.Count}->限制录制空间:{recordPlan.LimitSpace}Bytes>实际录制空间:{fileSize}Bytes" +
+                                                    $"录制计划模板中时间区间被击中，开始录制音视频流");
+
+                                                MediaServerService.StartRecord(videoChannel.MediaServerId,
+                                                    videoChannel.MainId, out rs);
+                                            }
+                                        }
+                                    }
+                                    else if (recordPlan != null && recordPlan.Enable == false)
+                                    {
+                                        if (obj.MediaServerStreamInfo.IsRecorded == true)
+                                        {
+                                            Logger.Info(
+                                                $"[{Common.LoggerHead}]->自动停止录制条件被触发，结束录制音视频流->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}-录制计划模板已禁用");
+
+                                            MediaServerService.StopRecord(videoChannel.MediaServerId,
+                                                videoChannel.MainId, out rs);
+                                        }
+                                    }
+                                    else if (recordPlan == null)
+                                    {
+                                        if (obj.MediaServerStreamInfo.IsRecorded == true)
+                                        {
+                                            Logger.Info(
+                                                $"[{Common.LoggerHead}]->自动停止录制条件被触发，结束录制音视频流->{obj.MediaServerId}->{obj.MainId}->未绑定录制计划模板");
+
+                                            MediaServerService.StopRecord(videoChannel.MediaServerId,
+                                                videoChannel.MainId, out rs);
+                                        }
+                                    }
                                 }
                             }
-
                         }
                     }
-                }
-                catch
-                {
-                    //
+                    catch
+                    {
+                        //
+                    }
                 }
 
                 Thread.Sleep(1000);
             }
         }
 
-        
-     
 
         public AutoRecord()
         {
@@ -122,7 +371,6 @@ namespace AKStreamWeb.AutoTask
                 }
                 catch
                 {
-                  
                 }
             })).Start();
         }

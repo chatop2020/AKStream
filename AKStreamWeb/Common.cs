@@ -30,6 +30,7 @@ namespace AKStreamWeb
         private static Timer _perFormanceInfoTimer;
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
+        private static AutoTaskOther _autoTaskOther;
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
@@ -317,8 +318,9 @@ namespace AKStreamWeb
                     $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序
             }
-            /*_autoLive= new AutoLive();
-            _autoRecord= new AutoRecord();*/
+            _autoLive= new AutoLive();
+            _autoRecord= new AutoRecord();
+            _autoTaskOther = new AutoTaskOther();
         }
     }
 }
