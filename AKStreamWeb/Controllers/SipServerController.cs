@@ -18,29 +18,7 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
-        /// <summary>
-        /// 获取Sip通道的流媒体相关信息
-        /// </summary>
-        /// <param name="AccessKey"></param>
-        /// <param name="deviceId"></param>
-        /// <param name="channelId"></param>
-        /// <returns></returns>
-        /// <exception cref="AkStreamException"></exception>
-        [Route("GetSipChannelMediaServerStreamInfo")]
-        [HttpGet]
-        public MediaServerStreamInfo GetSipChannelMediaServerStreamInfo(
-            [FromHeader(Name = "AccessKey")] string AccessKey, string deviceId, string channelId)
-        {
-            ResponseStruct rs;
-            var ret = SipServerService.GetSipChannelMediaServerStreamInfo(deviceId, channelId, out rs);
-            if (!rs.Code.Equals(ErrorNumber.None))
-            {
-                throw new AkStreamException(rs);
-            }
-
-            return ret;
-        }
-
+       
         /// <summary>
         /// 请求gb28181直播流
         /// </summary>

@@ -24,7 +24,7 @@ namespace LibCommon.Structs.GB28181
         private SipChannelType _sipChannelType;
         private DevStatus _sipChannelStatus;
         private Catalog.Item _sipChannelDesc = null!;
-        private MediaServerStreamInfo? _channelMediaServerStreamInfo;
+      //  private MediaServerStreamInfo? _channelMediaServerStreamInfo;
         private SIPRequest _inviteSipRequest; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPResponse _inviteSipResponse; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPRequest _lastSipRequest; //保存最后一次sipRequest
@@ -155,14 +155,14 @@ namespace LibCommon.Structs.GB28181
             _sipChannelDesc = null!;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Sip通道的流媒体相关信息
         /// </summary>
         public MediaServerStreamInfo? ChannelMediaServerStreamInfo
         {
             get => _channelMediaServerStreamInfo;
             set => _channelMediaServerStreamInfo = value;
-        }
+        }*/
 
         /// <summary>
         /// 保存请求实时流时的request,因为在终止实时流的时候要用到

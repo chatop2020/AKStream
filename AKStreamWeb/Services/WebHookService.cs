@@ -215,14 +215,17 @@ namespace AKStreamWeb.Services
                 (videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true)
             ) //当enabled为false，或者要求没有人观看时自动断流的，就断流
             {
-                switch (videoChannel.DeviceStreamType)
-                {
-                    case DeviceStreamType.GB28181:
-                        SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out _);
-                        break;
-                    default:
-                        break;
-                }
+               var ret= MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out ResponseStruct rs);
+               if (!rs.Code.Equals(ErrorNumber.None) || ret == false)
+               {
+                   Logger.Warn($"[{Common.LoggerHead}]->无人观看时断流失败->{videoChannel.MainId}->{JsonHelper.ToJson(rs)}");
+  
+               }
+               else
+               {
+                   Logger.Info($"[{Common.LoggerHead}]->无人观看时断流成功->{videoChannel.MainId}");
+ 
+               }
             }
 
             return new ResToWebHookOnStreamNoneReader()
@@ -313,39 +316,7 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            switch (videoChannel.DeviceStreamType)
-            {
-                case DeviceStreamType.GB28181:
-                    ///28181的情况
-                    var sipChannel =
-                        SipServerService.GetSipChannelById(videoChannel.DeviceId, videoChannel.ChannelId,
-                            out ResponseStruct rs);
-                    if (sipChannel != null && rs.Code.Equals(ErrorNumber.None))
-                    {
-                        if (sipChannel.ChannelMediaServerStreamInfo != null)
-                        {
-                            if (sipChannel.ChannelMediaServerStreamInfo.PlayerList == null)
-                            {
-                                sipChannel.ChannelMediaServerStreamInfo.PlayerList =
-                                    new List<MediaServerStreamPlayerInfo>();
-                            }
-
-                            sipChannel.ChannelMediaServerStreamInfo.PlayerList.Add(new MediaServerStreamPlayerInfo()
-                            {
-                                IpAddress = req.Ip,
-                                PlayerId = req.Id,
-                                Params = req.Params,
-                                Port = (ushort) req.Port,
-                                StartTime = DateTime.Now,
-                            });
-                        }
-                    }
-
-                    break;
-                default:
-                    //除28181以外的处理
-                    break;
-            }
+          
 
             lock (Common.VideoChannelMediaInfosLock)
             {
@@ -497,6 +468,12 @@ namespace AKStreamWeb.Services
                             ServerDateTime = DateTime.Now,
                             NeedRestartMediaServer = true,
                         };
+                        lock (Common.VideoChannelMediaInfosLock)
+                        {
+                            //已经存在的mediaserver被要求重启前要清空一下这个mediaserver所有流信息
+                            Common.VideoChannelMediaInfos.RemoveAll(x => x.MediaServerId.Equals(req.MediaServerId));
+                        }
+
                         Logger.Debug(
                             $"[{Common.LoggerHead}]->清理MediaServerList中的的流媒体服务器实例,要求重启流媒体服务器->当前流媒体服务器数量:{Common.MediaServerList.Count}");
                         return result;

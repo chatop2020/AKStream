@@ -207,7 +207,7 @@ namespace LibGB28181SipServer
                 }
 
                 sipChannel.PushStatus = PushStatus.IDLE;
-                sipChannel.ChannelMediaServerStreamInfo = null;
+               
                 return true;
             }
             finally
