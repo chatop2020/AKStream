@@ -317,8 +317,8 @@ namespace AKStreamWeb
                     $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序
             }
-            _autoLive= new AutoLive();
-            _autoRecord= new AutoRecord();
+            /*_autoLive= new AutoLive();
+            _autoRecord= new AutoRecord();*/
         }
     }
 }

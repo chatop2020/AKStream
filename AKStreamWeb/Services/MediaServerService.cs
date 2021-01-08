@@ -235,6 +235,7 @@ namespace AKStreamWeb.Services
 
             VideoChannel videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(mainId))
                 .Where(x => x.Enabled.Equals(true)).Where(x => x.MediaServerId.Equals(mediaServerId)).First();
+
             if (videoChannel == null)
             {
                 rs = new ResponseStruct()
@@ -248,68 +249,71 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            lock (Common.VideoChannelMediaInfosLock)
+            lock (videoChannel)
             {
-                var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                if (onlineObj == null)
+                lock (Common.VideoChannelMediaInfosLock)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->停止视频流成功(该音视频通道状态为停止推流状态)->{mediaServerId}->{mainId}");
-
-                    return true;
-                }
-            }
-
-            if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
-            {
-                ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
-                {
-                    App = videoChannel.App,
-                    Force = true,
-                    Stream = videoChannel.MainId,
-                    Vhost = videoChannel.Vhost,
-                };
-                var ret = mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
-                if (ret == null || ret.Code != 0 || !rs.Code.Equals(ErrorNumber.None))
-                {
-                    if (ret != null && ret.Code != 0)
+                    var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                    if (onlineObj == null)
                     {
-                        rs = new ResponseStruct()
+                        Logger.Info($"[{Common.LoggerHead}]->停止视频流成功(该音视频通道状态为停止推流状态)->{mediaServerId}->{mainId}");
+
+                        return true;
+                    }
+                }
+
+                if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
+                {
+                    ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
+                    {
+                        App = videoChannel.App,
+                        Force = true,
+                        Stream = videoChannel.MainId,
+                        Vhost = videoChannel.Vhost,
+                    };
+                    var ret = mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
+                    if (ret == null || ret.Code != 0 || !rs.Code.Equals(ErrorNumber.None))
+                    {
+                        if (ret != null && ret.Code != 0)
                         {
-                            Code = ErrorNumber.MediaServer_WebApiDataExcept,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept] +
-                                      JsonHelper.ToJson(rs),
-                        };
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept] +
+                                          JsonHelper.ToJson(rs),
+                            };
+                            Logger.Warn(
+                                $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                            return false;
+                        }
+
                         Logger.Warn(
                             $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return false;
                     }
 
-                    Logger.Warn(
-                        $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-
-                    return false;
-                }
-
-                Logger.Info($"[{Common.LoggerHead}]->停止视频流成功->{mediaServerId}->{mainId}");
-
-                return true;
-            }
-
-            if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
-            {
-                var r = SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
-                if (r == true)
-                {
                     Logger.Info($"[{Common.LoggerHead}]->停止视频流成功->{mediaServerId}->{mainId}");
-                }
-                else
-                {
-                    Logger.Warn(
-                        $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return true;
                 }
 
-                return r;
+                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
+                {
+                    var r = SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
+                    if (r == true)
+                    {
+                        Logger.Info($"[{Common.LoggerHead}]->停止视频流成功->{mediaServerId}->{mainId}");
+                    }
+                    else
+                    {
+                        Logger.Warn(
+                            $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    }
+
+                    return r;
+                }
             }
 
             rs = new ResponseStruct()

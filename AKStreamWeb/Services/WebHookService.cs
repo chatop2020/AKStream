@@ -161,31 +161,50 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            if (req.Player == false)
+            lock (videoChannel)
             {
-                lock (Common.VideoChannelMediaInfosLock)
+                if (req.Player == false)
                 {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null)
+                    if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
-                        Common.VideoChannelMediaInfos.Remove(obj);
+                        var sipDevice =
+                            LibGB28181SipServer.Common.SipDevices.FindLast(
+                                x => x.DeviceId.Equals(videoChannel.DeviceId));
+                        if (sipDevice != null && sipDevice.SipChannels != null)
+                        {
+                            var sipChannel =
+                                sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
+                            if (sipChannel != null)
+                            {
+                                sipChannel.PushStatus = PushStatus.IDLE;
+                            }
+                        }
+                    }
+
+                    lock (Common.VideoChannelMediaInfosLock)
+                    {
+                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        if (obj != null)
+                        {
+                            Common.VideoChannelMediaInfos.Remove(obj);
+                        }
                     }
                 }
-            }
-            else
-            {
-                lock (Common.VideoChannelMediaInfosLock)
+                else
                 {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null && obj.MediaServerStreamInfo != null)
+                    lock (Common.VideoChannelMediaInfosLock)
                     {
-                        if (obj.MediaServerStreamInfo.PlayerList != null)
+                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        if (obj != null && obj.MediaServerStreamInfo != null)
                         {
-                            var player = obj.MediaServerStreamInfo.PlayerList.FindLast(x =>
-                                x.PlayerId.Equals(req.Id) && x.IpAddress.Equals(req.Ip));
-                            if (player != null)
+                            if (obj.MediaServerStreamInfo.PlayerList != null)
                             {
-                                obj.MediaServerStreamInfo.PlayerList.Remove(player);
+                                var player = obj.MediaServerStreamInfo.PlayerList.FindLast(x =>
+                                    x.PlayerId.Equals(req.Id) && x.IpAddress.Equals(req.Ip));
+                                if (player != null)
+                                {
+                                    obj.MediaServerStreamInfo.PlayerList.Remove(player);
+                                }
                             }
                         }
                     }
