@@ -139,7 +139,8 @@ namespace AKStreamKeeper
                             x.Name.Trim().TrimEnd(':').ToUpper().Equals(rootPath));
                         if (winobj != null)
                         {
-                            tmpList.Add(new KeyValuePair<double, string>((double) obj.Free, path));
+                            
+                            tmpList.Add(new KeyValuePair<double, string>((double) winobj.Free, path));
                         }
                     }
                     else

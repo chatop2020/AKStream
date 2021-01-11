@@ -534,7 +534,7 @@ namespace AKStreamWeb.Services
                 }
 
                 Logger.Info(
-                    $"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+                    $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
                 return videoChannelMediaInfo.MediaServerStreamInfo;
             }
