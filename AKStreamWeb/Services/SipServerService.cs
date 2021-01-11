@@ -219,7 +219,7 @@ namespace AKStreamWeb.Services
                 mediaInfo = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
             }
 
-            if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
+            if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
                 Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
 

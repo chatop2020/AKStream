@@ -738,7 +738,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            lock (videoChannel)
+            lock (Common.StreamStopLock)
             {
                 lock (Common.VideoChannelMediaInfosLock)
                 {
@@ -915,18 +915,22 @@ namespace AKStreamWeb.Services
 
             if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
             {
-                var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
-                if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
+                lock (Common.StreamLiveLock)
                 {
-                    Logger.Warn(
-                        $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                }
-                else
-                {
-                    Logger.Info($"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r3)}");
-                }
+                    var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
+                    if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
+                    {
+                        Logger.Warn(
+                            $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    }
+                    else
+                    {
+                        Logger.Info(
+                            $"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r3)}");
+                    }
 
-                return r3;
+                    return r3;
+                }
             }
 
             rs = new ResponseStruct()

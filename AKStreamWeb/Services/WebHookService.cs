@@ -161,7 +161,7 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            lock (videoChannel)
+            lock (Common.StreamStopLock)
             {
                 if (req.Player == false)
                 {
