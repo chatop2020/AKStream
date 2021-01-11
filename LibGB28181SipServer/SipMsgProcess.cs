@@ -329,6 +329,11 @@ namespace LibGB28181SipServer
 
 
                             tmpSipDevice.KeepAliveTime = time;
+                            if (tmpSipDevice.RemoteEndPoint !=null && tmpSipDevice.RemoteEndPoint != remoteEndPoint && tmpSipDevice.RemoteEndPoint.Protocol==SIPProtocolsEnum.udp)//如果udp协议当endpoint发生变化时更新成新的
+                            {   //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
+                                tmpSipDevice.RemoteEndPoint = remoteEndPoint;
+                            }
+
                             Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的心跳->{sipRequest}");
                         }
