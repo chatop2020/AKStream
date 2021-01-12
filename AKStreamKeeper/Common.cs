@@ -139,7 +139,6 @@ namespace AKStreamKeeper
                             x.Name.Trim().TrimEnd(':').ToUpper().Equals(rootPath));
                         if (winobj != null)
                         {
-                            
                             tmpList.Add(new KeyValuePair<double, string>((double) winobj.Free, path));
                         }
                     }
@@ -507,7 +506,8 @@ namespace AKStreamKeeper
                         while (_akStreamKeeperConfig.CustomRecordPathList[i].Trim().EndsWith('/') &&
                                _akStreamKeeperConfig.CustomRecordPathList[i].Trim().Length > 1)
                         {
-                            _akStreamKeeperConfig.CustomRecordPathList[i].TrimEnd('/');
+                            _akStreamKeeperConfig.CustomRecordPathList[i] =
+                                _akStreamKeeperConfig.CustomRecordPathList[i].TrimEnd('/');
                         }
                     }
 
@@ -580,9 +580,19 @@ namespace AKStreamKeeper
                 tmpKeepAlive.Secret = MediaServerInstance.Secret;
                 tmpKeepAlive.PerformanceInfo = KeeperPerformanceInfo;
                 tmpKeepAlive.UseSsl = _akStreamKeeperConfig.UseSsl;
-                IPInfo ip = UtilsHelper.GetIpAddressByMacAddress(KeeperPerformanceInfo.NetWorkStat.Mac, true);
-                tmpKeepAlive.IpV4Address = ip.IpV4;
-                tmpKeepAlive.IpV6Address = ip.IpV6 == null ? "" : ip.IpV6;
+                if (string.IsNullOrEmpty(_akStreamKeeperConfig.IpV4Address))
+                {
+                    IPInfo ip = UtilsHelper.GetIpAddressByMacAddress(KeeperPerformanceInfo.NetWorkStat.Mac, true);
+                    tmpKeepAlive.IpV4Address = ip.IpV4;
+                    tmpKeepAlive.IpV6Address = ip.IpV6 == null ? "" : ip.IpV6;
+                }
+                else
+                {
+                    tmpKeepAlive.IpV4Address = _akStreamKeeperConfig.IpV4Address;
+                    tmpKeepAlive.IpV6Address = !string.IsNullOrEmpty(_akStreamKeeperConfig.IpV6Address)
+                        ? _akStreamKeeperConfig.IpV6Address
+                        : "";
+                }
                 tmpKeepAlive.MediaServerId = MediaServerInstance.MediaServerId;
                 tmpKeepAlive.MediaServerPid = MediaServerInstance.GetPid();
                 tmpKeepAlive.RecordPathList = _akStreamDiskInfoOfRecordMap;
