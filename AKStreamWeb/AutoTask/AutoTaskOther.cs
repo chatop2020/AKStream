@@ -96,7 +96,7 @@ namespace AKStreamWeb.AutoTask
             catch (Exception ex)
             {
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->删除被软件删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
+                    $"[{Common.LoggerHead}]->删除被软删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
             }
         }
 
