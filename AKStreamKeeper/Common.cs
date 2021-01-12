@@ -134,12 +134,24 @@ namespace AKStreamKeeper
                 {
                     if (KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
                     {
-                        var rootPath = Path.GetPathRoot(path).TrimEnd(':').ToUpper();
-                        var winobj = KeeperPerformanceInfo.DriveInfo.FindLast(x =>
-                            x.Name.Trim().TrimEnd(':').ToUpper().Equals(rootPath));
-                        if (winobj != null)
+                        var rootPath = Path.GetPathRoot(path).ToUpper();
+                        rootPath = rootPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
+                        rootPath=rootPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
+                        rootPath = rootPath.TrimEnd(':');
+                        foreach (var drv in  KeeperPerformanceInfo.DriveInfo)
                         {
-                            tmpList.Add(new KeyValuePair<double, string>((double) winobj.Free, path));
+                            if (drv != null && drv.IsReady == true && !string.IsNullOrEmpty(drv.Name))
+                            {
+                                var drvPath= Path.GetPathRoot(drv.Name).ToUpper();
+                                drvPath = drvPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
+                                drvPath=drvPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
+                                drvPath = drvPath.TrimEnd(':');
+                                if (drvPath.Equals(rootPath))
+                                {
+                                    tmpList.Add(new KeyValuePair<double, string>((double) drv.Free, path));
+                                }
+                                
+                            } 
                         }
                     }
                     else
