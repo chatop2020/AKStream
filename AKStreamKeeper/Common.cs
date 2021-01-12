@@ -20,6 +20,7 @@ namespace AKStreamKeeper
 {
     public static class Common
     {
+       
         private static string _configPath = GCommon.ConfigPath + "AKStreamKeeper.json";
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static SystemInfo _keeperSystemInfo = new SystemInfo();

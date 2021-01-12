@@ -910,13 +910,14 @@ namespace LibGB28181SipServer
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
-                new SIPFromHeader(@from.FromTag, @from.FromURI, @from.FromTag));
+                new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
                 {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
+            req.Header.CSeq = sipResponse.Header.CSeq;
             Logger.Debug(
                 $"[{Common.LoggerHead}]->回复实时流请求状态ACK{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
@@ -937,13 +938,14 @@ namespace LibGB28181SipServer
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
-                new SIPFromHeader(@from.FromTag, @from.FromURI, @from.FromTag));
+                new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
                 {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
+            req.Header.CSeq = sipResponse.Header.CSeq;
             Logger.Debug(
                 $"[{Common.LoggerHead}]->回复回放流请求状态ACK{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
@@ -958,6 +960,15 @@ namespace LibGB28181SipServer
         private static bool CheckIsChannleInviteBySdpString(string sdp)
         {
             string[] sdpTmp = sdp.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+            if (sdpTmp.Length <= 0)
+            {
+                sdpTmp = sdp.Split("\r", StringSplitOptions.RemoveEmptyEntries);
+            }
+            if (sdpTmp.Length <= 0)
+            {
+                sdpTmp = sdp.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            }
+
             if (sdpTmp.Length > 0)
             {
                 foreach (var sdpparm in sdpTmp)

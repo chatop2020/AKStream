@@ -7,6 +7,9 @@ namespace AKStreamKeeper
     {
         public static void Main(string[] args)
         {
+#if (DEBUG)
+            Common.IsDebug = true;
+#endif
             Common.Init();
 
             CreateHostBuilder(args).Build().Run();
