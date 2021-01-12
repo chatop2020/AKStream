@@ -855,13 +855,14 @@ namespace LibGB28181SipServer
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.BYE, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
-                new SIPFromHeader(@from.FromTag, @from.FromURI, @from.FromTag));
+                new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
                 {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
+            req.Header.CSeq = sipResponse.Header.CSeq;
 
             Logger.Debug(
                 $"[{Common.LoggerHead}]->回复终止实时流请求状态Bye{sipResponse.RemoteSIPEndPoint}->{req}");
@@ -883,13 +884,14 @@ namespace LibGB28181SipServer
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.BYE, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
-                new SIPFromHeader(@from.FromTag, @from.FromURI, @from.FromTag));
+                new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
                 {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
+            req.Header.CSeq = sipResponse.Header.CSeq;
             Logger.Debug(
                 $"[{Common.LoggerHead}]->回复终止实时流请求状态Bye{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
