@@ -25,17 +25,23 @@ namespace AKStreamWeb.AutoTask
                                 var listRet = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(obj.MainId));
                                 if (listRet == null)
                                 {
-                                    var streamLiveRet = MediaServerService.StreamLive(obj.MediaServerId, obj.MainId,
-                                        out ResponseStruct rs);
-                                    if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
+                                    var mediaServer = Common.MediaServerList.FindLast(x =>
+                                        x.MediaServerId.Equals(obj.MediaServerId));
+                                    if (mediaServer != null && mediaServer.IsKeeperRunning &&
+                                        mediaServer.IsMediaServerRunning)
                                     {
-                                        Logger.Warn(
-                                            $"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
-                                    }
-                                    else
-                                    {
-                                        Logger.Info(
-                                            $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                        var streamLiveRet = MediaServerService.StreamLive(obj.MediaServerId, obj.MainId,
+                                            out ResponseStruct rs);
+                                        if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
+                                        {
+                                            Logger.Warn(
+                                                $"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
+                                        }
+                                        else
+                                        {
+                                            Logger.Info(
+                                                $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                        }
                                     }
                                 }
                             }
