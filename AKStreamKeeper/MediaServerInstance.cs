@@ -236,6 +236,14 @@ namespace AKStreamKeeper
                     string p = AKStreamWebUri.Port.ToString();
 
                     data["hook"].RemoveAllKeys();
+                    if (Common.IsDebug)
+                    {
+                        data["api"]["apiDebug"] = "1";
+                    }
+                    else
+                    {
+                        data["api"]["apiDebug"] = "0"; 
+                    }
                     data["hook"]["enable"] = "1";
                     data["hook"]["on_flow_report"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计

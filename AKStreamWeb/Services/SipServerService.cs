@@ -229,39 +229,54 @@ namespace AKStreamWeb.Services
 
             lock (sipChannel)
             {
-                ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
+                try
                 {
-                    App = mediaInfo.App,
-                    Force = true,
-                    Stream = mediaInfo.MediaServerStreamInfo.Stream,
-                    Vhost = mediaInfo.Vhost,
-                };
-                mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
-                if (videoChannel.DefaultRtpPort == false)
-                {
-                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                    ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
                     {
-                        Stream_Id = sipChannel.Stream,
+                        App = mediaInfo.App,
+                        Force = true,
+                        Stream = mediaInfo.MediaServerStreamInfo.Stream,
+                        Vhost = mediaInfo.Vhost,
                     };
+                    mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
+                    if (videoChannel.DefaultRtpPort == false)
+                    {
+                        ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                        {
+                            Stream_Id = sipChannel.Stream,
+                        };
 
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
-                    mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        (ushort) mediaInfo.MediaServerStreamInfo.RptPort,
-                        out rs); //释放rtp端口
+                        mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
+                        mediaServer.KeeperWebApi.ReleaseRtpPort(
+                            (ushort) mediaInfo.MediaServerStreamInfo.RptPort,
+                            out rs); //释放rtp端口
+                    }
+
+                    SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+                    var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
+                    if (!rs.Code.Equals(ErrorNumber.None))
+                    {
+                        Logger.Warn(
+                            $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+
+                        return false;
+                    }
+
+                    Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
+
+                    return retDeInvite;
                 }
-
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
-                var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
-                if (!rs.Code.Equals(ErrorNumber.None))
+                catch (Exception ex)
                 {
-                    Logger.Warn($"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
-
-                    return false;
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Other,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    throw new AkStreamException(rs);
                 }
-
-                Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
-
-                return retDeInvite;
             }
         }
 

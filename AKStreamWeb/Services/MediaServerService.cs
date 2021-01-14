@@ -788,20 +788,27 @@ namespace AKStreamWeb.Services
                     return true;
                 }
 
-                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
+                try
                 {
-                    var r = SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
-                    if (r == true)
+                    if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
-                        Logger.Info($"[{Common.LoggerHead}]->停止视频流成功->{mediaServerId}->{mainId}");
-                    }
-                    else
-                    {
-                        Logger.Warn(
-                            $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                    }
+                        var r = SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
+                        if (r == true)
+                        {
+                            Logger.Info($"[{Common.LoggerHead}]->停止视频流成功->{mediaServerId}->{mainId}");
+                        }
+                        else
+                        {
+                            Logger.Warn(
+                                $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                        }
 
-                    return r;
+                        return r;
+                    }
+                }
+                catch (AkStreamException ex)
+                {
+                    throw ex;
                 }
             }
 

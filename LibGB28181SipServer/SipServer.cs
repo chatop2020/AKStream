@@ -1150,6 +1150,7 @@ namespace LibGB28181SipServer
                         Code = ErrorNumber.Sip_NotOnPushStream,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_NotOnPushStream],
                     };
+                    evnt.Set();
                     return;
                 }
 
