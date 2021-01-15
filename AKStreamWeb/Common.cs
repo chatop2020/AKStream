@@ -31,8 +31,8 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
-        public static Object StreamLiveLock = new object();
-        public static Object StreamStopLock = new object();
+    
+
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();

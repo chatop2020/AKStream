@@ -106,7 +106,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         ///
         [Route("GetRecordPlanList")]
-        [HttpPost]
+        [HttpGet]
         public List<RecordPlan> GetRecordPlanList([FromHeader(Name = "AccessKey")] string AccessKey, string? name)
         {
             ResponseStruct rs;

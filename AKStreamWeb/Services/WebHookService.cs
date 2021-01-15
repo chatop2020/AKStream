@@ -161,61 +161,58 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            lock (Common.StreamStopLock)
+            if (req.Player == false)
             {
-                if (req.Player == false)
+                /*
+                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                 {
-                    /*
-                    if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
+                    var sipDevice =
+                        LibGB28181SipServer.Common.SipDevices.FindLast(
+                            x => x.DeviceId.Equals(videoChannel.DeviceId));
+                    if (sipDevice != null && sipDevice.SipChannels != null)
                     {
-                        var sipDevice =
-                            LibGB28181SipServer.Common.SipDevices.FindLast(
-                                x => x.DeviceId.Equals(videoChannel.DeviceId));
-                        if (sipDevice != null && sipDevice.SipChannels != null)
+                        var sipChannel =
+                            sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
+                        if (sipChannel != null)
                         {
-                            var sipChannel =
-                                sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                            if (sipChannel != null)
-                            {
-                                sipChannel.PushStatus = PushStatus.IDLE;
-                            }
-                        }
-                    }
-                    */
-
-                    if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
-                    {
-                        lock (Common.VideoChannelMediaInfosLock)
-                        {
-                            var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                            if (obj != null)
-                            {
-                                Common.VideoChannelMediaInfos.Remove(obj);
-                            }
+                            sipChannel.PushStatus = PushStatus.IDLE;
                         }
                     }
                 }
-                else
+                */
+
+                if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                 {
-                    
                     lock (Common.VideoChannelMediaInfosLock)
                     {
                         var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                        if (obj != null && obj.MediaServerStreamInfo != null)
+                        if (obj != null)
                         {
-                            if (obj.MediaServerStreamInfo.PlayerList != null)
+                            Common.VideoChannelMediaInfos.Remove(obj);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                lock (Common.VideoChannelMediaInfosLock)
+                {
+                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                    if (obj != null && obj.MediaServerStreamInfo != null)
+                    {
+                        if (obj.MediaServerStreamInfo.PlayerList != null)
+                        {
+                            var player = obj.MediaServerStreamInfo.PlayerList.FindLast(x =>
+                                x.PlayerId.Equals(req.Id) && x.IpAddress.Equals(req.Ip));
+                            if (player != null)
                             {
-                                var player = obj.MediaServerStreamInfo.PlayerList.FindLast(x =>
-                                    x.PlayerId.Equals(req.Id) && x.IpAddress.Equals(req.Ip));
-                                if (player != null)
-                                {
-                                    obj.MediaServerStreamInfo.PlayerList.Remove(player);
-                                }
+                                obj.MediaServerStreamInfo.PlayerList.Remove(player);
                             }
                         }
                     }
                 }
             }
+
 
             return new ResToWebHookOnFlowReport()
             {

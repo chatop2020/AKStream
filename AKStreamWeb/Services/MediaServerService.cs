@@ -738,8 +738,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            lock (Common.StreamStopLock)
-            {
+            
                 lock (Common.VideoChannelMediaInfosLock)
                 {
                     var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
@@ -810,7 +809,7 @@ namespace AKStreamWeb.Services
                 {
                     throw ex;
                 }
-            }
+            
 
             rs = new ResponseStruct()
             {
@@ -922,8 +921,7 @@ namespace AKStreamWeb.Services
 
             if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
             {
-                lock (Common.StreamLiveLock)
-                {
+               
                     var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
                     if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
                     {
@@ -937,7 +935,6 @@ namespace AKStreamWeb.Services
                     }
 
                     return r3;
-                }
             }
 
             rs = new ResponseStruct()
