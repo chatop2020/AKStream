@@ -165,6 +165,7 @@ namespace AKStreamWeb.Services
             {
                 if (req.Player == false)
                 {
+                    /*
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
                         var sipDevice =
@@ -180,18 +181,23 @@ namespace AKStreamWeb.Services
                             }
                         }
                     }
+                    */
 
-                    lock (Common.VideoChannelMediaInfosLock)
+                    if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                     {
-                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                        if (obj != null)
+                        lock (Common.VideoChannelMediaInfosLock)
                         {
-                            Common.VideoChannelMediaInfos.Remove(obj);
+                            var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                            if (obj != null)
+                            {
+                                Common.VideoChannelMediaInfos.Remove(obj);
+                            }
                         }
                     }
                 }
                 else
                 {
+                    
                     lock (Common.VideoChannelMediaInfosLock)
                     {
                         var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));

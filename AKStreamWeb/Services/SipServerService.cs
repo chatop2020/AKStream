@@ -231,6 +231,9 @@ namespace AKStreamWeb.Services
             {
                 try
                 {
+                    SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+                    var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
+                    
                     ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
                     {
                         App = mediaInfo.App,
@@ -252,8 +255,7 @@ namespace AKStreamWeb.Services
                             out rs); //释放rtp端口
                     }
 
-                    SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
-                    var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
+                   
                     if (!rs.Code.Equals(ErrorNumber.None))
                     {
                         Logger.Warn(
@@ -262,9 +264,17 @@ namespace AKStreamWeb.Services
                         return false;
                     }
 
+                    lock (Common.VideoChannelMediaInfosLock)
+                    {
+                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        if (obj != null)
+                        {
+                            Common.VideoChannelMediaInfos.Remove(obj);
+                        }
+                    }
                     Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
 
-                    return retDeInvite;
+                    return true;
                 }
                 catch (Exception ex)
                 {
