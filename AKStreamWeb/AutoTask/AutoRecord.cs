@@ -245,7 +245,8 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             stopIt = true;
                                         }
-
+                                     
+                                     
                                         if (stopIt)
                                         {
                                             switch (recordPlan.OverStepPlan)

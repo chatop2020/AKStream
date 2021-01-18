@@ -163,24 +163,6 @@ namespace AKStreamWeb.Services
 
             if (req.Player == false)
             {
-                /*
-                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
-                {
-                    var sipDevice =
-                        LibGB28181SipServer.Common.SipDevices.FindLast(
-                            x => x.DeviceId.Equals(videoChannel.DeviceId));
-                    if (sipDevice != null && sipDevice.SipChannels != null)
-                    {
-                        var sipChannel =
-                            sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                        if (sipChannel != null)
-                        {
-                            sipChannel.PushStatus = PushStatus.IDLE;
-                        }
-                    }
-                }
-                */
-
                 if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                 {
                     lock (Common.VideoChannelMediaInfosLock)
