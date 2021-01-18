@@ -43,8 +43,8 @@ namespace AKStreamWeb.Services
                 .Where(x => x.StartTime > _start.AddMinutes(-60) && x.EndTime <= _end.AddMinutes(60))
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MediaServerId),
                     x => x.MediaServerId!.Trim().ToLower().Equals(rcmv.MediaServerId!.Trim().ToLower()))
-                .WhereIf(!string.IsNullOrEmpty(rcmv.StreamId),
-                    x => x.Streamid!.Trim().ToLower().Equals(rcmv.StreamId!.Trim().ToLower()))
+                .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
+                    x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower()))
                 .ToList(); //取条件范围的前60分钟及后60分钟内的所有数据
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));

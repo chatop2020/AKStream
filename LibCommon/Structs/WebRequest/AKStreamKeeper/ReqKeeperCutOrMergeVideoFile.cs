@@ -13,7 +13,7 @@ namespace LibCommon.Structs.WebRequest.AKStreamKeeper
         private string? _mediaServerId;
         private string? _app;
         private string? _vhost;
-        private string? _streamId;
+        private string? _mainId;
         private string? _callbackUrl;
 
         /// <summary>
@@ -64,10 +64,10 @@ namespace LibCommon.Structs.WebRequest.AKStreamKeeper
         /// <summary>
         /// 
         /// </summary>
-        public string? StreamId
+        public string? MainId
         {
-            get => _streamId;
-            set => _streamId = value;
+            get => _mainId;
+            set => _mainId = value;
         }
 
         /// <summary>
