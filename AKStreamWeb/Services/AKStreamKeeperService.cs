@@ -763,7 +763,16 @@ namespace AKStreamWeb.Services
             }
 
             Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务成功->{mediaServerId}->{JsonHelper.ToJson(ret)}");
-
+            lock (Common.VideoChannelMediaInfosLock)
+            {
+                foreach (var obj in Common.VideoChannelMediaInfos)
+                {
+                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
+                    {
+                        Common.VideoChannelMediaInfos.Remove(obj);
+                    }
+                }
+            }
             return ret;
         }
 
@@ -832,6 +841,16 @@ namespace AKStreamWeb.Services
 
             Logger.Info($"[{Common.LoggerHead}]->终止流媒体服务成功->{mediaServerId}->{ret}");
 
+            lock (Common.VideoChannelMediaInfosLock)
+            {
+                foreach (var obj in Common.VideoChannelMediaInfos)
+                {
+                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
+                    {
+                        Common.VideoChannelMediaInfos.Remove(obj);
+                    }
+                }
+            }
             return ret;
         }
 
@@ -896,6 +915,17 @@ namespace AKStreamWeb.Services
                     $"[{Common.LoggerHead}]->重启流媒体服务失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
+            }
+
+            lock (Common.VideoChannelMediaInfosLock)
+            {
+                foreach (var obj in Common.VideoChannelMediaInfos)
+                {
+                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
+                    {
+                        Common.VideoChannelMediaInfos.Remove(obj);
+                    }
+                }
             }
 
             Logger.Info($"[{Common.LoggerHead}]->重启流媒体服务成功->{mediaServerId}->{JsonHelper.ToJson(ret)}");

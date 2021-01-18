@@ -8,6 +8,7 @@ using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
 using LibLogger;
+using Newtonsoft.Json;
 
 namespace AKStreamWeb.AutoTask
 {
@@ -227,6 +228,10 @@ namespace AKStreamWeb.AutoTask
                                         //说明绑定了录制模板
                                         var fileSize = getRecordFileSize(videoChannel.MainId); //得到文件总长度
                                         var fileDateList = getRecordFileDataList(videoChannel.MainId); //得到记录天数列表
+                                        if (fileDateList == null)
+                                        {
+                                            fileDateList = new List<string>();
+                                        }
                                         var inRange = checkTimeRange(recordPlan);
                                         bool stopIt = false;
                                         if (!inRange)
@@ -246,8 +251,7 @@ namespace AKStreamWeb.AutoTask
                                             stopIt = true;
                                         }
                                      
-                                     
-                                        if (stopIt)
+                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded==true)
                                         {
                                             switch (recordPlan.OverStepPlan)
                                             {
@@ -362,7 +366,9 @@ namespace AKStreamWeb.AutoTask
                     }
                 }
 
-                Thread.Sleep(1000);
+               
+                    Thread.Sleep(1000);   
+               
             }
         }
 
