@@ -321,9 +321,9 @@ namespace AKStreamWeb
                 Environment.Exit(0); //退出程序
             }
 
-            _autoLive = new AutoLive();
+            /*_autoLive = new AutoLive();
             _autoRecord = new AutoRecord();
-            _autoTaskOther = new AutoTaskOther();
+            _autoTaskOther = new AutoTaskOther();*/
         }
     }
 }

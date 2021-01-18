@@ -1018,7 +1018,7 @@ namespace LibZLMediaKitMediaServer
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            string url = $"{_baseUrl}/ApiService/AddCutOrMergeTask";
+            string url = $"{_baseUrl}/CutMergeService/AddCutOrMergeTask";
             try
             {
                 string reqData = JsonHelper.ToJson(reqKeeper);

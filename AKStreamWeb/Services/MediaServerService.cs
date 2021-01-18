@@ -58,7 +58,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            List<RecordFile> cutMegerList = null!;
+            List<RecordFile> cutMegerList = new List<RecordFile>();
             if (videoList != null && videoList.Count > 0)
             {
                 for (int i = 0; i <= videoList.Count - 1; i++)
