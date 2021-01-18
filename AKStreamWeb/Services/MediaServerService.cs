@@ -1584,10 +1584,10 @@ namespace AKStreamWeb.Services
             mediaServer.RecordPathList.Sort((left, right) => //对相减后的绝对值排序
             {
                 if (left.Key > right.Key)
-                    return 1;
+                    return 0;
                 if ((int) left.Key == (int) right.Key)
                 {
-                    return 0;
+                    return 1;
                 }
 
                 return -1;
