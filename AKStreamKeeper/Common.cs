@@ -675,6 +675,19 @@ namespace AKStreamKeeper
         {
             Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
+#if (DEBUG)
+
+
+            Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
+            Console.WriteLine("[Debug]\t程序启动路径:" + GCommon.BaseStartPath);
+            Console.WriteLine("[Debug]\t程序启动全路径:" + GCommon.BaseStartFullPath);
+            Console.WriteLine("[Debug]\t程序运行路径:" + GCommon.WorkSpacePath);
+            Console.WriteLine("[Debug]\t程序运行全路径:" + GCommon.WorkSpaceFullPath);
+            Console.WriteLine("[Debug]\t程序启动命令:" + GCommon.CommandLine);
+            IsDebug = true;
+
+
+#endif
             ResponseStruct rs;
             startTimer();
             var ret = ReadConfig(out rs);

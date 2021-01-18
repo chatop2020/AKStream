@@ -37,7 +37,7 @@ namespace AKStreamKeeper.Services
 
                         taskReturn.Uri = "http://" + Common.AkStreamKeeperConfig.IpV4Address + ":" +
                                          Common.AkStreamKeeperConfig.WebApiPort + "/" +
-                                         taskReturn.FilePath;
+                                         taskReturn.FilePath.Replace(GCommon.BaseStartPath,"").TrimStart('/');
                         if (taskStatus != null)
                         {
                             taskStatus.PlayUrl = taskReturn.Uri;

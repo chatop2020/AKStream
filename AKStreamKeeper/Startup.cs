@@ -123,6 +123,7 @@ namespace AKStreamKeeper
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            Console.WriteLine("--------》"+GCommon.BaseStartPath+ "/CutMergeFile");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -140,7 +141,24 @@ namespace AKStreamKeeper
             app.UseMiddleware<ExceptionMiddleware>(); //ExceptionMiddleware 加入管道
             app.UseAuthorization();
 
+            
+            if (!Directory.Exists(GCommon.BaseStartPath+ "/CutMergeFile"))
+            {
+                Directory.CreateDirectory(GCommon.BaseStartPath+ "/CutMergeFile");
+            }
 
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider =
+                    new PhysicalFileProvider(GCommon.BaseStartPath+ "/CutMergeFile"),
+                OnPrepareResponse = (c) =>
+                {
+                    c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                },
+                RequestPath = new PathString("/CutMergeFile")
+            });
+            
+            
             if (Common.AkStreamKeeperConfig.CustomRecordPathList != null &&
                 Common.AkStreamKeeperConfig.CustomRecordPathList.Count > 0)
             {
