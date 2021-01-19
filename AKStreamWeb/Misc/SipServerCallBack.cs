@@ -20,51 +20,7 @@ namespace AKStreamWeb.Misc
     {
         public static void OnRegister(string sipDeviceJson)
         {
-            //设备注册时，如果原有在线流还存在，要清掉
-         
-            try
-            {
-                var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
-                if (sipDevice != null && sipDevice.SipChannels!=null && sipDevice.SipChannels.Count>0)
-                {
-                    foreach (var channel in sipDevice.SipChannels)
-                    {
-                        if (channel != null)
-                        {
-                            var mediaInfo =
-                                Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
-                            if (mediaInfo != null)
-                            {
-                               var ret= MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
-                                    out ResponseStruct rs);
-                               if (ret  && rs.Code.Equals(ErrorNumber.None))
-                               {
-                                   Logger.Info(
-                                       $"[{Common.LoggerHead}]->设备注册->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
-                               }
-                               else
-                               {
-                                   Logger.Warn(
-                                       $"[{Common.LoggerHead}]->设备注册->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs,Formatting.Indented)}");
-                               }
-                            }
-                        }
-                        Thread.Sleep(50);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-               ResponseStruct rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Sip_CallBackExcept,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_CallBackExcept],
-                    ExceptMessage = ex.Message,
-                    ExceptStackTrace = ex.StackTrace,
-                };
-                Logger.Error(
-                    $"[{Common.LoggerHead}]->设备注销时异常->{JsonHelper.ToJson(rs,Formatting.Indented)}");
-            }
+            //设备注册时
         }
 
         public static void OnUnRegister(string sipDeviceJson)
