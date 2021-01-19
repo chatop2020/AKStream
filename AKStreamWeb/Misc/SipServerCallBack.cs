@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs.DBModels;
@@ -24,6 +26,50 @@ namespace AKStreamWeb.Misc
         public static void OnUnRegister(string sipDeviceJson)
         {
             //设备注销时
+            try
+            {
+                var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
+                if (sipDevice != null && sipDevice.SipChannels!=null && sipDevice.SipChannels.Count>0)
+                {
+                    foreach (var channel in sipDevice.SipChannels)
+                    {
+                        if (channel != null)
+                        {
+                            var mediaInfo =
+                                Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
+                            if (mediaInfo != null)
+                            {
+                               var ret= MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
+                                    out ResponseStruct rs);
+                               if (ret  && rs.Code.Equals(ErrorNumber.None))
+                               {
+                                   Logger.Info(
+                                       $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
+                               }
+                               else
+                               {
+                                   Logger.Warn(
+                                       $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs,Formatting.Indented)}");
+                               }
+                            }
+                        }
+                        Thread.Sleep(50);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+               ResponseStruct rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_CallBackExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_CallBackExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                Logger.Error(
+                    $"[{Common.LoggerHead}]->设备注销时异常->{JsonHelper.ToJson(rs,Formatting.Indented)}");
+            }
+
         }
 
         public static void OnKeepalive(string deviceId, DateTime keepAliveTime, int lostTimes)
