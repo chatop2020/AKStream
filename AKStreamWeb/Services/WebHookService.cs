@@ -470,11 +470,25 @@ namespace AKStreamWeb.Services
                             ServerDateTime = DateTime.Now,
                             NeedRestartMediaServer = true,
                         };
-                        lock (Common.VideoChannelMediaInfosLock)
+                        //已经存在的mediaserver被要求重启前要停掉此流媒体所有流信息
+                        var removeList =
+                            Common.VideoChannelMediaInfos.FindAll(x => x.MediaServerId.Equals(req.MediaServerId));
+                        if (removeList != null && removeList.Count > 0)
+                        {
+                            foreach (var obj in removeList)
+                            {
+                                if (obj != null)
+                                {
+                                    MediaServerService.StreamStop(obj.MediaServerId, obj.MainId,out _);
+                                    
+                                }
+                            }
+                        }
+                        /*lock (Common.VideoChannelMediaInfosLock)
                         {
                             //已经存在的mediaserver被要求重启前要清空一下这个mediaserver所有流信息
                             Common.VideoChannelMediaInfos.RemoveAll(x => x.MediaServerId.Equals(req.MediaServerId));
-                        }
+                        }*/
 
                         Logger.Debug(
                             $"[{Common.LoggerHead}]->清理MediaServerList中的的流媒体服务器实例,要求重启流媒体服务器->当前流媒体服务器数量:{Common.MediaServerList.Count}");
