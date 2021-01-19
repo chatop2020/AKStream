@@ -12,6 +12,19 @@
 * 数据库部分使用开源项目freeSql数据库类库，支持数据库类型众多，如sqlite、mssql等，建议使用Mysql 5.7以及以上版本。
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 
+# 使用AKStream实现的Web管理平台（开源）
+-------
+![流媒体服务管理列表](https://i.loli.net/2021/01/19/YjCUMHVdFzSuBXe.png)
+![在线设备列表](https://i.loli.net/2021/01/19/oUpFMBk5NELdYaT.png)
+![设备激活](https://i.loli.net/2021/01/19/ZBMPfUnuLgVDelz.png)
+![设备列表](https://i.loli.net/2021/01/19/OZDH1fP7j9TmIqS.png)
+![设备预览](https://i.loli.net/2021/01/19/DcqgMmp6kTvNURK.png)
+
+## 开源地址 
+- https://github.com/langmansh/AKStreamWebUI
+- 感谢网友倾情打造
+
+
 # AKStream结构
 -------
 * 放一张AKStream的完整结构图，以供理解AKStream的动作原理（采用StreamNode的图，原理是一样的）
