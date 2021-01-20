@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AKStreamKeeper.Attributes;
 using AKStreamKeeper.Services;
 using LibCommon;
+using LibCommon.Structs;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -15,6 +16,19 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
+       
+        /// <summary>
+        /// 获取rtp端口信息列表
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <returns></returns>
+        [Route("GetRtpPortInfoList")]
+        [HttpGet]
+        public List<PortInfo> GetRtpPortInfoList([FromHeader(Name = "AccessKey")] string AccessKey)
+        {
+            return Common.PortInfoList;
+        }
+        
         /// <summary>
         /// 获取流媒体服务器运行状态
         /// </summary>
