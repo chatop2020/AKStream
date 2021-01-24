@@ -26,10 +26,10 @@ namespace AKStreamWeb.Misc
         public static void OnUnRegister(string sipDeviceJson)
         {
             //设备注销时，要清掉在线流
+            var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
             try
             {
-                var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
-                if (sipDevice != null && sipDevice.SipChannels!=null && sipDevice.SipChannels.Count>0)
+                if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                 {
                     foreach (var channel in sipDevice.SipChannels)
                     {
@@ -39,18 +39,18 @@ namespace AKStreamWeb.Misc
                                 Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
                             if (mediaInfo != null)
                             {
-                               var ret= MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
+                                var ret = MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
                                     out ResponseStruct rs);
-                               if (ret  && rs.Code.Equals(ErrorNumber.None))
-                               {
-                                   Logger.Info(
-                                       $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
-                               }
-                               else
-                               {
-                                   Logger.Warn(
-                                       $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs,Formatting.Indented)}");
-                               }
+                                if (ret && rs.Code.Equals(ErrorNumber.None))
+                                {
+                                    Logger.Info(
+                                        $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
+                                }
+                                else
+                                {
+                                    Logger.Warn(
+                                        $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                                }
                             }
                         }
                         Thread.Sleep(50);
@@ -59,7 +59,7 @@ namespace AKStreamWeb.Misc
             }
             catch (Exception ex)
             {
-               ResponseStruct rs = new ResponseStruct()
+                ResponseStruct rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.Sip_CallBackExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_CallBackExcept],
@@ -67,7 +67,30 @@ namespace AKStreamWeb.Misc
                     ExceptStackTrace = ex.StackTrace,
                 };
                 Logger.Error(
-                    $"[{Common.LoggerHead}]->设备注销时异常->{JsonHelper.ToJson(rs,Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->设备注销时异常->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+            }
+            finally
+            {
+               
+                if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
+                {
+                    lock (Common.VideoChannelMediaInfosLock)
+                    {
+                        foreach (var channel in sipDevice.SipChannels)
+                        {
+                            if (channel != null)
+                            {
+                                var mediaInfo =
+                                    Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
+                                if (mediaInfo != null)
+                                {
+                                    Common.VideoChannelMediaInfos.Remove(mediaInfo);
+
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
         }
