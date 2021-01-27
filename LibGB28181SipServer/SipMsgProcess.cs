@@ -414,19 +414,20 @@ namespace LibGB28181SipServer
                                 {
                                     foreach (var item in recordInfo.RecordItems.Items)
                                     {
+                                        var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                  item.EndTime +
+                                                  item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                  tmpSipDevice1.DeviceId;
+                                        var crc32 = CRC32Helper.GetCRC32(tag);
+                                        var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                        char[] tmpChars = crc32Str.ToCharArray();
+                                        tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                        string itemId = new string(tmpChars);
+                                        
                                         var tmp = sipChannel1.LastRecordInfos.FindLast(x =>
-                                            x.Value.FilePath.Equals(item.FilePath));
+                                            x.Value.SsrcId.Equals(itemId));
                                         if (tmp.Value == null)
                                         {
-                                            var tag = item.Address + item.Name + item.Secrecy + item.Type +
-                                                      item.EndTime +
-                                                      item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
-                                                      tmpSipDevice1.DeviceId;
-                                            var crc32 = CRC32Helper.GetCRC32(tag);
-                                            var crc32Str = crc32.ToString().PadLeft(10, '0');
-                                            char[] tmpChars = crc32Str.ToCharArray();
-                                            tmpChars[0] = '1'; //回放流的ssrc第一位是1
-                                            string itemId = new string(tmpChars);
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
                                             item.SipDevice = tmpSipDevice1;
@@ -445,19 +446,19 @@ namespace LibGB28181SipServer
                                     sipChannel1.LastRecordInfos.Clear();
                                     foreach (var item in recordInfo.RecordItems.Items)
                                     {
+                                        var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                  item.EndTime +
+                                                  item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                  tmpSipDevice1.DeviceId;
+                                        var crc32 = CRC32Helper.GetCRC32(tag);
+                                        var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                        char[] tmpChars = crc32Str.ToCharArray();
+                                        tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                        string itemId = new string(tmpChars);
                                         var tmp = sipChannel1.LastRecordInfos.FindLast(x =>
-                                            x.Value.FilePath.Equals(item.FilePath));
+                                            x.Value.SsrcId.Equals(itemId));
                                         if (tmp.Value == null)
                                         {
-                                            var tag = item.Address + item.Name + item.Secrecy + item.Type +
-                                                      item.EndTime +
-                                                      item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
-                                                      tmpSipDevice1.DeviceId;
-                                            var crc32 = CRC32Helper.GetCRC32(tag);
-                                            var crc32Str = crc32.ToString().PadLeft(10, '0');
-                                            char[] tmpChars = crc32Str.ToCharArray();
-                                            tmpChars[0] = '1'; //回放流的ssrc第一位是1
-                                            string itemId = new string(tmpChars);
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
                                             item.SipDevice = tmpSipDevice1;
@@ -474,19 +475,20 @@ namespace LibGB28181SipServer
                                 {
                                     foreach (var item in recordInfo.RecordItems.Items)
                                     {
+                                        var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                  item.EndTime +
+                                                  item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                  tmpSipDevice1.DeviceId;
+                                        var crc32 = CRC32Helper.GetCRC32(tag);
+                                        var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                        char[] tmpChars = crc32Str.ToCharArray();
+                                        tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                        string itemId = new string(tmpChars);
                                         var tmp = sipChannel1.LastRecordInfos.FindLast(x =>
-                                            x.Value.FilePath.Equals(item.FilePath));
+                                            x.Value.SsrcId.Equals(itemId));
                                         if (tmp.Value == null)
                                         {
-                                            var tag = item.Address + item.Name + item.Secrecy + item.Type +
-                                                      item.EndTime +
-                                                      item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
-                                                      tmpSipDevice1.DeviceId;
-                                            var crc32 = CRC32Helper.GetCRC32(tag);
-                                            var crc32Str = crc32.ToString().PadLeft(10, '0');
-                                            char[] tmpChars = crc32Str.ToCharArray();
-                                            tmpChars[0] = '1'; //回放流的ssrc第一位是1
-                                            string itemId = new string(tmpChars);
+                                          
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
                                             item.SipDevice = tmpSipDevice1;
