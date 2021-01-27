@@ -738,7 +738,9 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            
+            lock (videoChannel)
+            {
+
                 lock (Common.VideoChannelMediaInfosLock)
                 {
                     var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
@@ -809,7 +811,8 @@ namespace AKStreamWeb.Services
                 {
                     throw ex;
                 }
-            
+
+            }
 
             rs = new ResponseStruct()
             {
@@ -860,68 +863,69 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-
-            lock (Common.VideoChannelMediaInfosLock)
+            lock (videoChannel)
             {
-                var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                if (onlineObj != null)
+                lock (Common.VideoChannelMediaInfosLock)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->请求视频流成功(该音视频通道本身处于推流状态)->{mediaServerId}->{mainId}");
+                    var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                    if (onlineObj != null)
+                    {
+                        Logger.Info($"[{Common.LoggerHead}]->请求视频流成功(该音视频通道本身处于推流状态)->{mediaServerId}->{mainId}");
 
-                    return onlineObj.MediaServerStreamInfo;
+                        return onlineObj.MediaServerStreamInfo;
+                    }
                 }
-            }
 
-            if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
-            {
-                switch (videoChannel.MethodByGetStream)
+
+                if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                 {
-                    case MethodByGetStream.SelfMethod:
-                        var r1 = AddStreamProxy(mediaServerId, mainId, out rs, videoChannel);
-                        if (r1 == null || !rs.Code.Equals(ErrorNumber.None))
-                        {
+                    switch (videoChannel.MethodByGetStream)
+                    {
+                        case MethodByGetStream.SelfMethod:
+                            var r1 = AddStreamProxy(mediaServerId, mainId, out rs, videoChannel);
+                            if (r1 == null || !rs.Code.Equals(ErrorNumber.None))
+                            {
+                                Logger.Warn(
+                                    $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                            }
+                            else
+                            {
+                                Logger.Info(
+                                    $"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r1)}");
+                            }
+
+                            return r1;
+
+                        case MethodByGetStream.UseFFmpeg:
+                            var r2 = AddFFmpegStreamProxy(mediaServerId, mainId, out rs, videoChannel);
+                            if (r2 == null || !rs.Code.Equals(ErrorNumber.None))
+                            {
+                                Logger.Warn(
+                                    $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                            }
+                            else
+                            {
+                                Logger.Info(
+                                    $"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r2)}");
+                            }
+
+                            return r2;
+                        default:
+
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.MediaServer_StreamTypeExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StreamTypeExcept],
+                            };
                             Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                        }
-                        else
-                        {
-                            Logger.Info(
-                                $"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r1)}");
-                        }
 
-                        return r1;
-
-                    case MethodByGetStream.UseFFmpeg:
-                        var r2 = AddFFmpegStreamProxy(mediaServerId, mainId, out rs, videoChannel);
-                        if (r2 == null || !rs.Code.Equals(ErrorNumber.None))
-                        {
-                            Logger.Warn(
-                                $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                        }
-                        else
-                        {
-                            Logger.Info(
-                                $"[{Common.LoggerHead}]->请求视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r2)}");
-                        }
-
-                        return r2;
-                    default:
-
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.MediaServer_StreamTypeExcept,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StreamTypeExcept],
-                        };
-                        Logger.Warn(
-                            $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-
-                        return null;
+                            return null;
+                    }
                 }
-            }
 
-            if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
-            {
-               
+                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
+                {
                     var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
                     if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
                     {
@@ -935,6 +939,7 @@ namespace AKStreamWeb.Services
                     }
 
                     return r3;
+                }
             }
 
             rs = new ResponseStruct()

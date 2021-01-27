@@ -227,8 +227,7 @@ namespace AKStreamWeb.Services
             }
 
 
-            lock (sipChannel)
-            {
+           
                 try
                 {
                     SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
@@ -287,7 +286,7 @@ namespace AKStreamWeb.Services
                     };
                     throw new AkStreamException(rs);
                 }
-            }
+            
         }
 
         /// <summary>
@@ -452,8 +451,7 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
-            lock (sipChannel)
-            {
+            
                 var videoChannelMediaInfo = new VideoChannelMediaInfo();
                 videoChannelMediaInfo.App = videoChannel.App;
                 videoChannelMediaInfo.Enabled = videoChannel.Enabled;
@@ -562,7 +560,7 @@ namespace AKStreamWeb.Services
                     $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
                 return videoChannelMediaInfo.MediaServerStreamInfo;
-            }
+            
         }
 
         /// <summary>

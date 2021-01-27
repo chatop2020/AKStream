@@ -4,6 +4,7 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.XML;
+using LibLogger;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -198,11 +199,14 @@ namespace LibGB28181SipServer
         {
             try
             {
+
                 Common.SipServer.DeInvite(sipChannel, _autoResetEvent, out rs, _timeout);
                 _commandType = CommandType.Unknown;
+
                 var isTimeout = _autoResetEvent.WaitOne(_timeout);
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
+
                     return false;
                 }
 
@@ -226,11 +230,14 @@ namespace LibGB28181SipServer
         {
             try
             {
+
                 _commandType = CommandType.Play;
                 Common.SipServer.Invite(sipChannel, pushMediaInfo, _autoResetEvent, out rs, _timeout);
+
                 var isTimeout = _autoResetEvent.WaitOne(_timeout);
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
+
                     return false;
                 }
 

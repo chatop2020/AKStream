@@ -797,7 +797,7 @@ namespace LibGB28181SipServer
                     evnt, evnt2, null,
                     timeout);
             }
-            catch (AkStreamException ex)
+            catch (AkStreamException ex) 
             {
                 rs = ex.ResponseStruct;
                 evnt.Set();
