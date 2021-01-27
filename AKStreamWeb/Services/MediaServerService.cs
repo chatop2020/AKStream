@@ -738,7 +738,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            lock (videoChannel)
+            lock (Common.StreamStopLock)
             {
 
                 lock (Common.VideoChannelMediaInfosLock)
@@ -863,7 +863,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            lock (videoChannel)
+            lock (Common.StreamLiveLock)
             {
                 lock (Common.VideoChannelMediaInfosLock)
                 {

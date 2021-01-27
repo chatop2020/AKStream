@@ -31,6 +31,8 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
+        public static object StreamLiveLock = new object();
+        public static object StreamStopLock = new object();
     
 
 
