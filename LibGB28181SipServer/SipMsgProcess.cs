@@ -11,6 +11,7 @@ using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.Net.SIP;
 using LibCommon.Structs.GB28181.XML;
 using LibLogger;
+using Newtonsoft.Json;
 using SIPSorcery.SIP;
 using SIPSorcery.SIP.App;
 
@@ -500,7 +501,7 @@ namespace LibGB28181SipServer
                                 }
 
                                 Logger.Debug(
-                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{sipChannel1.LastRecordInfos.Count}");
+                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{sipChannel1.LastRecordInfos.Count}->包体:{JsonHelper.ToJson(recordInfo,Formatting.Indented)}");
                                 if (sipChannel1.LastRecordInfos.Count >= tatolNum || tatolNum > 256) //数量相等或才总数特别大时，返回成功
                                 {
                                     string _taskTag = $"RECORDINFO:{tmpSipDevice1.DeviceId}:{sipChannel1.DeviceId}";
