@@ -407,10 +407,10 @@ namespace AKStreamWeb.Services
                         Stream_Id = openRtpPort.Stream,
                     };
 
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
                     mediaServer.KeeperWebApi.ReleaseRtpPort(
                         openRtpPort.Port,
-                        out rs); //释放rtp端口
+                        out _); //释放rtp端口
                 }
 
                 rs = new ResponseStruct()
@@ -442,10 +442,10 @@ namespace AKStreamWeb.Services
                         Stream_Id = openRtpPort.Stream,
                     };
 
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
                     mediaServer.KeeperWebApi.ReleaseRtpPort(
                         openRtpPort.Port,
-                        out rs); //释放rtp端口
+                        out _); //释放rtp端口
                 }
                 Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
@@ -468,10 +468,10 @@ namespace AKStreamWeb.Services
                         Stream_Id = openRtpPort.Stream,
                     };
 
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
                     mediaServer.KeeperWebApi.ReleaseRtpPort(
                         openRtpPort.Port,
-                        out rs); //释放rtp端口
+                        out _); //释放rtp端口
                 }
                 rs = new ResponseStruct()
                 {
