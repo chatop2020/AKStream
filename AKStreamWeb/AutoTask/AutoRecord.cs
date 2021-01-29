@@ -180,14 +180,19 @@ namespace AKStreamWeb.AutoTask
         {
             foreach (var day in days)
             {
-                var deleteList = ORMHelper.Db.Select<RecordFile>().Where(x => x.RecordDate == day).ToList();
+                var deleteList = ORMHelper.Db.Select<RecordFile>()
+                    .Where(x => x.RecordDate.Equals(day))
+                    .Where(x=>x.Deleted.Equals(false))
+                    .Where(x=>x.MainId.Equals(mediaInfo.Stream))
+                    .ToList();
                 if (deleteList != null && deleteList.Count > 0)
                 {
                     var deleteFileList = deleteList.Select(x => x.Id).ToList();
 
                     ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
                         .Set(x => x.Deleted, true)
-                        .Where(x => x.RecordDate == day).ExecuteAffrows();
+                        .Where(x => x.RecordDate.Equals(day))
+                        .Where(x=>x.MainId.Equals(mediaInfo.Stream)).ExecuteAffrows();
                     MediaServerService.DeleteRecordFileList(deleteFileList, out _);
                     Logger.Info(
                         $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
