@@ -10,6 +10,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private int _timeout_ms;
         private bool _enable_hls;
         private bool _enable_mp4;
+        private string? _ffmpeg_cmd_key;
 
         /// <summary>
         /// 源地址
@@ -55,6 +56,15 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         {
             get => _enable_mp4;
             set => _enable_mp4 = value;
+        }
+
+      /// <summary>
+      /// ffmpeg模板名称
+      /// </summary>
+        public string? Ffmpeg_Cmd_Key
+        {
+            get => _ffmpeg_cmd_key;
+            set => _ffmpeg_cmd_key = value;
         }
     }
 }

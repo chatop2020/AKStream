@@ -235,6 +235,30 @@ namespace AKStreamKeeper
                     string h = AKStreamWebUri.Host.ToString();
                     string p = AKStreamWebUri.Port.ToString();
 
+                    var ffmpeg_temp = data["ffmpeg_templete"];//启用ffmpeg_templete
+                    if (ffmpeg_temp == null)
+                    {
+                        SectionData ff = new SectionData("ffmpeg_templete");
+                        KeyData ffkey = new KeyData("rtsp_tcp2flv");
+                        ffkey.Value = $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        ff.Keys.AddKey(ffkey);
+                        data.Sections.Add(ff);
+                    }
+
+                    var ffkey_temp = data["ffmpeg_templete"]["rtsp_tcp2flv"];
+                    if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                    {
+                        data["ffmpeg_templete"]["rtsp_tcp2flv"] =
+                            $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                    }
+
+                    ffkey_temp = data["ffmpeg_templete"]["ffmpeg2flv"];
+                    if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                    {
+                        data["ffmpeg_templete"]["ffmpeg2flv"] =
+                            $"%s -re  -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                    }
+
                     data["hook"].RemoveAllKeys();
                     if (Common.IsDebug)
                     {
@@ -242,8 +266,10 @@ namespace AKStreamKeeper
                     }
                     else
                     {
-                        data["api"]["apiDebug"] = "0"; 
+                        data["api"]["apiDebug"] = "0";
                     }
+
+
                     data["hook"]["enable"] = "1";
                     data["hook"]["on_flow_report"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
