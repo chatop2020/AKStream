@@ -290,9 +290,9 @@ namespace AKStreamWeb.Services
                     {
                         webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                       ResponseStruct exrs = new ResponseStruct()
+                        ResponseStruct exrs = new ResponseStruct()
                         {
                             Code = ErrorNumber.Sys_AutoResetEventExcept,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
@@ -408,36 +408,38 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            var taskStr = $"WAITONPUBLISH_{req.Stream}";
-            WebHookNeedReturnTask webHookNeedReturnTask;
+          
+                var taskStr = $"WAITONPUBLISH_{req.Stream}";
+                WebHookNeedReturnTask webHookNeedReturnTask;
 
-            var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
-            if (taskFound && webHookNeedReturnTask != null)
-            {
-                webHookNeedReturnTask.OtherObj = req;
-                try
+                var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
+                if (taskFound && webHookNeedReturnTask != null)
                 {
-                    webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
-                }
-                catch(Exception ex)
-                {
-                    ResponseStruct exrs = new ResponseStruct()
+                    webHookNeedReturnTask.OtherObj = req;
+                    try
                     {
-                        Code = ErrorNumber.Sys_AutoResetEventExcept,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
-                        ExceptMessage = ex.Message,
-                        ExceptStackTrace = ex.StackTrace
-                    };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
+                    }
+                    catch (Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
                 }
-            }
 
-            ResToWebHookOnPublish result = new ResToWebHookOnPublish();
-            result.Code = 0;
-            result.EnableHls = true;
-            result.Msg = "success";
-            result.EnableMp4 = false;
-            return result;
+                ResToWebHookOnPublish result = new ResToWebHookOnPublish();
+                result.Code = 0;
+                result.EnableHls = true;
+                result.Msg = "success";
+                result.EnableMp4 = false;
+                return result;
+            
         }
 
         /// <summary>
@@ -498,11 +500,11 @@ namespace AKStreamWeb.Services
                             {
                                 if (obj != null)
                                 {
-                                    MediaServerService.StreamStop(obj.MediaServerId, obj.MainId,out _);
-                                    
+                                    MediaServerService.StreamStop(obj.MediaServerId, obj.MainId, out _);
                                 }
                             }
                         }
+
                         result = new ResMediaServerKeepAlive()
                         {
                             Rs = rs,

@@ -127,7 +127,7 @@ namespace LibGB28181SipServer
                 {
                     return true;
                 }
-                
+
                 Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
                 return false;
             }
@@ -205,7 +205,6 @@ namespace LibGB28181SipServer
         {
             try
             {
-
                 Common.SipServer.DeInvite(sipChannel, _autoResetEvent, out rs, _timeout);
                 _commandType = CommandType.Unknown;
 
@@ -236,7 +235,6 @@ namespace LibGB28181SipServer
         {
             try
             {
-
                 _commandType = CommandType.Play;
                 Common.SipServer.Invite(sipChannel, pushMediaInfo, _autoResetEvent, out rs, _timeout);
 
@@ -249,6 +247,18 @@ namespace LibGB28181SipServer
 
                 sipChannel.PushStatus = PushStatus.PUSHON;
                 return true;
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流异常->{JsonHelper.ToJson(rs)}");
+                return false;
             }
             finally
             {
@@ -310,6 +320,7 @@ namespace LibGB28181SipServer
                 {
                     return true;
                 }
+
                 Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备目录失败->{JsonHelper.ToJson(rs)}");
                 return false;
             }
