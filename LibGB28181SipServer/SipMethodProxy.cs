@@ -289,6 +289,18 @@ namespace LibGB28181SipServer
                 record.PushStatus = PushStatus.PUSHON;
                 return true;
             }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
+                return false;
+            }
             finally
             {
                 Dispose();
