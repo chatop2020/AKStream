@@ -589,7 +589,7 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.RtspsPort = req.ZlmRtspsPort;
                     tmpMediaServer.RtpPortMax = req.RtpPortMax;
                     tmpMediaServer.RtpPortMin = req.RtpPortMin;
-                    mediaServer.RandomPort = req.RandomPort;
+                    tmpMediaServer.RandomPort = req.RandomPort;
                     tmpMediaServer.ServerDateTime = req.ServerDateTime;
                     tmpMediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     tmpMediaServer.AccessKey = req.AccessKey;
