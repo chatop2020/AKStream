@@ -107,8 +107,7 @@ namespace AKStreamKeeper.Misc
             get => _maxRtpPort;
             set => _maxRtpPort = value;
         }
-
-        [JsonConverter(typeof(BoolConvert))]
+        
         /// <summary>
         /// rtp端口是否由zlm随机生成
         /// </summary>
