@@ -1606,7 +1606,7 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStartRecord.Type = 1; //0是hls,1是mp4;
             reqZLMediaKitStartRecord.Stream = videoChannel.MainId;
             reqZLMediaKitStartRecord.App =
-                videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
+                videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : videoChannel.App;
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
             reqZLMediaKitStartRecord.RecordSecs = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
                 ? videoChannel.RecordSecs
