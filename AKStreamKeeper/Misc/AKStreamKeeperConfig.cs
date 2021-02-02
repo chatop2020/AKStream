@@ -18,6 +18,7 @@ namespace AKStreamKeeper.Misc
         private bool _useSSL = false;
         private ushort _minRtpPort = 10001;
         private ushort _maxRtpPort = 30000;
+        private bool _randomPort = false;
         private string _ffmpegPath;
         private string _accessKey;
         private int _rtpPortCDTime;
@@ -103,6 +104,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _maxRtpPort;
             set => _maxRtpPort = value;
+        }
+
+        /// <summary>
+        /// rtp端口是否由zlm随机生成
+        /// </summary>
+        public bool RandomPort
+        {
+            get => _randomPort;
+            set => _randomPort = value;
         }
 
         /// <summary>

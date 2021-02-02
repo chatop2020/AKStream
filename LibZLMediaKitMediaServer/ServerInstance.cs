@@ -28,6 +28,7 @@ namespace LibZLMediaKitMediaServer
         private List<KeyValuePair<double, string>> _recordPathList;
         private ushort _rtpPortMin;
         private ushort _rtpPortMax; //仅使用min-max中的偶数类端口
+        private bool _randomPort; //是否让zlm自动生成rtp端口
         private bool _isKeeperRunning;
         private bool _isMediaServerRunning;
         private bool _useSSL;
@@ -220,6 +221,13 @@ namespace LibZLMediaKitMediaServer
         {
             get => _rtpPortMax;
             set => _rtpPortMax = value;
+        }
+
+        
+        public bool RandomPort
+        {
+            get => _randomPort;
+            set => _randomPort = value;
         }
 
         [JsonIgnore]

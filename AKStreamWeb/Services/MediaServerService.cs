@@ -1674,22 +1674,36 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            var rtpPortGuess =
-                mediaServer.KeeperWebApi.GuessAnRtpPort(out rs, mediaServer.RtpPortMin, mediaServer.RtpPortMax);
-            if (rtpPortGuess <= 0 || !rs.Code.Equals(ErrorNumber.None))
+            ReqZLMediaKitOpenRtpPort reqZlMediaKitOpenRtpPort = null;
+            if (mediaServer.RandomPort == false)
             {
-                Logger.Warn(
-                    $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                var rtpPortGuess =
+                    mediaServer.KeeperWebApi.GuessAnRtpPort(out rs, mediaServer.RtpPortMin, mediaServer.RtpPortMax);
+                if (rtpPortGuess <= 0 || !rs.Code.Equals(ErrorNumber.None))
+                {
+                    Logger.Warn(
+                        $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
-                return null;
+                    return null;
+                }
+
+                 reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
+                {
+                    Enable_Tcp = true,
+                    Port = rtpPortGuess,
+                    Stream_Id = stream,
+                };
+            }
+            else//用于支持让zlm自动生成rtp端口
+            {
+                reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
+                {
+                    Enable_Tcp = true,
+                    Port = 0,
+                    Stream_Id = stream,
+                };
             }
 
-            ReqZLMediaKitOpenRtpPort reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
-            {
-                Enable_Tcp = true,
-                Port = rtpPortGuess,
-                Stream_Id = stream,
-            };
             var zlRet = mediaServer.WebApiHelper.OpenRtpPort(reqZlMediaKitOpenRtpPort, out rs);
             if (zlRet == null || !rs.Code.Equals(ErrorNumber.None))
             {

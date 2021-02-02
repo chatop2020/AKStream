@@ -291,6 +291,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.UseSsl = false;
                 _akStreamKeeperConfig.MaxRtpPort = 20000;
                 _akStreamKeeperConfig.MinRtpPort = 10001;
+                _akStreamKeeperConfig.RandomPort = false;
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
                 _akStreamKeeperConfig.RtpPortCdTime = 3600;
                 _akStreamKeeperConfig.HttpClientTimeoutSec = 5;
@@ -611,6 +612,7 @@ namespace AKStreamKeeper
                 tmpKeepAlive.RecordPathList = _akStreamDiskInfoOfRecordMap;
                 tmpKeepAlive.RtpPortMax = _akStreamKeeperConfig.MaxRtpPort;
                 tmpKeepAlive.RtpPortMin = _akStreamKeeperConfig.MinRtpPort;
+                tmpKeepAlive.RandomPort = _akStreamKeeperConfig.RandomPort;
                 tmpKeepAlive.ServerDateTime = DateTime.Now;
                 tmpKeepAlive.ZlmHttpPort = MediaServerInstance.ZlmHttpPort;
                 tmpKeepAlive.ZlmHttpsPort = MediaServerInstance.ZlmHttpsPort;

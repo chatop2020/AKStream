@@ -20,6 +20,7 @@ namespace LibCommon.Structs.WebRequest
         private ushort _rtpPortMax; //仅使用min-max中的偶数类端口
         private ushort _zlmHttpPort;
         private ushort _zlmHttpsPort;
+        private bool _randomPort;
         private ushort _zlmRtspPort;
         private ushort _zlmRtmpPort;
         private ushort _zlmRtspsPort;
@@ -115,6 +116,14 @@ namespace LibCommon.Structs.WebRequest
             set => _rtpPortMax = value;
         }
 
+        /// <summary>
+        /// 是否zlm自动生成rtp端口
+        /// </summary>
+        public bool RandomPort
+        {
+            get => _randomPort;
+            set => _randomPort = value;
+        }
 
         /// <summary>
         /// 服务器当前时间
