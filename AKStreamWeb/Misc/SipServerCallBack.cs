@@ -205,6 +205,7 @@ namespace AKStreamWeb.Misc
                 videoChannel.PDepartmentName = "";
                 videoChannel.RtpWithTcp = false;
                 videoChannel.VideoSrcUrl = null;
+                videoChannel.RecordSecs = 0;
                 videoChannel.MethodByGetStream = MethodByGetStream.None;
                 videoChannel.MainId = sipChannel.Stream;
                 videoChannel.VideoDeviceType = VideoDeviceType.UNKNOW;
