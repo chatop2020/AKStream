@@ -11,6 +11,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private string? _app;
         private string? _stream;
         private string? _customized_path;
+        private int? _recordSecs;
 
         [JsonIgnore]
         public int? Type
@@ -41,6 +42,12 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         {
             get => _customized_path;
             set => _customized_path = value;
+        }
+
+        public int? RecordSecs
+        {
+            get => _recordSecs;
+            set => _recordSecs = value;
         }
     }
 }

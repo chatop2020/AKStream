@@ -1608,6 +1608,9 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStartRecord.App =
                 videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
+            reqZLMediaKitStartRecord.RecordSecs = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
+                ? videoChannel.RecordSecs
+                : null;
 
             if (mediaServer.RecordPathList != null && mediaServer.RecordPathList.Count > 1)
             {
@@ -1622,9 +1625,9 @@ namespace AKStreamWeb.Services
 
                     return -1;
                 });
-            
 
-            reqZLMediaKitStartRecord.Customized_Path = mediaServer.RecordPathList[0].Value;
+
+                reqZLMediaKitStartRecord.Customized_Path = mediaServer.RecordPathList[0].Value;
             }
 
             var ret = mediaServer.WebApiHelper.StartRecord(reqZLMediaKitStartRecord, out rs);
@@ -1687,14 +1690,14 @@ namespace AKStreamWeb.Services
                     return null;
                 }
 
-                 reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
+                reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
                 {
                     Enable_Tcp = true,
                     Port = rtpPortGuess,
                     Stream_Id = stream,
                 };
             }
-            else//用于支持让zlm自动生成rtp端口
+            else //用于支持让zlm自动生成rtp端口
             {
                 reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
                 {
@@ -2416,6 +2419,7 @@ namespace AKStreamWeb.Services
                     UtilsHelper.StringIsNullEx(req.RecordPlanName) ? null : req.RecordPlanName;
                 tmpVideoChannel.AutoVideo = req.AutoVideo;
                 tmpVideoChannel.ChannelId = UtilsHelper.StringIsNullEx(req.ChannelId) ? null : req.ChannelId;
+                tmpVideoChannel.RecordSecs = req.RecordSecs;
                 tmpVideoChannel.App = UtilsHelper.StringIsNullEx(req.App) ? null : req.App;
                 tmpVideoChannel.Vhost = UtilsHelper.StringIsNullEx(req.Vhost) ? null : req.Vhost;
                 tmpVideoChannel.ChannelName = UtilsHelper.StringIsNullEx(req.ChannelName) ? null : req.ChannelName;
@@ -3257,6 +3261,7 @@ namespace AKStreamWeb.Services
                     .SetIf(req.Enable != null, x => x.Enabled, req.Enable)
                     .SetIf(req.DeviceStreamType != null, x => x.DeviceStreamType, req.DeviceStreamType)
                     .SetIf(req.MethodByGetStream != null, x => x.MethodByGetStream, req.MethodByGetStream)
+                    .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
                     .Set(x => x.UpdateTime, DateTime.Now)
                     .Where("1=1")
                     .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ExecuteAffrows();
@@ -3443,6 +3448,7 @@ namespace AKStreamWeb.Services
                     .SetIf(req.RtpWithTcp != null, x => x.RtpWithTcp, req.RtpWithTcp)
                     .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
                     .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
+                    .SetIf(req.RecordSecs!=null,x=>x.RecordSecs,req.RecordSecs)
                     .Set(x => x.MediaServerId, req.MediaServerId)
                     .Set(x => x.UpdateTime, DateTime.Now)
                     .Set(x => x.Enabled, true)

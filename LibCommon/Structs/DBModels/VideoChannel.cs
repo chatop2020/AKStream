@@ -36,6 +36,7 @@ namespace LibCommon.Structs.DBModels
         private VideoDeviceType _videoDeviceType;
         private bool _autoVideo;
         private bool _autoRecord;
+        private int? _recordSecs=0;
         private string? _recordPlanName;
         private string _ipV4Address;
         private string? _ipV6Address;
@@ -213,6 +214,15 @@ namespace LibCommon.Structs.DBModels
         {
             get => _autoRecord;
             set => _autoRecord = value;
+        }
+
+        /// <summary>
+        /// 录制时长（秒）
+        /// </summary>
+        public int? RecordSecs
+        {
+            get => _recordSecs;
+            set => _recordSecs = value;
         }
 
         /// <summary>

@@ -20,6 +20,7 @@ namespace LibCommon.Structs.WebRequest
         private VideoDeviceType? _videoDeviceType;
         private bool? _autoVideo;
         private bool? _autoRecord;
+        private int? _recordSecs;
         private string? _recordPlanName;
         private string? _ipV4Address;
         private string? _ipV6Address;
@@ -138,6 +139,16 @@ namespace LibCommon.Structs.WebRequest
             get => _autoRecord;
             set => _autoRecord = value;
         }
+
+        /// <summary>
+        /// 录制文件切片时长(秒)
+        /// </summary>
+        public int? RecordSecs
+        {
+            get => _recordSecs;
+            set => _recordSecs = value;
+        }
+
 
         /// <summary>
         /// 录制计划模板名称

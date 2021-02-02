@@ -11,6 +11,7 @@
   "UseSsl": false,
   "MinRtpPort": 10001,
   "MaxRtpPort": 20000,
+  "RandomPort": false,
   "FFmpegPath": "/usr/local/bin/ffmpeg",
   "AccessKey": "O7O4S089-PGDW6HTM-T4CV6K74-V6RIP1I6-9300G54F-Z03TI40Q",
   "RtpPortCdTime": 3600,
