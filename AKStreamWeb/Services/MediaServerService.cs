@@ -1609,18 +1609,23 @@ namespace AKStreamWeb.Services
                 videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
 
-            mediaServer.RecordPathList.Sort((left, right) => //对相减后的绝对值排序
+            if (mediaServer.RecordPathList != null && mediaServer.RecordPathList.Count > 1)
             {
-                if (left.Key > right.Key)
-                    return 0;
-                if ((int) left.Key == (int) right.Key)
+                mediaServer.RecordPathList.Sort((left, right) => //对相减后的绝对值排序
                 {
-                    return 1;
-                }
+                    if (left.Key > right.Key)
+                        return 0;
+                    if ((int) left.Key == (int) right.Key)
+                    {
+                        return 1;
+                    }
 
-                return -1;
-            });
+                    return -1;
+                });
+            
+
             reqZLMediaKitStartRecord.Customized_Path = mediaServer.RecordPathList[0].Value;
+            }
 
             var ret = mediaServer.WebApiHelper.StartRecord(reqZLMediaKitStartRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))

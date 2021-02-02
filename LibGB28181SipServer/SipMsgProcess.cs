@@ -245,7 +245,21 @@ namespace LibGB28181SipServer
                                     out NeedReturnTask _task);
                                 if (ret && _task != null && _task.AutoResetEvent2 != null)
                                 {
-                                    _task.AutoResetEvent2.Set();
+                                    try
+                                    {
+                                        _task.AutoResetEvent2.Set();
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        ResponseStruct exrs = new ResponseStruct()
+                                        {
+                                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                            ExceptMessage = ex.Message,
+                                            ExceptStackTrace = ex.StackTrace
+                                        };
+                                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                    }
                                 }
                             }
                         }
@@ -510,7 +524,21 @@ namespace LibGB28181SipServer
                                     var ret = Common.NeedResponseRequests.TryRemove(_taskTag, out NeedReturnTask _task);
                                     if (ret && _task != null && _task.AutoResetEvent2 != null)
                                     {
-                                        _task.AutoResetEvent2.Set();
+                                        try
+                                        {
+                                            _task.AutoResetEvent2.Set();
+                                        }
+                                        catch(Exception ex)
+                                        {
+                                            ResponseStruct exrs = new ResponseStruct()
+                                            {
+                                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                                ExceptMessage = ex.Message,
+                                                ExceptStackTrace = ex.StackTrace
+                                            };
+                                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                        }
                                     }
                                 }
                             }

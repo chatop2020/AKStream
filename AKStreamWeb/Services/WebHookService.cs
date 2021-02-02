@@ -286,7 +286,21 @@ namespace AKStreamWeb.Services
                 if (taskFound && webHookNeedReturnTask != null)
                 {
                     webHookNeedReturnTask.OtherObj = req;
-                    webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
+                    try
+                    {
+                        webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
+                    }
+                    catch(Exception ex)
+                    {
+                       ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
                 }
             }
 
@@ -401,7 +415,21 @@ namespace AKStreamWeb.Services
             if (taskFound && webHookNeedReturnTask != null)
             {
                 webHookNeedReturnTask.OtherObj = req;
-                webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
+                try
+                {
+                    webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
 
             ResToWebHookOnPublish result = new ResToWebHookOnPublish();

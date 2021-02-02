@@ -622,7 +622,22 @@ namespace LibGB28181SipServer
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
+
                 return;
             }
 
@@ -685,7 +700,21 @@ namespace LibGB28181SipServer
             catch (AkStreamException ex)
             {
                 rs = ex.ResponseStruct;
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -731,7 +760,21 @@ namespace LibGB28181SipServer
                 catch (AkStreamException ex)
                 {
                     rs = ex.ResponseStruct;
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception exex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = exex.Message,
+                            ExceptStackTrace = exex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
                 }
             }
             else
@@ -741,7 +784,21 @@ namespace LibGB28181SipServer
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -764,8 +821,23 @@ namespace LibGB28181SipServer
             CheckInviteParam(sipChannel, PushStatus.IGNORE, out rs); //检测各参数是否正常
             if (!rs.Code.Equals(ErrorNumber.None))
             {
-                evnt.Set();
-                evnt2.Set();
+                try
+                {
+                    evnt.Set();
+                    evnt2.Set();
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
+
                 return;
             }
 
@@ -800,8 +872,22 @@ namespace LibGB28181SipServer
             catch (AkStreamException ex) 
             {
                 rs = ex.ResponseStruct;
-                evnt.Set();
-                evnt2.Set();
+                try
+                {
+                    evnt.Set();
+                    evnt2.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -847,7 +933,21 @@ namespace LibGB28181SipServer
                 catch (AkStreamException ex)
                 {
                     rs = ex.ResponseStruct;
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception exex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = exex.Message,
+                            ExceptStackTrace = exex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
                 }
             }
             else
@@ -857,7 +957,21 @@ namespace LibGB28181SipServer
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -940,7 +1054,22 @@ namespace LibGB28181SipServer
                 CheckInviteParam(record, PushStatus.PUSHON, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                     return;
                 }
 
@@ -964,7 +1093,21 @@ namespace LibGB28181SipServer
                     catch (AkStreamException ex)
                     {
                         rs = ex.ResponseStruct;
-                        evnt.Set();
+                        try
+                        {
+                            evnt.Set();
+                        }
+                        catch(Exception exex)
+                        {
+                            ResponseStruct exrs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                ExceptMessage = exex.Message,
+                                ExceptStackTrace = exex.StackTrace
+                            };
+                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        }
                     }
                 }
             }
@@ -977,7 +1120,21 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -998,7 +1155,22 @@ namespace LibGB28181SipServer
                 CheckInviteParam(sipChannel, PushStatus.PUSHON, out rs); //检测各参数是否正常
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                     return;
                 }
 
@@ -1023,7 +1195,21 @@ namespace LibGB28181SipServer
                     catch (AkStreamException ex)
                     {
                         rs = ex.ResponseStruct;
-                        evnt.Set();
+                        try
+                        {
+                            evnt.Set();
+                        }
+                        catch(Exception exex)
+                        {
+                            ResponseStruct exrs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                ExceptMessage = exex.Message,
+                                ExceptStackTrace = exex.StackTrace
+                            };
+                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        }
                     }
                 }
             }
@@ -1036,7 +1222,21 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -1050,7 +1250,22 @@ namespace LibGB28181SipServer
                 CheckInviteParam(record, PushStatus.IDLE, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                     return;
                 }
 
@@ -1121,7 +1336,21 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -1139,7 +1368,22 @@ namespace LibGB28181SipServer
                 CheckInviteParam(sipChannel, PushStatus.IDLE, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                     return;
                 }
 
@@ -1150,7 +1394,22 @@ namespace LibGB28181SipServer
                         Code = ErrorNumber.Sip_NotOnPushStream,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_NotOnPushStream],
                     };
-                    evnt.Set();
+                    try
+                    {
+                        evnt.Set();
+                    }
+                    catch(Exception ex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                     return;
                 }
 
@@ -1217,7 +1476,21 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                evnt.Set();
+                try
+                {
+                    evnt.Set();
+                }
+                catch(Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
@@ -1261,8 +1534,23 @@ namespace LibGB28181SipServer
                 catch (AkStreamException ex)
                 {
                     rs = ex.ResponseStruct;
-                    evnt.Set();
-                    evnt2.Set();
+                    try
+                    {
+                        evnt.Set();
+                        evnt2.Set();
+                    }
+                    catch(Exception exex)
+                    {
+                        ResponseStruct exrs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_AutoResetEventExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                            ExceptMessage = exex.Message,
+                            ExceptStackTrace = exex.StackTrace
+                        };
+                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    }
+
                 }
             }
             else
@@ -1272,8 +1560,22 @@ namespace LibGB28181SipServer
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                evnt.Set();
-                evnt2.Set();
+                try
+                {
+                    evnt.Set();
+                    evnt2.Set();
+                }
+                catch(Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
             }
         }
 
