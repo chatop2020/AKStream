@@ -799,6 +799,7 @@ namespace AKStreamWeb.Services
                         }
                         else
                         {
+                            
                             Logger.Warn(
                                 $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                         }
@@ -808,6 +809,14 @@ namespace AKStreamWeb.Services
                 }
                 catch (AkStreamException ex)
                 {
+                    lock (Common.VideoChannelMediaInfosLock)
+                    {
+                        var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        if (onlineObj != null)
+                        {
+                            Common.VideoChannelMediaInfos.Remove(onlineObj);
+                        }
+                    }
                     throw ex;
                 }
             }
