@@ -257,6 +257,14 @@ namespace AKStreamWeb.Services
                    
                     if (!rs.Code.Equals(ErrorNumber.None))
                     {
+                        lock (Common.VideoChannelMediaInfosLock)
+                        {
+                            var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                            if (obj != null)
+                            {
+                                Common.VideoChannelMediaInfos.Remove(obj);
+                            }
+                        }
                         Logger.Warn(
                             $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
@@ -277,6 +285,14 @@ namespace AKStreamWeb.Services
                 }
                 catch (Exception ex)
                 {
+                    lock (Common.VideoChannelMediaInfosLock)
+                    {
+                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        if (obj != null)
+                        {
+                            Common.VideoChannelMediaInfos.Remove(obj);
+                        }
+                    }
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.Other,

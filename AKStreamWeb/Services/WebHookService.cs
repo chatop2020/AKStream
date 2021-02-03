@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
@@ -171,6 +172,26 @@ namespace AKStreamWeb.Services
                         if (obj != null)
                         {
                             Common.VideoChannelMediaInfos.Remove(obj);
+                        }
+                    }
+                }
+
+                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
+                {
+                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                    if (obj != null)
+                    {
+                        try
+                        {
+                            Task.Run(() =>  //因为streamStop可能会有5秒超时，因此用线程处理，避免webhook回复超时
+                            {
+                                MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out _);
+                            });
+                           
+                        }
+                        catch
+                        {
+                            //  
                         }
                     }
                 }
@@ -408,38 +429,37 @@ namespace AKStreamWeb.Services
                 };
             }
 
-          
-                var taskStr = $"WAITONPUBLISH_{req.Stream}";
-                WebHookNeedReturnTask webHookNeedReturnTask;
 
-                var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
-                if (taskFound && webHookNeedReturnTask != null)
+            var taskStr = $"WAITONPUBLISH_{req.Stream}";
+            WebHookNeedReturnTask webHookNeedReturnTask;
+
+            var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
+            if (taskFound && webHookNeedReturnTask != null)
+            {
+                webHookNeedReturnTask.OtherObj = req;
+                try
                 {
-                    webHookNeedReturnTask.OtherObj = req;
-                    try
-                    {
-                        webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
-                    }
-                    catch (Exception ex)
-                    {
-                        ResponseStruct exrs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_AutoResetEventExcept,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
-                            ExceptMessage = ex.Message,
-                            ExceptStackTrace = ex.StackTrace
-                        };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
-                    }
+                    webHookNeedReturnTask.AutoResetEvent.Set(); //让推流业务继续走下去
                 }
+                catch (Exception ex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
+            }
 
-                ResToWebHookOnPublish result = new ResToWebHookOnPublish();
-                result.Code = 0;
-                result.EnableHls = true;
-                result.Msg = "success";
-                result.EnableMp4 = false;
-                return result;
-            
+            ResToWebHookOnPublish result = new ResToWebHookOnPublish();
+            result.Code = 0;
+            result.EnableHls = true;
+            result.Msg = "success";
+            result.EnableMp4 = false;
+            return result;
         }
 
         /// <summary>
