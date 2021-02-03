@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using LibCommon;
 using LibCommon.Enums;
@@ -183,11 +184,11 @@ namespace AKStreamWeb.Services
                     {
                         try
                         {
-                            Task.Run(() =>  //因为streamStop可能会有5秒超时，因此用线程处理，避免webhook回复超时
+                            Task.Run(() => //因为streamStop可能会有5秒超时，因此用线程处理，避免webhook回复超时
                             {
-                                MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out _);
+                                MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
+                                    out _);
                             });
-                           
                         }
                         catch
                         {
@@ -432,6 +433,14 @@ namespace AKStreamWeb.Services
 
             var taskStr = $"WAITONPUBLISH_{req.Stream}";
             WebHookNeedReturnTask webHookNeedReturnTask;
+            int tick = 0;
+        
+            while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
+                   tick <= 5000)
+            {//AutoResetEvent没准备好，onpublish事件却来了，这里如果发现值为空，就等等
+                tick += 10;
+                Thread.Sleep(10);
+            }
 
             var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
             if (taskFound && webHookNeedReturnTask != null)
