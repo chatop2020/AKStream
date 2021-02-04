@@ -184,15 +184,12 @@ namespace AKStreamWeb.Services
                     {
                         try
                         {
-                            Task.Run(() => //因为streamStop可能会有5秒超时，因此用线程处理，避免webhook回复超时
-                            {
-                                MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
-                                    out _);
-                            });
+                            MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
+                                out _);
                         }
                         catch
                         {
-                            //  
+                          //  
                         }
                     }
                 }
