@@ -442,10 +442,10 @@ namespace AKStreamWeb.Controllers
         [AuthVerify]
         [Route("DeleteVideoChannel")]
         [HttpGet]
-        public bool DeleteVideoChannel([FromHeader(Name = "AccessKey")] string AccessKey, string mianId)
+        public bool DeleteVideoChannel([FromHeader(Name = "AccessKey")] string AccessKey, string mainId)
         {
             ResponseStruct rs;
-            var ret = MediaServerService.DeleteVideoChannel(mianId, out rs);
+            var ret = MediaServerService.DeleteVideoChannel(mainId, out rs);
             if (rs.Code != ErrorNumber.None)
             {
                 throw new AkStreamException(rs);

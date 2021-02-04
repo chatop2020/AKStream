@@ -3267,7 +3267,7 @@ namespace AKStreamWeb.Services
                     .SetIf(req.RtpWithTcp != null, x => x.RtpWithTcp, req.RtpWithTcp)
                     .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
                     .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
-                    .SetIf(req.Enable != null, x => x.Enabled, req.Enable)
+                    .SetIf(req.Enabled != null, x => x.Enabled, req.Enabled)
                     .SetIf(req.DeviceStreamType != null, x => x.DeviceStreamType, req.DeviceStreamType)
                     .SetIf(req.MethodByGetStream != null, x => x.MethodByGetStream, req.MethodByGetStream)
                     .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)

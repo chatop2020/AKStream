@@ -6,7 +6,7 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqModifyVideoChannel : ReqActiveVideoChannel
     {
-        private bool? _enable;
+        private bool? _enabled;
         private string? _mediaServerId;
         private DeviceStreamType? _deviceStreamType;
         private MethodByGetStream? _methodByGetStream;
@@ -18,10 +18,10 @@ namespace LibCommon.Structs.WebRequest
         /// <summary>
         /// 是否启用
         /// </summary>
-        public bool? Enable
+        public bool? Enabled
         {
-            get => _enable;
-            set => _enable = value;
+            get => _enabled;
+            set => _enabled = value;
         }
 
         /// <summary>
