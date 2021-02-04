@@ -149,7 +149,7 @@ namespace LibCommon.Structs.GB28181
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            if ((DateTime.Now - _createTime).Milliseconds > _timeout + 1000)
+            if ((DateTime.Now - _createTime).TotalMilliseconds > _timeout + 1000)
             {
                 _needResponseRequests.TryRemove(_callId, out _);
                 Dispose();
