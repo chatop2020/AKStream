@@ -58,9 +58,9 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
             set => _enable_mp4 = value;
         }
 
-      /// <summary>
-      /// ffmpeg模板名称
-      /// </summary>
+        /// <summary>
+        /// ffmpeg模板名称
+        /// </summary>
         public string? Ffmpeg_Cmd_Key
         {
             get => _ffmpeg_cmd_key;

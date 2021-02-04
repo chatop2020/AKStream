@@ -36,7 +36,7 @@ namespace LibCommon.Structs.DBModels
         private VideoDeviceType _videoDeviceType;
         private bool _autoVideo;
         private bool _autoRecord;
-        private int? _recordSecs=0;
+        private int? _recordSecs = 0;
         private string? _recordPlanName;
         private string _ipV4Address;
         private string? _ipV6Address;

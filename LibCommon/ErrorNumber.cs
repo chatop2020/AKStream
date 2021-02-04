@@ -43,7 +43,7 @@ namespace LibCommon
         Sys_DvrCutMergeTimeLimit = -1030, //裁剪时间限制，超过120分钟任务不允许执行
         Sys_DvrCutMergeFileNotFound = -1031, //时间周期内没有找到相关视频文件
         Sys_DvrCutProcessQueueLimit = -1032, //处理队列已满，请稍后再试
-        Sys_AutoResetEventExcept=-1033,//AutoResetEventExcept
+        Sys_AutoResetEventExcept = -1033, //AutoResetEventExcept
         Sip_StartExcept = -2000, //启动Sip服务异常
         Sip_StopExcept = -2001, //停止Sip服务异常
         Sip_Except_DisposeSipDevice = -2002, //Sip网关内部异常(销毁Sip设备时)

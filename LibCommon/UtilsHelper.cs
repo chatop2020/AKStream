@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using LibCommon.Structs;
-using LibCommon.Structs.DBModels;
 using Newtonsoft.Json;
 
 namespace LibCommon

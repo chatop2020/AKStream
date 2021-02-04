@@ -17,7 +17,6 @@ using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 using Newtonsoft.Json;
 
-
 namespace AKStreamWeb.Services
 {
     public static class MediaServerService
@@ -799,7 +798,6 @@ namespace AKStreamWeb.Services
                         }
                         else
                         {
-                            
                             Logger.Warn(
                                 $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                         }
@@ -811,12 +809,14 @@ namespace AKStreamWeb.Services
                 {
                     lock (Common.VideoChannelMediaInfosLock)
                     {
-                        var onlineObj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                        var onlineObj =
+                            Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
                         if (onlineObj != null)
                         {
                             Common.VideoChannelMediaInfos.Remove(onlineObj);
                         }
                     }
+
                     throw ex;
                 }
             }
@@ -3457,7 +3457,7 @@ namespace AKStreamWeb.Services
                     .SetIf(req.RtpWithTcp != null, x => x.RtpWithTcp, req.RtpWithTcp)
                     .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
                     .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
-                    .SetIf(req.RecordSecs!=null,x=>x.RecordSecs,req.RecordSecs)
+                    .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
                     .Set(x => x.MediaServerId, req.MediaServerId)
                     .Set(x => x.UpdateTime, DateTime.Now)
                     .Set(x => x.Enabled, true)

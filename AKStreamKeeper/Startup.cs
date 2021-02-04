@@ -140,24 +140,21 @@ namespace AKStreamKeeper
             app.UseMiddleware<ExceptionMiddleware>(); //ExceptionMiddleware 加入管道
             app.UseAuthorization();
 
-            
-            if (!Directory.Exists(GCommon.BaseStartPath+ "/CutMergeFile"))
+
+            if (!Directory.Exists(GCommon.BaseStartPath + "/CutMergeFile"))
             {
-                Directory.CreateDirectory(GCommon.BaseStartPath+ "/CutMergeFile");
+                Directory.CreateDirectory(GCommon.BaseStartPath + "/CutMergeFile");
             }
 
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider =
-                    new PhysicalFileProvider(GCommon.BaseStartPath+ "/CutMergeFile"),
-                OnPrepareResponse = (c) =>
-                {
-                    c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                },
+                    new PhysicalFileProvider(GCommon.BaseStartPath + "/CutMergeFile"),
+                OnPrepareResponse = (c) => { c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); },
                 RequestPath = new PathString("/CutMergeFile")
             });
-            
-            
+
+
             if (Common.AkStreamKeeperConfig.CustomRecordPathList != null &&
                 Common.AkStreamKeeperConfig.CustomRecordPathList.Count > 0)
             {

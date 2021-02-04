@@ -626,7 +626,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -704,7 +704,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -764,7 +764,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception exex)
+                    catch (Exception exex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -788,7 +788,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -826,7 +826,7 @@ namespace LibGB28181SipServer
                     evnt.Set();
                     evnt2.Set();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -869,7 +869,7 @@ namespace LibGB28181SipServer
                     evnt, evnt2, null,
                     timeout);
             }
-            catch (AkStreamException ex) 
+            catch (AkStreamException ex)
             {
                 rs = ex.ResponseStruct;
                 try
@@ -877,7 +877,7 @@ namespace LibGB28181SipServer
                     evnt.Set();
                     evnt2.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -937,7 +937,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception exex)
+                    catch (Exception exex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -961,7 +961,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -1058,7 +1058,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1097,7 +1097,7 @@ namespace LibGB28181SipServer
                         {
                             evnt.Set();
                         }
-                        catch(Exception exex)
+                        catch (Exception exex)
                         {
                             ResponseStruct exrs = new ResponseStruct()
                             {
@@ -1124,7 +1124,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -1159,7 +1159,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1199,7 +1199,7 @@ namespace LibGB28181SipServer
                         {
                             evnt.Set();
                         }
-                        catch(Exception exex)
+                        catch (Exception exex)
                         {
                             ResponseStruct exrs = new ResponseStruct()
                             {
@@ -1226,7 +1226,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -1254,7 +1254,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1340,7 +1340,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -1372,7 +1372,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1398,7 +1398,7 @@ namespace LibGB28181SipServer
                     {
                         evnt.Set();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1480,7 +1480,7 @@ namespace LibGB28181SipServer
                 {
                     evnt.Set();
                 }
-                catch(Exception exex)
+                catch (Exception exex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {
@@ -1539,7 +1539,7 @@ namespace LibGB28181SipServer
                         evnt.Set();
                         evnt2.Set();
                     }
-                    catch(Exception exex)
+                    catch (Exception exex)
                     {
                         ResponseStruct exrs = new ResponseStruct()
                         {
@@ -1550,7 +1550,6 @@ namespace LibGB28181SipServer
                         };
                         Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
-
                 }
             }
             else
@@ -1565,7 +1564,7 @@ namespace LibGB28181SipServer
                     evnt.Set();
                     evnt2.Set();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     ResponseStruct exrs = new ResponseStruct()
                     {

@@ -249,7 +249,7 @@ namespace LibGB28181SipServer
                                     {
                                         _task.AutoResetEvent2.Set();
                                     }
-                                    catch(Exception ex)
+                                    catch (Exception ex)
                                     {
                                         ResponseStruct exrs = new ResponseStruct()
                                         {
@@ -258,7 +258,8 @@ namespace LibGB28181SipServer
                                             ExceptMessage = ex.Message,
                                             ExceptStackTrace = ex.StackTrace
                                         };
-                                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                        Logger.Warn(
+                                            $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                                     }
                                 }
                             }
@@ -344,8 +345,11 @@ namespace LibGB28181SipServer
 
 
                             tmpSipDevice.KeepAliveTime = time;
-                            if (tmpSipDevice.RemoteEndPoint !=null && tmpSipDevice.RemoteEndPoint != remoteEndPoint && tmpSipDevice.RemoteEndPoint.Protocol==SIPProtocolsEnum.udp)//如果udp协议当endpoint发生变化时更新成新的
-                            {   //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
+                            if (tmpSipDevice.RemoteEndPoint != null && tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
+                                tmpSipDevice.RemoteEndPoint.Protocol == SIPProtocolsEnum.udp
+                            ) //如果udp协议当endpoint发生变化时更新成新的
+                            {
+                                //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
                                 tmpSipDevice.RemoteEndPoint = remoteEndPoint;
                             }
 
@@ -437,7 +441,7 @@ namespace LibGB28181SipServer
                                         char[] tmpChars = crc32Str.ToCharArray();
                                         tmpChars[0] = '1'; //回放流的ssrc第一位是1
                                         string itemId = new string(tmpChars);
-                                        
+
                                         var tmp = sipChannel1.LastRecordInfos.FindLast(x =>
                                             x.Value.SsrcId.Equals(itemId));
                                         if (tmp.Value == null)
@@ -502,7 +506,6 @@ namespace LibGB28181SipServer
                                             x.Value.SsrcId.Equals(itemId));
                                         if (tmp.Value == null)
                                         {
-                                          
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
                                             item.SipDevice = tmpSipDevice1;
@@ -517,7 +520,7 @@ namespace LibGB28181SipServer
                                 }
 
                                 Logger.Debug(
-                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{sipChannel1.LastRecordInfos.Count}->包体:{JsonHelper.ToJson(recordInfo,Formatting.Indented)}");
+                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{sipChannel1.LastRecordInfos.Count}->包体:{JsonHelper.ToJson(recordInfo, Formatting.Indented)}");
                                 if (sipChannel1.LastRecordInfos.Count >= tatolNum || tatolNum > 256) //数量相等或才总数特别大时，返回成功
                                 {
                                     string _taskTag = $"RECORDINFO:{tmpSipDevice1.DeviceId}:{sipChannel1.DeviceId}";
@@ -528,7 +531,7 @@ namespace LibGB28181SipServer
                                         {
                                             _task.AutoResetEvent2.Set();
                                         }
-                                        catch(Exception ex)
+                                        catch (Exception ex)
                                         {
                                             ResponseStruct exrs = new ResponseStruct()
                                             {
@@ -537,7 +540,8 @@ namespace LibGB28181SipServer
                                                 ExceptMessage = ex.Message,
                                                 ExceptStackTrace = ex.StackTrace
                                             };
-                                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                            Logger.Warn(
+                                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                                         }
                                     }
                                 }
@@ -997,6 +1001,7 @@ namespace LibGB28181SipServer
             {
                 sdpTmp = sdp.Split("\r", StringSplitOptions.RemoveEmptyEntries);
             }
+
             if (sdpTmp.Length <= 0)
             {
                 sdpTmp = sdp.Split("\n", StringSplitOptions.RemoveEmptyEntries);

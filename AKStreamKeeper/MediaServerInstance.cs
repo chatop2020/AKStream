@@ -235,7 +235,7 @@ namespace AKStreamKeeper
                     string h = AKStreamWebUri.Host.ToString();
                     string p = AKStreamWebUri.Port.ToString();
 
-                    var ffmpeg_temp = data["ffmpeg_templete"];//启用ffmpeg_templete
+                    var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
                     if (ffmpeg_temp == null)
                     {
                         SectionData ff = new SectionData("ffmpeg_templete");

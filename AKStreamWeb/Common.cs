@@ -7,7 +7,6 @@ using AKStreamWeb.AutoTask;
 using AKStreamWeb.Misc;
 using LibCommon;
 using LibCommon.Structs;
-using LibCommon.Structs.DBModels;
 using LibGB28181SipServer;
 using LibLogger;
 using LibSystemInfo;
@@ -33,7 +32,6 @@ namespace AKStreamWeb
         private static AutoTaskOther _autoTaskOther;
         public static object StreamLiveLock = new object();
         public static object StreamStopLock = new object();
-    
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
@@ -255,8 +253,6 @@ namespace AKStreamWeb
             }
 
 #if (DEBUG)
-
-
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
             Console.WriteLine("[Debug]\t程序启动路径:" + GCommon.BaseStartPath);
             Console.WriteLine("[Debug]\t程序启动全路径:" + GCommon.BaseStartFullPath);

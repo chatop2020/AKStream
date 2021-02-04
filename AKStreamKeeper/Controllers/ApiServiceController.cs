@@ -16,7 +16,6 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
-       
         /// <summary>
         /// 获取rtp端口信息列表
         /// </summary>
@@ -28,7 +27,7 @@ namespace AKStreamKeeper.Controllers
         {
             return Common.PortInfoList;
         }
-        
+
         /// <summary>
         /// 获取流媒体服务器运行状态
         /// </summary>

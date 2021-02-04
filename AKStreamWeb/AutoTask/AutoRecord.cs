@@ -8,7 +8,6 @@ using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
 using LibLogger;
-using Newtonsoft.Json;
 
 namespace AKStreamWeb.AutoTask
 {
@@ -182,8 +181,8 @@ namespace AKStreamWeb.AutoTask
             {
                 var deleteList = ORMHelper.Db.Select<RecordFile>()
                     .Where(x => x.RecordDate.Equals(day))
-                    .Where(x=>x.Deleted.Equals(false))
-                    .Where(x=>x.MainId.Equals(mediaInfo.Stream))
+                    .Where(x => x.Deleted.Equals(false))
+                    .Where(x => x.MainId.Equals(mediaInfo.Stream))
                     .ToList();
                 if (deleteList != null && deleteList.Count > 0)
                 {
@@ -192,7 +191,7 @@ namespace AKStreamWeb.AutoTask
                     ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
                         .Set(x => x.Deleted, true)
                         .Where(x => x.RecordDate.Equals(day))
-                        .Where(x=>x.MainId.Equals(mediaInfo.Stream)).ExecuteAffrows();
+                        .Where(x => x.MainId.Equals(mediaInfo.Stream)).ExecuteAffrows();
                     MediaServerService.DeleteRecordFileList(deleteFileList, out _);
                     Logger.Info(
                         $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
@@ -237,6 +236,7 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             fileDateList = new List<string>();
                                         }
+
                                         var inRange = checkTimeRange(recordPlan);
                                         bool stopIt = false;
                                         if (!inRange)
@@ -255,8 +255,8 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             stopIt = true;
                                         }
-                                     
-                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded==true)
+
+                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true)
                                         {
                                             switch (recordPlan.OverStepPlan)
                                             {
@@ -371,9 +371,8 @@ namespace AKStreamWeb.AutoTask
                     }
                 }
 
-               
-                    Thread.Sleep(1000);   
-               
+
+                Thread.Sleep(1000);
             }
         }
 

@@ -6,7 +6,6 @@ using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace AKStreamWeb.Controllers
 {
     /// <summary>

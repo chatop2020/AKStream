@@ -163,12 +163,14 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             get => _ffmpeg_snap;
             set => _ffmpeg_snap = value;
         }
+
         [JsonProperty("ffmpeg_templete.ffmpeg2flv")]
         public string? Ffmpeg_Templete_Ffmpeg2Flv
         {
             get => _ffmpeg_templete_ffmpeg2flv;
             set => _ffmpeg_templete_ffmpeg2flv = value;
         }
+
         [JsonProperty("ffmpeg_templete.rtsp_tcp2flv")]
         public string? Ffmpeg_Templete_RtspTcp2Flv
         {

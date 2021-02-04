@@ -53,6 +53,7 @@ namespace AKStreamWeb.Misc
                                 }
                             }
                         }
+
                         Thread.Sleep(50);
                     }
                 }
@@ -71,7 +72,6 @@ namespace AKStreamWeb.Misc
             }
             finally
             {
-               
                 if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                 {
                     lock (Common.VideoChannelMediaInfosLock)
@@ -85,14 +85,12 @@ namespace AKStreamWeb.Misc
                                 if (mediaInfo != null)
                                 {
                                     Common.VideoChannelMediaInfos.Remove(mediaInfo);
-
                                 }
                             }
                         }
                     }
                 }
             }
-
         }
 
         public static void OnKeepalive(string deviceId, DateTime keepAliveTime, int lostTimes)

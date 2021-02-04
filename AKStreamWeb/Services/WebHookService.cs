@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
@@ -186,13 +185,15 @@ namespace AKStreamWeb.Services
                         {
                             MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
                                 out _);
-                            var sipDevice=LibGB28181SipServer.Common.SipDevices.FindLast(//补充，如果上面的StreamStop没有完全执行成功，则在此处将sipChannel的状态设置成空闲
-                                x => x.DeviceId.Equals(videoChannel.DeviceId));
+                            var sipDevice =
+                                LibGB28181SipServer.Common.SipDevices
+                                    .FindLast( //补充，如果上面的StreamStop没有完全执行成功，则在此处将sipChannel的状态设置成空闲
+                                        x => x.DeviceId.Equals(videoChannel.DeviceId));
                             if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                             {
                                 var sipChannel =
                                     sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                                if (sipChannel != null && sipChannel.PushStatus!=PushStatus.IDLE)
+                                if (sipChannel != null && sipChannel.PushStatus != PushStatus.IDLE)
                                 {
                                     sipChannel.PushStatus = PushStatus.IDLE;
                                 }
@@ -200,7 +201,7 @@ namespace AKStreamWeb.Services
                         }
                         catch
                         {
-                          //  
+                            //  
                         }
                     }
                 }
@@ -442,10 +443,11 @@ namespace AKStreamWeb.Services
             var taskStr = $"WAITONPUBLISH_{req.Stream}";
             WebHookNeedReturnTask webHookNeedReturnTask;
             int tick = 0;
-        
+
             while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
                    tick <= 5000)
-            {//AutoResetEvent没准备好，onpublish事件却来了，这里如果发现值为空，就等等
+            {
+                //AutoResetEvent没准备好，onpublish事件却来了，这里如果发现值为空，就等等
                 tick += 10;
                 Thread.Sleep(10);
             }

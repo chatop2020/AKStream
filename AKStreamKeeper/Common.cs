@@ -20,7 +20,6 @@ namespace AKStreamKeeper
 {
     public static class Common
     {
-       
         private static string _configPath = GCommon.ConfigPath + "AKStreamKeeper.json";
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static SystemInfo _keeperSystemInfo = new SystemInfo();
@@ -137,22 +136,21 @@ namespace AKStreamKeeper
                     {
                         var rootPath = Path.GetPathRoot(path).ToUpper();
                         rootPath = rootPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
-                        rootPath=rootPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
+                        rootPath = rootPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
                         rootPath = rootPath.TrimEnd(':');
-                        foreach (var drv in  KeeperPerformanceInfo.DriveInfo)
+                        foreach (var drv in KeeperPerformanceInfo.DriveInfo)
                         {
                             if (drv != null && drv.IsReady == true && !string.IsNullOrEmpty(drv.Name))
                             {
-                                var drvPath= Path.GetPathRoot(drv.Name).ToUpper();
+                                var drvPath = Path.GetPathRoot(drv.Name).ToUpper();
                                 drvPath = drvPath.Split('/', StringSplitOptions.RemoveEmptyEntries)[0];
-                                drvPath=drvPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
+                                drvPath = drvPath.Split('\\', StringSplitOptions.RemoveEmptyEntries)[0];
                                 drvPath = drvPath.TrimEnd(':');
                                 if (drvPath.Equals(rootPath))
                                 {
                                     tmpList.Add(new KeyValuePair<double, string>((double) drv.Free, path));
                                 }
-                                
-                            } 
+                            }
                         }
                     }
                     else
@@ -607,6 +605,7 @@ namespace AKStreamKeeper
                         ? _akStreamKeeperConfig.IpV6Address
                         : "";
                 }
+
                 tmpKeepAlive.MediaServerId = MediaServerInstance.MediaServerId;
                 tmpKeepAlive.MediaServerPid = MediaServerInstance.GetPid();
                 tmpKeepAlive.RecordPathList = _akStreamDiskInfoOfRecordMap;
@@ -678,8 +677,6 @@ namespace AKStreamKeeper
             Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
 #if (DEBUG)
-
-
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
             Console.WriteLine("[Debug]\t程序启动路径:" + GCommon.BaseStartPath);
             Console.WriteLine("[Debug]\t程序启动全路径:" + GCommon.BaseStartFullPath);

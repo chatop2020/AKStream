@@ -3,10 +3,10 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibSystemInfo
 {
-
     public class NetWorkAdapter
     {
         private long _send;
@@ -38,7 +38,8 @@ namespace LibSystemInfo
             set => _ipAddress = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
-     /// <summary>
+
+    /// <summary>
     /// 网络类型
     /// </summary>
     public enum NetType
@@ -75,6 +76,7 @@ namespace LibSystemInfo
         }
 
         private string m_Name;
+
         /// <summary>
         /// 名称
         /// </summary>
@@ -85,6 +87,7 @@ namespace LibSystemInfo
         }
 
         private uint m_Index;
+
         /// <summary>
         /// 有效编号
         /// </summary>
@@ -95,6 +98,7 @@ namespace LibSystemInfo
         }
 
         private NetType m_Type;
+
         /// <summary>
         /// 类型
         /// </summary>
@@ -105,6 +109,7 @@ namespace LibSystemInfo
         }
 
         private uint m_Speed;
+
         /// <summary>
         /// 速度
         /// </summary>
@@ -115,6 +120,7 @@ namespace LibSystemInfo
         }
 
         private uint m_InOctets;
+
         /// <summary>
         /// 总接收字节数
         /// </summary>
@@ -125,6 +131,7 @@ namespace LibSystemInfo
         }
 
         private uint m_OutOctets;
+
         /// <summary>
         /// 总发送字节数
         /// </summary>
@@ -135,6 +142,7 @@ namespace LibSystemInfo
         }
 
         private NetState m_Status;
+
         /// <summary>
         /// 操作状态
         /// </summary>
@@ -145,6 +153,7 @@ namespace LibSystemInfo
         }
 
         private uint m_InErrors;
+
         /// <summary>
         /// 总错收字节数
         /// </summary>
@@ -155,6 +164,7 @@ namespace LibSystemInfo
         }
 
         private uint m_OutErrors;
+
         /// <summary>
         /// 总错发字节数
         /// </summary>
@@ -165,6 +175,7 @@ namespace LibSystemInfo
         }
 
         private uint m_InUnknownProtos;
+
         /// <summary>
         /// 未知协议共收字节数
         /// </summary>
@@ -175,6 +186,7 @@ namespace LibSystemInfo
         }
 
         private string m_PhysAddr;
+
         /// <summary>
         /// 物理地址
         /// </summary>
@@ -183,15 +195,15 @@ namespace LibSystemInfo
             get { return m_PhysAddr; }
             set { m_PhysAddr = value; }
         }
-
     }
+
     /// <summary>
     /// IFTable
     /// </summary>
     public class MIB_IFTABLE : CustomMarshaler
     {
         public int dwNumEntries;
-        
+
         [CustomMarshalAs(SizeField = "dwNumEntries")]
         public MIB_IFROW[] Table;
 
@@ -205,17 +217,21 @@ namespace LibSystemInfo
             this.data = new byte[size];
         }
     }
+
     public class MIB_IFROW : CustomMarshaler
     {
         [CustomMarshalAs(SizeConst = MAX_INTERFACE_NAME_LEN)]
         public string wszName;
+
         public uint dwIndex; // index of the interface
         public uint dwType; // type of interface
         public uint dwMtu; // max transmission unit 
         public uint dwSpeed; // speed of the interface 
         public uint dwPhysAddrLen; // length of physical address
+
         [CustomMarshalAs(SizeConst = MAXLEN_PHYSADDR)]
         public byte[] bPhysAddr; // physical address of adapter
+
         public uint dwAdminStatus; // administrative status
         public uint dwOperStatus; // operational status
         public uint dwLastChange; // last time operational status changed 
@@ -232,6 +248,7 @@ namespace LibSystemInfo
         public uint dwOutErrors; // erroneous packets sent 
         public uint dwOutQLen; // output queue length 
         public uint dwDescrLen; // length of bDescr member 
+
         [CustomMarshalAs(SizeConst = MAXLEN_IFDESCR)]
         public byte[] bDescr; // interface description         
 
@@ -240,28 +257,28 @@ namespace LibSystemInfo
         private const int MAXLEN_IFDESCR = 256;
         private const int MAX_ADAPTER_NAME = 128;
     }
-    
+
     /// <summary>
     /// CustomMarshaler class implementation.
     /// </summary>
     public abstract class CustomMarshaler
     {
         #region Fields
+
         // The internal buffer
         internal byte[] data;
         private MemoryStream stream;
         private BinaryReader binReader;
         private BinaryWriter binWriter;
-        
+
         #endregion
-    
+
         #region constructors
 
         public CustomMarshaler()
         {
-
         }
-        
+
         #endregion
 
         #region public methods
@@ -275,13 +292,13 @@ namespace LibSystemInfo
                     binReader.Close();
                     stream.Close();
                 }
+
                 // Create a steam from byte array
                 stream = new MemoryStream(data);
-                binReader = new BinaryReader(stream, System.Text.Encoding.Unicode);
+                binReader = new BinaryReader(stream, Encoding.Unicode);
                 ReadFromStream(binReader);
                 binReader.Close();
             }
-
         }
 
         public void Serialize()
@@ -289,19 +306,19 @@ namespace LibSystemInfo
             if (data != null)
             {
                 stream = new MemoryStream(data);
-                binWriter = new BinaryWriter(stream, System.Text.Encoding.Unicode);
+                binWriter = new BinaryWriter(stream, Encoding.Unicode);
                 WriteToStream(binWriter);
                 binWriter.Close();
             }
         }
 
         public int GetSize()
-        {    
+        {
             int size = 0;
 
             FieldInfo[] fields = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-            foreach (FieldInfo field in fields )
+            foreach (FieldInfo field in fields)
             {
                 if (field.FieldType.IsArray)
                 {
@@ -309,8 +326,8 @@ namespace LibSystemInfo
                 }
                 else if (field.FieldType == typeof(string))
                 {
-                    size += GetFieldSize(field)*2;
-                } 
+                    size += GetFieldSize(field) * 2;
+                }
                 else if (field.FieldType.IsPrimitive)
                 {
                     size += Marshal.SizeOf(field.FieldType);
@@ -326,10 +343,7 @@ namespace LibSystemInfo
 
         public byte[] ByteArray
         {
-            get
-            {
-                return data;
-            }
+            get { return data; }
         }
 
         #endregion
@@ -342,12 +356,12 @@ namespace LibSystemInfo
 
             // Get all public fields
             FieldInfo[] fields = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            
+
             // Loop through the fields
-            foreach(FieldInfo field in fields)
+            foreach (FieldInfo field in fields)
             {
                 // Retrieve the read method from ReadMethods hashtable
-                MethodInfo method = (MethodInfo)MarshallingMethods.ReadMethods[field.FieldType];
+                MethodInfo method = (MethodInfo) MarshallingMethods.ReadMethods[field.FieldType];
 
                 if (field.FieldType.IsArray)
                 {
@@ -355,46 +369,47 @@ namespace LibSystemInfo
                     if (element.IsValueType && element.IsPrimitive)
                     {
                         if ((element == typeof(char)) || element == typeof(byte))
-                        {                                                                                 
+                        {
                             param = new object[1];
                             param[0] = GetFieldSize(field);
-                            field.SetValue(this, method.Invoke(reader, param)); 
+                            field.SetValue(this, method.Invoke(reader, param));
                         }
                         else // any other value type array
                         {
                             param = new object[2];
                             param[0] = reader;
                             param[1] = GetFieldSize(field);
-                            field.SetValue(this, method.Invoke(null, param)); 
+                            field.SetValue(this, method.Invoke(null, param));
                         }
                     }
                     else // array of sub structures
                     {
                         int size = GetFieldSize(field);
-                        method = (MethodInfo)MarshallingMethods.ReadMethods[typeof(CustomMarshaler)];
+                        method = (MethodInfo) MarshallingMethods.ReadMethods[typeof(CustomMarshaler)];
                         Array objArray = Array.CreateInstance(element, size);
-                        for(int i=0;i<size;i++)
+                        for (int i = 0; i < size; i++)
                         {
                             objArray.SetValue(Activator.CreateInstance(element), i);
-                            method.Invoke(objArray.GetValue(i), new object[]{reader});
+                            method.Invoke(objArray.GetValue(i), new object[] {reader});
                         }
-                        field.SetValue(this, objArray); 
+
+                        field.SetValue(this, objArray);
                     }
                 }
                 else if (field.FieldType == typeof(string))
-                {    
+                {
                     param = new object[2];
                     param[0] = reader;
                     param[1] = GetFieldSize(field);
-                    field.SetValue(this, method.Invoke(null, param)); 
+                    field.SetValue(this, method.Invoke(null, param));
                 }
-                else if (field.FieldType.IsValueType && field.FieldType.IsPrimitive)// regular value type
+                else if (field.FieldType.IsValueType && field.FieldType.IsPrimitive) // regular value type
                 {
-                    field.SetValue(this, method.Invoke(reader, null)); 
+                    field.SetValue(this, method.Invoke(reader, null));
                 }
                 else //process substructure 
                 {
-                    CustomMarshaler subStruct = (CustomMarshaler)Activator.CreateInstance(field.FieldType);
+                    CustomMarshaler subStruct = (CustomMarshaler) Activator.CreateInstance(field.FieldType);
                     subStruct.ReadFromStream(reader);
                 }
             }
@@ -405,21 +420,21 @@ namespace LibSystemInfo
             object[] param = null;
 
             FieldInfo[] fields = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            
-            foreach(FieldInfo field in fields)
+
+            foreach (FieldInfo field in fields)
             {
                 // Check if we have any value
                 object value = field.GetValue(this);
-                
-                MethodInfo method = (MethodInfo)MarshallingMethods.WriteMethods[field.FieldType];
-                
+
+                MethodInfo method = (MethodInfo) MarshallingMethods.WriteMethods[field.FieldType];
+
                 if (field.FieldType.IsArray)
                 {
                     Type element = field.FieldType.GetElementType();
                     if (element.IsValueType && element.IsPrimitive)
                     {
                         //method.Invoke(writer, new object[] {value});
-                        Array arrObject = (Array)field.GetValue(this);
+                        Array arrObject = (Array) field.GetValue(this);
                         param = new object[2];
                         param[0] = writer;
                         param[1] = arrObject;
@@ -430,25 +445,23 @@ namespace LibSystemInfo
                         //Get field size
                         int size = GetFieldSize(field);
                         //Get WriteToStream method
-                        method = (MethodInfo)MarshallingMethods.WriteMethods[typeof(CustomMarshaler)];
-                        Array arrObject = (Array)field.GetValue(this);
-                        for(int i=0;i<size;i++)
+                        method = (MethodInfo) MarshallingMethods.WriteMethods[typeof(CustomMarshaler)];
+                        Array arrObject = (Array) field.GetValue(this);
+                        for (int i = 0; i < size; i++)
                         {
-                            method.Invoke(arrObject.GetValue(i), new object[]{writer});
+                            method.Invoke(arrObject.GetValue(i), new object[] {writer});
                         }
-                    }                    
+                    }
                 }
                 else if (field.FieldType == typeof(string))
-                {    
+                {
                     param = new object[3];
                     param[0] = writer;
                     param[1] = field.GetValue(this);
                     param[2] = GetFieldSize(field);
                     method.Invoke(null, param);
-                    
-
                 }
-                else if (field.FieldType.IsValueType && field.FieldType.IsPrimitive)// regular value type
+                else if (field.FieldType.IsValueType && field.FieldType.IsPrimitive) // regular value type
                 {
                     method.Invoke(writer, new object[] {value});
                 }
@@ -458,18 +471,19 @@ namespace LibSystemInfo
         protected int GetFieldSize(FieldInfo field)
         {
             int size = 0;
-            CustomMarshalAsAttribute attrib = (CustomMarshalAsAttribute)field.GetCustomAttributes(typeof(CustomMarshalAsAttribute), true)[0];
-            
+            CustomMarshalAsAttribute attrib =
+                (CustomMarshalAsAttribute) field.GetCustomAttributes(typeof(CustomMarshalAsAttribute), true)[0];
+
             if (attrib != null)
             {
                 if (attrib.SizeField != null)
                 {
                     FieldInfo sizeField = this.GetType().GetField(attrib.SizeField);
-                    size = (int)sizeField.GetValue(this);
+                    size = (int) sizeField.GetValue(this);
                 }
                 else
                 {
-                    size = attrib.SizeConst;    
+                    size = attrib.SizeConst;
                 }
             }
 
@@ -480,37 +494,41 @@ namespace LibSystemInfo
 
         #region helper methods
 
-        private static bool CompareByteArrays (byte[] data1, byte[] data2)
+        private static bool CompareByteArrays(byte[] data1, byte[] data2)
         {
             // If both are null, they're equal
-            if (data1==null && data2==null)
+            if (data1 == null && data2 == null)
             {
                 return true;
             }
+
             // If either but not both are null, they're not equal
-            if (data1==null || data2==null)
+            if (data1 == null || data2 == null)
             {
                 return false;
             }
+
             if (data1.Length != data2.Length)
             {
                 return false;
             }
-            for (int i=0; i < data1.Length; i++)
+
+            for (int i = 0; i < data1.Length; i++)
             {
                 if (data1[i] != data2[i])
                 {
                     return false;
                 }
             }
+
             return true;
         }
 
         #endregion
-
     }
 
     #region MarshallingMethods class
+
     /// <summary>
     /// MarshallingMethods class implementation.
     /// </summary>
@@ -518,7 +536,7 @@ namespace LibSystemInfo
     {
         public static Hashtable ReadMethods = new Hashtable();
         public static Hashtable WriteMethods = new Hashtable();
-        
+
         #region constructors
 
         static MarshallingMethods()
@@ -526,45 +544,54 @@ namespace LibSystemInfo
             // Read Methods
             ReadMethods.Add(typeof(bool), typeof(BinaryReader).GetMethod("ReadBoolean"));
             ReadMethods.Add(typeof(byte), typeof(BinaryReader).GetMethod("ReadByte"));
-            ReadMethods.Add(typeof(System.SByte), typeof(BinaryReader).GetMethod("ReadSByte"));
-            ReadMethods.Add(typeof(System.Single), typeof(BinaryReader).GetMethod("ReadSingle"));
+            ReadMethods.Add(typeof(SByte), typeof(BinaryReader).GetMethod("ReadSByte"));
+            ReadMethods.Add(typeof(Single), typeof(BinaryReader).GetMethod("ReadSingle"));
             ReadMethods.Add(typeof(byte[]), typeof(BinaryReader).GetMethod("ReadBytes"));
             ReadMethods.Add(typeof(char[]), typeof(BinaryReader).GetMethod("ReadChars"));
-            ReadMethods.Add(typeof(System.Int16), typeof(BinaryReader).GetMethod("ReadInt16"));
-            ReadMethods.Add(typeof(System.Int32), typeof(BinaryReader).GetMethod("ReadInt32"));
-            ReadMethods.Add(typeof(System.UInt16), typeof(BinaryReader).GetMethod("ReadUInt16"));
-            ReadMethods.Add(typeof(System.UInt32), typeof(BinaryReader).GetMethod("ReadUInt32"));
-            ReadMethods.Add(typeof(System.String), typeof(MarshallingMethods).GetMethod("ReadString"));
-            ReadMethods.Add(typeof(System.DateTime), typeof(MarshallingMethods).GetMethod("ReadDateTime"));
-            ReadMethods.Add(typeof(System.Int16[]), typeof(MarshallingMethods).GetMethod("ReadInt16Array"));
-            ReadMethods.Add(typeof(System.Int32[]), typeof(MarshallingMethods).GetMethod("ReadInt32Array"));
-            ReadMethods.Add(typeof(System.UInt16[]), typeof(MarshallingMethods).GetMethod("ReadUInt16Array"));
-            ReadMethods.Add(typeof(System.UInt32[]), typeof(MarshallingMethods).GetMethod("ReadUInt32Array"));
+            ReadMethods.Add(typeof(Int16), typeof(BinaryReader).GetMethod("ReadInt16"));
+            ReadMethods.Add(typeof(Int32), typeof(BinaryReader).GetMethod("ReadInt32"));
+            ReadMethods.Add(typeof(UInt16), typeof(BinaryReader).GetMethod("ReadUInt16"));
+            ReadMethods.Add(typeof(UInt32), typeof(BinaryReader).GetMethod("ReadUInt32"));
+            ReadMethods.Add(typeof(String), typeof(MarshallingMethods).GetMethod("ReadString"));
+            ReadMethods.Add(typeof(DateTime), typeof(MarshallingMethods).GetMethod("ReadDateTime"));
+            ReadMethods.Add(typeof(Int16[]), typeof(MarshallingMethods).GetMethod("ReadInt16Array"));
+            ReadMethods.Add(typeof(Int32[]), typeof(MarshallingMethods).GetMethod("ReadInt32Array"));
+            ReadMethods.Add(typeof(UInt16[]), typeof(MarshallingMethods).GetMethod("ReadUInt16Array"));
+            ReadMethods.Add(typeof(UInt32[]), typeof(MarshallingMethods).GetMethod("ReadUInt32Array"));
             ReadMethods.Add(typeof(CustomMarshaler), typeof(CustomMarshaler).GetMethod("ReadFromStream"));
             //Write Methods
-            WriteMethods.Add(typeof(bool), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(bool)}));
-            WriteMethods.Add(typeof(byte), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(byte)}));
-            WriteMethods.Add(typeof(System.SByte), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.SByte)}));
-            WriteMethods.Add(typeof(System.Single), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.Single)}));
+            WriteMethods.Add(typeof(bool), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(bool)}));
+            WriteMethods.Add(typeof(byte), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(byte)}));
+            WriteMethods.Add(typeof(SByte), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(SByte)}));
+            WriteMethods.Add(typeof(Single), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(Single)}));
             //WriteMethods.Add(typeof(byte[]), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(byte[])}));
             //WriteMethods.Add(typeof(char[]), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(char[])}));
-            WriteMethods.Add(typeof(System.Int16), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.Int16)}));
-            WriteMethods.Add(typeof(System.Int32), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.Int32)}));
-            WriteMethods.Add(typeof(System.UInt16), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.UInt16)}));
-            WriteMethods.Add(typeof(System.UInt32), typeof(BinaryWriter).GetMethod("Write", new Type[]{typeof(System.UInt32)}));
-            WriteMethods.Add(typeof(System.String), typeof(MarshallingMethods).GetMethod("WriteString"));
+            WriteMethods.Add(typeof(Int16), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(Int16)}));
+            WriteMethods.Add(typeof(Int32), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(Int32)}));
+            WriteMethods.Add(typeof(UInt16), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(UInt16)}));
+            WriteMethods.Add(typeof(UInt32), typeof(BinaryWriter).GetMethod("Write", new Type[] {typeof(UInt32)}));
+            WriteMethods.Add(typeof(String), typeof(MarshallingMethods).GetMethod("WriteString"));
             WriteMethods.Add(typeof(CustomMarshaler), typeof(CustomMarshaler).GetMethod("WriteToStream"));
 
-            WriteMethods.Add(typeof(bool[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(bool[]) }));
-            WriteMethods.Add(typeof(char[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(char[]) }));
-            WriteMethods.Add(typeof(short[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(short[]) }));
-            WriteMethods.Add(typeof(ushort[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(ushort[]) }));
-            WriteMethods.Add(typeof(int[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(int[]) }));
-            WriteMethods.Add(typeof(uint[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(uint[]) }));
-            WriteMethods.Add(typeof(long[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(long[]) }));
-            WriteMethods.Add(typeof(ulong[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(ulong[]) }));
-            WriteMethods.Add(typeof(float[]), typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] { typeof(BinaryWriter), typeof(float[]) }));
-
+            WriteMethods.Add(typeof(bool[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(bool[])}));
+            WriteMethods.Add(typeof(char[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(char[])}));
+            WriteMethods.Add(typeof(short[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(short[])}));
+            WriteMethods.Add(typeof(ushort[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray",
+                    new Type[] {typeof(BinaryWriter), typeof(ushort[])}));
+            WriteMethods.Add(typeof(int[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(int[])}));
+            WriteMethods.Add(typeof(uint[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(uint[])}));
+            WriteMethods.Add(typeof(long[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(long[])}));
+            WriteMethods.Add(typeof(ulong[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(ulong[])}));
+            WriteMethods.Add(typeof(float[]),
+                typeof(MarshallingMethods).GetMethod("WriteArray", new Type[] {typeof(BinaryWriter), typeof(float[])}));
         }
 
         #endregion
@@ -575,10 +602,11 @@ namespace LibSystemInfo
         {
             short[] result = new short[count];
 
-            for(int i=0;i<count;i++)
+            for (int i = 0; i < count; i++)
             {
                 result[i] = reader.ReadInt16();
             }
+
             return result;
         }
 
@@ -586,10 +614,11 @@ namespace LibSystemInfo
         {
             int[] result = new int[count];
 
-            for(int i=0;i<count;i++)
+            for (int i = 0; i < count; i++)
             {
                 result[i] = reader.ReadInt32();
             }
+
             return result;
         }
 
@@ -597,10 +626,11 @@ namespace LibSystemInfo
         {
             ushort[] result = new ushort[count];
 
-            for(int i=0;i<count;i++)
+            for (int i = 0; i < count; i++)
             {
                 result[i] = reader.ReadUInt16();
             }
+
             return result;
         }
 
@@ -608,10 +638,11 @@ namespace LibSystemInfo
         {
             uint[] result = new uint[count];
 
-            for(int i=0;i<count;i++)
+            for (int i = 0; i < count; i++)
             {
                 result[i] = reader.ReadUInt32();
             }
+
             return result;
         }
 
@@ -622,6 +653,7 @@ namespace LibSystemInfo
             {
                 count = 255; //default    
             }
+
             char[] data = reader.ReadChars(count);
 
             result = new string(data).TrimEnd('\0');
@@ -630,9 +662,9 @@ namespace LibSystemInfo
 
         public static void WriteString(BinaryWriter writer, string value, int size)
         {
-            if (value!=null)
+            if (value != null)
             {
-                byte[] bstring = System.Text.Encoding.Unicode.GetBytes(value.Substring(0, size)); 
+                byte[] bstring = Encoding.Unicode.GetBytes(value.Substring(0, size));
                 writer.Write(bstring);
             }
         }
@@ -650,6 +682,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, char[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -673,6 +706,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, ushort[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -680,6 +714,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, int[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -687,6 +722,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, uint[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -694,6 +730,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, long[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -701,6 +738,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, ulong[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -708,6 +746,7 @@ namespace LibSystemInfo
                 writer.Write(arr[i]);
             }
         }
+
         public static void WriteArray(BinaryWriter writer, float[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
@@ -730,13 +769,14 @@ namespace LibSystemInfo
     #endregion
 
     #region CustomMarshalAsAttribute
+
     /// <summary>
     /// CustomMarshalAsAttribute implementaion.
     /// </summary>
     public sealed class CustomMarshalAsAttribute : Attribute
     {
         public int SizeConst = 0;
-        public string  SizeField = null;
+        public string SizeField = null;
     }
 
     #endregion

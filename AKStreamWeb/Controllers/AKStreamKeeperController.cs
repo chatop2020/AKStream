@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
-using LibCommon.Structs;
-using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
