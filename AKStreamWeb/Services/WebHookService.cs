@@ -313,6 +313,16 @@ namespace AKStreamWeb.Services
                 var taskStr = $"WAITONSTREAMCHANGE_{req.Stream}";
                 WebHookNeedReturnTask webHookNeedReturnTask;
 
+                int tick = 0;
+
+                while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
+                       tick <= 5000)
+                {
+                    //AutoResetEvent没准备好，OnStreamChanged事件却来了，这里如果发现值为空，就等等
+                    tick += 10;
+                    Thread.Sleep(10);
+                }
+
                 var taskFound = Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask);
                 if (taskFound && webHookNeedReturnTask != null)
                 {
