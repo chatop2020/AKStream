@@ -88,6 +88,12 @@ namespace LibCommon
         /// <param name="deivceInfo"></param>
         public delegate void DeviceInfoReceived(SipDevice sipDevice, DeviceInfo deivceInfo);
 
+        /// <summary>
+        /// 当设备注册时需要鉴权时，返回为此设备外部指定的鉴权密钥
+        /// </summary>
+        /// <param name="sipDeviceId"></param>
+        public delegate string DeviceAuthentication(string sipDeviceId);
+
         #endregion
 
 

@@ -121,6 +121,11 @@ namespace LibGB28181SipServer
         /// </summary>
         public static event GCommon.DeviceAlarmSubscribeDelegate OnDeviceAlarmSubscribe = null!;
 
+        /// <summary>
+        /// 当设备发生注册鉴权时，需要返回值为此设备的鉴权密钥
+        /// </summary>
+        public static event GCommon.DeviceAuthentication OnDeviceAuthentication = null!;
+
         #endregion
 
 
@@ -713,6 +718,7 @@ namespace LibGB28181SipServer
                     if (Common.SipServerConfig.Authentication &&
                         CheckDeviceAuthenticationNeed(sipDeviceId, sipDeviceIpV4Address, sipDeviceIpV6Address))
                     {
+                      
                         if (sipRequest.Header.AuthenticationHeader == null)
                         {
                             SIPAuthenticationHeader authHeader =
@@ -735,6 +741,7 @@ namespace LibGB28181SipServer
                         }
                         else
                         {
+                            var password=OnDeviceAuthentication?.Invoke(sipDeviceId);//向外部获取鉴权密钥
                             /*GB28181Sip注册鉴权算法：
                             HA1=MD5(username:realm:passwd) //username和realm在字段“Authorization”中可以找到，passwd这个是由客户端和服务器协商得到的，一般情况下UAC端存一个UAS也知道的密码就行了
                              HA2=MD5(Method:Uri)//Method一般有INVITE, ACK, OPTIONS, BYE, CANCEL, REGISTER；Uri可以在字段“Authorization”找到
@@ -742,7 +749,7 @@ namespace LibGB28181SipServer
                              */
                             string ha1 = UtilsHelper.Md5(sipRequest.Header.AuthenticationHeader.SIPDigest.Username +
                                                          ":" + sipRequest.Header.AuthenticationHeader.SIPDigest.Realm +
-                                                         ":" + Common.SipServerConfig.SipPassword);
+                                                         ":" + (string.IsNullOrEmpty(password)?Common.SipServerConfig.SipPassword:password));
 
                             string ha2 = UtilsHelper.Md5("REGISTER" + ":" +
                                                          sipRequest.Header.AuthenticationHeader.SIPDigest.URI);

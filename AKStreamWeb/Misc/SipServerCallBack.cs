@@ -18,6 +18,17 @@ namespace AKStreamWeb.Misc
     /// </summary>
     public static class SipServerCallBack
     {
+
+        /// <summary>
+        /// 当设备注册需要鉴权时，用于获取外部的设备密钥
+        /// </summary>
+        /// <param name="sipDeviceId"></param>
+        /// <returns>返回此设备的密钥</returns>
+        public static string OnAuthentication(string sipDeviceId)
+        {
+            return null;
+        }
+        
         public static void OnRegister(string sipDeviceJson)
         {
             //设备注册时
