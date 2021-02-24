@@ -12,6 +12,7 @@
 * 数据库部分使用开源项目freeSql数据库类库，支持数据库类型众多，如sqlite、mssql等，建议使用Mysql 5.7以及以上版本。
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 * 2020-2-5增加国内gitee同步仓库，方便国内下载
+* 请多多支持，多多Start,谢谢
 # 使用AKStream实现的Web管理平台（开源）
 -------
 ![流媒体服务管理列表](https://i.loli.net/2021/01/19/YjCUMHVdFzSuBXe.png)
