@@ -70,20 +70,6 @@ namespace AKStreamWeb.AutoTask
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
                         var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
-
-                        /*foreach (var ret in retList)
-                        {
-                            var o = delRet.PathList.FindLast(x => x.Equals(ret.VideoPath));
-                            if (string.IsNullOrEmpty(o))
-                            {
-                                var o2 = deleteFileIdList.FindLast(x => x.Equals(ret.Id));
-                                if (o2 != null && o2 > 0)
-                                {
-                                    deleteFileIdList.Remove(o2);
-                                }
-                            }
-                        }*/ //这里过滤掉未删除文件的话，会反复删除失败，去掉这段逻辑
-
                         if (deleteFileIdList != null && deleteFileIdList.Count > 0)
                         {
                             var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
