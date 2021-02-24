@@ -1,4 +1,4 @@
-# AKStream介绍
+# AKStream介绍 
 
 -------
 * AKStream是StreamNode(全名StreamNode-GB28181)的升级重构版本，AKStream继承了StreamNode的设计结构，但90%以上的代码全部重写，AKStream在代码设计，结构，思想等层面要远优于StreamNode。
