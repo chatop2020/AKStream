@@ -99,9 +99,14 @@ namespace AKStreamWeb.AutoTask
         /// <returns></returns>
         private bool isTimeRange(RecordPlanRange d)
         {
+            
             TimeSpan nowDt = DateTime.Now.TimeOfDay;
             string start = d.StartTime.ToString("HH:mm:ss");
             string end = d.EndTime.ToString("HH:mm:ss");
+            if (start.Trim().Equals("00:00:00") && end.Trim().Equals("23:59:59"))
+            {
+                return true;
+            }
             TimeSpan workStartDt = DateTime.Parse(start).TimeOfDay;
             TimeSpan workEndDt = DateTime.Parse(end).TimeOfDay;
 
