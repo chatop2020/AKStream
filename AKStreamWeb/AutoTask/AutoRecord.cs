@@ -107,6 +107,10 @@ namespace AKStreamWeb.AutoTask
             {
                 return true;
             }
+            if (start.Trim().Equals("00:00:00") && end.Trim().Equals("00:00:00"))
+            {
+                return true;
+            }
             TimeSpan workStartDt = DateTime.Parse(start).TimeOfDay;
             TimeSpan workEndDt = DateTime.Parse(end).TimeOfDay;
 
