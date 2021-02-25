@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemInfoLibrary.NetFX", "src\SystemInfoLibrary.NetFX\SystemInfoLibrary.NetFX.csproj", "{55D5E95E-2B94-444A-87BF-93A2E1881EDF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SystemInfoLibrary.Standard", "src\SystemInfoLibrary.Standard\SystemInfoLibrary.Standard.csproj", "{64E3EFAC-6EDB-4A4D-9BE0-4594F92ACD45}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AnyCPU = Debug|AnyCPU
+		Release|AnyCPU = Release|AnyCPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55D5E95E-2B94-444A-87BF-93A2E1881EDF}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{55D5E95E-2B94-444A-87BF-93A2E1881EDF}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{55D5E95E-2B94-444A-87BF-93A2E1881EDF}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{55D5E95E-2B94-444A-87BF-93A2E1881EDF}.Release|AnyCPU.Build.0 = Release|AnyCPU
+		{64E3EFAC-6EDB-4A4D-9BE0-4594F92ACD45}.Debug|AnyCPU.ActiveCfg = Debug|AnyCPU
+		{64E3EFAC-6EDB-4A4D-9BE0-4594F92ACD45}.Debug|AnyCPU.Build.0 = Debug|AnyCPU
+		{64E3EFAC-6EDB-4A4D-9BE0-4594F92ACD45}.Release|AnyCPU.ActiveCfg = Release|AnyCPU
+		{64E3EFAC-6EDB-4A4D-9BE0-4594F92ACD45}.Release|AnyCPU.Build.0 = Release|AnyCPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD8A5D95-C390-41CD-864A-2A2E30420077}
+	EndGlobalSection
+EndGlobal

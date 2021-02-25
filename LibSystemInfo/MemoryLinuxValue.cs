@@ -33,13 +33,14 @@ namespace LibSystemInfo
 
                 var lines = output.Trim().Split('\n');
                 var memory = lines[1].Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-                _memoryInfo.Total = ulong.Parse(memory[1]);
-                _memoryInfo.Used = ulong.Parse(memory[2]);
+                _memoryInfo.Total = ulong.Parse(memory[1])*1024;
+                _memoryInfo.Used = ulong.Parse(memory[2])*1024;
                 _memoryInfo.Free = _memoryInfo.Total - _memoryInfo.Used;
                 _memoryInfo.FreePercent =
                     Math.Round(
-                        double.Parse(_memoryInfo.Used.ToString()) * 100.00 / double.Parse(_memoryInfo.Total.ToString()),
+                        double.Parse(_memoryInfo.Free.ToString()) * 100.00 / double.Parse(_memoryInfo.Total.ToString()),
                         3);
+                _memoryInfo.UpdateTime = DateTime.Now;
                 return _memoryInfo;
             }
             catch

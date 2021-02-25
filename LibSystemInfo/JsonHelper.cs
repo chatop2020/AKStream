@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -49,6 +50,29 @@ namespace LibSystemInfo
             }
         }
 
+        
+        /// <summary>
+        /// 将指定的对象序列化成 JSON 数据。
+        /// </summary>
+        /// <param name="obj">要序列化的对象。</param>
+        /// <param name="formatting"></param>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static string ToJson(this object obj, Formatting formatting = Formatting.None,
+            MissingMemberHandling p = MissingMemberHandling.Error)
+        {
+            _jsonSettings.MissingMemberHandling = p;
+            try
+            {
+                return JsonConvert.SerializeObject(obj, formatting, _jsonSettings);
+            }
+            catch (Exception ex)
+            {
+              
+                return null!;
+            }
+        }
+        
 
         /// <summary>
         /// 将指定的对象序列化成 JSON 数据。

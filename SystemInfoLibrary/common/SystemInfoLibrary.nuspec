@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>SystemInfoLibrary</id>
+        <version>1.4.3</version>
+        <title>SystemInfoLibrary</title>
+        <authors>Little Apps, Aragas</authors>
+        <licenseUrl>https://github.com/Aragas/SystemInfoLibrary/blob/master/LICENSE</licenseUrl>
+        <projectUrl>https://github.com/Aragas/SystemInfoLibrary</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Library for getting system information.
+Supports Windows, Linux, Mac OS X and Unity.
+For more info please visit the project url.</description>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" />
+            </group>
+            <group targetFramework="netstandard2.0">
+                <dependency id="System.Runtime.InteropServices.RuntimeInformation" version="4.3.0" />
+                <dependency id="Microsoft.Win32.Registry" version="4.6.0" />
+                <dependency id="System.Management" version="4.6.0" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\src\SystemInfoLibrary.NetFX\bin\Release\SystemInfoLibrary.dll" target="lib\net45\SystemInfoLibrary.dll" />
+        <file src="..\src\SystemInfoLibrary.NetFX\bin\Release\SystemInfoLibrary.xml" target="lib\net45\SystemInfoLibrary.xml" />
+		
+        <file src="..\src\SystemInfoLibrary.Standard\bin\Release\netstandard2.0\SystemInfoLibrary.dll" target="lib\netstandard2.0\SystemInfoLibrary.dll" />
+        <file src="..\src\SystemInfoLibrary.Standard\bin\Release\netstandard2.0\SystemInfoLibrary.xml" target="lib\netstandard2.0\SystemInfoLibrary.xml" />
+    </files>
+</package>

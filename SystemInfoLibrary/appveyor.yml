@@ -1,0 +1,191 @@
+########################################################
+##               MASTER                               ##
+########################################################
+-
+  branches:
+    only:
+      - master
+
+  image: 
+    - Visual Studio 2017
+  configuration:
+    - Debug
+    - Release
+  platform: AnyCPU
+  version: 1.4.3.{build}
+  clone_depth: 1
+  
+  skip_commits:
+    files:
+      - docs/*
+      - LICENSE
+      - README.md
+      - .travis.yml
+      - codecov.yml
+      - .gitignore
+      
+  cache:
+    - packages -> **\packages.config, **\*.csproj, build.ps1 #local nuget folder
+#    - '%HOMEDRIVE%%HOMEPATH%\.nuget\packages -> **\packages.config, **\*.csproj, build.ps1' #global nuget folder
+    - '%LocalAppData%\Microsoft\dotnet -> appveyor.yml'
+    - '$HOME/.local/share/NuGet/v3-cache' #nuget cache ubuntu
+    - '$HOME/.local/share/NuGet/Cache' #nuget cache ubuntu
+    - '%LocalAppData%\NuGet\Cache' #v>3 nuget cache windows
+    - '%LocalAppData%\NuGet\v3-cache' #nuget cache windows
+  
+  assembly_info:
+    patch: true
+    file: common\CommonAssemblyInfo.cs
+    assembly_version: "{version}"
+    assembly_file_version: "{version}"
+    assembly_informational_version: "{version}"
+           
+  install:
+    - ps: ./init_script.ps1
+    - git submodule update --init --recursive
+  
+  before_build:
+    - ps: nuget restore $env:SOLUTION_NAME
+      
+  build_script:
+    - ps: msbuild $env:SOLUTION_NAME /verbosity:m
+
+  after_test:
+    - ps: ./after_test_nuget.ps1
+        
+  deploy:
+    - provider: NuGet
+      api_key:
+        secure: 0SpTSNNvEjoYIXtkbay8DHrR1jbCKCbyZ++lk+wymwbkdFkF7kKWcXfrdMV8rcDw
+      skip_symbols: false
+      artifact: SystemInfoLibrary.nupkg
+      on:
+        os: Windows_NT
+        configuration: Release
+        APPVEYOR_REPO_TAG: true
+    - provider: NuGet
+      server: https://nuget.pkg.github.com/Aragas/index.json
+      artifact: SystemInfoLibrary.nupkg
+      username: Aragas
+      api_key:
+        secure: Cc5LQq7vuBMi2CTmoYPLFHuXeFeqTThn6xbL9O/f+r4GAut49B7rDBKfzbwl2TtC
+      on:
+        os: Windows_NT
+        configuration: Release
+        APPVEYOR_REPO_TAG: true
+
+
+########################################################
+##               DEVELOPMENT                          ##
+########################################################
+-
+  branches:
+    only:
+      - devel
+       
+  image:
+    - Visual Studio 2019
+  configuration: 
+  - Debug
+  - Release
+  platform: AnyCPU
+  version: 1.5.0.{build}
+  clone_depth: 1
+  
+  skip_commits:
+    files:
+      - docs/*
+      - LICENSE
+      - README.md
+      - .travis.yml
+      - codecov.yml
+      - .gitignore
+      
+  cache:
+    - packages -> **\packages.config, **\*.csproj, build.ps1 #local nuget folder
+#    - '%HOMEDRIVE%%HOMEPATH%\.nuget\packages -> **\packages.config, **\*.csproj, build.ps1' #global nuget folder
+    - '%LocalAppData%\Microsoft\dotnet -> appveyor.yml'
+    - '$HOME/.local/share/NuGet/v3-cache' #nuget cache ubuntu
+    - '$HOME/.local/share/NuGet/Cache' #nuget cache ubuntu
+    - '%LocalAppData%\NuGet\Cache' #v>3 nuget cache windows
+    - '%LocalAppData%\NuGet\v3-cache' #nuget cache windows
+    
+  assembly_info:
+    patch: true
+    file: common\CommonAssemblyInfo.cs
+    assembly_version: "{version}"
+    assembly_file_version: "{version}"
+    assembly_informational_version: "{version}-devel"
+  
+  install:
+    - ps: ./init_script.ps1
+    - git submodule update --init --recursive
+  
+  before_build:
+    - ps: nuget restore $env:SOLUTION_NAME
+ 
+  build_script:
+    - ps: msbuild $env:SOLUTION_NAME /verbosity:m
+    
+  after_test:
+    - ps: ./after_test_nuget-devel.ps1
+  
+  deploy:
+    - provider: NuGet
+      api_key:
+        secure: 0SpTSNNvEjoYIXtkbay8DHrR1jbCKCbyZ++lk+wymwbkdFkF7kKWcXfrdMV8rcDw
+      skip_symbols: false
+      artifact: SystemInfoLibrary-devel.nupkg
+      on:
+        os: Windows_NT
+        configuration: Release
+    - provider: NuGet
+      server: https://nuget.pkg.github.com/Aragas/index.json
+      artifact: SystemInfoLibrary-devel.nupkg
+      username: Aragas
+      api_key:
+        secure: Cc5LQq7vuBMi2CTmoYPLFHuXeFeqTThn6xbL9O/f+r4GAut49B7rDBKfzbwl2TtC
+      on:
+        os: Windows_NT
+        configuration: Release
+
+
+########################################################
+##               ANY OTHER BRANCH                     ##
+########################################################
+-
+  image: 
+    - Visual Studio 2019
+  configuration: 
+  - Debug
+  - Release
+  platform: AnyCPU
+  clone_depth: 1
+  
+  skip_commits:
+    files:
+      - docs/*
+      - LICENSE
+      - README.md
+      - .travis.yml
+      - codecov.yml
+      - .gitignore
+      
+  cache:
+    - packages -> **\packages.config, **\*.csproj, build.ps1 #local nuget folder
+#    - '%HOMEDRIVE%%HOMEPATH%\.nuget\packages -> **\packages.config, **\*.csproj, build.ps1' #global nuget folder
+    - '%LocalAppData%\Microsoft\dotnet -> appveyor.yml'
+    - '$HOME/.local/share/NuGet/v3-cache' #nuget cache ubuntu
+    - '$HOME/.local/share/NuGet/Cache' #nuget cache ubuntu
+    - '%LocalAppData%\NuGet\Cache' #v>3 nuget cache windows
+    - '%LocalAppData%\NuGet\v3-cache' #nuget cache windows
+
+  install:
+    - ps: ./init_script.ps1
+    - git submodule update --init --recursive
+  
+  before_build:
+    - ps: nuget restore $env:SOLUTION_NAME
+  
+  build_script:
+    - ps: msbuild $env:SOLUTION_NAME /verbosity:m

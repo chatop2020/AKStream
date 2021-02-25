@@ -41,7 +41,7 @@ namespace LibSystemInfo
             _memoryInfo.Used = _memoryInfo.Total - _memoryInfo.Free;
             _memoryInfo.FreePercent =
                 Math.Round(
-                    100f - (double.Parse(_memoryInfo.Used.ToString()) * 100.00 /
+                    100f - (double.Parse(_memoryInfo.Free.ToString()) * 100.00 /
                             double.Parse(_memoryInfo.Total.ToString())), 3);
             _memoryInfo.UpdateTime = DateTime.Now;
             return _memoryInfo;
