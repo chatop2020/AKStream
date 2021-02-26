@@ -4,6 +4,9 @@ using LibCommon.Structs;
 
 namespace LibSystemInfo
 {
+    /// <summary>
+    /// 获取windows系统总物理内存使用情况(总量/已使用/未使用)(返回单位KB)
+    /// </summary>
     public static class MemoryWinValue
     {
         [DllImport("kernel32.dll")]

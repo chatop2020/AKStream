@@ -9,7 +9,7 @@ namespace LibSystemInfo
        
 
         /// <summary>
-        /// 获取linux系统总物理内存使用情况(总量/已使用/未使用)(返回单位MB)
+        /// 获取mac系统总物理内存使用情况(总量/已使用/未使用)(返回单位KB)
         /// </summary>
         /// <returns></returns>
         public static MemoryInfo GetMemoryStatus()
