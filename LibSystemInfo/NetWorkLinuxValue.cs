@@ -81,7 +81,11 @@ namespace LibSystemInfo
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 ProcessHelper tmpProcess = new ProcessHelper(null!, null!, null!);
-                tmpProcess.RunProcess("/usr/sbin/route", "", 1000, out string std, out string err);
+                if (!File.Exists("/usr/sbin/route"))
+                {
+                    Console.WriteLine("/usr/sbin/route->命令不存在，请用软连接生成/usr/sbin/route命令");
+                }
+                tmpProcess.RunProcess("/usr/sbin/route", "", 20000, out string std, out string err);
                 bool isFound = false;
                 if (!string.IsNullOrEmpty(std))
                 {
@@ -104,19 +108,26 @@ namespace LibSystemInfo
                                     if (!string.IsNullOrEmpty(str1))
                                     {
                                         ethName = str1;
-                                        tmpProcess.RunProcess("/usr/sbin/ifconfig", str1, 1000, out string std1,
+                                        if (!File.Exists("/usr/sbin/ifconfig"))
+                                        {
+                                            Console.WriteLine("/usr/sbin/ifconfig->命令不存在，请用软连接生成/usr/sbin/ifconfig命令");
+                                        }
+                                        tmpProcess.RunProcess("/usr/sbin/ifconfig", str1, 20000, out string std1,
                                             out string err1);
 
                                         if (!string.IsNullOrEmpty(std1))
-                                        {
+                                        {  
+                                          
                                             string[] tmpStrArr1 = std1.Split('\n',
                                                 StringSplitOptions.RemoveEmptyEntries);
                                             if (tmpStrArr1.Length > 0)
                                             {
                                                 foreach (var str2 in tmpStrArr1)
                                                 {
+                                                 
                                                     if (!string.IsNullOrEmpty(str2) && str2.ToLower().Contains("ether"))
                                                     {
+                                                      
                                                         var regex = "([0-9a-fA-F]{2})(([/\\s:-][0-9a-fA-F]{2}){5})";
                                                         var mac = Regex.Match(str2, regex);
                                                         if (mac.Value.Trim().Length == 17)

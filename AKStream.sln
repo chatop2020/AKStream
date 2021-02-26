@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AKStreamKeeper", "AKStreamK
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemInfoLibrary.Standard", "SystemInfoLibrary\src\SystemInfoLibrary.Standard\SystemInfoLibrary.Standard.csproj", "{C3ED81EF-5202-4A29-AE77-02E7B87F2F12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_LibSystemInfo", "Test_LibSystemInfo\Test_LibSystemInfo.csproj", "{4130144A-1BD6-43D4-B880-1AE02CA07052}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{C3ED81EF-5202-4A29-AE77-02E7B87F2F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3ED81EF-5202-4A29-AE77-02E7B87F2F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3ED81EF-5202-4A29-AE77-02E7B87F2F12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4130144A-1BD6-43D4-B880-1AE02CA07052}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4130144A-1BD6-43D4-B880-1AE02CA07052}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4130144A-1BD6-43D4-B880-1AE02CA07052}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4130144A-1BD6-43D4-B880-1AE02CA07052}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
