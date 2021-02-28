@@ -290,6 +290,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.MaxRtpPort = 20000;
                 _akStreamKeeperConfig.MinRtpPort = 10001;
                 _akStreamKeeperConfig.RandomPort = false;
+                _akStreamKeeperConfig.RecordSec = 120;//时长120秒
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
                 _akStreamKeeperConfig.RtpPortCdTime = 3600;
                 _akStreamKeeperConfig.HttpClientTimeoutSec = 5;

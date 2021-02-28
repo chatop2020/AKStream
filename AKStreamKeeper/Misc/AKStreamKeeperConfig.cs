@@ -19,6 +19,7 @@ namespace AKStreamKeeper.Misc
         private ushort _minRtpPort = 10001;
         private ushort _maxRtpPort = 30000;
         private bool _randomPort = false;
+        private int? _recordSec = 120;
         private string _ffmpegPath;
         private string _accessKey;
         private int _rtpPortCDTime;
@@ -113,6 +114,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _randomPort;
             set => _randomPort = value;
+        }
+
+        /// <summary>
+        /// 录制文件时长(秒)
+        /// </summary>
+        public int? RecordSec
+        {
+            get => _recordSec;
+            set => _recordSec = value;
         }
 
         /// <summary>
