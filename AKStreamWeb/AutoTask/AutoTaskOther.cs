@@ -70,12 +70,10 @@ namespace AKStreamWeb.AutoTask
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
                         var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
-                        if (deleteFileIdList != null && deleteFileIdList.Count > 0)
-                        {
-                            var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
-                                .Set(x => x.Undo, false)
-                                .Where(x => deleteFileIdList.Contains(x.Id)).ExecuteAffrows();
-                        }
+
+                        var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
+                            .Set(x => x.Undo, false)
+                            .Where(x => deleteFileIdList.Contains(x.Id)).ExecuteAffrows();
                     }
                 }
             }
