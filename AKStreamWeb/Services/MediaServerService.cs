@@ -1929,7 +1929,7 @@ namespace AKStreamWeb.Services
                         Logger.Warn(
                             $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
-                        return false;
+                        //return false;
                     }
 
                     var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
