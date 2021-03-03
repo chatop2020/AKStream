@@ -170,7 +170,7 @@ namespace AKStreamWeb
                     OrmConnStr = "请配置正确的数据库连接字符串",
                     DbType = "请配置正确的数据库类型如 MySql、Sqlite等",
                     WebApiPort = 5800,
-                    HttpClientTimeoutSec = 5,
+                    HttpClientTimeoutSec = 20,
                     AccessKey = UtilsHelper.generalGuid(),
                 };
                 try

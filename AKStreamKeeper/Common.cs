@@ -293,7 +293,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.RecordSec = 120;//时长120秒
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
                 _akStreamKeeperConfig.RtpPortCdTime = 3600;
-                _akStreamKeeperConfig.HttpClientTimeoutSec = 5;
+                _akStreamKeeperConfig.HttpClientTimeoutSec = 20;
                 _akStreamKeeperConfig.AccessKey = UtilsHelper.generalGuid();
                 _akStreamKeeperConfig.AkStreamWebRegisterUrl =
                     $"http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive";
