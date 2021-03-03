@@ -297,11 +297,12 @@ namespace AKStreamKeeper
                     //  $"http://{h}:{p}/MediaServer/WebHook/OnStreamNotFound"; //请求没有找到对应流的时候
                     data["hook"]["on_server_started"] = "";
                     //  $"http://{h}:{p}/MediaServer/WebHook/OnServerStarted"; //当流媒体启动时
-                    data["hook"]["timeoutSec"] = "5"; //httpclient超时时间5秒
+                    data["hook"]["timeoutSec"] = "20"; //httpclient超时时间20秒
                     data["general"]["flowThreshold"] = "0"; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
                     data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;
                     data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
                     data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
+                    
                     if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec>0)
                     {
                         data["record"]["fileSecond"] = Common.AkStreamKeeperConfig.RecordSec.ToString();
