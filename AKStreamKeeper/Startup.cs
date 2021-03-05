@@ -140,20 +140,62 @@ namespace AKStreamKeeper
             app.UseMiddleware<ExceptionMiddleware>(); //ExceptionMiddleware 加入管道
             app.UseAuthorization();
 
-
-            if (!Directory.Exists(GCommon.BaseStartPath + "/CutMergeFile"))
+            if (!string.IsNullOrEmpty(Common.AkStreamKeeperConfig.CutMergeFilePath))
             {
-                Directory.CreateDirectory(GCommon.BaseStartPath + "/CutMergeFile");
+                try
+                {
+                    if (!Directory.Exists(Common.AkStreamKeeperConfig.CutMergeFilePath))
+                    {
+                        Directory.CreateDirectory(Common.AkStreamKeeperConfig.CutMergeFilePath);
+                        string CutFilePath = "CutMergeFile";
+                        string CutTempPath = "CutMergeTempDir";
+                        string tmpPath;
+                        if (Common.KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
+                        {
+                            tmpPath = Common.AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('\\') + "\\";
+                        }
+                        else
+                        {
+                            tmpPath = Common.AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('/') + "/";
+                        }
+
+                        Directory.CreateDirectory(tmpPath + CutFilePath);
+                        Directory.CreateDirectory(tmpPath + CutTempPath);
+                        Common.CutOrMergePath = tmpPath + CutFilePath;
+                        Common.CutOrMergeTempPath = tmpPath + CutTempPath;
+                        app.UseStaticFiles(new StaticFileOptions
+                        {
+                            FileProvider =
+                                new PhysicalFileProvider(Common.CutOrMergePath),
+                            OnPrepareResponse = (c) =>
+                            {
+                                c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                            },
+                            RequestPath = new PathString("/CutMergeFile")
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + "\r\n" + ex.StackTrace);
+                    return;
+                }
             }
-
-            app.UseStaticFiles(new StaticFileOptions
+            else
             {
-                FileProvider =
-                    new PhysicalFileProvider(GCommon.BaseStartPath + "/CutMergeFile"),
-                OnPrepareResponse = (c) => { c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); },
-                RequestPath = new PathString("/CutMergeFile")
-            });
+                if (!Directory.Exists(GCommon.BaseStartPath + "/CutMergeFile"))
+                {
+                    Directory.CreateDirectory(GCommon.BaseStartPath + "/CutMergeFile");
+                }
 
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider =
+                        new PhysicalFileProvider(GCommon.BaseStartPath + "/CutMergeFile"),
+                    OnPrepareResponse = (c) => { c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); },
+                    RequestPath = new PathString("/CutMergeFile")
+                });
+            }
 
             if (Common.AkStreamKeeperConfig.CustomRecordPathList != null &&
                 Common.AkStreamKeeperConfig.CustomRecordPathList.Count > 0)

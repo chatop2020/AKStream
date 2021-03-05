@@ -14,6 +14,7 @@ namespace AKStreamKeeper.Misc
         private ushort _webApiPort;
         private string _mediaServerPath;
         private string _akStreamWebRegisterUrl;
+        private string? _cutMergeFilePath;
         private List<string> _customRecordPathList;
         private bool _useSSL = false;
         private ushort _minRtpPort = 10001;
@@ -70,6 +71,16 @@ namespace AKStreamKeeper.Misc
             get => _akStreamWebRegisterUrl;
             set => _akStreamWebRegisterUrl = value;
         }
+
+        /// <summary>
+        /// 裁剪合并任务文件存放位置 
+        /// </summary>
+        public string? CutMergeFilePath
+        {
+            get => _cutMergeFilePath;
+            set => _cutMergeFilePath = value;
+        }
+
 
         /// <summary>
         /// 自定义录像路径列表

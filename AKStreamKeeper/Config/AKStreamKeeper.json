@@ -4,6 +4,7 @@
   "WebApiPort": 6880,
   "MediaServerPath": "/Users/chatop/Projects/Clion/ZLMediaKit/release/mac/Debug/MediaServer",
   "AkStreamWebRegisterUrl": "http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive",
+  "CutMergeFilePath": "/User/chatop/Projects/CutMergeFile",
   "CustomRecordPathList": [
     "/Users/chatop/Downloads/record1",
     "/Users/chatop/Downloads/record2"

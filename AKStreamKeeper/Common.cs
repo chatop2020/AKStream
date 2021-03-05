@@ -297,6 +297,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.AccessKey = UtilsHelper.generalGuid();
                 _akStreamKeeperConfig.AkStreamWebRegisterUrl =
                     $"http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive";
+                _akStreamKeeperConfig.CutMergeFilePath = "/disk1/record";
                 _akStreamKeeperConfig.CustomRecordPathList = new List<string>();
                 _akStreamKeeperConfig.CustomRecordPathList.Add("请正确配置用于存储录制文件的目录或盘符");
                 _akStreamKeeperConfig.CustomRecordPathList.Add("目前可用设备如下:");
