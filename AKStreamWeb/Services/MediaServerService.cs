@@ -34,6 +34,16 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
+            if (mediaServer == null || mediaServer.KeeperWebApi == null || !mediaServer.IsKeeperRunning)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                return null;
+            }
             int startPos = -1;
             int endPos = -1;
             DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss")).AddSeconds(-20); //向前推20秒
@@ -45,18 +55,7 @@ namespace AKStreamWeb.Services
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
                     x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower()))
                 .ToList(); //取条件范围的前60分钟及后60分钟内的所有数据
-
-            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
-            if (mediaServer == null || mediaServer.KeeperWebApi == null || !mediaServer.IsKeeperRunning)
-            {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
-                };
-                return null;
-            }
-
+            
             List<RecordFile> cutMegerList = new List<RecordFile>();
             if (videoList != null && videoList.Count > 0)
             {
@@ -1617,7 +1616,7 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStartRecord.App =
                 videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : videoChannel.App;
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
-            reqZLMediaKitStartRecord.RecordSecs = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
+            reqZLMediaKitStartRecord.Max_Second = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
                 ? videoChannel.RecordSecs
                 : null;
 

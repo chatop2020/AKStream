@@ -11,7 +11,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private string? _app;
         private string? _stream;
         private string? _customized_path;
-        private int? _recordSecs;
+        private int? _max_second=0;
 
         [JsonIgnore]
         public int? Type
@@ -44,10 +44,13 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
             set => _customized_path = value;
         }
 
-        public int? RecordSecs
+       /// <summary>
+       /// 指定通道录制文件录制时长（秒）
+       /// </summary>
+        public int? Max_Second
         {
-            get => _recordSecs;
-            set => _recordSecs = value;
+            get => _max_second;
+            set => _max_second = value;
         }
     }
 }
