@@ -344,6 +344,31 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
+            else
+            {
+                Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调->{JsonHelper.ToJson(req)}");
+                var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
+                    .First();
+                if (videoChannel != null && videoChannel.DeviceStreamType!=DeviceStreamType.GB28181 && req.Schema.Trim().ToLower().Equals("rtmp"))
+                {
+                    var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
+                    if (mediaServer != null)
+                    {
+
+                        ResponseStruct rs;
+                        var ret = MediaServerService.StreamStop(mediaServer.MediaServerId, req.Stream, out rs);
+                        if (ret==false || rs.Code != ErrorNumber.None)
+                        {
+                            Logger.Warn($"[{Common.LoggerHead}]->流关停失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
+                        }
+                        else
+                        {
+                            Logger.Debug($"[{Common.LoggerHead}]->流关停成功->{JsonHelper.ToJson(req)}");
+                        }
+
+                    }
+                }
+            }
 
             return new ResToWebHookOnStreamChange()
             {
