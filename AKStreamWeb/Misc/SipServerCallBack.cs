@@ -46,10 +46,21 @@ namespace AKStreamWeb.Misc
                     {
                         if (channel != null)
                         {
-                            var mediaInfo =
+
+                            lock (Common.VideoChannelMediaInfosLock)
+                            {
+                                Common.VideoChannelMediaInfos.Remove(
+                                    Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream)));
+                                Logger.Info(
+                                    $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
+                            }
+
+                            /*var mediaInfo =
                                 Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
                             if (mediaInfo != null)
                             {
+                                
+                                
                                 var ret = MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
                                     out ResponseStruct rs);
                                 if (ret && rs.Code.Equals(ErrorNumber.None))
@@ -62,7 +73,7 @@ namespace AKStreamWeb.Misc
                                     Logger.Warn(
                                         $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                                 }
-                            }
+                            }*/
                         }
 
                         Thread.Sleep(50);
