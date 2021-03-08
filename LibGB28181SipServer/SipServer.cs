@@ -309,7 +309,7 @@ namespace LibGB28181SipServer
                 return;
             }
 
-            if (pushStatus != PushStatus.IGNORE)
+            /*if (pushStatus != PushStatus.IGNORE)
             {
                 if (sipChannel.PushStatus == pushStatus)
                 {
@@ -332,7 +332,7 @@ namespace LibGB28181SipServer
 
                     return;
                 }
-            }
+            }*/
 
             rs = new ResponseStruct()
             {
@@ -1387,7 +1387,7 @@ namespace LibGB28181SipServer
                     return;
                 }
 
-                if (sipChannel.PushStatus != PushStatus.PUSHON)
+                /*if (sipChannel.PushStatus != PushStatus.PUSHON)
                 {
                     rs = new ResponseStruct()
                     {
@@ -1411,7 +1411,7 @@ namespace LibGB28181SipServer
                     }
 
                     return;
-                }
+                }*/
 
                 var tmpSipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(sipChannel.ParentId));
                 SIPMethodsEnum method = SIPMethodsEnum.BYE;
