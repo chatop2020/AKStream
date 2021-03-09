@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LibCommon;
-using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibLogger;
-using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 
 namespace AKStreamWeb.AutoTask
 {
@@ -26,58 +24,6 @@ namespace AKStreamWeb.AutoTask
                 count++;
                 try
                 {
-                    if (count % 10 == 0) //10秒一次
-                    {
-                        foreach (var mediaServer in Common.MediaServerList)
-                        {
-                            if (mediaServer != null && mediaServer.IsKeeperRunning && mediaServer.IsMediaServerRunning)
-                            {
-                                ResponseStruct rs = null;
-                                var ret = mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList
-                                {
-                                    Schema = "rtmp",
-                                }, out rs);
-
-                                if (ret != null && ret.Data != null && rs.Code.Equals(ErrorNumber.None))
-                                {
-                                    List<VideoChannelMediaInfo> tmpList = new List<VideoChannelMediaInfo>();
-                                    foreach (var videoChannel in Common.VideoChannelMediaInfos)
-                                    {
-                                        var tmpRet = ret.Data.Find(x =>
-                                            x.Stream.ToLower().Equals(videoChannel.MainId.ToLower()));
-                                        if (tmpRet == null)
-                                        {
-                                            tmpList.Add(videoChannel);
-                                        }
-                                    }
-
-
-                                    if (tmpList.Count > 0)
-                                    {
-                                        lock (Common.VideoChannelMediaInfosLock)
-                                        {
-                                            foreach (var tmp in tmpList)
-                                            {
-                                                Common.VideoChannelMediaInfos.Remove(
-                                                    Common.VideoChannelMediaInfos.Find(x =>
-                                                        x.MainId.Equals(tmp.MainId)));
-                                                Logger.Warn(
-                                                    $"[{Common.LoggerHead}]->检查ZLMediaKit的StreamList时发现->{tmp.MainId}流不存在于ZLMediaKit中，因此将其从列表中移除");
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Logger.Debug(
-                                            $"[{Common.LoggerHead}]->检查ZLMediaKit的StreamList时没有发现异常");  
-                                    }
-                                }
-                            }
-
-                            Thread.Sleep(100);
-                        }
-                    }
-
                     if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件

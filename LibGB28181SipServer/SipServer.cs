@@ -309,7 +309,7 @@ namespace LibGB28181SipServer
                 return;
             }
 
-            /*if (pushStatus != PushStatus.IGNORE)
+            if (pushStatus != PushStatus.IGNORE)
             {
                 if (sipChannel.PushStatus == pushStatus)
                 {
@@ -332,7 +332,7 @@ namespace LibGB28181SipServer
 
                     return;
                 }
-            }*/
+            }
 
             rs = new ResponseStruct()
             {
@@ -726,7 +726,7 @@ namespace LibGB28181SipServer
         /// <param name="rs"></param>
         /// <param name="timeout"></param>
         public void GetDeviceStatus(SipDevice sipDevice, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             rs = new ResponseStruct()
             {
@@ -811,7 +811,7 @@ namespace LibGB28181SipServer
         /// <param name="rs"></param>
         /// <param name="timeout"></param>
         public void GetRecordFileList(SipChannel sipChannel, SipQueryRecordFile sipQueryRecordFile, AutoResetEvent evnt,
-            AutoResetEvent evnt2, out ResponseStruct rs, int timeout = 20000)
+            AutoResetEvent evnt2, out ResponseStruct rs, int timeout = 5000)
         {
             rs = new ResponseStruct()
             {
@@ -899,7 +899,7 @@ namespace LibGB28181SipServer
         /// <param name="rs"></param>
         /// <param name="timeout"></param>
         public void GetDeviceInfo(SipDevice sipDevice, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             rs = new ResponseStruct()
             {
@@ -1047,7 +1047,7 @@ namespace LibGB28181SipServer
         }
 
         public void InviteRecord(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             try
             {
@@ -1143,7 +1143,7 @@ namespace LibGB28181SipServer
         /// </summary>
         /// <param name="sipChannel"></param>
         public void Invite(SipChannel sipChannel, PushMediaInfo pushMediaInfo, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             try
             {
@@ -1242,7 +1242,7 @@ namespace LibGB28181SipServer
 
 
         public void DeInvite(RecordInfo.RecItem record, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             try
             {
@@ -1360,7 +1360,7 @@ namespace LibGB28181SipServer
         /// </summary>
         /// <param name="sipChannel"></param>
         public void DeInvite(SipChannel sipChannel, AutoResetEvent evnt,
-            out ResponseStruct rs, int timeout = 20000)
+            out ResponseStruct rs, int timeout = 5000)
         {
             try
             {
@@ -1387,7 +1387,7 @@ namespace LibGB28181SipServer
                     return;
                 }
 
-                /*if (sipChannel.PushStatus != PushStatus.PUSHON)
+                if (sipChannel.PushStatus != PushStatus.PUSHON)
                 {
                     rs = new ResponseStruct()
                     {
@@ -1411,7 +1411,7 @@ namespace LibGB28181SipServer
                     }
 
                     return;
-                }*/
+                }
 
                 var tmpSipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(sipChannel.ParentId));
                 SIPMethodsEnum method = SIPMethodsEnum.BYE;
@@ -1500,7 +1500,7 @@ namespace LibGB28181SipServer
         /// <param name="sipDeviceId"></param>
         public void DeviceCatalogQuery(SipDevice sipDevice, AutoResetEvent evnt, AutoResetEvent evnt2,
             out ResponseStruct rs,
-            int timeout = 20000)
+            int timeout = 5000)
         {
             rs = new ResponseStruct()
             {
