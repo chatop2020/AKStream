@@ -316,7 +316,7 @@ namespace AKStreamWeb.Services
                 int tick = 0;
 
                 while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
-                       tick <= 5000)
+                       tick <= 15000)
                 {
                     //AutoResetEvent没准备好，OnStreamChanged事件却来了，这里如果发现值为空，就等等
                     tick += 10;
@@ -480,7 +480,7 @@ namespace AKStreamWeb.Services
             int tick = 0;
 
             while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
-                   tick <= 5000)
+                   tick <= 15000)
             {
                 //AutoResetEvent没准备好，onpublish事件却来了，这里如果发现值为空，就等等
                 tick += 10;
