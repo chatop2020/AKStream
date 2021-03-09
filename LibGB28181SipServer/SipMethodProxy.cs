@@ -20,7 +20,7 @@ namespace LibGB28181SipServer
         private int _timeout;
         private CommandType _commandType;
 
-        public SipMethodProxy(int timeout = 15000)
+        public SipMethodProxy(int timeout = 20000)
         {
             _timeout = timeout;
         }

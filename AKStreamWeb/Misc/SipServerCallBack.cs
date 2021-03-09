@@ -135,7 +135,7 @@ namespace AKStreamWeb.Misc
             Logger.Debug(
                 $"[{Common.LoggerHead}]->设备就绪->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}");
             ResponseStruct rs;
-            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(15000);
+            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(20000);
             if (sipMethodProxy2.GetSipDeviceInfo(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -147,7 +147,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(15000);
+            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(20000);
             if (sipMethodProxy3.GetSipDeviceStatus(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -159,7 +159,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备状态信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(15000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(20000);
             if (sipMethodProxy.DeviceCatalogQuery(sipDevice, out rs))
             {
                 Logger.Debug(
