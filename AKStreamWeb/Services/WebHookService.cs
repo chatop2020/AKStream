@@ -147,7 +147,13 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnFlowReport OnFlowReport(ReqForWebHookOnFlowReport req)
         {
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}");
+            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}->这里不做处理了");
+            
+            return new ResToWebHookOnFlowReport()
+            {
+                Code = 0,
+                Msg = "success",
+            };
 
             var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                 .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -367,6 +373,40 @@ namespace AKStreamWeb.Services
                         }
 
                     }
+                }
+
+                if (videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181 &&
+                    req.Schema.Trim().ToLower().Equals("rtmp"))
+                {
+                    
+                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+                    if (obj != null)
+                    {
+                        try
+                        {
+                            MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
+                                out _);
+                            var sipDevice =
+                                LibGB28181SipServer.Common.SipDevices
+                                    .FindLast( //补充，如果上面的StreamStop没有完全执行成功，则在此处将sipChannel的状态设置成空闲
+                                        x => x.DeviceId.Equals(videoChannel.DeviceId));
+                            if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
+                            {
+                                var sipChannel =
+                                    sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
+                                if (sipChannel != null && sipChannel.PushStatus != PushStatus.IDLE)
+                                {
+                                    sipChannel.PushStatus = PushStatus.IDLE;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            //  
+                        }
+                    }
+                    
+                    
                 }
             }
 
