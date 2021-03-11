@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AKStreamWeb.Misc;
 using LibCommon;
 using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
@@ -763,16 +764,12 @@ namespace AKStreamWeb.Services
             }
 
             Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务成功->{mediaServerId}->{JsonHelper.ToJson(ret)}");
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                foreach (var obj in Common.VideoChannelMediaInfos)
-                {
-                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
-            }
+
+            var retint = Common.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->启动流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
+
 
             return ret;
         }
@@ -842,16 +839,10 @@ namespace AKStreamWeb.Services
 
             Logger.Info($"[{Common.LoggerHead}]->终止流媒体服务成功->{mediaServerId}->{ret}");
 
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                foreach (var obj in Common.VideoChannelMediaInfos)
-                {
-                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
-            }
+            var retint = Common.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->终止流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
 
             return ret;
         }
@@ -919,16 +910,11 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                foreach (var obj in Common.VideoChannelMediaInfos)
-                {
-                    if (obj != null && obj.MediaServerId.Equals(mediaServerId))
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
-            }
+            var retint = Common.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->重启流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
+
 
             Logger.Info($"[{Common.LoggerHead}]->重启流媒体服务成功->{mediaServerId}->{JsonHelper.ToJson(ret)}");
 

@@ -226,7 +226,9 @@ namespace AKStreamWeb.AutoTask
                 {
                     try
                     {
-                        foreach (var obj in Common.VideoChannelMediaInfos)
+
+                        var retlist = Common.Ldb.VideoOnlineInfo.FindAll().ToList();
+                        foreach (var obj in retlist)
                         {
                             if (obj != null && obj.MediaServerStreamInfo != null)
                             {

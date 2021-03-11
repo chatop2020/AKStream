@@ -1579,6 +1579,11 @@ namespace LibGB28181SipServer
         }
 
 
+        public void KickSipDevice(SipDevice sipDevice)
+        {
+            SipMsgProcess.DoKickSipDevice(sipDevice);
+        }
+
         /// <summary>
         /// 停止Sip服务
         /// </summary>

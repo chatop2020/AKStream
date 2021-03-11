@@ -83,6 +83,7 @@ namespace LibCommon.Structs
         private List<string> _playUrl = new List<string>();
         private uint? ssrc;
         private bool? _isRecorded = false;
+        private string? _noGB28181Key = "";
         private PushStreamSocketType? _pushSocketType = null;
         private List<MediaServerStreamPlayerInfo> _playerList = new List<MediaServerStreamPlayerInfo>();
 
@@ -215,6 +216,15 @@ namespace LibCommon.Structs
         {
             get => _isRecorded;
             set => _isRecorded = value;
+        }
+
+        /// <summary>
+        /// 用于保存非28181流拉流时返回的key
+        /// </summary>
+        public string? NoGb28181Key
+        {
+            get => _noGB28181Key;
+            set => _noGB28181Key = value;
         }
 
         /// <summary>
