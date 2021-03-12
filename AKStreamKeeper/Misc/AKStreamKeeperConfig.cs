@@ -25,6 +25,7 @@ namespace AKStreamKeeper.Misc
         private string _accessKey;
         private int _rtpPortCDTime;
         private int _httpClientTimeoutSec;
+        private bool _disableShell;
 
 
         /// <summary>
@@ -170,6 +171,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _httpClientTimeoutSec;
             set => _httpClientTimeoutSec = value;
+        }
+
+        /// <summary>
+        /// 停用zlmediakit的远程shell功能
+        /// </summary>
+        public bool DisableShell
+        {
+            get => _disableShell;
+            set => _disableShell = value;
         }
     }
 }
