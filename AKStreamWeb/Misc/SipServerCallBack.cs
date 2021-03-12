@@ -63,7 +63,7 @@ namespace AKStreamWeb.Misc
             Logger.Debug(
                 $"[{Common.LoggerHead}]->设备就绪->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}");
             ResponseStruct rs;
-            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
+            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy2.GetSipDeviceInfo(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -75,7 +75,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
+            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy3.GetSipDeviceStatus(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -87,7 +87,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备状态信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy.DeviceCatalogQuery(sipDevice, out rs))
             {
                 Logger.Debug(
