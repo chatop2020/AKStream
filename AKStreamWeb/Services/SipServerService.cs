@@ -48,7 +48,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
             var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
             if (!rs.Code.Equals(ErrorNumber.None) || got == false)
             {
@@ -230,7 +230,7 @@ namespace AKStreamWeb.Services
 
             try
             {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
                 var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
 
                 ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
@@ -428,7 +428,7 @@ namespace AKStreamWeb.Services
             pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
             var liveVideoRet = sipMethodProxy.Invite(sipChannel, pushMediaInfo, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
             {
@@ -456,7 +456,7 @@ namespace AKStreamWeb.Services
             Common.WebHookNeedReturnTask.TryAdd($"WAITONPUBLISH_{videoChannel.MainId}",
                 taskWait);
 
-            var isTimeout = myWait.WaitOne(5000);
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutSec);
             if (!isTimeout)
             {
                 if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
@@ -743,7 +743,7 @@ namespace AKStreamWeb.Services
             ptzCtrl.SipChannel = tmpSipChannel == null ? null : tmpSipChannel;
             ptzCtrl.SipDevice = tmpSipDevice;
             ptzCtrl.PtzCommandType = ptzCmd.PtzCommandType;
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutSec);
             var ptz = sipMethodProxy.PtzMove(ptzCtrl, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || ptz == false)
             {

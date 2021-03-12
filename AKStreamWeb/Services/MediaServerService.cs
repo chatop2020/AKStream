@@ -1150,7 +1150,7 @@ namespace AKStreamWeb.Services
             Common.WebHookNeedReturnTask.TryAdd($"WAITONSTREAMCHANGE_{videoChannel.MainId}",
                 taskWait);
 
-            var isTimeout = myWait.WaitOne(20000);
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutSec);
             if (!isTimeout)
             {
                 rs = new ResponseStruct()
@@ -1424,7 +1424,7 @@ namespace AKStreamWeb.Services
             Common.WebHookNeedReturnTask.TryAdd($"WAITONSTREAMCHANGE_{videoChannel.MainId}",
                 taskWait);
 
-            var isTimeout = myWait.WaitOne(5000);
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutSec);
             if (!isTimeout)
             {
                 rs = new ResponseStruct()

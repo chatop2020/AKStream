@@ -182,85 +182,7 @@ namespace AKStreamWeb.Services
                 }
             }
 
-            /*
-            var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
-                .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
-
-
-            if (videoChannel == null)
-            {
-                return new ResToWebHookOnFlowReport()
-                {
-                    Code = 0,
-                    Msg = "success",
-                };
-            }
-
-            if (req.Player == false)
-            {
-                if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
-                {
-                    lock (Common.VideoChannelMediaInfosLock)
-                    {
-                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                        if (obj != null)
-                        {
-                            Common.VideoChannelMediaInfos.Remove(obj);
-                        }
-                    }
-                }
-
-                if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
-                {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null)
-                    {
-                        try
-                        {
-                            MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
-                                out _);
-                            var sipDevice =
-                                LibGB28181SipServer.Common.SipDevices
-                                    .FindLast( //补充，如果上面的StreamStop没有完全执行成功，则在此处将sipChannel的状态设置成空闲
-                                        x => x.DeviceId.Equals(videoChannel.DeviceId));
-                            if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
-                            {
-                                var sipChannel =
-                                    sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                                if (sipChannel != null && sipChannel.PushStatus != PushStatus.IDLE)
-                                {
-                                    sipChannel.PushStatus = PushStatus.IDLE;
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            //  
-                        }
-                    }
-                }
-            }
-            else
-            {
-                lock (Common.VideoChannelMediaInfosLock)
-                {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null && obj.MediaServerStreamInfo != null)
-                    {
-                        if (obj.MediaServerStreamInfo.PlayerList != null)
-                        {
-                            var player = obj.MediaServerStreamInfo.PlayerList.FindLast(x =>
-                                x.PlayerId.Equals(req.Id) && x.IpAddress.Equals(req.Ip));
-                            if (player != null)
-                            {
-                                obj.MediaServerStreamInfo.PlayerList.Remove(player);
-                            }
-                        }
-                    }
-                }
-            }
-            */
-
+           
 
             return new ResToWebHookOnFlowReport()
             {
@@ -352,7 +274,7 @@ namespace AKStreamWeb.Services
                         int tick = 0;
 
                         while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
-                               tick <= 5000)
+                               tick <= Common.AkStreamWebConfig.WaitEventTimeOutSec)
                         {
                             //AutoResetEvent没准备好，OnStreamChanged事件却来了，这里如果发现值为空，就等等
                             tick += 10;
@@ -532,7 +454,7 @@ namespace AKStreamWeb.Services
                 int tick = 0;
 
                 while (Common.WebHookNeedReturnTask.TryGetValue(taskStr, out webHookNeedReturnTask) == false &&
-                       tick <= 5000)
+                       tick <= Common.AkStreamWebConfig.WaitEventTimeOutSec)
                 {
                     //AutoResetEvent没准备好，onpublish事件却来了，这里如果发现值为空，就等等
                     tick += 10;

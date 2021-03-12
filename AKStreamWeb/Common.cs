@@ -26,23 +26,18 @@ namespace AKStreamWeb
         public static PerformanceInfo WebPerformanceInfo = new PerformanceInfo();
 
         private static object _performanceInfoLock = new object();
-
-        //private static object _videoChannelMediaInfosLock = new object();
+        
         private static Timer _perFormanceInfoTimer;
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
 
         private static LiteDBHelper _ldb = new LiteDBHelper();
-        //public static object StreamLiveLock = new object();
-        // public static object StreamStopLock = new object();
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
-
-        //   private static List<VideoChannelMediaInfo> _videoChannelMediaInfos = new List<VideoChannelMediaInfo>();
-
+        
         public static ConcurrentDictionary<string, WebHookNeedReturnTask> WebHookNeedReturnTask
         {
             get => _webHookNeedReturnTask;

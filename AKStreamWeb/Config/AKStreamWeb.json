@@ -4,5 +4,7 @@
   "OrmConnStr": "Data Source=192.168.3.15;Port=3306;User ID=root;Password=cdtnb...; Initial Catalog=AKStream;Charset=utf8; SslMode=none;Min pool size=1;",
   "WebApiPort": 5800,
   "AccessKey": "047I4WS1-U51UBO6W-1J4BT21P-MF17IT99-92J8WIHU-944Q4KIW",
-  "HttpClientTimeoutSec": 5
+  "HttpClientTimeoutSec": 5,
+  "WaitEventTimeOutSec" : 10000,
+  "WaitSipRequestTimeOutSec" : 5000
 }
