@@ -1048,7 +1048,7 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
-                    Logger.Info(
+                    Logger.Debug(
                         $"[{Common.LoggerHead}]->请求视频流操作成功，等待ZLMediaKit回调处理->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r3)}");
                 }
 
