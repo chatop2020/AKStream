@@ -728,14 +728,14 @@ namespace AKStreamKeeper
                         Directory.CreateDirectory(tmp1);
                     }
 
-                    var tmp2 = tmp1 + "CutMergeFile";
+                    var tmp2 = tmp1 + "CutMergeFile\\";
                     if (!Directory.Exists(tmp2))
                     {
                         Directory.CreateDirectory(tmp2);
                     }
 
                     CutOrMergePath = tmp2;
-                    tmp2 = tmp1 + "CutMergeTempDir";
+                    tmp2 = tmp1 + "CutMergeTempDir\\";
                     if (!Directory.Exists(tmp2))
                     {
                         Directory.CreateDirectory(tmp2);
@@ -751,14 +751,14 @@ namespace AKStreamKeeper
                         Directory.CreateDirectory(tmp1);
                     }
 
-                    var tmp2 = tmp1 + "CutMergeFile";
+                    var tmp2 = tmp1 + "CutMergeFile/";
                     if (!Directory.Exists(tmp2))
                     {
                         Directory.CreateDirectory(tmp2);
                     }
 
                     CutOrMergePath = tmp2;
-                    tmp2 = tmp1 + "CutMergeTempDir";
+                    tmp2 = tmp1 + "CutMergeTempDir/";
                     if (!Directory.Exists(tmp2))
                     {
                         Directory.CreateDirectory(tmp2);

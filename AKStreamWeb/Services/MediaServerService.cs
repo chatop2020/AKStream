@@ -16,7 +16,6 @@ using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 
 namespace AKStreamWeb.Services
@@ -1846,14 +1845,6 @@ namespace AKStreamWeb.Services
                     var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, dbRet.VideoPath);
                     if (!rs.Code.Equals(ErrorNumber.None) || !deleted)
                     {
-                        /*if (!rs.Code.Equals(ErrorNumber.Sys_SpecifiedFileNotExists)) //如果不是因为文件不存在而没删除掉数据，就要恢复一下数据库记录
-                        {
-                            ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, false)
-                                .Set(x => x.Undo, false)
-                                .Set(x => x.UpdateTime, DateTime.Now)
-                                .Where(x => x.Id.Equals(dbRet.Id)).ExecuteAffrows();
-                        }*/
-
                         result.PathList.Add(new KeyValuePair<long, string>(dbRet.Id, dbRet.VideoPath));
                     }
 

@@ -24,21 +24,24 @@ namespace AKStreamWeb
         public static bool IsDebug = false;
         private static SystemInfo _webSystemInfo = new SystemInfo();
         public static PerformanceInfo WebPerformanceInfo = new PerformanceInfo();
+
         private static object _performanceInfoLock = new object();
+
         //private static object _videoChannelMediaInfosLock = new object();
         private static Timer _perFormanceInfoTimer;
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
+
         private static LiteDBHelper _ldb = new LiteDBHelper();
         //public static object StreamLiveLock = new object();
-       // public static object StreamStopLock = new object();
+        // public static object StreamStopLock = new object();
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
 
-     //   private static List<VideoChannelMediaInfo> _videoChannelMediaInfos = new List<VideoChannelMediaInfo>();
+        //   private static List<VideoChannelMediaInfo> _videoChannelMediaInfos = new List<VideoChannelMediaInfo>();
 
         public static ConcurrentDictionary<string, WebHookNeedReturnTask> WebHookNeedReturnTask
         {
@@ -52,19 +55,7 @@ namespace AKStreamWeb
             get => _ldb;
             set => _ldb = value;
         }
-        /*
-        public static object VideoChannelMediaInfosLock
-        {
-            get => _videoChannelMediaInfosLock;
-            set => _videoChannelMediaInfosLock = value;
-        }
 
-        public static List<VideoChannelMediaInfo> VideoChannelMediaInfos
-        {
-            get => _videoChannelMediaInfos;
-            set => _videoChannelMediaInfos = value;
-        }
-        */
 
         /// <summary>
         /// 流媒体服务器列表
@@ -275,6 +266,7 @@ namespace AKStreamWeb
             try
             {
                 Ldb.VideoOnlineInfo.DeleteAll();
+
                 OrmHelper = new ORMHelper(AkStreamWebConfig.OrmConnStr, AkStreamWebConfig.DbType);
             }
             catch (Exception ex)
@@ -330,7 +322,7 @@ namespace AKStreamWeb
                 Environment.Exit(0); //退出程序
             }
 
-            
+
             _autoLive = new AutoLive();
             _autoRecord = new AutoRecord();
             _autoTaskOther = new AutoTaskOther();
