@@ -152,7 +152,7 @@ namespace AKStreamKeeper
                             {
                                 c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                             },
-                            RequestPath = new PathString("/"+Common.CutOrMergePath.TrimStart('/'))
+                            RequestPath = new PathString("/CutMergeFile")
                         });
                     
                 }

@@ -568,16 +568,14 @@ namespace AKStreamWeb.Services
                 result.EnableMp4 = false;
                 return result;
             }
-            else
+
+            return new ResToWebHookOnPublish()
             {
-                return new ResToWebHookOnPublish()
-                {
-                    Code = -1,
-                    EnableHls = false,
-                    EnableMp4 = false,
-                    Msg = "failed",
-                };
-            }
+                Code = -1,
+                EnableHls = false,
+                EnableMp4 = false,
+                Msg = "failed",
+            };
         }
 
         /// <summary>
