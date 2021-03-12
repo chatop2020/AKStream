@@ -51,7 +51,7 @@ namespace AKStreamWeb.Controllers
         [Route("GetMergeTaskStatus")]
         [HttpGet]
         [AuthVerify]
-        public ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus([FromHeader(Name = "AccessKey")] string mediaServerId, string taskId)
+        public ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId, string taskId)
         {
             ResponseStruct rs;
             var ret = MediaServerService.GetMergeTaskStatus(mediaServerId, taskId, out rs);
