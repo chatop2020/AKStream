@@ -71,11 +71,11 @@ namespace AKStreamWeb.AutoTask
                                 }
                             }
 
-                            Thread.Sleep(100);
+                            Thread.Sleep(20);
                         }
                     }
 
-                    Thread.Sleep(5000);
+                    Thread.Sleep(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
                 }
                 catch
                 {
