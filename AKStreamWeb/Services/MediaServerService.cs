@@ -349,6 +349,7 @@ namespace AKStreamWeb.Services
 
             //异步回调
             var mergeList = analysisVideoFile(rcmv, out rs);
+            Console.WriteLine("得到列表-->\r\n"+JsonHelper.ToJson(mergeList,Formatting.Indented));
             if (mergeList != null && mergeList.Count > 0)
             {
                 ReqKeeperCutMergeTask task = new ReqKeeperCutMergeTask()

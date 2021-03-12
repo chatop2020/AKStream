@@ -31,7 +31,7 @@ namespace AKStreamWeb.Controllers
         [Route("CutOrMergeVideoFile")]
         [HttpPost]
         [AuthVerify]
-        public ResKeeperCutMergeTaskResponse CutOrMergeVideoFile([FromHeader(Name = "AccessKey")] ReqKeeperCutOrMergeVideoFile rcmv)
+        public ResKeeperCutMergeTaskResponse CutOrMergeVideoFile([FromHeader(Name = "AccessKey")] string AccessKey,ReqKeeperCutOrMergeVideoFile rcmv)
         {
             ResponseStruct rs;
             var ret = MediaServerService.CutOrMergeVideoFile(rcmv, out rs);
