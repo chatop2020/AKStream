@@ -290,7 +290,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.MaxRtpPort = 20000;
                 _akStreamKeeperConfig.MinRtpPort = 10001;
                 _akStreamKeeperConfig.RandomPort = false;
-                _akStreamKeeperConfig.RecordSec = 120;//时长120秒
+                _akStreamKeeperConfig.RecordSec = 120; //时长120秒
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
                 _akStreamKeeperConfig.RtpPortCdTime = 3600;
                 _akStreamKeeperConfig.HttpClientTimeoutSec = 20;
@@ -717,6 +717,66 @@ namespace AKStreamKeeper
 
             Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
+
+            if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
+            {
+                if (KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
+                {
+                    var tmp1 = AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('\\') + '\\';
+                    if (!Directory.Exists(tmp1))
+                    {
+                        Directory.CreateDirectory(tmp1);
+                    }
+
+                    var tmp2 = tmp1 + "CutMergeFile";
+                    if (!Directory.Exists(tmp2))
+                    {
+                        Directory.CreateDirectory(tmp2);
+                    }
+
+                    CutOrMergePath = tmp2;
+                    tmp2 = tmp1 + "CutMergeTempDir";
+                    if (!Directory.Exists(tmp2))
+                    {
+                        Directory.CreateDirectory(tmp2);
+                    }
+
+                    CutOrMergeTempPath = tmp2;
+                }
+                else
+                {
+                    var tmp1 = AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('/') + '/';
+                    if (!Directory.Exists(tmp1))
+                    {
+                        Directory.CreateDirectory(tmp1);
+                    }
+
+                    var tmp2 = tmp1 + "CutMergeFile";
+                    if (!Directory.Exists(tmp2))
+                    {
+                        Directory.CreateDirectory(tmp2);
+                    }
+
+                    CutOrMergePath = tmp2;
+                    tmp2 = tmp1 + "CutMergeTempDir";
+                    if (!Directory.Exists(tmp2))
+                    {
+                        Directory.CreateDirectory(tmp2);
+                    }
+                    CutOrMergeTempPath = tmp2;
+                }
+            }
+            else
+            {
+                if (!Directory.Exists(CutOrMergePath))
+                {
+                    Directory.CreateDirectory(CutOrMergePath);
+                }
+                if (!Directory.Exists(CutOrMergeTempPath))
+                {
+                    Directory.CreateDirectory(CutOrMergeTempPath);
+                }
+            }
         }
 
         static Common()
@@ -724,15 +784,6 @@ namespace AKStreamKeeper
 #if (DEBUG)
             IsDebug = true;
 #endif
-            if (!Directory.Exists(CutOrMergePath))
-            {
-                Directory.CreateDirectory(CutOrMergePath);
-            }
-
-            if (!Directory.Exists(CutOrMergeTempPath))
-            {
-                Directory.CreateDirectory(CutOrMergeTempPath);
-            }
 
             CutMergeService.start = true;
             MediaServerInstance.OnMediaKilled += OnMediaServerKilled;

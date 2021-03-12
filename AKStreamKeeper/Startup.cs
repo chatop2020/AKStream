@@ -144,26 +144,7 @@ namespace AKStreamKeeper
             {
                 try
                 {
-                    if (!Directory.Exists(Common.AkStreamKeeperConfig.CutMergeFilePath))
-                    {
-                        Directory.CreateDirectory(Common.AkStreamKeeperConfig.CutMergeFilePath);
-                        string CutFilePath = "CutMergeFile";
-                        string CutTempPath = "CutMergeTempDir";
-                        string tmpPath;
-                        if (Common.KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
-                        {
-                            tmpPath = Common.AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('\\') + "\\";
-                        }
-                        else
-                        {
-                            tmpPath = Common.AkStreamKeeperConfig.CutMergeFilePath.TrimEnd('/') + "/";
-                        }
-
-                        Directory.CreateDirectory(tmpPath + CutFilePath);
-                        Directory.CreateDirectory(tmpPath + CutTempPath);
-                        Common.CutOrMergePath = tmpPath + CutFilePath;
-                        Common.CutOrMergeTempPath = tmpPath + CutTempPath;
-                        app.UseStaticFiles(new StaticFileOptions
+                    app.UseStaticFiles(new StaticFileOptions
                         {
                             FileProvider =
                                 new PhysicalFileProvider(Common.CutOrMergePath),
@@ -173,7 +154,7 @@ namespace AKStreamKeeper
                             },
                             RequestPath = new PathString("/CutMergeFile")
                         });
-                    }
+                    
                 }
                 catch (Exception ex)
                 {

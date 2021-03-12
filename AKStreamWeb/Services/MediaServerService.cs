@@ -16,6 +16,7 @@ using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 
 namespace AKStreamWeb.Services
@@ -48,14 +49,14 @@ namespace AKStreamWeb.Services
 
             int startPos = -1;
             int endPos = -1;
-            DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss")).AddSeconds(-20); //向前推20秒
-            DateTime _end = DateTime.Parse(rcmv.EndTime.ToString("yyyy-MM-dd HH:mm:ss")).AddSeconds(20); //向后延迟20秒
+            DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+            DateTime _end = DateTime.Parse(rcmv.EndTime.ToString("yyyy-MM-dd HH:mm:ss"));
             var videoList = ORMHelper.Db.Select<RecordFile>()
                 .Where(x => x.StartTime > _start.AddMinutes(-60) && x.EndTime <= _end.AddMinutes(60))
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MediaServerId),
                     x => x.MediaServerId!.Trim().ToLower().Equals(rcmv.MediaServerId!.Trim().ToLower()))
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
-                    x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower()))
+                    x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower())).OrderBy(x => x.StartTime)
                 .ToList(); //取条件范围的前60分钟及后60分钟内的所有数据
 
             List<RecordFile> cutMegerList = new List<RecordFile>();
@@ -72,14 +73,34 @@ namespace AKStreamWeb.Services
                         DateTime.Parse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                     DateTime endInDb =
                         DateTime.Parse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                    if (startInDb <= _start && endInDb > _start) //找符合要求的开始视频
+
+
+                    long dbstart = UtilsHelper.ConvertDateTimeToLong(startInDb);
+                    long dbend = UtilsHelper.ConvertDateTimeToLong(endInDb);
+                    long querystart = UtilsHelper.ConvertDateTimeToLong(_start);
+                    long queryend = UtilsHelper.ConvertDateTimeToLong(_end);
+
+
+                    if (dbstart <= querystart && dbend >= queryend)
+                    {
+                        //包含了全部
+                        startPos = i;
+                        endPos = i;
+                    }
+                    else if (dbstart <= querystart && dbend < queryend)
                     {
                         startPos = i;
                     }
 
-                    if (startInDb < _end && endInDb >= _end) //找符合要求的结束视频
+                    if (dbend >= queryend && startPos > 0 && endPos < 0)
                     {
                         endPos = i;
+                    }
+
+
+                    if (startPos > -1 && endPos > -1)
+                    {
+                        break;
                     }
                 }
 
@@ -349,7 +370,7 @@ namespace AKStreamWeb.Services
 
             //异步回调
             var mergeList = analysisVideoFile(rcmv, out rs);
-            Console.WriteLine("得到列表-->\r\n"+JsonHelper.ToJson(mergeList,Formatting.Indented));
+            Console.WriteLine("得到列表-->\r\n" + JsonHelper.ToJson(mergeList, Formatting.Indented));
             if (mergeList != null && mergeList.Count > 0)
             {
                 ReqKeeperCutMergeTask task = new ReqKeeperCutMergeTask()
@@ -828,7 +849,6 @@ namespace AKStreamWeb.Services
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->停止视频流操作失败，在线列表中不存在此流->{mediaServerId}->{mainId}");
                     return false;
-
                 }
             }
 
@@ -924,7 +944,6 @@ namespace AKStreamWeb.Services
                         {
                             Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                            
                         }
                         else
                         {
@@ -952,12 +971,11 @@ namespace AKStreamWeb.Services
                 var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
                 if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
                 {
-                    
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                     var sipDevice =
                         LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
-                    if (sipDevice != null && sipDevice.IsReday==true)
+                    if (sipDevice != null && sipDevice.IsReday == true)
                     {
                         try
                         {
@@ -968,7 +986,6 @@ namespace AKStreamWeb.Services
                         }
                         catch
                         {
-                            
                         }
                     }
                 }
@@ -1120,7 +1137,7 @@ namespace AKStreamWeb.Services
                     };
                 }
 
-               
+
                 Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
@@ -1145,7 +1162,7 @@ namespace AKStreamWeb.Services
                 mediaServer.WebApiHelper.DelFFmpegSource(new ReqZLMediaKitDelFFmpegSource()
                 {
                     Key = ret.Data.Key,
-                },out _);
+                }, out _);
                 Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
@@ -1419,7 +1436,7 @@ namespace AKStreamWeb.Services
                 mediaServer.WebApiHelper.DelStreamProxy(new ReqZLMediaKitDelStreamProxy()
                 {
                     Key = ret.Data.Key,
-                },out _);
+                }, out _);
                 Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
@@ -1546,7 +1563,7 @@ namespace AKStreamWeb.Services
             }
 
             Logger.Info(
-                $"[{Common.LoggerHead}]->请求内置代理视频流成功(该音视频通道实例本身就在推流状态)->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+                $"[{Common.LoggerHead}]->请求内置代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
         }
