@@ -35,9 +35,20 @@ namespace AKStreamKeeper.Services
                     {
                         var taskStatus = CutMergeTaskStatusList.FindLast(x => x.TaskId.Equals(taskReturn.Task.TaskId));
 
-                        taskReturn.Uri = "http://" + Common.AkStreamKeeperConfig.IpV4Address + ":" +
-                                         Common.AkStreamKeeperConfig.WebApiPort + "/" +
-                                         taskReturn.FilePath.Replace(GCommon.BaseStartPath, "").TrimStart('/');
+                        if (string.IsNullOrEmpty(Common.AkStreamKeeperConfig.CutMergeFilePath))
+                        {
+                            taskReturn.Uri = "http://" + Common.AkStreamKeeperConfig.IpV4Address + ":" +
+                                             Common.AkStreamKeeperConfig.WebApiPort + "/" +
+                                             taskReturn.FilePath.Replace(GCommon.BaseStartPath, "").TrimStart('/');
+                        }
+                        else
+                        {
+                            taskReturn.Uri = "http://" + Common.AkStreamKeeperConfig.IpV4Address + ":" +
+                                             Common.AkStreamKeeperConfig.WebApiPort + "/" +
+                                             taskReturn.FilePath.Replace(Common.AkStreamKeeperConfig.CutMergeFilePath, "").TrimStart('/');
+
+                        }
+
                         if (taskStatus != null)
                         {
                             taskStatus.PlayUrl = taskReturn.Uri;

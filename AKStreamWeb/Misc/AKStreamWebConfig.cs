@@ -11,6 +11,8 @@ namespace AKStreamWeb.Misc
         private ushort _webApiPort = 5800;
         private string _accessKey;
         private int _httpClientTimeoutSec;
+        private int _waitEventTimeOutMSec = 5000;
+        private int _waitSipRequestTimeOutMSec = 5000;
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver
@@ -66,6 +68,24 @@ namespace AKStreamWeb.Misc
         {
             get => _httpClientTimeoutSec;
             set => _httpClientTimeoutSec = value;
+        }
+
+        /// <summary>
+        /// 等待事件发生的超时时间
+        /// </summary>
+        public int WaitEventTimeOutMSec
+        {
+            get => _waitEventTimeOutMSec;
+            set => _waitEventTimeOutMSec = value;
+        }
+
+        /// <summary>
+        /// Sip操作超时时间
+        /// </summary>
+        public int WaitSipRequestTimeOutMSec
+        {
+            get => _waitSipRequestTimeOutMSec;
+            set => _waitSipRequestTimeOutMSec = value;
         }
     }
 }

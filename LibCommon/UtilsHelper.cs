@@ -21,6 +21,23 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+        
+        /// <summary>
+        /// 日期转long 
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static long ConvertDateTimeToLong(DateTime dt)
+        {
+            DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            TimeSpan toNow = dt.Subtract(dtStart);
+            long timeStamp = toNow.Ticks;
+            timeStamp = long.Parse(timeStamp.ToString().Substring(0, timeStamp.ToString().Length - 4));
+            return timeStamp;
+        }
+
+        
+        
         /// <summary>
         /// 检查是否为网络异常的http报错
         /// </summary>

@@ -803,6 +803,146 @@ namespace LibZLMediaKitMediaServer
             return null;
         }
 
+        /// <summary>
+        /// 删除StreamProxy
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public ResZLMeidaKitDelStreamProxy DelStreamProxy(ReqZLMediaKitDelStreamProxy req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            string url = _useSSL ? "https://" : "http://" + $"{_ipAddress}:{_webApiPort}{_baseUri}delStreamProxy";
+            try
+            {
+                req.Secret = this._secret;
+                string reqData = JsonHelper.ToJson(req);
+                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout * 12);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return null;
+                    }
+
+                    var resZLMeidaKitDelStreamProxy = JsonHelper.FromJson<ResZLMeidaKitDelStreamProxy>(httpRet);
+                    if (resZLMeidaKitDelStreamProxy != null)
+                    {
+                        return resZLMeidaKitDelStreamProxy;
+                    }
+
+                    var resError = JsonHelper.FromJson<ResZLMediaKitErrorResponse>(httpRet);
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = JsonHelper.ToJson(resError),
+                    };
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// 用于删除FFmpegSource
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public ResZLMeidaKitDelFfMpegSource DelFFmpegSource(ReqZLMediaKitDelFFmpegSource req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            string url = _useSSL ? "https://" : "http://" + $"{_ipAddress}:{_webApiPort}{_baseUri}delStreamProxy";
+            try
+            {
+                req.Secret = this._secret;
+                string reqData = JsonHelper.ToJson(req);
+                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout * 12);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return null;
+                    }
+
+                    var resZLMeidaKitDelFfMpegSource = JsonHelper.FromJson<ResZLMeidaKitDelFfMpegSource>(httpRet);
+                    if (resZLMeidaKitDelFfMpegSource != null)
+                    {
+                        return resZLMeidaKitDelFfMpegSource;
+                    }
+
+                    var resError = JsonHelper.FromJson<ResZLMediaKitErrorResponse>(httpRet);
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = JsonHelper.ToJson(resError),
+                    };
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// 获取rtp代理时的某路ssrc rtp信息

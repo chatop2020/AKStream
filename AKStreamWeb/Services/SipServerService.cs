@@ -48,7 +48,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
             if (!rs.Code.Equals(ErrorNumber.None) || got == false)
             {
@@ -140,7 +140,7 @@ namespace AKStreamWeb.Services
                 }
             }
 
-            if (videoChannel.Enabled == false || videoChannel.MediaServerId.Contains("unknown_server"))
+            if ( videoChannel.MediaServerId.Contains("unknown_server"))
             {
                 rs = new ResponseStruct()
                 {
@@ -214,11 +214,12 @@ namespace AKStreamWeb.Services
             }
 
             VideoChannelMediaInfo mediaInfo = null;
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                mediaInfo = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-            }
 
+
+            mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+                x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+           
+            
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
                 Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
@@ -229,7 +230,7 @@ namespace AKStreamWeb.Services
 
             try
             {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
                 var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
 
                 ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
@@ -256,14 +257,6 @@ namespace AKStreamWeb.Services
 
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    lock (Common.VideoChannelMediaInfosLock)
-                    {
-                        var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                        if (obj != null)
-                        {
-                            Common.VideoChannelMediaInfos.Remove(obj);
-                        }
-                    }
 
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
@@ -271,14 +264,7 @@ namespace AKStreamWeb.Services
                     return false;
                 }
 
-                lock (Common.VideoChannelMediaInfosLock)
-                {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null)
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
+               
 
                 Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
 
@@ -286,14 +272,7 @@ namespace AKStreamWeb.Services
             }
             catch (Exception ex)
             {
-                lock (Common.VideoChannelMediaInfosLock)
-                {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null)
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
+               
 
                 rs = new ResponseStruct()
                 {
@@ -337,19 +316,20 @@ namespace AKStreamWeb.Services
             }
 
             VideoChannelMediaInfo mediaInfo = null;
-            mediaInfo = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
+            
+           
+            mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+                x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                mediaInfo = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
 
+           
                 if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
                 {
                     Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
 
                     return mediaInfo.MediaServerStreamInfo;
                 }
-            }
+         
 
 
             ResMediaServerOpenRtpPort openRtpPort;
@@ -448,7 +428,7 @@ namespace AKStreamWeb.Services
             pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             var liveVideoRet = sipMethodProxy.Invite(sipChannel, pushMediaInfo, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
             {
@@ -476,7 +456,7 @@ namespace AKStreamWeb.Services
             Common.WebHookNeedReturnTask.TryAdd($"WAITONPUBLISH_{videoChannel.MainId}",
                 taskWait);
 
-            var isTimeout = myWait.WaitOne(5000);
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
             if (!isTimeout)
             {
                 if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
@@ -509,14 +489,10 @@ namespace AKStreamWeb.Services
                 };
                 Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
-                lock (Common.VideoChannelMediaInfosLock)
-                {
-                    var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                    if (obj != null)
-                    {
-                        Common.VideoChannelMediaInfos.Remove(obj);
-                    }
-                }
+               
+                Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                    x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
 
                 return null;
             }
@@ -623,16 +599,11 @@ namespace AKStreamWeb.Services
                 $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
 
 
-            lock (Common.VideoChannelMediaInfosLock)
-            {
-                var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(videoChannel.MainId));
-                if (obj != null)
-                {
-                    Common.VideoChannelMediaInfos.Remove(obj);
-                }
+            Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
-                Common.VideoChannelMediaInfos.Add(videoChannelMediaInfo);
-            }
+            Common.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
+          
 
             Logger.Info(
                 $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
@@ -696,8 +667,8 @@ namespace AKStreamWeb.Services
             Logger.Info(
                 $"[{Common.LoggerHead}]->检查Sip推流状态成功->{deviceId}-{channelId}->{JsonHelper.ToJson(tmpSipChannel.PushStatus)}");
 
-            var obj = Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(tmpSipChannel.Stream));
-            if (obj != null && obj.MediaServerStreamInfo != null && tmpSipChannel.PushStatus == PushStatus.PUSHON)
+            var obj = Common.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(tmpSipChannel.Stream));
+            if (obj != null && obj.MediaServerStreamInfo != null )
             {
                 return true;
             }
@@ -772,7 +743,7 @@ namespace AKStreamWeb.Services
             ptzCtrl.SipChannel = tmpSipChannel == null ? null : tmpSipChannel;
             ptzCtrl.SipDevice = tmpSipDevice;
             ptzCtrl.PtzCommandType = ptzCmd.PtzCommandType;
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             var ptz = sipMethodProxy.PtzMove(ptzCtrl, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || ptz == false)
             {

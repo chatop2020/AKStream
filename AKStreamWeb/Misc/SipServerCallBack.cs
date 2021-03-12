@@ -18,7 +18,6 @@ namespace AKStreamWeb.Misc
     /// </summary>
     public static class SipServerCallBack
     {
-
         /// <summary>
         /// 当设备注册需要鉴权时，用于获取外部的设备密钥
         /// </summary>
@@ -28,7 +27,7 @@ namespace AKStreamWeb.Misc
         {
             return null;
         }
-        
+
         public static void OnRegister(string sipDeviceJson)
         {
             //设备注册时
@@ -38,79 +37,10 @@ namespace AKStreamWeb.Misc
         {
             //设备注销时，要清掉在线流
             var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
-            try
-            {
-                if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
-                {
-                    foreach (var channel in sipDevice.SipChannels)
-                    {
-                        if (channel != null)
-                        {
 
-                            
-                            Common.VideoChannelMediaInfos.Remove(
-                                Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream)));
-                            Logger.Info(
-                                $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
-
-                            /*var mediaInfo =
-                                Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
-                            if (mediaInfo != null)
-                            {
-                                
-                                
-                                var ret = MediaServerService.StreamStop(mediaInfo.MediaServerId, mediaInfo.MainId,
-                                    out ResponseStruct rs);
-                                if (ret && rs.Code.Equals(ErrorNumber.None))
-                                {
-                                    Logger.Info(
-                                        $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销成功");
-                                }
-                                else
-                                {
-                                    Logger.Warn(
-                                        $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->通道-{channel.DeviceId}->注销失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                                }
-                            }*/
-                        }
-
-                        Thread.Sleep(50);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ResponseStruct rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Sip_CallBackExcept,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_CallBackExcept],
-                    ExceptMessage = ex.Message,
-                    ExceptStackTrace = ex.StackTrace,
-                };
-                Logger.Error(
-                    $"[{Common.LoggerHead}]->设备注销时异常->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-            }
-            finally
-            {
-                if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
-                {
-                    lock (Common.VideoChannelMediaInfosLock)
-                    {
-                        foreach (var channel in sipDevice.SipChannels)
-                        {
-                            if (channel != null)
-                            {
-                                var mediaInfo =
-                                    Common.VideoChannelMediaInfos.FindLast(x => x.MainId.Equals(channel.Stream));
-                                if (mediaInfo != null)
-                                {
-                                    Common.VideoChannelMediaInfos.Remove(mediaInfo);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            Common.Ldb.VideoOnlineInfo.DeleteMany(x => x.DeviceId.Equals(sipDevice.DeviceId));
+            Logger.Info(
+                $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->所有通道-->注销成功");
         }
 
         public static void OnKeepalive(string deviceId, DateTime keepAliveTime, int lostTimes)
@@ -133,7 +63,7 @@ namespace AKStreamWeb.Misc
             Logger.Debug(
                 $"[{Common.LoggerHead}]->设备就绪->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}");
             ResponseStruct rs;
-            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy2.GetSipDeviceInfo(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -145,7 +75,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy3.GetSipDeviceStatus(sipDevice, out rs))
             {
                 Logger.Debug(
@@ -157,7 +87,7 @@ namespace AKStreamWeb.Misc
                     $"[{Common.LoggerHead}]->获取设备状态信息失败->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
             }
 
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(5000);
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             if (sipMethodProxy.DeviceCatalogQuery(sipDevice, out rs))
             {
                 Logger.Debug(

@@ -9,8 +9,9 @@ namespace LibCommon.Structs
     [Serializable]
     public class VideoChannelMediaInfo : VideoChannel
     {
+       
         private MediaServerStreamInfo? _mediaServerStreamInfo;
-
+        
         public MediaServerStreamInfo? MediaServerStreamInfo
         {
             get => _mediaServerStreamInfo;

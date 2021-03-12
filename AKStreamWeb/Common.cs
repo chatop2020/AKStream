@@ -24,38 +24,33 @@ namespace AKStreamWeb
         public static bool IsDebug = false;
         private static SystemInfo _webSystemInfo = new SystemInfo();
         public static PerformanceInfo WebPerformanceInfo = new PerformanceInfo();
+
         private static object _performanceInfoLock = new object();
-        private static object _videoChannelMediaInfosLock = new object();
+        
         private static Timer _perFormanceInfoTimer;
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
-        public static object StreamLiveLock = new object();
-        public static object StreamStopLock = new object();
+
+        private static LiteDBHelper _ldb = new LiteDBHelper();
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
-
-        private static List<VideoChannelMediaInfo> _videoChannelMediaInfos = new List<VideoChannelMediaInfo>();
-
+        
         public static ConcurrentDictionary<string, WebHookNeedReturnTask> WebHookNeedReturnTask
         {
             get => _webHookNeedReturnTask;
             set => _webHookNeedReturnTask = value;
         }
 
-        public static object VideoChannelMediaInfosLock
+
+        public static LiteDBHelper Ldb
         {
-            get => _videoChannelMediaInfosLock;
-            set => _videoChannelMediaInfosLock = value;
+            get => _ldb;
+            set => _ldb = value;
         }
 
-        public static List<VideoChannelMediaInfo> VideoChannelMediaInfos
-        {
-            get => _videoChannelMediaInfos;
-            set => _videoChannelMediaInfos = value;
-        }
 
         /// <summary>
         /// 流媒体服务器列表
@@ -265,6 +260,8 @@ namespace AKStreamWeb
 #endif
             try
             {
+                Ldb.VideoOnlineInfo.DeleteAll();
+
                 OrmHelper = new ORMHelper(AkStreamWebConfig.OrmConnStr, AkStreamWebConfig.DbType);
             }
             catch (Exception ex)
@@ -319,6 +316,7 @@ namespace AKStreamWeb
                     $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序
             }
+
 
             _autoLive = new AutoLive();
             _autoRecord = new AutoRecord();
