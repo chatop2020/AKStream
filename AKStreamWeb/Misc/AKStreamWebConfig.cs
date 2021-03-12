@@ -11,7 +11,7 @@ namespace AKStreamWeb.Misc
         private ushort _webApiPort = 5800;
         private string _accessKey;
         private int _httpClientTimeoutSec;
-        private int _waitEventTimeOutMSec = 5000;
+        private int _waitEventTimeOutMSec = 10000;
         private int _waitSipRequestTimeOutMSec = 5000;
 
         /// <summary>
