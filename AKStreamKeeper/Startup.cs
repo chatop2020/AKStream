@@ -152,7 +152,7 @@ namespace AKStreamKeeper
                             {
                                 c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                             },
-                            RequestPath = new PathString("/CutMergeFile")
+                            RequestPath = new PathString("/"+Common.CutOrMergePath.TrimStart('/'))
                         });
                     
                 }
@@ -174,7 +174,7 @@ namespace AKStreamKeeper
                     FileProvider =
                         new PhysicalFileProvider(GCommon.BaseStartPath + "/CutMergeFile"),
                     OnPrepareResponse = (c) => { c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); },
-                    RequestPath = new PathString("/CutMergeFile")
+                    RequestPath = new PathString("/" +(GCommon.BaseStartPath+ "/CutMergeFile").TrimStart('/'))
                 });
             }
 
