@@ -267,7 +267,7 @@ namespace AKStreamWeb.AutoTask
                                             stopIt = true;
                                         }
 
-                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true)
+                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true )
                                         {
                                             switch (recordPlan.OverStepPlan)
                                             {
@@ -338,7 +338,7 @@ namespace AKStreamWeb.AutoTask
                                         }
                                         else
                                         {
-                                            if (obj.MediaServerStreamInfo.IsRecorded == false)
+                                            if (obj.MediaServerStreamInfo.IsRecorded == false && inRange)
                                             {
                                                 Logger.Info(
                                                     $"[{Common.LoggerHead}]->自动启动录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}" +
