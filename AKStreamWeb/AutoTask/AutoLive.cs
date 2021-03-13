@@ -41,7 +41,7 @@ namespace AKStreamWeb.AutoTask
                                         else
                                         {
                                             Logger.Info(
-                                                $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                                $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                     }
                                 }
@@ -65,7 +65,7 @@ namespace AKStreamWeb.AutoTask
                                         else
                                         {
                                             Logger.Info(
-                                                $"[{Common.LoggerHead}]->自动结束推流成功->{obj.MediaServerId}->{obj.MainId}->{JsonHelper.ToJson(streamLiveRet)}");
+                                                $"[{Common.LoggerHead}]->自动结束推流成功->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                     }
                                 }

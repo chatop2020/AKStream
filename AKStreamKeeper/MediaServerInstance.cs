@@ -302,11 +302,20 @@ namespace AKStreamKeeper
                     data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;
                     data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
                     data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
-                    
-                    if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec>0)
+                    if (Common.AkStreamKeeperConfig.DisableShell == true)
+                    {
+                        data["shell"]["port"] = "0";
+                    }
+                    else
+                    {
+                        data["shell"]["port"] = "9000";
+                    }
+
+                    if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
                     {
                         data["record"]["fileSecond"] = Common.AkStreamKeeperConfig.RecordSec.ToString();
                     }
+
                     parser.WriteFile(_configPath, data);
                     return true;
                 }

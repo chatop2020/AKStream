@@ -605,7 +605,7 @@ namespace AKStreamWeb.Services
             Common.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
           
 
-            Logger.Info(
+            Logger.Debug(
                 $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
