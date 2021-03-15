@@ -91,7 +91,7 @@ namespace AKStreamWeb.Services
                         startPos = i;
                     }
 
-                    if (dbend >= queryend && startPos > 0 && endPos < 0)
+                    if (dbend >= queryend && startPos > -1 && endPos < 0)
                     {
                         endPos = i;
                     }
