@@ -180,6 +180,9 @@ namespace AKStreamWeb.Services
                        }
                     }
                 }
+                Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                    x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
+
             }
 
            
@@ -268,7 +271,7 @@ namespace AKStreamWeb.Services
 
                     if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                     {
-                        var taskStr = $"WAITONSTREAMCHANGE_{req.Stream}";
+                        var taskStr = $"WAITONSTREAMCHANGE_{req.Stream}".Trim();
                         WebHookNeedReturnTask webHookNeedReturnTask;
 
                         int tick = 0;

@@ -1007,6 +1007,18 @@ namespace AKStreamWeb.Services
 
             if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
             {
+             var   mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+                    x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
+
+           
+                if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
+                {
+                    Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此Sip通道本身就处于推流状态)->{mainId}");
+
+                    return mediaInfo.MediaServerStreamInfo;
+                }
+                
                 switch (videoChannel.MethodByGetStream)
                 {
                     case MethodByGetStream.SelfMethod:
