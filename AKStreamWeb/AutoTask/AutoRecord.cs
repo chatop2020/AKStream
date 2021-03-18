@@ -132,6 +132,7 @@ namespace AKStreamWeb.AutoTask
             ReqGetRecordFileList req = new ReqGetRecordFileList();
             req.MainId = mediaInfo.Stream;
             req.MediaServerId = mediaInfo.MediaServerId;
+            req.Deleted = false;
             req.OrderBy = new List<OrderByStruct>();
             req.OrderBy.Add(new OrderByStruct()
             {
