@@ -16,7 +16,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookResponse
             set => _enableHls = value;
         }
 
-        public bool? EnableMp4
+        public bool? EnableMP4
         {
             get => _enableMP4;
             set => _enableMP4 = value;
