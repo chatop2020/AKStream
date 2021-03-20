@@ -1694,8 +1694,8 @@ namespace AKStreamWeb.Services
             var reqZLMediaKitStopRecord = new ReqZLMediaKitStopRecord();
             reqZLMediaKitStopRecord.Type = 1; //0是hls,1是mp4;
             reqZLMediaKitStopRecord.Stream = videoChannel.MainId;
-            reqZLMediaKitStopRecord.App =
-                videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
+            reqZLMediaKitStopRecord.App = videoChannel.App;
+              //  videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
             reqZLMediaKitStopRecord.Vhost = videoChannel.Vhost;
             var ret = mediaServer.WebApiHelper.StopRecord(reqZLMediaKitStopRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
@@ -1756,8 +1756,8 @@ namespace AKStreamWeb.Services
             var reqZLMediaKitStartRecord = new ReqZLMediaKitStartRecord();
             reqZLMediaKitStartRecord.Type = 1; //0是hls,1是mp4;
             reqZLMediaKitStartRecord.Stream = videoChannel.MainId;
-            reqZLMediaKitStartRecord.App =
-                videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : videoChannel.App;
+            reqZLMediaKitStartRecord.App = videoChannel.App;
+              //  videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : videoChannel.App;
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
             reqZLMediaKitStartRecord.Max_Second = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
                 ? videoChannel.RecordSecs
