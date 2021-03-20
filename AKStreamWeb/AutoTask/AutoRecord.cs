@@ -291,7 +291,7 @@ namespace AKStreamWeb.AutoTask
                                                     {
                                                         string info3 = "超出录制模板规定的时间区间";
                                                         Logger.Info(
-                                                            $"[{Common.LoggerHead}]->自动停止录制文件条件被触发->{info3}");
+                                                            $"[{Common.LoggerHead}]->自动停止录制文件条件被触发->{info3}->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}");
                                                         MediaServerService.StopRecord(videoChannel.MediaServerId,
                                                             videoChannel.MainId, out rs);
                                                     }
