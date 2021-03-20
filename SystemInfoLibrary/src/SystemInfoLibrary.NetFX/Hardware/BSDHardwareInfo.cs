@@ -17,7 +17,6 @@
 */
 
 using System.Collections.Generic;
-
 using SystemInfoLibrary.Hardware.CPU;
 using SystemInfoLibrary.Hardware.GPU;
 using SystemInfoLibrary.Hardware.RAM;
@@ -27,7 +26,9 @@ namespace SystemInfoLibrary.Hardware
     internal class BSDHardwareInfo : HardwareInfo
     {
         private IList<CPUInfo> _CPUs;
-        public override IList<CPUInfo> CPUs => _CPUs ?? (_CPUs = new List<CPUInfo> { new BSDCPUInfo() }); // We'll assume only one physical CPU is supported
+
+        public override IList<CPUInfo> CPUs =>
+            _CPUs ?? (_CPUs = new List<CPUInfo> {new BSDCPUInfo()}); // We'll assume only one physical CPU is supported
 
         public override IList<GPUInfo> GPUs => new List<GPUInfo>();
 

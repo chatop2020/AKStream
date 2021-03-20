@@ -3,7 +3,6 @@ using System;
 namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
 {
     [Serializable]
-   
     public class ResZLMeidaKitDelStreamProxy : ResZLMediaKitResponseBase
     {
         private Data_1 _data;

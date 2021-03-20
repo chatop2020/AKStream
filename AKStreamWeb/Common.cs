@@ -26,7 +26,7 @@ namespace AKStreamWeb
         public static PerformanceInfo WebPerformanceInfo = new PerformanceInfo();
 
         private static object _performanceInfoLock = new object();
-        
+
         private static Timer _perFormanceInfoTimer;
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
@@ -37,7 +37,7 @@ namespace AKStreamWeb
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
-        
+
         public static ConcurrentDictionary<string, WebHookNeedReturnTask> WebHookNeedReturnTask
         {
             get => _webHookNeedReturnTask;

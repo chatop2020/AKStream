@@ -17,7 +17,9 @@ namespace SystemInfoLibrary.Hardware.GPU
             }
         }
 
-        public override ulong MemoryTotal => _info.Length >= 2 ? (ulong.TryParse(_info[1].Split(' ').FirstOrDefault(), out var vram) ? vram * 1024 : 0) : 0;
+        public override ulong MemoryTotal => _info.Length >= 2
+            ? (ulong.TryParse(_info[1].Split(' ').FirstOrDefault(), out var vram) ? vram * 1024 : 0)
+            : 0;
 
         public MacOSXGPUInfo(string[] info)
         {

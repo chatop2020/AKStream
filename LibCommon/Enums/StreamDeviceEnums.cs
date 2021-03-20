@@ -1,6 +1,6 @@
 using System;
 
-namespace LibCommon
+namespace LibCommon.Enums
 {
     /// <summary>
     /// 流设备类型

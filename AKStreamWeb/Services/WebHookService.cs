@@ -12,7 +12,6 @@ using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebHookResponse;
-using NetTaste;
 
 namespace AKStreamWeb.Services
 {
@@ -126,15 +125,14 @@ namespace AKStreamWeb.Services
                     $"[{Common.LoggerHead}]->将Mp4录制文件写入数据库时异常->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
             }
 
-            var retobj =  Common.Ldb.VideoOnlineInfo.FindOne(x =>
+            var retobj = Common.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
                 retobj.MediaServerStreamInfo.IsRecorded = true;
                 Common.Ldb.VideoOnlineInfo.Update(retobj);
             }
-            
-           
+
 
             return new ResToWebHookOnRecordMP4()
             {
@@ -151,7 +149,7 @@ namespace AKStreamWeb.Services
         public static ResToWebHookOnFlowReport OnFlowReport(ReqForWebHookOnFlowReport req)
         {
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}");
-            if (req.Player == true )
+            if (req.Player == true)
             {
                 var retobj = Common.Ldb.VideoOnlineInfo.FindOne(x =>
                     x.MainId.Equals(req.Stream) && x.MediaServerId.Equals(req.MediaServerId));
@@ -163,29 +161,29 @@ namespace AKStreamWeb.Services
                         retobj.MediaServerStreamInfo.PlayerList.FindLast(x => x.PlayerId.Equals(req.Id)));
                     Common.Ldb.VideoOnlineInfo.Update(retobj);
                 }
-               
-            }else if (req.Player == false)
+            }
+            else if (req.Player == false)
             {
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
                 if (videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                 {
-                    var sipDevice = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
+                    var sipDevice =
+                        LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
                     if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                     {
-                       var channel= sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                       if (channel != null)
-                       {
-                           channel.PushStatus = PushStatus.IDLE;
-                       }
+                        var channel = sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
+                        if (channel != null)
+                        {
+                            channel.PushStatus = PushStatus.IDLE;
+                        }
                     }
                 }
+
                 Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
                     x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
-
             }
 
-           
 
             return new ResToWebHookOnFlowReport()
             {
@@ -206,7 +204,7 @@ namespace AKStreamWeb.Services
 
             var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                 .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
-            if ( videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true ) //或者要求没有人观看时自动断流的，就断流
+            if (videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true) //或者要求没有人观看时自动断流的，就断流
             {
                 var ret = MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
                     out ResponseStruct rs);
@@ -236,7 +234,7 @@ namespace AKStreamWeb.Services
         public static ResToWebHookOnStreamChange OnStreamChanged(ReqForWebHookOnStreamChange req)
         {
             if (req.Schema.Trim().ToLower().Equals("rtmp"))
-                if (req.Regist == true )
+                if (req.Regist == true)
                 {
                     Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流接入)->{JsonHelper.ToJson(req)}");
                     var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
@@ -313,26 +311,25 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
-                    //var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
-                    
                     Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流移除)->{JsonHelper.ToJson(req)}");
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
-                      var sipDevice=  LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel));
-                      
-                      if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
-                      {
-                        
-                        var channel=  sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                        if (channel != null)
+                        var sipDevice =
+                            LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel));
+
+                        if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                         {
-                            Console.WriteLine($"被设置{videoChannel.DeviceId}-{videoChannel.ChannelId}-{videoChannel.MainId}");
-                            channel.PushStatus = PushStatus.IDLE;
-                            
+                            var channel =
+                                sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
+                            if (channel != null)
+                            {
+                                Console.WriteLine(
+                                    $"被设置{videoChannel.DeviceId}-{videoChannel.ChannelId}-{videoChannel.MainId}");
+                                channel.PushStatus = PushStatus.IDLE;
+                            }
                         }
-                      }
                     }
 
                     if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
@@ -342,7 +339,6 @@ namespace AKStreamWeb.Services
 
                     Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
                         x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
-                    
                 }
 
             return new ResToWebHookOnStreamChange()
@@ -382,8 +378,8 @@ namespace AKStreamWeb.Services
                 if (retobj.MediaServerStreamInfo.PlayerList == null)
                 {
                     retobj.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
-                    
                 }
+
                 retobj.MediaServerStreamInfo.PlayerList.Add(new MediaServerStreamPlayerInfo()
                 {
                     IpAddress = req.Ip,
@@ -395,7 +391,7 @@ namespace AKStreamWeb.Services
                 Common.Ldb.VideoOnlineInfo.Update(retobj);
             }
 
-            
+
             return new ResToWebHookOnPlay()
             {
                 Code = 0,
@@ -556,7 +552,7 @@ namespace AKStreamWeb.Services
 
                         var removeList = Common.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId))
                             .ToList();
-                        
+
                         if (removeList != null && removeList.Count > 0)
                         {
                             foreach (var obj in removeList)

@@ -763,6 +763,7 @@ namespace AKStreamKeeper
                     {
                         Directory.CreateDirectory(tmp2);
                     }
+
                     CutOrMergeTempPath = tmp2;
                 }
             }
@@ -772,6 +773,7 @@ namespace AKStreamKeeper
                 {
                     Directory.CreateDirectory(CutOrMergePath);
                 }
+
                 if (!Directory.Exists(CutOrMergeTempPath))
                 {
                     Directory.CreateDirectory(CutOrMergeTempPath);

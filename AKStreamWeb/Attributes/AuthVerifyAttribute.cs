@@ -46,7 +46,7 @@ namespace AKStreamWeb.Attributes
 
             string accessKey = context.HttpContext.Request.Headers["AccessKey"];
 
-            
+
             if (Common.AkStreamWebConfig.AccessKey.Trim().Equals(accessKey))
             {
                 return;

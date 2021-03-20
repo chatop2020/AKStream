@@ -45,8 +45,9 @@ namespace AKStreamKeeper.Services
                         {
                             taskReturn.Uri = "http://" + Common.AkStreamKeeperConfig.IpV4Address + ":" +
                                              Common.AkStreamKeeperConfig.WebApiPort + "/" +
-                                             taskReturn.FilePath.Replace(Common.AkStreamKeeperConfig.CutMergeFilePath, "").TrimStart('/');
-
+                                             taskReturn.FilePath
+                                                 .Replace(Common.AkStreamKeeperConfig.CutMergeFilePath, "")
+                                                 .TrimStart('/');
                         }
 
                         if (taskStatus != null)

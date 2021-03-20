@@ -21,7 +21,6 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
-        
         /// <summary>
         /// 日期转long 
         /// </summary>
@@ -36,8 +35,7 @@ namespace LibCommon
             return timeStamp;
         }
 
-        
-        
+
         /// <summary>
         /// 检查是否为网络异常的http报错
         /// </summary>
@@ -405,7 +403,7 @@ namespace LibCommon
             try
             {
                 string Url = @"^http(s)?://([\w-]+\.)+[\w-]+(:\d*)?(/[\w- ./?%&=]*)?$";
-                return Regex.IsMatch(str, Url,RegexOptions.IgnoreCase);
+                return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
             {
@@ -423,7 +421,7 @@ namespace LibCommon
             try
             {
                 string Url = @"^rtmp(s)?://([\w-]+\.)+[\w-]+(:\d*)?(/[\w- ./?%&=]*)?$";
-                return Regex.IsMatch(str, Url,RegexOptions.IgnoreCase);
+                return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
             {
@@ -451,7 +449,7 @@ namespace LibCommon
                              + "((/?)|" // a slash isn't required if there is no file name
                              + "(/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+/?)$";
                 // string Url = @"^rtsp(s)?://([\w-]+\.)+[\w-]+(:\d*)?(/[\w- ./?%&=]*)?$";
-                return Regex.IsMatch(str, Url,RegexOptions.IgnoreCase);
+                return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
             {

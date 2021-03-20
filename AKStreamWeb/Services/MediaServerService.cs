@@ -210,7 +210,6 @@ namespace AKStreamWeb.Services
 
                         if (ts2.Hours <= 0 && ts2.Minutes <= 0 && ts2.Seconds <= 0) //如果时间ts2的各项都小于0，说明不需要裁剪
                         {
-                           
                             tmpStruct.CutStartPos = "00:00:00";
                         }
                         else //否则做裁剪参数设置
@@ -227,8 +226,8 @@ namespace AKStreamWeb.Services
                         ts = (tmpCutMegerEndTime - tmpCutMegerStartTime).Subtract(ts);
                         if (ts.Hours <= 0 && ts.Minutes <= 0 && ts.Seconds <= 0)
                         {
-                            TimeSpan ts_tmp = new TimeSpan(0, 0,Convert.ToInt32( tmpStruct.Duration));
-                            
+                            TimeSpan ts_tmp = new TimeSpan(0, 0, Convert.ToInt32(tmpStruct.Duration));
+
                             tmpStruct.CutEndPos = ts_tmp.Hours.ToString().PadLeft(2, '0') + ":" +
                                                   ts_tmp.Minutes.ToString().PadLeft(2, '0') + ":" +
                                                   ts_tmp.Seconds.ToString().PadLeft(2, '0');
@@ -768,7 +767,6 @@ namespace AKStreamWeb.Services
                         .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                         .Take((int) req.PageSize).ToList();
                     count = Common.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId));
-
                 }
             }
 
@@ -778,7 +776,6 @@ namespace AKStreamWeb.Services
                 {
                     retList = Common.Ldb.VideoOnlineInfo.FindAll().ToList();
                     count = Common.Ldb.VideoOnlineInfo.Count();
-
                 }
                 else
                 {
@@ -1007,18 +1004,17 @@ namespace AKStreamWeb.Services
 
             if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
             {
-             var   mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+                var mediaInfo = Common.Ldb.VideoOnlineInfo.FindOne(x =>
                     x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
-           
                 if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
                 {
                     Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此Sip通道本身就处于推流状态)->{mainId}");
 
                     return mediaInfo.MediaServerStreamInfo;
                 }
-                
+
                 switch (videoChannel.MethodByGetStream)
                 {
                     case MethodByGetStream.SelfMethod:
@@ -1695,7 +1691,6 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStopRecord.Type = 1; //0是hls,1是mp4;
             reqZLMediaKitStopRecord.Stream = videoChannel.MainId;
             reqZLMediaKitStopRecord.App = videoChannel.App;
-              //  videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : "streamProxy";
             reqZLMediaKitStopRecord.Vhost = videoChannel.Vhost;
             var ret = mediaServer.WebApiHelper.StopRecord(reqZLMediaKitStopRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
@@ -1757,7 +1752,6 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStartRecord.Type = 1; //0是hls,1是mp4;
             reqZLMediaKitStartRecord.Stream = videoChannel.MainId;
             reqZLMediaKitStartRecord.App = videoChannel.App;
-              //  videoChannel.DeviceStreamType == DeviceStreamType.GB28181 ? "rtp" : videoChannel.App;
             reqZLMediaKitStartRecord.Vhost = videoChannel.Vhost;
             reqZLMediaKitStartRecord.Max_Second = (videoChannel.RecordSecs != null && videoChannel.RecordSecs > 0)
                 ? videoChannel.RecordSecs
@@ -2061,8 +2055,6 @@ namespace AKStreamWeb.Services
                     {
                         Logger.Warn(
                             $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
-
-                        //return false;
                     }
 
                     var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)

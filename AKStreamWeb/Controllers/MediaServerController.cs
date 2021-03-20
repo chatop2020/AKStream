@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
@@ -31,7 +28,8 @@ namespace AKStreamWeb.Controllers
         [Route("CutOrMergeVideoFile")]
         [HttpPost]
         [AuthVerify]
-        public ResKeeperCutMergeTaskResponse CutOrMergeVideoFile([FromHeader(Name = "AccessKey")]string AccessKey, ReqKeeperCutOrMergeVideoFile rcmv)
+        public ResKeeperCutMergeTaskResponse CutOrMergeVideoFile([FromHeader(Name = "AccessKey")] string AccessKey,
+            ReqKeeperCutOrMergeVideoFile rcmv)
         {
             ResponseStruct rs;
             var ret = MediaServerService.CutOrMergeVideoFile(rcmv, out rs);
@@ -51,7 +49,8 @@ namespace AKStreamWeb.Controllers
         [Route("GetMergeTaskStatus")]
         [HttpGet]
         [AuthVerify]
-        public ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus([FromHeader(Name = "AccessKey")] string AccessKey,string mediaServerId, string taskId)
+        public ResKeeperCutMergeTaskStatusResponse GetMergeTaskStatus([FromHeader(Name = "AccessKey")] string AccessKey,
+            string mediaServerId, string taskId)
         {
             ResponseStruct rs;
             var ret = MediaServerService.GetMergeTaskStatus(mediaServerId, taskId, out rs);
@@ -71,7 +70,8 @@ namespace AKStreamWeb.Controllers
         [Route("GetBacklogTaskList")]
         [HttpGet]
         [AuthVerify]
-        public ResKeeperCutMergeTaskStatusResponseList GetBacklogTaskList([FromHeader(Name = "AccessKey")]string AccessKey, string mediaServerId)
+        public ResKeeperCutMergeTaskStatusResponseList GetBacklogTaskList(
+            [FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId)
         {
             ResponseStruct rs;
             var ret = MediaServerService.GetBacklogTaskList(mediaServerId, out rs);

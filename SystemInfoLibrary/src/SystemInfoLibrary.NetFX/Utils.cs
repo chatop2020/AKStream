@@ -17,9 +17,8 @@
 */
 
 using System;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
-
+using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
 namespace SystemInfoLibrary
@@ -59,17 +58,23 @@ namespace SystemInfoLibrary
                     output = proc.StandardError.ReadToEnd();
                 return output;
             }
-            catch { return string.Empty; }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
-        public static object GetRegistryValue(RegistryKey regRoot, string regPath, string valueName, object defaultValue = null)
+        public static object GetRegistryValue(RegistryKey regRoot, string regPath, string valueName,
+            object defaultValue = null)
         {
             var value = defaultValue;
 
             using (var regKey = regRoot.OpenSubKey(regPath))
             {
                 if (regKey != null)
-                    value = defaultValue != null ? regKey.GetValue(valueName, defaultValue) : regKey.GetValue(valueName);
+                    value = defaultValue != null
+                        ? regKey.GetValue(valueName, defaultValue)
+                        : regKey.GetValue(valueName);
             }
 
             return value;
@@ -82,7 +87,8 @@ namespace SystemInfoLibrary
         #region OS X
 
         [DllImport("libc", EntryPoint = "sysctlbyname")]
-        private static extern int SysCtlByName([MarshalAs(UnmanagedType.LPStr)] string propName, IntPtr value, IntPtr oldLen, IntPtr newP, uint newLen);
+        private static extern int SysCtlByName([MarshalAs(UnmanagedType.LPStr)] string propName, IntPtr value,
+            IntPtr oldLen, IntPtr newP, uint newLen);
 
         [DllImport("libc", EntryPoint = "getpagesize")]
         public static extern int GetPageSize();
@@ -108,7 +114,10 @@ namespace SystemInfoLibrary
 
                 return strPtr;
             }
-            catch { return IntPtr.Zero; }
+            catch
+            {
+                return IntPtr.Zero;
+            }
         }
 
         public static string GetSysCtlPropertyString(string propName)
@@ -139,6 +148,6 @@ namespace SystemInfoLibrary
             return ptr == IntPtr.Zero ? (long) 0 : Marshal.ReadInt64(ptr);
         }
 
-#endregion OS X
+        #endregion OS X
     }
 }

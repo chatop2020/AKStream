@@ -1,5 +1,4 @@
 ﻿using System;
-
 using SystemInfoLibrary.Hardware;
 
 namespace SystemInfoLibrary.OperatingSystem

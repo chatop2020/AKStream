@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using SystemInfoLibrary.Hardware;
 using SystemInfoLibrary.OperatingSystem;
 using LibCommon.Structs;
 using Newtonsoft.Json;
@@ -54,6 +53,7 @@ namespace LibSystemInfo
                     return MemoryMacValue.GetMemoryStatus();
                     break;
             }
+
             return null;
         }
 
@@ -124,7 +124,7 @@ namespace LibSystemInfo
         {
             lock (_lockObj)
             {
-                return JsonHelper.ToJson(_globalSystemInfo,Formatting.Indented);
+                return JsonHelper.ToJson(_globalSystemInfo, Formatting.Indented);
             }
         }
 

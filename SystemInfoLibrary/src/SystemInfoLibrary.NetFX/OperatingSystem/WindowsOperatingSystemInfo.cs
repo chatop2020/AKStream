@@ -19,9 +19,7 @@
 using System;
 using System.Linq;
 using System.Management;
-
 using SystemInfoLibrary.Hardware;
-
 using Microsoft.Win32;
 
 namespace SystemInfoLibrary.OperatingSystem
@@ -32,9 +30,11 @@ namespace SystemInfoLibrary.OperatingSystem
 
         public override string Architecture => (String) _win32_OperatingSystem.GetPropertyValue("OSArchitecture");
 
-        public override string Name => $"{(String) _win32_OperatingSystem.GetPropertyValue("Caption")} SP{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMajorVersion")}.{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMinorVersion")}";
+        public override string Name =>
+            $"{(String) _win32_OperatingSystem.GetPropertyValue("Caption")} SP{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMajorVersion")}.{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMinorVersion")}";
 
         public Version _javaVersion;
+
         public override Version JavaVersion
         {
             get
@@ -44,11 +44,16 @@ namespace SystemInfoLibrary.OperatingSystem
                     try
                     {
                         var javaVersion = Architecture == "x86"
-                            ? (string) Utils.GetRegistryValue(Registry.LocalMachine, @"Software\JavaSoft\Java Runtime Environment", "CurrentVersion", "")
-                            : (string) Utils.GetRegistryValue(Registry.LocalMachine, @"Software\Wow6432Node\JavaSoft\Java Runtime Environment", "CurrentVersion", "");
+                            ? (string) Utils.GetRegistryValue(Registry.LocalMachine,
+                                @"Software\JavaSoft\Java Runtime Environment", "CurrentVersion", "")
+                            : (string) Utils.GetRegistryValue(Registry.LocalMachine,
+                                @"Software\Wow6432Node\JavaSoft\Java Runtime Environment", "CurrentVersion", "");
                         _javaVersion = new Version(javaVersion);
                     }
-                    catch { _javaVersion = new Version(0, 0); }
+                    catch
+                    {
+                        _javaVersion = new Version(0, 0);
+                    }
                 }
 
                 return _javaVersion;

@@ -50,7 +50,7 @@ namespace LibSystemInfo
             }
         }
 
-        
+
         /// <summary>
         /// 将指定的对象序列化成 JSON 数据。
         /// </summary>
@@ -68,11 +68,10 @@ namespace LibSystemInfo
             }
             catch (Exception ex)
             {
-              
                 return null!;
             }
         }
-        
+
 
         /// <summary>
         /// 将指定的对象序列化成 JSON 数据。

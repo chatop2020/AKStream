@@ -17,7 +17,6 @@
 */
 
 using System.Collections.Generic;
-
 using SystemInfoLibrary.Hardware.CPU;
 using SystemInfoLibrary.Hardware.GPU;
 using SystemInfoLibrary.Hardware.RAM;

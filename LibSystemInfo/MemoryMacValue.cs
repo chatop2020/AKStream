@@ -1,13 +1,12 @@
 using System;
 using System.Diagnostics;
+using LibCommon;
 using LibCommon.Structs;
 
 namespace LibSystemInfo
 {
     public static class MemoryMacValue
     {
-       
-
         /// <summary>
         /// 获取mac系统总物理内存使用情况(总量/已使用/未使用)(返回单位KB)
         /// </summary>
@@ -40,7 +39,7 @@ namespace LibSystemInfo
                         string l2;
                         string l3;
                         //取出wired值
-                        var tmpStr1 = LibCommon.UtilsHelper.GetValue(lines[0], "\\(", "\\)");
+                        var tmpStr1 = UtilsHelper.GetValue(lines[0], "\\(", "\\)");
                         var posLetter = tmpStr1.IndexOfAny(new char[] {'M', 'K', 'B', 'G'});
                         if (posLetter > 0)
                         {

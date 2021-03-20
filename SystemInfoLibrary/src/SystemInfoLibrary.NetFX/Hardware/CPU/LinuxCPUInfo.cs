@@ -45,7 +45,10 @@ namespace SystemInfoLibrary.Hardware.CPU
             get
             {
                 var matches = new Regex(@"cpu cores\s*:\s*(\d*)").Matches(_cpuInfo);
-                return int.TryParse(matches[0].Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var value) ? value : 0;
+                return int.TryParse(matches[0].Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture,
+                    out var value)
+                    ? value
+                    : 0;
             }
         }
 
@@ -54,7 +57,10 @@ namespace SystemInfoLibrary.Hardware.CPU
             get
             {
                 var matches = new Regex(@"siblings\s*:\s*(\d*)").Matches(_cpuInfo);
-                return int.TryParse(matches[0].Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var value) ? value : 0;
+                return int.TryParse(matches[0].Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture,
+                    out var value)
+                    ? value
+                    : 0;
             }
         }
 
@@ -63,7 +69,10 @@ namespace SystemInfoLibrary.Hardware.CPU
             get
             {
                 var matches = new Regex(@"cpu MHz\s*:\s*([0-9]*(?:\.[0-9]+)?)").Matches(_cpuInfo);
-                return double.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : 0;
+                return double.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var value)
+                    ? value
+                    : 0;
             }
         }
 

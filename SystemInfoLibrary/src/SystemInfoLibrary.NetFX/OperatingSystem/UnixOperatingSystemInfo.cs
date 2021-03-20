@@ -18,7 +18,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-
 using SystemInfoLibrary.Hardware;
 
 namespace SystemInfoLibrary.OperatingSystem
@@ -26,13 +25,22 @@ namespace SystemInfoLibrary.OperatingSystem
     internal class UnixOperatingSystemInfo : OperatingSystemInfo
     {
         private string _unameM;
-        private string UnameM => string.IsNullOrEmpty(_unameM) ? (_unameM = Utils.GetCommandExecutionOutput("uname", "-m")) : _unameM;
+
+        private string UnameM => string.IsNullOrEmpty(_unameM)
+            ? (_unameM = Utils.GetCommandExecutionOutput("uname", "-m"))
+            : _unameM;
 
         private string _unameRS;
-        private string UnameRS => string.IsNullOrEmpty(_unameRS) ? (_unameRS = Utils.GetCommandExecutionOutput("uname", "-rs")) : _unameRS;
+
+        private string UnameRS => string.IsNullOrEmpty(_unameRS)
+            ? (_unameRS = Utils.GetCommandExecutionOutput("uname", "-rs"))
+            : _unameRS;
 
         private string _java;
-        private string Java => string.IsNullOrEmpty(_java) ? (_java = Utils.GetCommandExecutionOutput("java", "-version")) : _java;
+
+        private string Java => string.IsNullOrEmpty(_java)
+            ? (_java = Utils.GetCommandExecutionOutput("java", "-version"))
+            : _java;
 
         public override string Architecture
         {
@@ -57,7 +65,10 @@ namespace SystemInfoLibrary.OperatingSystem
                     var matches = new Regex(@"java version\s*""(.*)""").Matches(Java);
                     return new Version(matches[0].Groups[1].Value.Replace("_", "."));
                 }
-                catch { return new Version(0, 0); }
+                catch
+                {
+                    return new Version(0, 0);
+                }
             }
         }
 

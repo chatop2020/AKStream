@@ -7,7 +7,9 @@ namespace SystemInfoLibrary.Hardware.RAM
     {
         private string _ramInfo;
 
-        private string RAM_Info => string.IsNullOrEmpty(_ramInfo) ? (_ramInfo = Utils.GetCommandExecutionOutput("cat", "/proc/meminfo")) : _ramInfo;
+        private string RAM_Info => string.IsNullOrEmpty(_ramInfo)
+            ? (_ramInfo = Utils.GetCommandExecutionOutput("cat", "/proc/meminfo"))
+            : _ramInfo;
 
 
         public override ulong Total
@@ -15,7 +17,10 @@ namespace SystemInfoLibrary.Hardware.RAM
             get
             {
                 var matches = new Regex(@"MemTotal:\s*(\d+)").Matches(RAM_Info);
-                return ulong.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : 0;
+                return ulong.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var value)
+                    ? value
+                    : 0;
             }
         }
 
@@ -24,7 +29,10 @@ namespace SystemInfoLibrary.Hardware.RAM
             get
             {
                 var matches = new Regex(@"MemFree:\s*(\d+)").Matches(RAM_Info);
-                return ulong.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var value) ? value : 0;
+                return ulong.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint,
+                    CultureInfo.InvariantCulture, out var value)
+                    ? value
+                    : 0;
             }
         }
     }

@@ -17,7 +17,7 @@
 */
 
 using System;
-
+using System.Runtime.InteropServices;
 using SystemInfoLibrary.Hardware;
 
 namespace SystemInfoLibrary.OperatingSystem
@@ -39,15 +39,17 @@ namespace SystemInfoLibrary.OperatingSystem
     public abstract class OperatingSystemInfo
     {
         // Mono and NET Core pre-defined, check https://github.com/dotnet/corefx/blob/master/src/Native/Unix/configure.cmake (search for PAL_UNIX_NAME)
-        public static System.Runtime.InteropServices.OSPlatform FreeBSD = System.Runtime.InteropServices.OSPlatform.Create("FREEBSD");
-        public static System.Runtime.InteropServices.OSPlatform NetBSD = System.Runtime.InteropServices.OSPlatform.Create("NETBSD");
-        public static System.Runtime.InteropServices.OSPlatform WebAssembly = System.Runtime.InteropServices.OSPlatform.Create("WEBASSEMBLY");
+        public static OSPlatform FreeBSD = OSPlatform.Create("FREEBSD");
+        public static OSPlatform NetBSD = OSPlatform.Create("NETBSD");
+
+        public static OSPlatform WebAssembly = OSPlatform.Create("WEBASSEMBLY");
+
         // Mono pre-defined https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Runtime.InteropServices.RuntimeInformation/RuntimeInformation.cs
-        public static System.Runtime.InteropServices.OSPlatform Solaris = System.Runtime.InteropServices.OSPlatform.Create("SOLARIS");
-        public static System.Runtime.InteropServices.OSPlatform OpenBSD = System.Runtime.InteropServices.OSPlatform.Create("OPENBSD");
-        public static System.Runtime.InteropServices.OSPlatform AIX = System.Runtime.InteropServices.OSPlatform.Create("AIX");
-        public static System.Runtime.InteropServices.OSPlatform HPUX = System.Runtime.InteropServices.OSPlatform.Create("HPUX");
-        public static System.Runtime.InteropServices.OSPlatform HAIKU = System.Runtime.InteropServices.OSPlatform.Create("HAIKU");
+        public static OSPlatform Solaris = OSPlatform.Create("SOLARIS");
+        public static OSPlatform OpenBSD = OSPlatform.Create("OPENBSD");
+        public static OSPlatform AIX = OSPlatform.Create("AIX");
+        public static OSPlatform HPUX = OSPlatform.Create("HPUX");
+        public static OSPlatform HAIKU = OSPlatform.Create("HAIKU");
 
 
         public OperatingSystemType OperatingSystemType
@@ -86,7 +88,7 @@ namespace SystemInfoLibrary.OperatingSystem
         /// <summary>
         /// .NET runtime.
         /// </summary>
-        public virtual string Runtime => System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+        public virtual string Runtime => RuntimeInformation.FrameworkDescription;
 
         public bool IsMono => Type.GetType("Mono.Runtime") != null;
 
@@ -107,20 +109,20 @@ namespace SystemInfoLibrary.OperatingSystem
 #if UNITY_5
             return new UnityOperatingSystemInfo();
 #endif
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(FreeBSD) ||
-                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(NetBSD) ||
-                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OpenBSD) ||
-                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(AIX) ||
-                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(HPUX))
+            if (RuntimeInformation.IsOSPlatform(FreeBSD) ||
+                RuntimeInformation.IsOSPlatform(NetBSD) ||
+                RuntimeInformation.IsOSPlatform(OpenBSD) ||
+                RuntimeInformation.IsOSPlatform(AIX) ||
+                RuntimeInformation.IsOSPlatform(HPUX))
                 return new BSDOperatingSystemInfo();
 
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return new LinuxOperatingSystemInfo();
 
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 return new MacOSXOperatingSystemInfo();
 
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return new WindowsOperatingSystemInfo();
 
             return new OtherOperatingSystemInfo();

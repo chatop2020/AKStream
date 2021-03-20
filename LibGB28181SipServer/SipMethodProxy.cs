@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using LibCommon;
+using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.XML;

@@ -140,7 +140,7 @@ namespace AKStreamWeb.Services
                 }
             }
 
-            if ( videoChannel.MediaServerId.Contains("unknown_server"))
+            if (videoChannel.MediaServerId.Contains("unknown_server"))
             {
                 rs = new ResponseStruct()
                 {
@@ -216,10 +216,10 @@ namespace AKStreamWeb.Services
             VideoChannelMediaInfo mediaInfo = null;
 
 
-            mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+            mediaInfo = Common.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
-           
-            
+
+
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
                 Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
@@ -257,14 +257,12 @@ namespace AKStreamWeb.Services
 
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                     return false;
                 }
 
-               
 
                 Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
 
@@ -272,8 +270,6 @@ namespace AKStreamWeb.Services
             }
             catch (Exception ex)
             {
-               
-
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.Other,
@@ -316,20 +312,18 @@ namespace AKStreamWeb.Services
             }
 
             VideoChannelMediaInfo mediaInfo = null;
-            
-           
-            mediaInfo= Common.Ldb.VideoOnlineInfo.FindOne(x =>
+
+
+            mediaInfo = Common.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
-           
-                if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
-                {
-                    Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
+            if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
+            {
+                Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
 
-                    return mediaInfo.MediaServerStreamInfo;
-                }
-         
+                return mediaInfo.MediaServerStreamInfo;
+            }
 
 
             ResMediaServerOpenRtpPort openRtpPort;
@@ -489,7 +483,7 @@ namespace AKStreamWeb.Services
                 };
                 Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
-               
+
                 Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
                     x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
@@ -603,7 +597,7 @@ namespace AKStreamWeb.Services
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
             Common.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
-          
+
 
             Logger.Debug(
                 $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
@@ -668,7 +662,7 @@ namespace AKStreamWeb.Services
                 $"[{Common.LoggerHead}]->检查Sip推流状态成功->{deviceId}-{channelId}->{JsonHelper.ToJson(tmpSipChannel.PushStatus)}");
 
             var obj = Common.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(tmpSipChannel.Stream));
-            if (obj != null && obj.MediaServerStreamInfo != null )
+            if (obj != null && obj.MediaServerStreamInfo != null)
             {
                 return true;
             }

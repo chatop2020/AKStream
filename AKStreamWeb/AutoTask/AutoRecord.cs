@@ -99,7 +99,6 @@ namespace AKStreamWeb.AutoTask
         /// <returns></returns>
         private bool isTimeRange(RecordPlanRange d)
         {
-            
             TimeSpan nowDt = DateTime.Now.TimeOfDay;
             string start = d.StartTime.ToString("HH:mm:ss");
             string end = d.EndTime.ToString("HH:mm:ss");
@@ -107,10 +106,12 @@ namespace AKStreamWeb.AutoTask
             {
                 return true;
             }
+
             if (start.Trim().Equals("00:00:00") && end.Trim().Equals("00:00:00"))
             {
                 return true;
             }
+
             TimeSpan workStartDt = DateTime.Parse(start).TimeOfDay;
             TimeSpan workEndDt = DateTime.Parse(end).TimeOfDay;
 
@@ -227,7 +228,6 @@ namespace AKStreamWeb.AutoTask
                 {
                     try
                     {
-
                         var retlist = Common.Ldb.VideoOnlineInfo.FindAll().ToList();
                         foreach (var obj in retlist)
                         {
@@ -268,7 +268,7 @@ namespace AKStreamWeb.AutoTask
                                             stopIt = true;
                                         }
 
-                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true )
+                                        if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true)
                                         {
                                             switch (recordPlan.OverStepPlan)
                                             {

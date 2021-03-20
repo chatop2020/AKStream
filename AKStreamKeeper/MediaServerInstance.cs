@@ -274,7 +274,6 @@ namespace AKStreamKeeper
                     data["hook"]["on_flow_report"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
                     data["hook"]["on_http_access"] = "";
-                    //  $"http://{h}:{p}/MediaServer/WebHook/OnHttpAccess"; //http事件
                     data["hook"]["on_play"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnPlay"; //有流被客户端播放时
                     data["hook"]["on_publish"] =
@@ -284,9 +283,7 @@ namespace AKStreamKeeper
                     data["hook"]["on_record_ts"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
                     data["hook"]["on_rtsp_auth"] = "";
-                    // $"http://{h}:{p}/MediaServer/WebHook/OnRtspAuth"; //rtsp鉴权
                     data["hook"]["on_rtsp_realm"] = "";
-                    //  $"http://{h}:{p}/MediaServer/WebHook/OnRtspRealm"; //rtsp专用鉴权
                     data["hook"]["on_shell_login"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
                     data["hook"]["on_stream_changed"] =
@@ -294,9 +291,7 @@ namespace AKStreamKeeper
                     data["hook"]["on_stream_none_reader"] =
                         $"http://{h}:{p}/MediaServer/WebHook/OnStreamNoneReader"; //流无人观看时
                     data["hook"]["on_stream_not_found"] = "";
-                    //  $"http://{h}:{p}/MediaServer/WebHook/OnStreamNotFound"; //请求没有找到对应流的时候
                     data["hook"]["on_server_started"] = "";
-                    //  $"http://{h}:{p}/MediaServer/WebHook/OnServerStarted"; //当流媒体启动时
                     data["hook"]["timeoutSec"] = "20"; //httpclient超时时间20秒
                     data["general"]["flowThreshold"] = "0"; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
                     data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;

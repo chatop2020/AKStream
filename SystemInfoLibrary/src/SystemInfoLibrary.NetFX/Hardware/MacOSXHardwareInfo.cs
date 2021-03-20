@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using SystemInfoLibrary.Hardware.GPU;
 
 namespace SystemInfoLibrary.Hardware
@@ -27,17 +26,20 @@ namespace SystemInfoLibrary.Hardware
     internal class MacOSXHardwareInfo : BSDHardwareInfo
     {
         private IList<GPUInfo> _GPUs;
+
         public override IList<GPUInfo> GPUs
         {
             get
             {
                 if (_GPUs == null)
                 {
-                    var chipsetVendors = Utils.GetCommandExecutionOutput("system_profiler", "SPDisplaysDataType | grep 'Chipset Model' | awk -F \": \" '{ print $2 }'")
-                        .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                    var vrams = Utils.GetCommandExecutionOutput("system_profiler", "SPDisplaysDataType | grep 'VRAM' | awk -F \": \" '{ print $2 }'")
-                        .Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                    var zip = chipsetVendors.Zip(vrams, (chipsetVendor, vram) => new [] { chipsetVendor, vram }).ToArray();
+                    var chipsetVendors = Utils.GetCommandExecutionOutput("system_profiler",
+                            "SPDisplaysDataType | grep 'Chipset Model' | awk -F \": \" '{ print $2 }'")
+                        .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+                    var vrams = Utils.GetCommandExecutionOutput("system_profiler",
+                            "SPDisplaysDataType | grep 'VRAM' | awk -F \": \" '{ print $2 }'")
+                        .Split(new[] {Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries);
+                    var zip = chipsetVendors.Zip(vrams, (chipsetVendor, vram) => new[] {chipsetVendor, vram}).ToArray();
 
                     _GPUs = zip.Select(info => (GPUInfo) new MacOSXGPUInfo(info)).ToList();
                 }

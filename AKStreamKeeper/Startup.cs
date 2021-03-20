@@ -76,7 +76,6 @@ namespace AKStreamKeeper
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             //配置跨域处理，允许所有来源
@@ -120,7 +119,6 @@ namespace AKStreamKeeper
             );
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -145,16 +143,15 @@ namespace AKStreamKeeper
                 try
                 {
                     app.UseStaticFiles(new StaticFileOptions
+                    {
+                        FileProvider =
+                            new PhysicalFileProvider(Common.CutOrMergePath),
+                        OnPrepareResponse = (c) =>
                         {
-                            FileProvider =
-                                new PhysicalFileProvider(Common.CutOrMergePath),
-                            OnPrepareResponse = (c) =>
-                            {
-                                c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-                            },
-                            RequestPath = new PathString("/CutMergeFile")
-                        });
-                    
+                            c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                        },
+                        RequestPath = new PathString("/CutMergeFile")
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -174,7 +171,7 @@ namespace AKStreamKeeper
                     FileProvider =
                         new PhysicalFileProvider(GCommon.BaseStartPath + "/CutMergeFile"),
                     OnPrepareResponse = (c) => { c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); },
-                    RequestPath = new PathString("/" +(GCommon.BaseStartPath+ "/CutMergeFile").TrimStart('/'))
+                    RequestPath = new PathString("/" + (GCommon.BaseStartPath + "/CutMergeFile").TrimStart('/'))
                 });
             }
 
@@ -200,7 +197,6 @@ namespace AKStreamKeeper
                     });
                 }
             }
-
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

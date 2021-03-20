@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using LibCommon.Structs;
-using Newtonsoft.Json;
 
 namespace LibSystemInfo
 {

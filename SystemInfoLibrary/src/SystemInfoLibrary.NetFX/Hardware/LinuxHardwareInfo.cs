@@ -19,7 +19,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-
 using SystemInfoLibrary.Hardware.CPU;
 using SystemInfoLibrary.Hardware.GPU;
 using SystemInfoLibrary.Hardware.RAM;
@@ -29,14 +28,19 @@ namespace SystemInfoLibrary.Hardware
     internal sealed class LinuxHardwareInfo : HardwareInfo
     {
         private string _cpuInfo;
-        private string CPU_Info => string.IsNullOrEmpty(_cpuInfo) ? (_cpuInfo = Utils.GetCommandExecutionOutput("cat", "/proc/cpuinfo")) : _cpuInfo;
+
+        private string CPU_Info => string.IsNullOrEmpty(_cpuInfo)
+            ? (_cpuInfo = Utils.GetCommandExecutionOutput("cat", "/proc/cpuinfo"))
+            : _cpuInfo;
 
 
         private IList<CPUInfo> _CPUs;
         public override IList<CPUInfo> CPUs => _CPUs;
 
         private IList<GPUInfo> _GPUs;
-        public override IList<GPUInfo> GPUs => _GPUs ?? (_GPUs = new List<GPUInfo> { new LinuxGPUInfo() }); // No idea how to detect multiple GPUs
+
+        public override IList<GPUInfo> GPUs =>
+            _GPUs ?? (_GPUs = new List<GPUInfo> {new LinuxGPUInfo()}); // No idea how to detect multiple GPUs
 
         private RAMInfo _RAM;
         public override RAMInfo RAM => _RAM ?? (_RAM = new LinuxRAMInfo());
@@ -45,19 +49,21 @@ namespace SystemInfoLibrary.Hardware
         public LinuxHardwareInfo()
         {
             // -- CPU
-           _cpuInfo = string.Empty;
+            _cpuInfo = string.Empty;
             _CPUs = new List<CPUInfo>();
             IEnumerable<int> procIndexes;
             List<string> matches;
             try
             {
-             matches = new Regex(@"^\s*$", RegexOptions.Multiline).Split(CPU_Info).Where(val => !string.IsNullOrEmpty(val)).ToList();
-           
-             procIndexes = matches.Select(match => int.Parse(new Regex(@"physical id\s*:\s*(?<pid>\d*)").Match(match).Groups["pid"].Value)).Distinct();
+                matches = new Regex(@"^\s*$", RegexOptions.Multiline).Split(CPU_Info)
+                    .Where(val => !string.IsNullOrEmpty(val)).ToList();
+
+                procIndexes = matches.Select(match =>
+                    int.Parse(new Regex(@"physical id\s*:\s*(?<pid>\d*)").Match(match).Groups["pid"].Value)).Distinct();
             }
             catch
             {
-             return;   
+                return;
             }
 
             foreach (var procIndex in procIndexes)
@@ -72,9 +78,9 @@ namespace SystemInfoLibrary.Hardware
                 }
                 catch
                 {
-                 
                 }
             }
+
             // -- CPU
         }
     }

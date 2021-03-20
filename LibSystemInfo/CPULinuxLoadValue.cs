@@ -21,7 +21,7 @@ namespace LibSystemInfo
         {
             if (e.Data != null)
             {
-                if (e.Data.Contains("%Cpu"))
+                if (e.ToString().ToUpper().Contains("%CPU"))
                 {
                     string tmpStr = e.Data;
                     string[] tmpStrArr = tmpStr.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -29,7 +29,7 @@ namespace LibSystemInfo
                     {
                         foreach (var str in tmpStrArr)
                         {
-                            if (str.Contains("id"))
+                            if (str.ToLower().Contains("id"))
                             {
                                 string s = str.TrimEnd(new[] {'i', 'd'});
                                 s = s.Trim();

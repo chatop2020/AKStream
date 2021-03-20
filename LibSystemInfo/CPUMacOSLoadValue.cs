@@ -21,7 +21,7 @@ namespace LibSystemInfo
         {
             if (e.Data != null)
             {
-                if (e.Data.Contains("CPU usage"))
+                if (e.Data.ToUpper().Contains("CPU USAGE"))
                 {
                     string tmpStr = e.Data;
                     tmpStr = tmpStr.Replace("CPU usage:", "", StringComparison.Ordinal);
@@ -30,7 +30,7 @@ namespace LibSystemInfo
                     {
                         foreach (var tmps in tmpStrArr)
                         {
-                            if (tmps.Contains("idle"))
+                            if (tmps.ToLower().Contains("idle"))
                             {
                                 string tmps2 = tmps.TrimEnd(new[] {'%', ' ', 'i', 'd', 'l', 'e'});
 
