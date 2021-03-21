@@ -1945,7 +1945,7 @@ namespace AKStreamWeb.Services
                 }
 
                 Logger.Info(
-                    $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件成功->{JsonHelper.ToJson(dbIdList, Formatting.Indented)}->{JsonHelper.ToJson(result, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件成功->{JsonHelper.ToJson(result, Formatting.Indented)}");
 
                 return result;
             }
@@ -1959,7 +1959,7 @@ namespace AKStreamWeb.Services
                     ExceptStackTrace = ex.StackTrace,
                 };
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件失败->{JsonHelper.ToJson(dbIdList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
             }
