@@ -125,7 +125,7 @@ namespace LibSystemInfo
                                             {
                                                 foreach (var str2 in tmpStrArr1)
                                                 {
-                                                    if (!string.IsNullOrEmpty(str2) && (str2.ToLower().Contains("ether") || str2.ToLower().Contains("ppp")))
+                                                    if (!string.IsNullOrEmpty(str2) && str2.ToLower().Contains("ether") )
                                                     {
                                                         var regex = "([0-9a-fA-F]{2})(([/\\s:-][0-9a-fA-F]{2}){5})";
                                                         var mac = Regex.Match(str2, regex);
@@ -136,6 +136,13 @@ namespace LibSystemInfo
                                                             isFound = true;
                                                             break;
                                                         }
+                                                    }
+
+                                                    if (!string.IsNullOrEmpty(str2) && str2.ToLower().Contains("ppp"))
+                                                    {
+                                                        NetWorkStat.Mac = "00-00-00-00-00-00";
+                                                        isFound = true;
+                                                        break;
                                                     }
                                                 }
                                             }
