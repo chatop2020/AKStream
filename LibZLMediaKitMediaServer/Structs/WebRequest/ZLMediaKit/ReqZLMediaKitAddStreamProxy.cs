@@ -9,8 +9,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private string _app;
         private string _stream;
         private string _url;
-        private bool? _enable_hls;
-        private bool? _enable_mp4;
+        private int? _enable_hls;
+        private int? _enable_mp4;
         private int _rtp_type;
 
 
@@ -53,7 +53,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         /// <summary>
         /// 是否录制hls
         /// </summary>
-        public bool? Enable_Hls
+        public int? Enable_Hls
         {
             get => _enable_hls;
             set => _enable_hls = value;
@@ -62,7 +62,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         /// <summary>
         /// 是否录制mp4
         /// </summary>
-        public bool? Enable_Mp4
+        public int? Enable_Mp4
         {
             get => _enable_mp4;
             set => _enable_mp4 = value;

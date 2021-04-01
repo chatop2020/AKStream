@@ -1194,8 +1194,8 @@ namespace AKStreamWeb.Services
                     !UtilsHelper.StringIsNullEx(mediaServer.Config.Data[0].Ffmpeg_Templete_RtspTcp2Flv))
                 {
                     req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
-                    req.Enable_Hls = true;
-                    req.Enable_Mp4 = false;
+                    req.Enable_Hls = 1;
+                    req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
                     req.Timeout_Ms = 20 * 1000; //20秒超时
                     req.Ffmpeg_Cmd_Key = "rtsp_tcp2flv"; //采用ffmpeg rtsp with tcp模板
@@ -1203,8 +1203,8 @@ namespace AKStreamWeb.Services
                 else
                 {
                     req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
-                    req.Enable_Hls = true;
-                    req.Enable_Mp4 = false;
+                    req.Enable_Hls = 1;
+                    req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
                     req.Timeout_Ms = 20 * 1000; //20秒超时 
                 }
@@ -1212,8 +1212,8 @@ namespace AKStreamWeb.Services
             else
             {
                 req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
-                req.Enable_Hls = true;
-                req.Enable_Mp4 = false;
+                req.Enable_Hls = 1;
+                req.Enable_Mp4 = 0;
                 req.Src_Url = videoChannel.VideoSrcUrl;
                 req.Timeout_Ms = 20 * 1000; //20秒超时  
             }
@@ -1490,8 +1490,8 @@ namespace AKStreamWeb.Services
             req.Vhost = videoChannel.Vhost;
             req.Stream = videoChannel.MainId;
             req.Url = videoChannel.VideoSrcUrl;
-            req.Enable_Hls = true; //转hls要开
-            req.Enable_Mp4 = false; //录制mp4要关
+            req.Enable_Hls = 1; //转hls要开
+            req.Enable_Mp4 = 0; //录制mp4要关
             req.Rtp_Type = videoChannel.RtpWithTcp == true ? 0 : 1; //rtsp拉流时，是否使用tcp,0为tcp,1为udp,2为组播
             var ret = mediaServer.WebApiHelper.AddStreamProxy(req, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None) || ret.Code != 0)
