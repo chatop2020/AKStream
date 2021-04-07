@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using LibCommon.Structs;
+using NetTopologySuite.IO;
 using Newtonsoft.Json;
 
 namespace LibCommon
@@ -21,6 +22,8 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+       
+        
         /// <summary>
         /// 日期转long 
         /// </summary>

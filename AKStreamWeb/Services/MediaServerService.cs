@@ -240,6 +240,18 @@ namespace AKStreamWeb.Services
                         }
                     }
 
+
+                    //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+                    var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
+                    var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
+                    var startD = DateTime.Parse(tmpStart);
+                    var endD = DateTime.Parse(tmpEnd);
+                    if (Math.Abs((endD - startD).TotalSeconds) <= 1)
+                    {
+                        startD = startD.AddSeconds(-1);
+                        tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
+                    }
+
                     cutMergeStructList.Add(tmpStruct); //加入到处理列表中
                 }
                 else
@@ -280,7 +292,18 @@ namespace AKStreamWeb.Services
                                     tmpStruct.CutStartPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
                                                             ts.Minutes.ToString().PadLeft(2, '0') + ":" +
                                                             ts.Seconds.ToString().PadLeft(2, '0');
+                                    //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+                                    var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
+                                    var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
+                                    var startD = DateTime.Parse(tmpStart);
+                                    var endD = DateTime.Parse(tmpEnd);
+                                    if (Math.Abs((endD - startD).TotalSeconds) <= 1)
+                                    {
+                                        startD = startD.AddSeconds(-1);
+                                        tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
+                                    }
                                 }
+
 
                                 cutMergeStructList.Add(tmpStruct); //加入到处理列表中
                             }
@@ -297,6 +320,8 @@ namespace AKStreamWeb.Services
                                     FileSize = cutMegerList[i].FileSize,
                                     StartTime = cutMegerList[i].StartTime,
                                 };
+
+
                                 cutMergeStructList.Add(tmpStruct);
                             }
                         }
@@ -328,6 +353,12 @@ namespace AKStreamWeb.Services
                                                           ts.Minutes.ToString().PadLeft(2, '0') + ":" +
                                                           ts.Seconds.ToString().PadLeft(2, '0');
                                     tmpStruct.CutStartPos = "00:00:00";
+                                }
+
+                                //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+                                if (tmpStruct.CutEndPos.Equals("00:00:01"))
+                                {
+                                    tmpStruct.CutEndPos = "00:00:02";
                                 }
 
 
@@ -1067,6 +1098,7 @@ namespace AKStreamWeb.Services
                 {
                     Logger.Warn(
                         $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
                     var sipDevice =
                         LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
                     if (sipDevice != null && sipDevice.IsReday == true)

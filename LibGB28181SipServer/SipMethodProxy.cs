@@ -251,6 +251,7 @@ namespace LibGB28181SipServer
             }
             catch (Exception ex)
             {
+                
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.Sip_InviteExcept,

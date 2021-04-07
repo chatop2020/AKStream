@@ -422,10 +422,40 @@ namespace AKStreamWeb.Services
             pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
-            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
-            var liveVideoRet = sipMethodProxy.Invite(sipChannel, pushMediaInfo, out rs);
-            if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
+            try
             {
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                var liveVideoRet = sipMethodProxy.Invite(sipChannel, pushMediaInfo, out rs);
+                if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
+                {
+                    if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
+                    {
+                        ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                        {
+                            Stream_Id = openRtpPort.Stream,
+                        };
+
+                        mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                        mediaServer.KeeperWebApi.ReleaseRtpPort(
+                            openRtpPort.Port,
+                            out _); //释放rtp端口
+                    }
+
+                    Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+
                 if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
                 {
                     ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
@@ -438,9 +468,6 @@ namespace AKStreamWeb.Services
                         openRtpPort.Port,
                         out _); //释放rtp端口
                 }
-
-                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
-
                 return null;
             }
 
