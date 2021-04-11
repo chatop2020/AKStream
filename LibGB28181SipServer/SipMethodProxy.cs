@@ -206,6 +206,7 @@ namespace LibGB28181SipServer
         {
             try
             {
+                sipChannel.PushStatus = PushStatus.IGNORE;
                 Common.SipServer.DeInvite(sipChannel, _autoResetEvent, out rs, _timeout);
                 _commandType = CommandType.Unknown;
 
