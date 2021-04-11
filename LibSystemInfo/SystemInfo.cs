@@ -100,7 +100,6 @@ namespace LibSystemInfo
                         case OperatingSystemType.Windows:
                             _globalSystemInfo.CpuLoad = CPUWinLoadValue.CPULOAD;
                             _globalSystemInfo.NetWorkStat = NetWorkWinValue2.GetNetworkStat();
-
                             break;
                         case OperatingSystemType.MacOSX:
                             _globalSystemInfo.CpuLoad = CPUMacOSLoadValue.CPULOAD;

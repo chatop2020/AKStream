@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
 {
     [Serializable]
-    public class originSock
+    public class OriginSock
     {
         private string? _identifier;
         private string? _local_ip;
@@ -45,7 +45,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
     }
 
     [Serializable]
-    public enum originType
+    public enum OriginType
     {
         unknown = 0,
         rtmp_push = 1,
@@ -152,8 +152,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private string? _stream;
         private int? _totalReaderCount;
         private string? _vhost;
-        private originSock? _originSock;
-        private originType? _originType;
+        private OriginSock? _originSock;
+        private OriginType? _originType;
         private string? _originTypeStr;
         private string? _originUrl;
         private List<TracksItem> _tracks;
@@ -220,13 +220,13 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _vhost = value;
         }
 
-        public originSock? OriginSock
+        public OriginSock? OriginSock
         {
             get => _originSock;
             set => _originSock = value;
         }
 
-        public originType? OriginType
+        public OriginType? OriginType
         {
             get => _originType;
             set => _originType = value;
