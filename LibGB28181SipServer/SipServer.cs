@@ -1247,7 +1247,7 @@ namespace LibGB28181SipServer
             try
             {
                 //请求终止实时视频流时，callid,from.tag,to.tag都要与invite时一致
-                CheckInviteParam(record, PushStatus.IDLE, out rs);
+                CheckInviteParam(record, PushStatus.IGNORE, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
                     try
@@ -1365,7 +1365,7 @@ namespace LibGB28181SipServer
             try
             {
                 //请求终止实时视频流时，callid,from.tag,to.tag都要与invite时一致
-                CheckInviteParam(sipChannel, PushStatus.IDLE, out rs);
+                CheckInviteParam(sipChannel, PushStatus.IGNORE, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
                     try
