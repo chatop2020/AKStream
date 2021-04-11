@@ -13,6 +13,7 @@ using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
+using SIPSorcery.SIP.App;
 
 namespace AKStreamWeb.Services
 {
@@ -446,7 +447,7 @@ namespace AKStreamWeb.Services
                     return null;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 rs = new ResponseStruct()
                 {
@@ -468,6 +469,7 @@ namespace AKStreamWeb.Services
                         openRtpPort.Port,
                         out _); //释放rtp端口
                 }
+
                 return null;
             }
 
@@ -480,6 +482,38 @@ namespace AKStreamWeb.Services
             var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
             if (!isTimeout)
             {
+                try
+                {
+                    var mediaList =
+                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out  rs);
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count > 0)
+                    {
+                        var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
+                                                                 x.Stream.Equals(videoChannel.MainId)
+                                                                 && x.Vhost.Equals(videoChannel.Vhost) &&
+                                                                 x.Schema.ToLower().Equals("rtmp"));
+                        if (media != null)
+                        {
+                            var tmp = new ReqZLMediaKitCloseStreams()
+                            {
+                                App = media.App,
+                                Force = true,
+                                Stream = videoChannel.MainId,
+                                Vhost = videoChannel.Vhost,
+                            };
+
+                            mediaServer.WebApiHelper.CloseStreams(tmp, out  rs);
+                            SipMethodProxy sipMethodProxy =
+                                new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                            sipMethodProxy.DeInvite(sipChannel, out rs);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                }
+
                 if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
                     mediaServer.RandomPort == false) //失败时要关掉rtpserver
                 {
