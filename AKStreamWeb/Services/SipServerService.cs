@@ -490,8 +490,7 @@ namespace AKStreamWeb.Services
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
                                                                  x.Stream.Equals(videoChannel.MainId)
-                                                                 && x.Vhost.Equals(videoChannel.Vhost) &&
-                                                                 x.Schema.ToLower().Equals("rtmp"));
+                                                                 && x.Vhost.Equals(videoChannel.Vhost));
                         if (media != null)
                         {
                             var tmp = new ReqZLMediaKitCloseStreams()
