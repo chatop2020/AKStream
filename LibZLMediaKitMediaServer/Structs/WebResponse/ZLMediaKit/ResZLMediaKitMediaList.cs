@@ -13,30 +13,35 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private string? _peer_ip;
         private ushort? _peer_port;
 
+        [JsonProperty("identifier")]
         public string? Identifier
         {
             get => _identifier;
             set => _identifier = value;
         }
 
+        [JsonProperty("local_ip")]
         public string? Local_Ip
         {
             get => _local_ip;
             set => _local_ip = value;
         }
 
+        [JsonProperty("local_port")]
         public ushort? Local_Port
         {
             get => _local_port;
             set => _local_port = value;
         }
 
+        [JsonProperty("peer_ip")]
         public string? Peer_Ip
         {
             get => _peer_ip;
             set => _peer_ip = value;
         }
 
+        [JsonProperty("peer_port")]
         public ushort? Peer_Port
         {
             get => _peer_port;
@@ -193,6 +198,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _readerCount = value;
         }
 
+        [JsonProperty("schema")]
         public string? Schema
         {
             get => _schema;
@@ -220,24 +226,27 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _vhost = value;
         }
 
+        [JsonProperty("originSock")]
         public OriginSock? OriginSock
         {
             get => _originSock;
             set => _originSock = value;
         }
-
+        [JsonProperty("originType")]
         public OriginType? OriginType
         {
             get => _originType;
             set => _originType = value;
         }
-
+        [JsonProperty("originTypeStr")]
         public string? OriginTypeStr
         {
             get => _originTypeStr;
             set => _originTypeStr = value;
         }
 
+        [JsonProperty("originUrl")]
+        
         public string? OriginUrl
         {
             get => _originUrl;
