@@ -10,7 +10,7 @@ namespace LibSystemInfo
         public static double CPULOAD = 0f;
 
         private static ProcessHelper SystemInfoProcessHelper =
-            new ProcessHelper(p_StdOutputDataReceived, null!, p_Process_Exited!);
+            new ProcessHelper(p_StdOutputDataReceived,null!, p_Process_Exited!);
 
         private static void p_Process_Exited(object sender, EventArgs e)
         {
@@ -21,7 +21,7 @@ namespace LibSystemInfo
         {
             if (e.Data != null)
             {
-                if (e.ToString().ToUpper().Contains("%CPU"))
+                if (e.Data.ToString().ToUpper().Contains("CPU(S)"))
                 {
                     string tmpStr = e.Data;
                     string[] tmpStrArr = tmpStr.Split(',', StringSplitOptions.RemoveEmptyEntries);

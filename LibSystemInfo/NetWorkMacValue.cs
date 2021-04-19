@@ -97,8 +97,8 @@ namespace LibSystemInfo
                     string[] tmpStrArr = tmpStr.Split(',', StringSplitOptions.RemoveEmptyEntries);
                     if (tmpStrArr.Length == 2)
                     {
-                        long tmpRecvBytes = 0;
-                        long tmpSendBytes = 0;
+                        ulong tmpRecvBytes = 0;
+                        ulong tmpSendBytes = 0;
                         foreach (var str in tmpStrArr)
                         {
                             if (str.ToUpper().Contains("IN"))
@@ -111,14 +111,14 @@ namespace LibSystemInfo
                                 switch (s3)
                                 {
                                     case "B":
-                                        long.TryParse(s2, out tmpRecvBytes);
+                                        ulong.TryParse(s2, out tmpRecvBytes);
                                         break;
                                     case "K":
-                                        long.TryParse(s2, out tmpRecvBytes);
+                                        ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024;
                                         break;
                                     case "M":
-                                        long.TryParse(s2, out tmpRecvBytes);
+                                        ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024 * 1024;
                                         break;
                                 }
@@ -134,14 +134,14 @@ namespace LibSystemInfo
                                 switch (s3)
                                 {
                                     case "B":
-                                        long.TryParse(s2, out tmpSendBytes);
+                                        ulong.TryParse(s2, out tmpSendBytes);
                                         break;
                                     case "K":
-                                        long.TryParse(s2, out tmpSendBytes);
+                                        ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024;
                                         break;
                                     case "M":
-                                        long.TryParse(s2, out tmpSendBytes);
+                                        ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024 * 1024;
                                         break;
                                 }

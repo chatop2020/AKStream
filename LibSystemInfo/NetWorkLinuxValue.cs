@@ -33,8 +33,8 @@ namespace LibSystemInfo
                             string[] strTmpArr = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                             if (strTmpArr.Length > 0)
                             {
-                                long.TryParse(strTmpArr[1], out var tmpRecv);
-                                long.TryParse(strTmpArr[9], out var tmpSend);
+                                ulong.TryParse(strTmpArr[1], out var tmpRecv);
+                                ulong.TryParse(strTmpArr[9], out var tmpSend);
 
                                 if (tmpRecv > 0 && tmpSend > 0)
                                 {
@@ -162,15 +162,15 @@ namespace LibSystemInfo
                     }
                     catch
                     {
-                        // ignored
+                        // ignored  
                     }
                 })).Start();
             }
         }
 
 
-        private static long _perSendBytes = 0;
-        private static long _perRecvBytes = 0;
+        private static ulong _perSendBytes = 0;
+        private static ulong _perRecvBytes = 0;
 
         public static NetWorkStat NetWorkStat = new NetWorkStat();
 

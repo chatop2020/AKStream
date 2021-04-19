@@ -178,10 +178,10 @@ namespace LibCommon.Structs
     public class NetWorkStat
     {
         private string _mac = null!;
-        private long _totalSendBytes;
-        private long _totalRecvBytes;
-        private long _currentSendBytes;
-        private long _currentRecvBytes;
+        private ulong _totalSendBytes;
+        private ulong _totalRecvBytes;
+        private ulong _currentSendBytes;
+        private ulong _currentRecvBytes;
         private DateTime _updateTime;
 
 
@@ -191,25 +191,25 @@ namespace LibCommon.Structs
             set => _mac = value;
         }
 
-        public long TotalSendBytes
+        public ulong TotalSendBytes
         {
             get => _totalSendBytes;
             set => _totalSendBytes = value;
         }
 
-        public long TotalRecvBytes
+        public ulong TotalRecvBytes
         {
             get => _totalRecvBytes;
             set => _totalRecvBytes = value;
         }
 
-        public long CurrentSendBytes
+        public ulong CurrentSendBytes
         {
             get => _currentSendBytes;
             set => _currentSendBytes = value;
         }
 
-        public long CurrentRecvBytes
+        public ulong CurrentRecvBytes
         {
             get => _currentRecvBytes;
             set => _currentRecvBytes = value;

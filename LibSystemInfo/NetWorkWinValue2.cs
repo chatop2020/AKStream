@@ -15,8 +15,8 @@ namespace LibSystemInfo
         private static Object lockObj = new object();
         public static NetWorkStat NetWorkStat = new NetWorkStat();
 
-        private static long _sendPer = 0;
-        private static long _recvPer = 0;
+        private static ulong _sendPer = 0;
+        private static ulong _recvPer = 0;
 
         private static List<NetInfo> GetALLNetInfo()
         {
