@@ -1003,7 +1003,7 @@ namespace LibGB28181SipServer
                 return;
             }
 
-            if (!record.SipChannel.SipChannelStatus.Equals(DevStatus.OK) ||
+            if (!record.SipChannel.SipChannelStatus.Equals(DevStatus.OK) &&
                 !record.SipChannel.SipChannelStatus.Equals(DevStatus.ON))
             {
                 rs = new ResponseStruct()

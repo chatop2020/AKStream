@@ -9,11 +9,13 @@ namespace AKStreamWeb.Misc
         /// 核心的LiteDatabase数据库操作对象，这个对象私有只在类内使用。
         /// </summary>
         private LiteDatabase db;
+      //  private LiteDatabase recdb;
 
         /// <summary>
         /// 所有的VideoChannelMediaInfo列表。
         /// </summary>
         public LiteCollection<VideoChannelMediaInfo> VideoOnlineInfo { get; set; }
+      
 
         /// <summary>
         /// 创建一个LiteDB对象，有一个参数表明对应的文件路径。
@@ -24,6 +26,7 @@ namespace AKStreamWeb.Misc
             db = new LiteDatabase(dbpath);
             VideoOnlineInfo =
                 (LiteCollection<VideoChannelMediaInfo>) db.GetCollection<VideoChannelMediaInfo>("VideoOnlineInfo");
+           
         }
     }
 }

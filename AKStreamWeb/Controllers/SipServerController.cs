@@ -3,7 +3,9 @@ using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs;
+using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
+using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -17,30 +19,7 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
-        /// <summary>
-        /// 获取Sip设备的历史录像文件列表
-        /// </summary>
-        /// <param name="AccessKey"></param>
-        /// <param name="deviceId"></param>
-        /// <param name="channelId"></param>
-        /// <param name="queryRecordFile"></param>
-        /// <returns>返回true/false,如果是true,则从SipChannel的LastRecordInfos字段中获取历史文件列表，历史文件可能很多，加载时间会比较长</returns>
-        /// <exception cref="AkStreamException"></exception>
-        [Route("GetHistroyRecordFileList")]
-        [HttpPost]
-        public bool GetHistroyRecordFileList(
-            [FromHeader(Name = "AccessKey")] string AccessKey, string deviceId, string channelId,
-            SipQueryRecordFile queryRecordFile)
-        {
-            ResponseStruct rs;
-            var ret = SipServerService.GetHistroyRecordFileList(deviceId, channelId, queryRecordFile, out rs);
-            if (!rs.Code.Equals(ErrorNumber.None))
-            {
-                throw new AkStreamException(rs);
-            }
-
-            return ret;
-        }
+       
 
 
         /// <summary>
@@ -200,5 +179,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
+        
+        
     }
 }
