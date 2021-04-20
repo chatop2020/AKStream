@@ -92,6 +92,7 @@ namespace LibSystemInfo
             {
                 if (e.Data.Contains("Networks: packets:"))
                 {
+                    bool b = false;
                     string tmpStr = e.Data;
                     tmpStr = tmpStr.Replace("Networks: packets:", "");
                     string[] tmpStrArr = tmpStr.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -108,17 +109,18 @@ namespace LibSystemInfo
                                 s1 = s1.Substring(s1.IndexOf('/') + 1);
                                 string s2 = s1.Substring(0, s1.Length - 1);
                                 string s3 = s1.Substring(s1.Length - 1);
+                              
                                 switch (s3)
                                 {
                                     case "B":
-                                        ulong.TryParse(s2, out tmpRecvBytes);
+                                       b= ulong.TryParse(s2, out tmpRecvBytes);
                                         break;
                                     case "K":
-                                        ulong.TryParse(s2, out tmpRecvBytes);
+                                       b= ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024;
                                         break;
                                     case "M":
-                                        ulong.TryParse(s2, out tmpRecvBytes);
+                                       b= ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024 * 1024;
                                         break;
                                 }
@@ -134,27 +136,30 @@ namespace LibSystemInfo
                                 switch (s3)
                                 {
                                     case "B":
-                                        ulong.TryParse(s2, out tmpSendBytes);
+                                       b= ulong.TryParse(s2, out tmpSendBytes);
                                         break;
                                     case "K":
-                                        ulong.TryParse(s2, out tmpSendBytes);
+                                       b= ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024;
                                         break;
                                     case "M":
-                                        ulong.TryParse(s2, out tmpSendBytes);
+                                      b=  ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024 * 1024;
                                         break;
                                 }
                             }
                         }
 
-                        lock (lockObj)
+                        if (b)
                         {
-                            NetWorkStat.TotalRecvBytes += tmpRecvBytes;
-                            NetWorkStat.TotalSendBytes += tmpSendBytes;
-                            NetWorkStat.CurrentRecvBytes = tmpRecvBytes;
-                            NetWorkStat.CurrentSendBytes = tmpSendBytes;
-                            NetWorkStat.UpdateTime = DateTime.Now;
+                            lock (lockObj)
+                            {
+                                NetWorkStat.TotalRecvBytes += tmpRecvBytes;
+                                NetWorkStat.TotalSendBytes += tmpSendBytes;
+                                NetWorkStat.CurrentRecvBytes = tmpRecvBytes;
+                                NetWorkStat.CurrentSendBytes = tmpSendBytes;
+                                NetWorkStat.UpdateTime = DateTime.Now;
+                            }
                         }
                     }
                 }

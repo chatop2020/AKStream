@@ -110,20 +110,24 @@ namespace LibGB28181SipServer
             out ResponseStruct rs)
         {
             AutoResetEvent _autoResetEvent2 = null;
+       
             try
             {
+               
                 _commandType = CommandType.RecordInfo;
                 _autoResetEvent2 = new AutoResetEvent(false);
                 Common.SipServer.GetRecordFileList(sipChannel, queryRecordFile, _autoResetEvent, _autoResetEvent2,
-                    out rs, _timeout);
+                    out rs,_timeout);
                 var isTimeout = _autoResetEvent.WaitOne(_timeout);
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
+                    
                     Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
                     return false;
                 }
 
                 isTimeout = _autoResetEvent2.WaitOne(_timeout);
+                
                 if (isTimeout)
                 {
                     return true;

@@ -9,7 +9,6 @@ namespace AKStreamWeb.Misc
         /// 核心的LiteDatabase数据库操作对象，这个对象私有只在类内使用。
         /// </summary>
         private LiteDatabase db;
-      //  private LiteDatabase recdb;
 
         /// <summary>
         /// 所有的VideoChannelMediaInfo列表。

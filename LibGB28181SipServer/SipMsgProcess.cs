@@ -535,6 +535,7 @@ namespace LibGB28181SipServer
                                         try
                                         {
                                             _task.AutoResetEvent2.Set();
+                                          
                                         }
                                         catch (Exception ex)
                                         {

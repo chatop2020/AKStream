@@ -32,6 +32,7 @@ namespace LibSystemInfo
         {
             if (e.Data != null)
             {
+             
                 ulong tmpSendBytes = 0;
                 ulong tmpRecvBytes = 0;
                 string[] tmpStrArr = e.Data.Trim().Split("]-[", StringSplitOptions.RemoveEmptyEntries);

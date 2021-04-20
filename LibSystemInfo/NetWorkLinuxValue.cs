@@ -33,10 +33,10 @@ namespace LibSystemInfo
                             string[] strTmpArr = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                             if (strTmpArr.Length > 0)
                             {
-                                ulong.TryParse(strTmpArr[1], out var tmpRecv);
-                                ulong.TryParse(strTmpArr[9], out var tmpSend);
+                               var b1= ulong.TryParse(strTmpArr[1], out var tmpRecv);
+                               var b2= ulong.TryParse(strTmpArr[9], out var tmpSend);
 
-                                if (tmpRecv > 0 && tmpSend > 0)
+                                if (tmpRecv > 0 && tmpSend > 0 && b1 && b2)
                                 {
                                     if (_perRecvBytes == 0 && _perSendBytes == 0)
                                     {

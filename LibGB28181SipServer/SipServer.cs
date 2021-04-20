@@ -72,7 +72,7 @@ namespace LibGB28181SipServer
         private async Task SendRequestViaSipChannel(SipDevice sipDevice, SipChannel sipChannel, SIPMethodsEnum method,
             string contentType,
             string xmlBody, string subject, CommandType commandType, bool needResponse, AutoResetEvent evnt,
-            AutoResetEvent evnt2, object obj,
+            AutoResetEvent evnt2,  object obj,
             int timeout)
         {
             try
