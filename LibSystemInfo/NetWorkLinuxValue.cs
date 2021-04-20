@@ -57,10 +57,10 @@ namespace LibSystemInfo
                                         {
                                             NetWorkStat.CurrentRecvBytes = tmpRecv - _perRecvBytes;
                                             NetWorkStat.CurrentSendBytes = tmpSend - _perSendBytes;
-                                            _perRecvBytes += NetWorkStat.CurrentRecvBytes;
-                                            _perSendBytes += NetWorkStat.CurrentSendBytes;
-                                            NetWorkStat.TotalRecvBytes += NetWorkStat.CurrentRecvBytes;
-                                            NetWorkStat.TotalSendBytes += NetWorkStat.CurrentSendBytes;
+                                            _perRecvBytes = tmpRecv;
+                                            _perSendBytes = tmpSend;
+                                            NetWorkStat.TotalRecvBytes =tmpRecv;
+                                            NetWorkStat.TotalSendBytes =tmpSend;
                                             NetWorkStat.UpdateTime = DateTime.Now;
                                         }
                                     }
