@@ -29,7 +29,7 @@ namespace AKStreamWeb.Controllers
         /// <exception cref="AkStreamException"></exception>
         [Route("GetHistroyRecordFileStatus")]
         [HttpGet]
-        public VideoChannelRecordInfo GetHistroyRecordFileList(
+        public VideoChannelRecordInfo GetHistroyRecordFileStatus(
             [FromHeader(Name = "AccessKey")] string AccessKey, int taskId)
         {
             ResponseStruct rs;
