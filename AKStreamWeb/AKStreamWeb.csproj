@@ -20,7 +20,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="LiteDB" Version="5.0.10" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
       <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.6.3" />

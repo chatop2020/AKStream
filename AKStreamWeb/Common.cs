@@ -32,7 +32,7 @@ namespace AKStreamWeb
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
 
-        private static LiteDBHelper _ldb = new LiteDBHelper();
+      
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
@@ -45,11 +45,7 @@ namespace AKStreamWeb
         }
 
 
-        public static LiteDBHelper Ldb
-        {
-            get => _ldb;
-            set => _ldb = value;
-        }
+     
 
 
         /// <summary>
@@ -260,7 +256,7 @@ namespace AKStreamWeb
 #endif
             try
             {
-                Ldb.VideoOnlineInfo.DeleteAll();
+                GCommon.Ldb.VideoOnlineInfo.DeleteAll();
 
                 OrmHelper = new ORMHelper(AkStreamWebConfig.OrmConnStr, AkStreamWebConfig.DbType);
             }

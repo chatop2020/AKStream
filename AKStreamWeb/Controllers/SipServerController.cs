@@ -20,6 +20,53 @@ namespace AKStreamWeb.Controllers
     public class SipServerController : ControllerBase
     {
        
+        /// <summary>
+        /// 获取回放文件列表状态
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="taskId"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetHistroyRecordFileStatus")]
+        [HttpGet]
+        public VideoChannelRecordInfo GetHistroyRecordFileList(
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.GetHistroyRecordFileStatus(taskId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
+        
+        /// <summary>
+        /// 获取历史录像列表
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="deviceId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="queryRecordFile"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetHistroyRecordFileList")]
+        [HttpPost]
+        public int GetHistroyRecordFileList(
+            [FromHeader(Name = "AccessKey")] string AccessKey, string deviceId, string channelId,
+            SipQueryRecordFile queryRecordFile)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.GetHistroyRecordFileList(deviceId, channelId, queryRecordFile, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
 
 
         /// <summary>

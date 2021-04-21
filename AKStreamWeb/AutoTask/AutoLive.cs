@@ -19,7 +19,7 @@ namespace AKStreamWeb.AutoTask
                     {
                         foreach (var obj in dbRet)
                         {
-                            var listRet = Common.Ldb.VideoOnlineInfo.FindOne(x =>
+                            var listRet = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
                                 x.MainId.Equals(obj.MainId) && x.MediaServerId.Equals(obj.MediaServerId));
                             if (obj != null && obj.AutoVideo.Equals(true) && obj.NoPlayerBreak.Equals(false) &&
                                 obj.Enabled.Equals(true))

@@ -6,7 +6,6 @@ using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
-using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibGB28181SipServer;
@@ -14,14 +13,87 @@ using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
-using SIPSorcery.SIP.App;
 
 namespace AKStreamWeb.Services
 {
     public static class SipServerService
     {
+        /// <summary>
+        /// 通过taskId获取回放文件列表状态
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static VideoChannelRecordInfo GetHistroyRecordFileStatus(int taskId, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            try
+            {
+                return GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DataBaseExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                return null;
+            }
+
+        }
         
-        
+        /// <summary>
+        /// 获取sip设备的历史录制文件列表
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="channelId"></param>
+        /// <param name="queryRecordFile"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static int GetHistroyRecordFileList(string deviceId, string channelId,
+            SipQueryRecordFile queryRecordFile, out ResponseStruct rs)
+        {
+            ServerInstance mediaServer;
+            VideoChannel videoChannel;
+            SipDevice sipDevice;
+            SipChannel sipChannel;
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var ret = CheckIt(deviceId, channelId, out rs, out mediaServer, out videoChannel, out sipChannel,
+                out sipDevice);
+            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+
+                return -1;
+            }
+
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+            var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
+            if (!rs.Code.Equals(ErrorNumber.None) || got <0)
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
+
+                return -1;
+            }
+
+            Logger.Warn(
+                $"[{Common.LoggerHead}]->获取Sip设备历史录制文件成功->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->加载可能较慢，请使用返回值定期调用查询GetHistroyRecordFileStatus接口以获取最终结果");
+
+            return got;
+        }
 
         /// <summary>
         ///  检查livevideo,stopvideo的相关参数
@@ -174,7 +246,7 @@ namespace AKStreamWeb.Services
             VideoChannelMediaInfo mediaInfo = null;
 
 
-            mediaInfo = Common.Ldb.VideoOnlineInfo.FindOne(x =>
+            mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
@@ -272,7 +344,7 @@ namespace AKStreamWeb.Services
             VideoChannelMediaInfo mediaInfo = null;
 
 
-            mediaInfo = Common.Ldb.VideoOnlineInfo.FindOne(x =>
+            mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
@@ -501,7 +573,7 @@ namespace AKStreamWeb.Services
                 Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
 
-                Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
                     x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
@@ -610,10 +682,10 @@ namespace AKStreamWeb.Services
                 $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
 
 
-            Common.Ldb.VideoOnlineInfo.DeleteMany(x =>
+            GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
                 x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
-            Common.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
+            GCommon.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
 
 
             Logger.Debug(
@@ -678,7 +750,7 @@ namespace AKStreamWeb.Services
             Logger.Info(
                 $"[{Common.LoggerHead}]->检查Sip推流状态成功->{deviceId}-{channelId}->{JsonHelper.ToJson(tmpSipChannel.PushStatus)}");
 
-            var obj = Common.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(tmpSipChannel.Stream));
+            var obj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(tmpSipChannel.Stream));
             if (obj != null && obj.MediaServerStreamInfo != null)
             {
                 return true;

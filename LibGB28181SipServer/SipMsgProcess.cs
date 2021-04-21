@@ -422,6 +422,152 @@ namespace LibGB28181SipServer
                         await SendOkMessage(sipRequest);
                         string tmpSipDevId = sipRequest.Header.From.FromURI.User;
                         var recordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
+                        int tatolNum = recordInfo.SumNum;
+                        int sn = recordInfo.SN;
+
+                        var tmpSipDevice1 = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpSipDevId));
+                        if (recordInfo != null && tmpSipDevice1 != null)
+                        {
+                            var sipChannel1 =
+                                tmpSipDevice1.SipChannels.FindLast(x => x.DeviceId.Equals(recordInfo.DeviceID));
+                            if (sipChannel1 != null)
+                            {
+                                int getCount = 0;
+                                var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(sn));
+                                if (obj != null)
+                                {
+                                    getCount = obj.RecItems.Count;
+                                }
+
+                                Logger.Debug(
+                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{getCount}->包体:{JsonHelper.ToJson(recordInfo, Formatting.Indented)}");
+                                if (getCount >= tatolNum || tatolNum > 256) //数量相等或才总数特别大时，返回成功
+                                {
+                                    string _taskTag =
+                                        $"RECORDINFO:{tmpSipDevice1.DeviceId}:{sipChannel1.DeviceId}:{sn}";
+                                    var ret = Common.NeedResponseRequests.TryRemove(_taskTag, out NeedReturnTask _task);
+                                    if (ret && _task != null && _task.AutoResetEvent2 != null)
+                                    {
+                                        try
+                                        {
+                                            _task.AutoResetEvent2.Set();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            ResponseStruct exrs = new ResponseStruct()
+                                            {
+                                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                                ExceptMessage = ex.Message,
+                                                ExceptStackTrace = ex.StackTrace
+                                            };
+                                            Logger.Warn(
+                                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                        }
+                                    }
+                                }
+                                
+                                if (obj == null)
+                                {
+                                    var record = new VideoChannelRecordInfo();
+                                    record.TatolCount = tatolNum;
+                                    record.Expires = DateTime.Now.AddHours(24);
+                                    record.TaskId = sn;
+                                    if (record.RecItems == null)
+                                    {
+                                        record.RecItems = new List<RecordInfo.RecItem>();
+                                    }
+
+                                    foreach (var item in recordInfo.RecordItems.Items)
+                                    {
+                                        var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                  item.EndTime +
+                                                  item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                  tmpSipDevice1.DeviceId + sn;
+                                        var crc32 = CRC32Helper.GetCRC32(tag);
+                                        var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                        char[] tmpChars = crc32Str.ToCharArray();
+                                        tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                        string itemId = new string(tmpChars);
+                                        item.SsrcId = itemId; //ssrc的值
+                                        item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                        item.SipDevice = tmpSipDevice1;
+                                        item.SipChannel = sipChannel1;
+                                        item.PushStatus = PushStatus.IDLE;
+                                        item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                                        record.RecItems.Add(item);
+                                    }
+
+                                    GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
+                                }
+                                else
+                                {
+                                    if (obj.RecItems != null && obj.RecItems.Count > 0)
+                                    {
+                                        foreach (var item in recordInfo.RecordItems.Items)
+                                        {
+                                            var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                      item.EndTime +
+                                                      item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                      tmpSipDevice1.DeviceId + sn;
+                                            var crc32 = CRC32Helper.GetCRC32(tag);
+                                            var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                            char[] tmpChars = crc32Str.ToCharArray();
+                                            tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                            string itemId = new string(tmpChars);
+                                            item.SsrcId = itemId; //ssrc的值
+                                            item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                            item.SipDevice = tmpSipDevice1;
+                                            item.SipChannel = sipChannel1;
+                                            item.PushStatus = PushStatus.IDLE;
+                                            item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                                            var itemObj = obj.RecItems.FindLast(x => x.Stream.Equals(item.Stream));
+                                            if (itemObj == null)
+                                            {
+                                                obj.RecItems.Add(item);
+                                            }
+                                        }
+
+                                        GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
+                                    }
+                                    else
+                                    {
+                                        if (obj.RecItems == null)
+                                        {
+                                            obj.RecItems = new List<RecordInfo.RecItem>();
+                                        }
+
+                                        foreach (var item in recordInfo.RecordItems.Items)
+                                        {
+                                            var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                                      item.EndTime +
+                                                      item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                                      tmpSipDevice1.DeviceId + sn;
+                                            var crc32 = CRC32Helper.GetCRC32(tag);
+                                            var crc32Str = crc32.ToString().PadLeft(10, '0');
+                                            char[] tmpChars = crc32Str.ToCharArray();
+                                            tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                                            string itemId = new string(tmpChars);
+                                            item.SsrcId = itemId; //ssrc的值
+                                            item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                            item.SipDevice = tmpSipDevice1;
+                                            item.SipChannel = sipChannel1;
+                                            item.PushStatus = PushStatus.IDLE;
+                                            item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                                            obj.RecItems.Add(item);
+                                        }
+
+                                        GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+                    /*case "RECORDINFO":
+                        await SendOkMessage(sipRequest);
+                        string tmpSipDevId = sipRequest.Header.From.FromURI.User;
+                        var recordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
                         var tmpSipDevice1 = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpSipDevId));
                         if (recordInfo != null && tmpSipDevice1 != null)
                         {
@@ -554,7 +700,7 @@ namespace LibGB28181SipServer
                             }
                         }
 
-                        break;
+                        break;*/
                     case "MEDIASTATUS":
                         await SendOkMessage(sipRequest);
                         MediaStatus mediaStatus = UtilsHelper.XMLToObject<MediaStatus>(bodyXml);
@@ -1128,7 +1274,8 @@ namespace LibGB28181SipServer
                                 case CommandType.RecordInfo:
                                     Common.NeedResponseRequests.TryAdd(
                                         _task.CommandType.ToString().ToUpper() + ":" + _task.SipDevice.DeviceId + ":" +
-                                        _task.SipChannel.DeviceId, _task); //再次加入等待列表
+                                        _task.SipChannel.DeviceId + ":" + ((SipQueryRecordFile) _task.Obj).TaskId,
+                                        _task); //再次加入等待列表,obj.TaskId中是外部生成的sn
 
                                     break;
                                 case CommandType.Catalog:

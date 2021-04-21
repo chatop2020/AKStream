@@ -10,6 +10,8 @@ namespace LibCommon
 {
     public static class GCommon
     {
+
+        private static LiteDBHelper _ldb = new LiteDBHelper();
         public static string BaseStartPath = Environment.CurrentDirectory; //程序启动的目录
 
         public static string
@@ -21,6 +23,11 @@ namespace LibCommon
         public static string ConfigPath = BaseStartPath + "/Config/";
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
 
+        public static LiteDBHelper Ldb
+        {
+            get => _ldb;
+            set => _ldb = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         #region 各类事件委托
 

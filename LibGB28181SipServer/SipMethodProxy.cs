@@ -106,11 +106,12 @@ namespace LibGB28181SipServer
         /// <param name="sipChannel"></param>
         /// <param name="queryRecordFile"></param>
         /// <returns></returns>
-        public bool QueryRecordFileList(SipChannel sipChannel, SipQueryRecordFile queryRecordFile,
+        public int QueryRecordFileList(SipChannel sipChannel, SipQueryRecordFile queryRecordFile,
             out ResponseStruct rs)
         {
+
+            queryRecordFile.TaskId = new Random().Next(1, 99999999);
             AutoResetEvent _autoResetEvent2 = null;
-       
             try
             {
                
@@ -123,18 +124,18 @@ namespace LibGB28181SipServer
                 {
                     
                     Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
-                    return false;
+                    return -1;
                 }
 
                 isTimeout = _autoResetEvent2.WaitOne(_timeout);
                 
                 if (isTimeout)
                 {
-                    return true;
+                    return (int) queryRecordFile.TaskId;
                 }
 
                 Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
-                return false;
+                return -1;
             }
             finally
             {

@@ -1,5 +1,6 @@
 using System;
 using LibCommon.Enums;
+using Newtonsoft.Json;
 
 namespace LibCommon.Structs
 {
@@ -10,8 +11,9 @@ namespace LibCommon.Structs
     public class SipQueryRecordFile
     {
         private SipRecordFileQueryType _sipRecordFileQueryType;
-        private DateTime startTime;
-        private DateTime endTime;
+        private DateTime _startTime;
+        private DateTime _endTime;
+        private int? _taskId;
 
         /// <summary>
         /// 查询录像类型，一般为all
@@ -27,8 +29,8 @@ namespace LibCommon.Structs
         /// </summary>
         public DateTime StartTime
         {
-            get => startTime;
-            set => startTime = value;
+            get => _startTime;
+            set => _startTime = value;
         }
 
         /// <summary>
@@ -37,8 +39,18 @@ namespace LibCommon.Structs
 
         public DateTime EndTime
         {
-            get => endTime;
-            set => endTime = value;
+            get => _endTime;
+            set => _endTime = value;
+        }
+
+        /// <summary>
+        /// 任务的taskid,用于回查,外部不用传
+        /// </summary>
+        [JsonIgnore]
+        public int? TaskId
+        {
+            get => _taskId;
+            set => _taskId = value;
         }
     }
 }

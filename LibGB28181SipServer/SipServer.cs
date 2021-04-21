@@ -846,7 +846,7 @@ namespace LibGB28181SipServer
             var body = new RecordQuery()
             {
                 DeviceID = sipChannel.DeviceId,
-                SN = new Random().Next(1, 3000),
+                SN = (int)sipQueryRecordFile.TaskId,//跟进去一个sn
                 CmdType = CommandType.RecordInfo,
                 Secrecy = 0,
                 StartTime = sipQueryRecordFile.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -866,7 +866,7 @@ namespace LibGB28181SipServer
                         SendRequestViaSipChannel;
                 request(tmpSipDevice, sipChannel, method, ConstString.Application_SDP, xmlBody, subject, body.CmdType,
                     true,
-                    evnt, evnt2, null,
+                    evnt, evnt2, sipQueryRecordFile,
                     timeout);
             }
             catch (AkStreamException ex)

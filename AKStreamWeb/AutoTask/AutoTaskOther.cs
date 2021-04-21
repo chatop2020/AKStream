@@ -27,6 +27,7 @@ namespace AKStreamWeb.AutoTask
                     if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
+                        GCommon.Ldb.VideoChannelRecordInfo.DeleteMany(x => x.Expires < DateTime.Now);//删除24小时以后的失效的回放文件列表数据
                     }
 
                     if (count % 3600 == 0) //3600秒一次
