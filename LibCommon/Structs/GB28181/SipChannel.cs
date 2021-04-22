@@ -31,8 +31,10 @@ namespace LibCommon.Structs.GB28181
         private SIPResponse _inviteSipResponse; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPRequest _lastSipRequest; //保存最后一次sipRequest
 
+        /*
         private List<KeyValuePair<int, RecordInfo.RecItem>> _lastRecordInfos =
             new List<KeyValuePair<int, RecordInfo.RecItem>>(); //最后一次获取到的录像文件列表
+            */
 
 
         /// <summary>
@@ -62,7 +64,7 @@ namespace LibCommon.Structs.GB28181
 
 
         [JsonIgnore]
-
+        [LiteDB.BsonIgnore]
         /// <summary>
         /// sip设备的ip端口协议
         /// </summary>
@@ -74,6 +76,7 @@ namespace LibCommon.Structs.GB28181
 
 
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         /// <summary>
         /// sip服务的ip端口协议
         /// </summary>
@@ -170,6 +173,7 @@ namespace LibCommon.Structs.GB28181
         /// 保存请求实时流时的request,因为在终止实时流的时候要用到
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPRequest InviteSipRequest
         {
             get => _inviteSipRequest;
@@ -181,6 +185,7 @@ namespace LibCommon.Structs.GB28181
         /// 保存请求实时流时的response,因为在终止实时流的时候要用到
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPResponse InviteSipResponse
         {
             get => _inviteSipResponse;
@@ -191,12 +196,14 @@ namespace LibCommon.Structs.GB28181
         /// 保存最后一次SipRequest
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPRequest LastSipRequest
         {
             get => _lastSipRequest;
             set => _lastSipRequest = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        /*
         /// <summary>
         /// 最后一次获取到的录像文件列表
         /// </summary>
@@ -205,6 +212,7 @@ namespace LibCommon.Structs.GB28181
             get => _lastRecordInfos;
             set => _lastRecordInfos = value ?? throw new ArgumentNullException(nameof(value));
         }
+        
 
         /// <summary>
         /// 获取最后查询到的录像文件，按排序规则排序
@@ -236,7 +244,7 @@ namespace LibCommon.Structs.GB28181
 
             return result;
         }
-
+*/
 
         ~SipChannel()
         {

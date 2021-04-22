@@ -226,7 +226,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-            [LiteDB.BsonIgnore]
+          
             /// <summary>
             /// 录像文件所在Sip设备
             /// </summary>
@@ -238,7 +238,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-            [LiteDB.BsonIgnore]
+           
             /// <summary>
             /// 录像文件所在Sip通道
             /// </summary>

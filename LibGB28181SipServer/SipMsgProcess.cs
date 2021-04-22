@@ -441,7 +441,7 @@ namespace LibGB28181SipServer
 
                                 Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{getCount}->包体:{JsonHelper.ToJson(recordInfo, Formatting.Indented)}");
-                                if (getCount >= tatolNum || tatolNum > 256) //数量相等或才总数特别大时，返回成功
+                                if (getCount >0) //成功得到过一次就返回成功
                                 {
                                     string _taskTag =
                                         $"RECORDINFO:{tmpSipDevice1.DeviceId}:{sipChannel1.DeviceId}:{sn}";

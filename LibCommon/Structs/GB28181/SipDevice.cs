@@ -54,7 +54,7 @@ namespace LibCommon.Structs.GB28181
             Dispose(); //释放非托管资源
         }
 
-
+        [LiteDB.BsonIgnore]
         /// <summary>
         /// 设备ip地址
         /// </summary>
@@ -87,6 +87,7 @@ namespace LibCommon.Structs.GB28181
         /// sip设备ip端口协议
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPEndPoint? RemoteEndPoint
         {
             get => _remoteEndPoint;
@@ -97,6 +98,7 @@ namespace LibCommon.Structs.GB28181
         /// sip服务ip端口协议
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPEndPoint? LocalSipEndPoint
         {
             get => _localSipEndPoint;
