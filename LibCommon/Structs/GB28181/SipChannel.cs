@@ -203,48 +203,7 @@ namespace LibCommon.Structs.GB28181
             set => _lastSipRequest = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-        /*
-        /// <summary>
-        /// 最后一次获取到的录像文件列表
-        /// </summary>
-        public List<KeyValuePair<int, RecordInfo.RecItem>> LastRecordInfos
-        {
-            get => _lastRecordInfos;
-            set => _lastRecordInfos = value ?? throw new ArgumentNullException(nameof(value));
-        }
-        
-
-        /// <summary>
-        /// 获取最后查询到的录像文件，按排序规则排序
-        /// </summary>
-        /// <param name="orderBy"></param>
-        /// <returns></returns>
-        public List<RecordInfo.RecItem> GetLastRecordInfoList(OrderBy orderBy = OrderBy.ASC)
-        {
-            List<RecordInfo.RecItem> result = new List<RecordInfo.RecItem>();
-            foreach (var kv in LastRecordInfos)
-            {
-                if (kv.Value != null)
-                {
-                    result.Add(kv.Value);
-                }
-            }
-
-            switch (orderBy)
-            {
-                case OrderBy.ASC:
-                    result = result.OrderBy(x => x.EndTime).ToList();
-
-                    break;
-                case OrderBy.DESC:
-                    result = result.OrderByDescending(x => x.EndTime).ToList();
-
-                    break;
-            }
-
-            return result;
-        }
-*/
+       
 
         ~SipChannel()
         {
