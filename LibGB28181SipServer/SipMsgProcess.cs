@@ -470,18 +470,6 @@ namespace LibGB28181SipServer
                                 if (obj == null)
                                 {
                                     var record = new VideoChannelRecordInfo();
-                                    long nextId = 1;
-                                    try
-                                    {
-                                        var t = GCommon.Ldb.VideoChannelRecordInfo.Max(x => x.Id);
-                                        nextId = t++;
-                                    }
-                                    catch
-                                    {
-                                        //
-                                    }
-
-                                    record.Id = nextId;
                                     record.TatolCount = tatolNum;
                                     record.Expires = DateTime.Now.AddHours(24);
                                     record.TaskId = sn;
