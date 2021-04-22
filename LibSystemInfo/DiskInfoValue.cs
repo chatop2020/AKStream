@@ -30,7 +30,8 @@ namespace LibSystemInfo
                     if (!driveInfo.Name.ToLower().Trim().StartsWith("/boot") &&
                         !driveInfo.Name.ToLower().Trim().StartsWith("/dev") &&
                         !driveInfo.Name.ToLower().Trim().StartsWith("/run") &&
-                        !driveInfo.Name.ToLower().Trim().StartsWith("/sys")
+                        !driveInfo.Name.ToLower().Trim().StartsWith("/sys") &&
+                        !driveInfo.Name.ToLower().Trim().StartsWith("/var")
                     )
                     {
                         result.Add(driveInfo);
