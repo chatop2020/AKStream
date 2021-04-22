@@ -30,6 +30,7 @@ namespace LibCommon
             VideoChannelRecordInfo =
                 (LiteCollection<VideoChannelRecordInfo>) _liteDb.GetCollection<VideoChannelRecordInfo>(
                     "VideoRecordInfo");
+            
         }
     }
 }

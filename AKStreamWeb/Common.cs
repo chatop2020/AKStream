@@ -257,7 +257,7 @@ namespace AKStreamWeb
             try
             {
                 GCommon.Ldb.VideoOnlineInfo.DeleteAll();
-
+                GCommon.Ldb.VideoChannelRecordInfo.DeleteAll();
                 OrmHelper = new ORMHelper(AkStreamWebConfig.OrmConnStr, AkStreamWebConfig.DbType);
             }
             catch (Exception ex)

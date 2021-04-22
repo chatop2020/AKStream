@@ -434,7 +434,7 @@ namespace LibGB28181SipServer
                             {
                                 int getCount = 0;
                                 var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(sn));
-                                if (obj != null)
+                                if (obj != null && obj.RecItems != null)
                                 {
                                     getCount = obj.RecItems.Count;
                                 }
@@ -466,10 +466,22 @@ namespace LibGB28181SipServer
                                         }
                                     }
                                 }
-                                
+
                                 if (obj == null)
                                 {
                                     var record = new VideoChannelRecordInfo();
+                                    long nextId = 1;
+                                    try
+                                    {
+                                        var t = GCommon.Ldb.VideoChannelRecordInfo.Max(x => x.Id);
+                                        nextId = t++;
+                                    }
+                                    catch
+                                    {
+                                        //
+                                    }
+
+                                    record.Id = nextId;
                                     record.TatolCount = tatolNum;
                                     record.Expires = DateTime.Now.AddHours(24);
                                     record.TaskId = sn;

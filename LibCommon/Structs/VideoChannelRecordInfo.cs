@@ -11,11 +11,18 @@ namespace LibCommon.Structs
     public class VideoChannelRecordInfo
     {
 
-      
+
+        private long _id;
         private int _taskId;
         private List<RecordInfo.RecItem> _recItems= new List<RecordInfo.RecItem>();
         private int _tatolCount;
         private DateTime _expires;
+
+        public long Id
+        {
+            get => _id;
+            set => _id = value;
+        }
 
         /// <summary>
         /// 查询的taskId=报文中的sn

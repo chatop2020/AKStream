@@ -160,6 +160,7 @@ namespace LibCommon.Structs.GB28181.XML
             }
         }
 
+        [Serializable]
         public class RecItem
         {
             private SIPRequest? _inviteSipRequest = null;
@@ -203,6 +204,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
+            [LiteDB.BsonIgnore]
             public SIPRequest? InviteSipRequest
             {
                 get => _inviteSipRequest;
@@ -211,6 +213,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
+            [LiteDB.BsonIgnore]
             /// <summary>
             /// 推流时的response
             /// 要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
@@ -223,6 +226,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
+            [LiteDB.BsonIgnore]
             /// <summary>
             /// 录像文件所在Sip设备
             /// </summary>
@@ -234,6 +238,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
+            [LiteDB.BsonIgnore]
             /// <summary>
             /// 录像文件所在Sip通道
             /// </summary>
