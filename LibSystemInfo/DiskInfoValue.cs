@@ -27,7 +27,14 @@ namespace LibSystemInfo
                     driveInfo.Used = drv.TotalSize - drv.AvailableFreeSpace;
                     driveInfo.FreePercent = Math.Round(drv.AvailableFreeSpace * 100.00 / drv.TotalSize, 3);
                     driveInfo.UpdateTime = DateTime.Now;
-                    result.Add(driveInfo);
+                    if (!driveInfo.Name.ToLower().Trim().StartsWith("/boot") &&
+                        !driveInfo.Name.ToLower().Trim().StartsWith("/dev") &&
+                        !driveInfo.Name.ToLower().Trim().StartsWith("/run") &&
+                        !driveInfo.Name.ToLower().Trim().StartsWith("/sys")
+                    )
+                    {
+                        result.Add(driveInfo);
+                    }
                 }
             }
 
