@@ -1230,7 +1230,6 @@ namespace AKStreamWeb.Services
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.App = videoChannel.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
-            videoChannelMediaInfo.Id = videoChannel.Id;
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;
@@ -1504,7 +1503,6 @@ namespace AKStreamWeb.Services
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.App = videoChannel.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
-            videoChannelMediaInfo.Id = videoChannel.Id;
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;

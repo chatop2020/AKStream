@@ -637,7 +637,6 @@ namespace AKStreamWeb.Services
                 return null;
             }
             
-          /////////////////////////////////////////
            var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
@@ -721,7 +720,6 @@ namespace AKStreamWeb.Services
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.App = record.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
-            videoChannelMediaInfo.Id = videoChannel.Id;
             videoChannelMediaInfo.Vhost = record.Vhost;
             videoChannelMediaInfo.AutoRecord = false;
             videoChannelMediaInfo.AutoVideo = false;
@@ -821,7 +819,7 @@ namespace AKStreamWeb.Services
                 $"[{Common.LoggerHead}]->请求Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
-          ///////////////////////////////////////// 
+
             
         }
 
@@ -1106,7 +1104,6 @@ namespace AKStreamWeb.Services
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.App = videoChannel.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
-            videoChannelMediaInfo.Id = videoChannel.Id;
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;

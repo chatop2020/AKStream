@@ -33,6 +33,7 @@ namespace SIPSorcery.SIP
         /// <summary>
         /// The SIP request's URI.
         /// </summary>
+      
         public SIPURI URI;
 
         public SIPRoute ReceivedRoute;

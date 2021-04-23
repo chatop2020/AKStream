@@ -10,6 +10,7 @@ namespace LibCommon.Structs
     public class VideoChannelMediaInfo : VideoChannel
     {
         private MediaServerStreamInfo? _mediaServerStreamInfo;
+        
 
         public MediaServerStreamInfo? MediaServerStreamInfo
         {

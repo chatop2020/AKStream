@@ -135,6 +135,10 @@ namespace LibGB28181SipServer
                 if (commandType == CommandType.Playback && obj != null)
                 {
                     ((RecordInfo.RecItem) obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem) obj).CallId = req.Header.CallId;
+                    ((RecordInfo.RecItem) obj).CSeq = -1;
+                        ((RecordInfo.RecItem) obj).ToTag = "";
+                    ((RecordInfo.RecItem) obj).FromTag = req.Header.From.FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -1301,9 +1305,9 @@ namespace LibGB28181SipServer
                                 : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             tmpSipDevice.SipChannelLayout.Port)));
 
-                req.Header.CallId = record.InviteSipRequest.Header.CallId;
-                req.Header.From = new SIPFromHeader(null, fromSipUri, record.InviteSipRequest.Header.From.FromTag);
-                req.Header.To = new SIPToHeader(null, toSipUri, record.InviteSipResponse.Header.To.ToTag);
+                req.Header.CallId = record.CallId;
+                req.Header.From = new SIPFromHeader(null, fromSipUri, record.FromTag);
+                req.Header.To = new SIPToHeader(null, toSipUri, record.ToTag);
                 req.Header.Contact = new List<SIPContactHeader>()
                 {
                     new SIPContactHeader(null, fromSipUri),
@@ -1311,7 +1315,7 @@ namespace LibGB28181SipServer
                 req.Header.Contact[0].ContactName = null;
                 req.Header.Allow = null;
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
-                req.Header.CSeq = record.InviteSipResponse.Header.CSeq + 1;
+                req.Header.CSeq = record.CSeq + 1;
                 var nrt = new NeedReturnTask(Common.NeedResponseRequests)
                 {
                     AutoResetEvent = evnt,

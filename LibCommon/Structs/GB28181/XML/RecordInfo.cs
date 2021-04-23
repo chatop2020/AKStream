@@ -173,6 +173,10 @@ namespace LibCommon.Structs.GB28181.XML
             private string _stream;
             private string _app;
             private string _vhost;
+            private string _fromTag;
+            private string _toTag;
+            private string _callId;
+            private int _cSeq;
 
             [XmlIgnore]
             /// <summary>
@@ -263,6 +267,30 @@ namespace LibCommon.Structs.GB28181.XML
                 set => _sipChannel = value;
             }
 
+
+            public string FromTag
+            {
+                get => _fromTag;
+                set => _fromTag = value ?? throw new ArgumentNullException(nameof(value));
+            }
+
+            public string ToTag
+            {
+                get => _toTag;
+                set => _toTag = value ?? throw new ArgumentNullException(nameof(value));
+            }
+
+            public string CallId
+            {
+                get => _callId;
+                set => _callId = value ?? throw new ArgumentNullException(nameof(value));
+            }
+
+            public int CSeq
+            {
+                get => _cSeq;
+                set => _cSeq = value;
+            }
 
             /// <summary>
             /// 推流状态

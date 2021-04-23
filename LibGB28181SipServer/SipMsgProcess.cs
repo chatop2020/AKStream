@@ -496,6 +496,7 @@ namespace LibGB28181SipServer
                                         item.SipDevice = tmpSipDevice1;
                                         item.SipChannel = sipChannel1;
                                         item.PushStatus = PushStatus.IDLE;
+                                       
                                         item.MediaServerStreamInfo = new MediaServerStreamInfo();
                                         record.RecItems.Add(item);
                                     }
@@ -997,6 +998,29 @@ namespace LibGB28181SipServer
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
             record.InviteSipResponse = sipResponse;
+            
+            var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
+            if (list != null && list.Count() > 0)
+            {
+                foreach (var obj in list)
+                {
+                    if (obj != null && obj.RecItems != null && obj.RecItems.Count > 0)
+                    {
+                        var o = obj.RecItems.FindLast(x =>
+                            x.Stream.Trim().ToLower().Equals(record.Stream.Trim().ToLower()));
+                        if (o != null)
+                        {
+                         
+                            o.InviteSipResponse = record.InviteSipResponse;
+                            o.CSeq = sipResponse.Header.CSeq;
+                            o.ToTag = sipResponse.Header.To.ToTag;
+                            GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
+                            break;
+
+                        }
+                    }
+                }
+            }
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
@@ -1089,6 +1113,7 @@ namespace LibGB28181SipServer
                                 else
                                 {
                                     var record = (RecordInfo.RecItem) _task.Obj;
+                                  
                                     await InviteOk(sipResponse, record);
                                     if (_task.TimeoutCheckTimer != null && _task.TimeoutCheckTimer.Enabled == true)
                                     {
