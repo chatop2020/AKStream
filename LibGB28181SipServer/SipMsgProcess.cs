@@ -1014,6 +1014,8 @@ namespace LibGB28181SipServer
                             o.InviteSipResponse = record.InviteSipResponse;
                             o.CSeq = sipResponse.Header.CSeq;
                             o.ToTag = sipResponse.Header.To.ToTag;
+                            o.CallId = record.CallId;
+                            o.FromTag = record.FromTag;
                             GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
                             break;
 
