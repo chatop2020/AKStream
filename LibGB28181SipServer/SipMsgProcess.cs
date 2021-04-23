@@ -242,8 +242,8 @@ namespace LibGB28181SipServer
                                 }
                             }
 
-                            if (tmpSipDevice.SipChannels.Count >= tatolNum || tatolNum > 256
-                            ) //当设备数量与设备总数相等或者设备数量很大，需要很长时间时通知外部获取成功
+                            if (tmpSipDevice.SipChannels.Count > 0
+                            ) //当正确收到过一次以后就返回成功
                             {
                                 var _taskTag = $"CATALOG:{tmpSipDevice.DeviceId}";
                                 var ret = Common.NeedResponseRequests.TryRemove(_taskTag,
@@ -441,7 +441,7 @@ namespace LibGB28181SipServer
 
                                 Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{tmpSipDevice1.DeviceId}->{sipChannel1.DeviceId}->录像结果总数为:{tatolNum}->当前已获取数量:{getCount}->包体:{JsonHelper.ToJson(recordInfo, Formatting.Indented)}");
-                                if (getCount >0) //成功得到过一次就返回成功
+                                if (getCount > 0) //成功得到过一次就返回成功
                                 {
                                     string _taskTag =
                                         $"RECORDINFO:{tmpSipDevice1.DeviceId}:{sipChannel1.DeviceId}:{sn}";
@@ -570,7 +570,7 @@ namespace LibGB28181SipServer
                         }
 
                         break;
-                    
+
                     case "MEDIASTATUS":
                         await SendOkMessage(sipRequest);
                         MediaStatus mediaStatus = UtilsHelper.XMLToObject<MediaStatus>(bodyXml);
