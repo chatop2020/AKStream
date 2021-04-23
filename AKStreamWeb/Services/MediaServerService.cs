@@ -86,29 +86,8 @@ namespace AKStreamWeb.Services
 
                 for (int i = 0; i <= videoList.Count - 1; i++)
                 {
-                    /*
-                    if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
-                    {
-                        continue;
-                    }
-                    
-                    DateTime startInDb;
-                    DateTime endInDb;
-                    if (!DateTime.TryParse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
-                        out startInDb))
-                    {
-                        continue;
-                    }
-                    if (!DateTime.TryParse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
-                        out endInDb))
-                    {
-                        continue;
-                    }*/
-
                     var startInDb = DateTime.Parse(((DateTime) videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
                     var endInDb = DateTime.Parse(((DateTime) videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
-
-
                     if (startPos < 0)
                     {
                         if (_start >= startInDb && _start <= endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
@@ -124,34 +103,7 @@ namespace AKStreamWeb.Services
                             endPos = i;
                         }
                     }
-
-
-                    /*
-                    long dbstart = UtilsHelper.ConvertDateTimeToLong(startInDb);
-                    long dbend = UtilsHelper.ConvertDateTimeToLong(endInDb);
-                    long querystart = UtilsHelper.ConvertDateTimeToLong(_start);
-                    long queryend = UtilsHelper.ConvertDateTimeToLong(_end);
-
-
-
-                    if (dbstart <= querystart && dbend >= queryend)
-                    {
-                        //包含了全部
-                        startPos = i;
-                        endPos = i;
-                    }
-                    else if (dbstart <= querystart && dbend < queryend)
-                    {
-                        startPos = i;
-                    }
-
-                    if (dbend >= queryend && startPos > -1 && endPos < 0)
-                    {
-                        endPos = i;
-                    }
-                    */
-
-
+                    
                     if (startPos > -1 && endPos > -1)
                     {
                         break;
@@ -162,84 +114,6 @@ namespace AKStreamWeb.Services
                 {
                     cutMegerList = videoList.GetRange(startPos, endPos - startPos + 1);
                 }
-
-                /*if (startPos < 0 && endPos >= 0) //如果开始没有找到，而结束找到了
-                {
-                    List<KeyValuePair<int, double>> tmpStartList = new List<KeyValuePair<int, double>>();
-                    for (int i = 0; i <= videoList.Count - 1; i++)
-                    {
-                        tmpStartList.Add(new KeyValuePair<int, double>(i,
-                            Math.Abs(((DateTime) videoList[i]!.StartTime!).Subtract(_start)
-                                .TotalMilliseconds))); //对所有视频做开始时间减需的开始时间，取绝对值
-                    }
-
-                    tmpStartList.Sort((left, right) => //对相减后的绝对值排序
-                    {
-                        if (left.Value > right.Value)
-                            return 1;
-                        else if ((int) left.Value == (int) right.Value)
-                            return 0;
-                        else
-                            return -1;
-                    });
-
-                    cutMegerList =
-                        videoList.GetRange(tmpStartList[0].Key, endPos - tmpStartList[0].Key + 1); //取离要求时间最近的那个视频为开始视频
-                    for (int i = cutMegerList.Count - 1; i >= 0; i--)
-                    {
-                        if (cutMegerList[i].StartTime > _end && cutMegerList[i].EndTime > _end
-                        ) //如果视频的开始时间大于要求的结束时间，并且不是最后一个视频，就过滤掉这个视频
-                        {
-                            if (i > 0)
-                            {
-                                cutMegerList[i] = null!;
-                            }
-                        }
-                    }
-
-                    UtilsHelper.RemoveNull(cutMegerList);
-                }
-               
-
-             
-                if (startPos >= 0 && endPos < 0) //开始视频找到了，结束视频没有找到
-                {
-                    List<KeyValuePair<int, double>> tmpEndList = new List<KeyValuePair<int, double>>();
-
-                    for (int i = 0; i <= videoList.Count - 1; i++)
-                    {
-                        tmpEndList.Add(new KeyValuePair<int, double>(i,
-                            Math.Abs(((DateTime) videoList[i]!.EndTime!).Subtract(_end)
-                                .TotalMilliseconds))); //上上面一样，取绝对值
-                    }
-
-                    tmpEndList.Sort((left, right) => //排序
-                    {
-                        if (left.Value > right.Value)
-                            return 1;
-                        else if ((int) left.Value == (int) right.Value)
-                            return 0;
-                        else
-                            return -1;
-                    });
-                    cutMegerList = videoList.GetRange(startPos, tmpEndList[0].Key - startPos + 1);
-                    for (int i = cutMegerList.Count - 1; i >= 0; i--)
-                    {
-                        if (cutMegerList[i].StartTime > _end && cutMegerList[i].EndTime > _end) //过滤
-                        {
-                            if (i > 0)
-                            {
-                                cutMegerList[i] = null!;
-                            }
-                        }
-                    }
-
-                    UtilsHelper.RemoveNull(cutMegerList);
-                }
-
-                if (startPos < 0 && endPos < 0) //如果开始也没找到，结束也没找到，那就报错
-                {
-                }*/
             }
 
             if (cutMegerList != null && cutMegerList.Count > 0) //取到了要合并文件的列表
