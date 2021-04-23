@@ -6,6 +6,7 @@ using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
+using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibGB28181SipServer;
@@ -46,9 +47,8 @@ namespace AKStreamWeb.Services
                 };
                 return null;
             }
-
         }
-        
+
         /// <summary>
         /// 获取sip设备的历史录制文件列表
         /// </summary>
@@ -81,7 +81,7 @@ namespace AKStreamWeb.Services
 
             SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
             var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
-            if (!rs.Code.Equals(ErrorNumber.None) || got <0)
+            if (!rs.Code.Equals(ErrorNumber.None) || got < 0)
             {
                 Logger.Warn(
                     $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
@@ -216,6 +216,103 @@ namespace AKStreamWeb.Services
         }
 
 
+
+        /// <summary>
+        /// 停止回放流
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        public static bool StopLiveVideo(RecordInfo.RecItem record, out ResponseStruct rs)
+        {
+             ServerInstance mediaServer;
+            VideoChannel videoChannel;
+            SipDevice sipDevice;
+            SipChannel sipChannel;
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            
+            var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
+                out videoChannel, out sipChannel,
+                out sipDevice);
+            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+            
+            VideoChannelMediaInfo mediaInfo = null;
+            
+            mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
+
+            if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
+            {
+                Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+
+                return true;
+            }
+
+
+            try
+            {
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                var retDeInvite = sipMethodProxy.DeInvite(record, out rs); //通知sip设备停止推流
+
+                ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
+                {
+                    App = mediaInfo.App,
+                    Force = true,
+                    Stream = mediaInfo.MediaServerStreamInfo.Stream,
+                    Vhost = mediaInfo.Vhost,
+                };
+                mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
+                if (videoChannel.DefaultRtpPort == false)
+                {
+                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                    {
+                        Stream_Id = record.Stream,
+                    };
+
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
+                    mediaServer.KeeperWebApi.ReleaseRtpPort(
+                        (ushort) mediaInfo.MediaServerStreamInfo.RptPort,
+                        out rs); //释放rtp端口
+                }
+
+
+                if (!rs.Code.Equals(ErrorNumber.None))
+                {
+                    Logger.Warn(
+                        $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                    return false;
+                }
+
+
+                Logger.Info($"[{Common.LoggerHead}]->停止Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{retDeInvite}");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Other,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace
+                };
+                throw new AkStreamException(rs);
+            }
+        }
         /// <summary>
         /// 停止GB28181设备推流
         /// </summary>
@@ -311,6 +408,383 @@ namespace AKStreamWeb.Services
             }
         }
 
+
+        /// <summary>
+        /// 请求回放流
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="rs"></param>
+        /// <param name="rtpPort"></param>
+        /// <returns></returns>
+        public static MediaServerStreamInfo LiveVideo(RecordInfo.RecItem record, out ResponseStruct rs,
+            ushort? rtpPort = 0)
+        {
+            ServerInstance mediaServer;
+            VideoChannel videoChannel;
+            SipDevice sipDevice;
+            SipChannel sipChannel;
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
+                out videoChannel, out sipChannel,
+                out sipDevice);
+            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                return null;
+            }
+
+            VideoChannelMediaInfo mediaInfo = null;
+            mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
+
+            if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
+            {
+                Logger.Info(
+                    $"[{Common.LoggerHead}]->请求Sip推回放流成功(此回放流本身就处于推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+
+                return mediaInfo.MediaServerStreamInfo;
+            }
+
+            ResMediaServerOpenRtpPort openRtpPort;
+            if (rtpPort == null || rtpPort == 0) //如果没指定rtp端口，就申请一个
+            {
+                if (videoChannel.DefaultRtpPort == false) //非使用固定端口，则申请
+                {
+                    try
+                    {
+                        openRtpPort =
+                            MediaServerService.MediaServerOpenRtpPort(mediaServer.MediaServerId, record.Stream,
+                                out rs);
+                        if (openRtpPort == null || !rs.Code.Equals(ErrorNumber.None))
+                        {
+                            Logger.Warn(
+                                $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                            return null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_OpenRtpPortExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_OpenRtpPortExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        Logger.Warn(
+                            $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                        return null;
+                    }
+                }
+                else
+                {
+                    //使用固定端口就读Config中的固定端口
+                    if (mediaServer.Config != null && mediaServer.Config.Data[0] != null)
+                    {
+                        openRtpPort = new ResMediaServerOpenRtpPort()
+                        {
+                            Port = (ushort) mediaServer.Config.Data[0].Rtp_Proxy_Port,
+                            Stream = record.Stream,
+                        };
+                    }
+                    else //如果Config为空，则默认使用10000
+                    {
+                        openRtpPort = new ResMediaServerOpenRtpPort()
+                        {
+                            Port = 10000,
+                            Stream = record.Stream,
+                        };
+                    }
+                }
+            }
+            else
+            {
+                openRtpPort = new ResMediaServerOpenRtpPort()
+                {
+                    Port = (ushort) rtpPort,
+                    Stream = record.Stream,
+                };
+            }
+
+            if (!openRtpPort.Stream.Trim().Equals(record.Stream))
+            {
+                if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
+                {
+                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                    {
+                        Stream_Id = openRtpPort.Stream,
+                    };
+
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                    mediaServer.KeeperWebApi.ReleaseRtpPort(
+                        openRtpPort.Port,
+                        out _); //释放rtp端口
+                }
+
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_VideoLiveExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_VideoLiveExcept] +
+                              ",Record.Stream!=OpenRtpPort.Stream",
+                };
+
+
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                return null;
+            }
+            PushMediaInfo pushMediaInfo = new PushMediaInfo();
+            pushMediaInfo.StreamPort = openRtpPort.Port;
+            pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            pushMediaInfo.PushStreamSocketType =
+                videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
+            try
+            {
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                var liveVideoRet = sipMethodProxy.InviteRecord(record, pushMediaInfo, out rs);
+                if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
+                {
+                    if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
+                    {
+                        ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                        {
+                            Stream_Id = record.Stream,
+                        };
+
+                        mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                        mediaServer.KeeperWebApi.ReleaseRtpPort(
+                            openRtpPort.Port,
+                            out _); //释放rtp端口
+                    }
+
+                    Logger.Warn($"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+
+                if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
+                {
+                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                    {
+                        Stream_Id = openRtpPort.Stream,
+                    };
+
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                    mediaServer.KeeperWebApi.ReleaseRtpPort(
+                        openRtpPort.Port,
+                        out _); //释放rtp端口
+                }
+
+                return null;
+            }
+            
+          /////////////////////////////////////////
+           var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
+            AutoResetEvent myWait = new AutoResetEvent(false);
+            taskWait.AutoResetEvent = myWait;
+            Common.WebHookNeedReturnTask.TryAdd($"WAITONPUBLISH_{record.Stream}",
+                taskWait);
+
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
+            if (!isTimeout)
+            {
+                try
+                {
+                    var mediaList =
+                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count > 0)
+                    {
+                        var media = mediaList.Data.FindLast(x => x.App.Equals(record.App) &&
+                                                                 x.Stream.Equals(record.Stream)
+                                                                 && x.Vhost.Equals(record.Vhost));
+                        if (media != null)
+                        {
+                            var tmp = new ReqZLMediaKitCloseStreams()
+                            {
+                                App = media.App,
+                                Force = true,
+                                Stream = videoChannel.MainId,
+                                Vhost = videoChannel.Vhost,
+                            };
+
+                            mediaServer.WebApiHelper.CloseStreams(tmp, out rs);
+                            SipMethodProxy sipMethodProxy =
+                                new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                            sipMethodProxy.DeInvite(record, out rs);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(
+                        $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+                }
+
+                if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
+                    mediaServer.RandomPort == false) //失败时要关掉rtpserver
+                {
+                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                    {
+                        Stream_Id = openRtpPort.Stream,
+                    };
+
+                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                    mediaServer.KeeperWebApi.ReleaseRtpPort(
+                        openRtpPort.Port,
+                        out _); //释放rtp端口
+                }
+
+              
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WaitWebHookTimeOut,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WaitWebHookTimeOut]
+                };
+                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+
+                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                    x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
+
+                return null;
+            }
+
+            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish) taskWait.OtherObj;
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
+                out WebHookNeedReturnTask task);
+            if (task != null)
+            {
+                task.Dispose();
+            }
+
+
+            var videoChannelMediaInfo = new VideoChannelMediaInfo();
+            videoChannelMediaInfo.App = record.App;
+            videoChannelMediaInfo.Enabled = videoChannel.Enabled;
+            videoChannelMediaInfo.Id = videoChannel.Id;
+            videoChannelMediaInfo.Vhost = record.Vhost;
+            videoChannelMediaInfo.AutoRecord = false;
+            videoChannelMediaInfo.AutoVideo = false;
+            videoChannelMediaInfo.ChannelId = videoChannel.ChannelId;
+            videoChannelMediaInfo.ChannelName = videoChannel.ChannelName;
+            videoChannelMediaInfo.CreateTime = videoChannel.CreateTime;
+            videoChannelMediaInfo.DepartmentId = videoChannel.DepartmentId;
+            videoChannelMediaInfo.DepartmentName = videoChannel.DepartmentName;
+            videoChannelMediaInfo.DeviceId = videoChannel.DeviceId;
+            videoChannelMediaInfo.HasPtz =false;
+            videoChannelMediaInfo.MainId = record.Stream;
+            videoChannelMediaInfo.UpdateTime = DateTime.Now;
+            videoChannelMediaInfo.DefaultRtpPort = videoChannel.DefaultRtpPort;
+            videoChannelMediaInfo.DeviceNetworkType = videoChannel.DeviceNetworkType;
+            videoChannelMediaInfo.DeviceStreamType = videoChannel.DeviceStreamType;
+            videoChannelMediaInfo.IpV4Address = videoChannel.IpV4Address;
+            videoChannelMediaInfo.IpV6Address = videoChannel.IpV6Address;
+            videoChannelMediaInfo.MediaServerId = videoChannel.MediaServerId;
+            videoChannelMediaInfo.NoPlayerBreak = videoChannel.NoPlayerBreak;
+            videoChannelMediaInfo.PDepartmentId = videoChannel.PDepartmentId;
+            videoChannelMediaInfo.PDepartmentName = videoChannel.PDepartmentName;
+            videoChannelMediaInfo.RtpWithTcp = videoChannel.RtpWithTcp;
+            videoChannelMediaInfo.VideoDeviceType = videoChannel.VideoDeviceType;
+            videoChannelMediaInfo.VideoSrcUrl = videoChannel.VideoSrcUrl;
+            videoChannelMediaInfo.MethodByGetStream = videoChannel.MethodByGetStream;
+            videoChannelMediaInfo.MediaServerStreamInfo = new MediaServerStreamInfo();
+            videoChannelMediaInfo.MediaServerStreamInfo.App = onPublishWebhook.App;
+            videoChannelMediaInfo.MediaServerStreamInfo.Ssrc = uint.Parse(record.SsrcId);
+            videoChannelMediaInfo.MediaServerStreamInfo.Stream = onPublishWebhook.Stream;
+            videoChannelMediaInfo.MediaServerStreamInfo.Vhost = onPublishWebhook.Vhost;
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
+            videoChannelMediaInfo.MediaServerStreamInfo.StartTime = DateTime.Now;
+            videoChannelMediaInfo.MediaServerStreamInfo.RptPort = openRtpPort.Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort) onPublishWebhook.Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.MediaServerId = onPublishWebhook.MediaServerId;
+            videoChannelMediaInfo.MediaServerStreamInfo.MediaServerIp = mediaServer.IpV4Address;
+            videoChannelMediaInfo.MediaServerStreamInfo.PushSocketType = pushMediaInfo.PushStreamSocketType;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamIp = onPublishWebhook.Ip;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamTcpId =
+                videoChannel.RtpWithTcp == true ? onPublishWebhook.Id : null;
+            videoChannelMediaInfo.MediaServerStreamInfo.Params = onPublishWebhook.Params;
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl = new List<string>();
+            string exInfo =
+                (!string.IsNullOrEmpty(onPublishWebhook.Vhost) &&
+                 !onPublishWebhook.Vhost.Trim().ToLower().Equals("__defaultvhost__"))
+                    ? $"?vhost={onPublishWebhook.Vhost}"
+                    : "";
+            if (mediaServer.UseSsl)
+            {
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"rtsps://{mediaServer.IpV4Address}:{mediaServer.RtspsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"rtmps://{mediaServer.IpV4Address}:{mediaServer.RtmpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}/hls.m3u8{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.ts{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.ts{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
+                videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
+            }
+
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"rtsp://{mediaServer.IpV4Address}:{mediaServer.RtspPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"rtmp://{mediaServer.IpV4Address}:{mediaServer.RtmpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}/hls.m3u8{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.ts{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.ts{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
+            videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
+                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.live.mp4{exInfo}");
+
+
+            GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
+            GCommon.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
+
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->请求Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+
+            return videoChannelMediaInfo.MediaServerStreamInfo;
+          ///////////////////////////////////////// 
+            
+        }
 
         /// <summary>
         /// 请求GB28181直播流
@@ -514,7 +988,7 @@ namespace AKStreamWeb.Services
                 try
                 {
                     var mediaList =
-                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out  rs);
+                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
                     if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
@@ -530,7 +1004,7 @@ namespace AKStreamWeb.Services
                                 Vhost = videoChannel.Vhost,
                             };
 
-                            mediaServer.WebApiHelper.CloseStreams(tmp, out  rs);
+                            mediaServer.WebApiHelper.CloseStreams(tmp, out rs);
                             SipMethodProxy sipMethodProxy =
                                 new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
                             sipMethodProxy.DeInvite(sipChannel, out rs);
@@ -539,7 +1013,8 @@ namespace AKStreamWeb.Services
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                    Logger.Error(
+                        $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
                 }
 
                 if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&

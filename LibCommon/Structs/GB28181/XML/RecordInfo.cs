@@ -171,6 +171,8 @@ namespace LibCommon.Structs.GB28181.XML
             private PushStatus _pushStatus;
             private string _ssrcId;
             private string _stream;
+            private string _app;
+            private string _vhost;
 
             [XmlIgnore]
             /// <summary>
@@ -195,6 +197,18 @@ namespace LibCommon.Structs.GB28181.XML
             {
                 get => _stream;
                 set => _stream = value ?? throw new ArgumentNullException(nameof(value));
+            }
+            [XmlIgnore]
+            public string App
+            {
+                get => _app;
+                set => _app = value ?? throw new ArgumentNullException(nameof(value));
+            }
+            [XmlIgnore]
+            public string Vhost
+            {
+                get => _vhost;
+                set => _vhost = value ?? throw new ArgumentNullException(nameof(value));
             }
 
             /// <summary>

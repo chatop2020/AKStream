@@ -491,6 +491,8 @@ namespace LibGB28181SipServer
                                         string itemId = new string(tmpChars);
                                         item.SsrcId = itemId; //ssrc的值
                                         item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                        item.App = "record";
+                                        item.Vhost = "__defaultVhost__";
                                         item.SipDevice = tmpSipDevice1;
                                         item.SipChannel = sipChannel1;
                                         item.PushStatus = PushStatus.IDLE;
@@ -517,6 +519,8 @@ namespace LibGB28181SipServer
                                             string itemId = new string(tmpChars);
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                            item.App = "record";
+                                            item.Vhost = "__defaultVhost__";
                                             item.SipDevice = tmpSipDevice1;
                                             item.SipChannel = sipChannel1;
                                             item.PushStatus = PushStatus.IDLE;
@@ -550,6 +554,8 @@ namespace LibGB28181SipServer
                                             string itemId = new string(tmpChars);
                                             item.SsrcId = itemId; //ssrc的值
                                             item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                                            item.App = "record";
+                                            item.Vhost = "__defaultVhost__";
                                             item.SipDevice = tmpSipDevice1;
                                             item.SipChannel = sipChannel1;
                                             item.PushStatus = PushStatus.IDLE;

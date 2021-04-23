@@ -19,6 +19,52 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
+        
+        /// <summary>
+        /// 终止回放流
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("HistroyStopVideo")]
+        [HttpPost]
+        public bool HistroyStopVideo(
+            [FromHeader(Name = "AccessKey")] string AccessKey, RecordInfo.RecItem record)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.StopLiveVideo(record, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+        
+        /// <summary>
+        /// 请求回放流
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("HistroyVideo")]
+        [HttpPost]
+        public MediaServerStreamInfo HistroyVideo(
+            [FromHeader(Name = "AccessKey")] string AccessKey, RecordInfo.RecItem record)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.LiveVideo(record, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
        
         /// <summary>
         /// 获取回放文件列表状态
