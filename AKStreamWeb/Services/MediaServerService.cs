@@ -61,23 +61,77 @@ namespace AKStreamWeb.Services
             List<RecordFile> cutMegerList = new List<RecordFile>();
             if (videoList != null && videoList.Count > 0)
             {
+                for (int i = videoList.Count - 1; i >= 0; i--)
+                {
+                    if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
+                    {
+                        videoList[i] = null;
+                    }
+
+                    if (!DateTime.TryParse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                        out _))
+                    {
+                        videoList[i] = null;
+                    }
+
+                    if (!DateTime.TryParse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                        out _))
+                    {
+                        videoList[i] = null;
+                    }
+                }
+
+                UtilsHelper.RemoveNull(videoList);
+
+
                 for (int i = 0; i <= videoList.Count - 1; i++)
                 {
+                    /*
                     if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
                     {
                         continue;
                     }
+                    
+                    DateTime startInDb;
+                    DateTime endInDb;
+                    if (!DateTime.TryParse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                        out startInDb))
+                    {
+                        continue;
+                    }
+                    if (!DateTime.TryParse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                        out endInDb))
+                    {
+                        continue;
+                    }*/
 
-                    DateTime startInDb =
-                        DateTime.Parse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                    DateTime endInDb =
-                        DateTime.Parse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                    var startInDb = DateTime.Parse(((DateTime) videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
+                    var endInDb = DateTime.Parse(((DateTime) videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
 
 
+                    if (startPos < 0)
+                    {
+                        if (_start >= startInDb && _start <= endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
+                        {
+                            startPos = i;
+                        }
+                    }
+
+                    if (endPos < 0)
+                    {
+                        if (_end <= endInDb && _end >= startInDb) //如果_end小于等于视频结束时间，同时_end又大于等于视频开始时间，那么肯定就是结束位置 
+                        {
+                            endPos = i;
+                        }
+                    }
+
+
+                    /*
                     long dbstart = UtilsHelper.ConvertDateTimeToLong(startInDb);
                     long dbend = UtilsHelper.ConvertDateTimeToLong(endInDb);
                     long querystart = UtilsHelper.ConvertDateTimeToLong(_start);
                     long queryend = UtilsHelper.ConvertDateTimeToLong(_end);
+
 
 
                     if (dbstart <= querystart && dbend >= queryend)
@@ -95,6 +149,7 @@ namespace AKStreamWeb.Services
                     {
                         endPos = i;
                     }
+                    */
 
 
                     if (startPos > -1 && endPos > -1)
@@ -108,7 +163,7 @@ namespace AKStreamWeb.Services
                     cutMegerList = videoList.GetRange(startPos, endPos - startPos + 1);
                 }
 
-                if (startPos < 0 && endPos >= 0) //如果开始没有找到，而结束找到了
+                /*if (startPos < 0 && endPos >= 0) //如果开始没有找到，而结束找到了
                 {
                     List<KeyValuePair<int, double>> tmpStartList = new List<KeyValuePair<int, double>>();
                     for (int i = 0; i <= videoList.Count - 1; i++)
@@ -144,7 +199,9 @@ namespace AKStreamWeb.Services
 
                     UtilsHelper.RemoveNull(cutMegerList);
                 }
+               
 
+             
                 if (startPos >= 0 && endPos < 0) //开始视频找到了，结束视频没有找到
                 {
                     List<KeyValuePair<int, double>> tmpEndList = new List<KeyValuePair<int, double>>();
@@ -182,7 +239,7 @@ namespace AKStreamWeb.Services
 
                 if (startPos < 0 && endPos < 0) //如果开始也没找到，结束也没找到，那就报错
                 {
-                }
+                }*/
             }
 
             if (cutMegerList != null && cutMegerList.Count > 0) //取到了要合并文件的列表
@@ -668,8 +725,8 @@ namespace AKStreamWeb.Services
                 if (!isPageQuery)
                 {
                     retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId) &&
-                                                                   x.IpV4Address.Equals(req.VideoChannelIp)
-                                                                   && x.MainId.Equals(req.MainId)).ToList();
+                                                                    x.IpV4Address.Equals(req.VideoChannelIp)
+                                                                    && x.MainId.Equals(req.MainId)).ToList();
                     count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                    x.IpV4Address.Equals(req.VideoChannelIp)
                                                                    && x.MainId.Equals(req.MainId));
@@ -692,14 +749,14 @@ namespace AKStreamWeb.Services
                 if (!isPageQuery)
                 {
                     retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                   && x.MainId.Equals(req.MainId)).ToList();
+                                                                    && x.MainId.Equals(req.MainId)).ToList();
                     count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                    && x.MainId.Equals(req.MainId));
                 }
                 else
                 {
                     retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                   && x.MainId.Equals(req.MainId)).ToList()
+                                                                    && x.MainId.Equals(req.MainId)).ToList()
                         .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                         .Take((int) req.PageSize).ToList();
                     count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
@@ -732,15 +789,15 @@ namespace AKStreamWeb.Services
                 if (!isPageQuery)
                 {
                     retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                   && x.IpV4Address.Equals(req.VideoChannelIp)
+                                                                    && x.IpV4Address.Equals(req.VideoChannelIp)
                     ).ToList();
                     count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                    && x.IpV4Address.Equals(req.VideoChannelIp));
                 }
                 else
                 {
-                    retList =  GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                     && x.IpV4Address.Equals(req.VideoChannelIp)
+                    retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
+                                                                    && x.IpV4Address.Equals(req.VideoChannelIp)
                         ).ToList()
                         .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                         .Take((int) req.PageSize).ToList();
@@ -1393,8 +1450,8 @@ namespace AKStreamWeb.Services
 
 
             var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(videoChannelMediaInfo.MainId)
-                                                                 && x.MediaServerId.Equals(videoChannelMediaInfo
-                                                                     .MediaServerId));
+                                                                  && x.MediaServerId.Equals(videoChannelMediaInfo
+                                                                      .MediaServerId));
             bool recorded = false;
             if (retobj != null)
             {
@@ -1731,7 +1788,7 @@ namespace AKStreamWeb.Services
             }
 
             var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MediaServerId.Equals(videoChannel.MediaServerId)
-                                                                 && x.MainId.Equals(videoChannel.MainId));
+                                                                  && x.MainId.Equals(videoChannel.MainId));
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
                 retobj.MediaServerStreamInfo.IsRecorded = false;
@@ -1819,7 +1876,7 @@ namespace AKStreamWeb.Services
             Logger.Info($"[{Common.LoggerHead}]->请求录制文件成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret)}");
 
             var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MediaServerId.Equals(videoChannel.MediaServerId)
-                                                                 && x.MainId.Equals(videoChannel.MainId));
+                                                                  && x.MainId.Equals(videoChannel.MainId));
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
                 retobj.MediaServerStreamInfo.IsRecorded = true;
