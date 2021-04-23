@@ -282,6 +282,8 @@ namespace AKStreamWeb.Services
             try
             {
                 SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                record.SipDevice = sipDevice;
+                record.SipChannel = sipChannel;
                 var retDeInvite = sipMethodProxy.DeInvite(record, out rs); //通知sip设备停止推流
 
                 ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
@@ -586,6 +588,8 @@ namespace AKStreamWeb.Services
             try
             {
                 SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                record.SipDevice = sipDevice;
+                record.SipChannel = sipChannel;
                 var liveVideoRet = sipMethodProxy.InviteRecord(record, pushMediaInfo, out rs);
                 if (!rs.Code.Equals(ErrorNumber.None) || liveVideoRet == false)
                 {
@@ -647,7 +651,7 @@ namespace AKStreamWeb.Services
                 {
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count > 0)
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data !=null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(record.App) &&
                                                                  x.Stream.Equals(record.Stream)
@@ -1024,7 +1028,7 @@ namespace AKStreamWeb.Services
                 {
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count > 0)
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data!=null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
                                                                  x.Stream.Equals(videoChannel.MainId)
