@@ -30,10 +30,10 @@ namespace AKStreamWeb.Controllers
         [Route("HistroyStopVideo")]
         [HttpPost]
         public bool HistroyStopVideo(
-            [FromHeader(Name = "AccessKey")] string AccessKey, RecordInfo.RecItem record)
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
         {
             ResponseStruct rs;
-            var ret = SipServerService.StopLiveVideo(record, out rs);
+            var ret = SipServerService.StopLiveVideo(taskId,ssrcId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);
@@ -53,10 +53,10 @@ namespace AKStreamWeb.Controllers
         [Route("HistroyVideo")]
         [HttpPost]
         public MediaServerStreamInfo HistroyVideo(
-            [FromHeader(Name = "AccessKey")] string AccessKey, RecordInfo.RecItem record)
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
         {
             ResponseStruct rs;
-            var ret = SipServerService.LiveVideo(record, out rs);
+            var ret = SipServerService.LiveVideo(taskId,ssrcId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);

@@ -224,17 +224,35 @@ namespace AKStreamWeb.Services
         /// <param name="rs"></param>
         /// <returns></returns>
         /// <exception cref="AkStreamException"></exception>
-        public static bool StopLiveVideo(RecordInfo.RecItem record, out ResponseStruct rs)
+        public static bool StopLiveVideo(int taskId,string ssrcId, out ResponseStruct rs)
         {
              ServerInstance mediaServer;
             VideoChannel videoChannel;
             SipDevice sipDevice;
             SipChannel sipChannel;
+            RecordInfo.RecItem record=null;
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
+
+            var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            if (col != null && col.RecItems != null && col.RecItems.Count > 0)
+            {
+                record = col.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
+            }
+
+            if (record == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DB_RecordNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
+                };
+                return false;
+
+            }
             
             var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
                 out videoChannel, out sipChannel,
@@ -416,18 +434,35 @@ namespace AKStreamWeb.Services
         /// <param name="rs"></param>
         /// <param name="rtpPort"></param>
         /// <returns></returns>
-        public static MediaServerStreamInfo LiveVideo(RecordInfo.RecItem record, out ResponseStruct rs,
+        public static MediaServerStreamInfo LiveVideo(int taskId,string ssrcId, out ResponseStruct rs,
             ushort? rtpPort = 0)
         {
             ServerInstance mediaServer;
             VideoChannel videoChannel;
             SipDevice sipDevice;
             SipChannel sipChannel;
+            RecordInfo.RecItem record = null;
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
+            var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            if (col != null && col.RecItems != null && col.RecItems.Count > 0)
+            {
+                record = col.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
+            }
+
+            if (record == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DB_RecordNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
+                };
+                return null;
+            }
+            
             var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
                 out videoChannel, out sipChannel,
                 out sipDevice);
