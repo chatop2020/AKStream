@@ -1,3 +1,4 @@
+using System.Net;
 using LibCommon.Structs;
 using LiteDB;
 
@@ -30,6 +31,11 @@ namespace LibCommon
             VideoChannelRecordInfo =
                 (LiteCollection<VideoChannelRecordInfo>) _liteDb.GetCollection<VideoChannelRecordInfo>(
                     "VideoRecordInfo");
+            BsonMapper.Global.RegisterType<IPAddress>
+            (
+                serialize: (ip) => ip.ToString(),
+                deserialize: (bson) =>IPAddress.Parse(bson.AsString)
+            );
             
         }
     }
