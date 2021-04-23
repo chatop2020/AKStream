@@ -28,7 +28,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         /// <exception cref="AkStreamException"></exception>
         [Route("HistroyStopVideo")]
-        [HttpPost]
+        [HttpGet]
         public bool HistroyStopVideo(
             [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
         {
@@ -51,7 +51,7 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         /// <exception cref="AkStreamException"></exception>
         [Route("HistroyVideo")]
-        [HttpPost]
+        [HttpGet]
         public MediaServerStreamInfo HistroyVideo(
             [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
         {
