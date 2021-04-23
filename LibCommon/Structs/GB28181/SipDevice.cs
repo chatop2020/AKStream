@@ -38,7 +38,9 @@ namespace LibCommon.Structs.GB28181
         /// <summary>
         /// 对sip通道操作时的锁
         /// </summary>
-        [JsonIgnore] public object SipChannelOptLock = new object();
+        [JsonIgnore] 
+        [LiteDB.BsonIgnore]
+        public object SipChannelOptLock = new object();
 
         public void Dispose()
         {
@@ -191,6 +193,7 @@ namespace LibCommon.Structs.GB28181
         /// </summary>
 
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPRequest? LastSipRequest
         {
             get => _lastSipRequest;
@@ -201,6 +204,7 @@ namespace LibCommon.Structs.GB28181
         /// 最后一次sipresponse
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPResponse? LastSipResponse
         {
             get => _lastSipResponse;
@@ -212,6 +216,7 @@ namespace LibCommon.Structs.GB28181
         /// 注册时候的uri
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPURI? ContactUri
         {
             get => _contactUri;
@@ -223,6 +228,7 @@ namespace LibCommon.Structs.GB28181
         /// 设备所在的Sip通道实例
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SIPChannel? SipChannelLayout
         {
             get => _sipChannelLayout;
@@ -233,6 +239,7 @@ namespace LibCommon.Structs.GB28181
         /// sip服务器的配置类
         /// </summary>
         [JsonIgnore]
+        [LiteDB.BsonIgnore]
         public SipServerConfig SipServerConfig
         {
             get => _sipServerConfig;
