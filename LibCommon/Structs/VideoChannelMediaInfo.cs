@@ -1,4 +1,5 @@
 using System;
+using LibCommon.Enums;
 using LibCommon.Structs.DBModels;
 
 namespace LibCommon.Structs
@@ -10,12 +11,21 @@ namespace LibCommon.Structs
     public class VideoChannelMediaInfo : VideoChannel
     {
         private MediaServerStreamInfo? _mediaServerStreamInfo;
-        
+        private StreamSourceType? _streamSourceType;
 
         public MediaServerStreamInfo? MediaServerStreamInfo
         {
             get => _mediaServerStreamInfo;
             set => _mediaServerStreamInfo = value;
+        }
+
+        /// <summary>
+        /// 流来源类型
+        /// </summary>
+        public StreamSourceType? StreamSourceType
+        {
+            get => _streamSourceType;
+            set => _streamSourceType = value;
         }
     }
 }

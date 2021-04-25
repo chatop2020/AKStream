@@ -722,6 +722,7 @@ namespace AKStreamWeb.Services
 
 
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
+            videoChannelMediaInfo.StreamSourceType = StreamSourceType.PlayBack;
             videoChannelMediaInfo.App = record.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
             videoChannelMediaInfo.Vhost = record.Vhost;
@@ -1106,6 +1107,7 @@ namespace AKStreamWeb.Services
 
 
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
+            videoChannelMediaInfo.StreamSourceType = StreamSourceType.Live;
             videoChannelMediaInfo.App = videoChannel.App;
             videoChannelMediaInfo.Enabled = videoChannel.Enabled;
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;

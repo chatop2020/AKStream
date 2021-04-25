@@ -1,4 +1,5 @@
 using System;
+using LibCommon.Enums;
 
 namespace LibCommon.Structs.WebRequest
 {
@@ -11,6 +12,7 @@ namespace LibCommon.Structs.WebRequest
         private string? _mediaServerId;
         private string? _mainId;
         private string? _videoChannelIp;
+        private StreamSourceType? _streamSourceType;
 
         public string? MediaServerId
         {
@@ -29,6 +31,15 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _videoChannelIp;
             set => _videoChannelIp = value;
+        }
+
+        /// <summary>
+        /// 流的来源类型，直播/回放
+        /// </summary>
+        public StreamSourceType? StreamSourceType
+        {
+            get => _streamSourceType;
+            set => _streamSourceType = value;
         }
     }
 }
