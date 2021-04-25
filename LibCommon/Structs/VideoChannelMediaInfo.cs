@@ -1,6 +1,8 @@
 using System;
 using LibCommon.Enums;
 using LibCommon.Structs.DBModels;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LibCommon.Structs
 {
@@ -22,6 +24,7 @@ namespace LibCommon.Structs
         /// <summary>
         /// 流来源类型
         /// </summary>
+       [JsonConverter(typeof(StringEnumConverter))]
         public StreamSourceType? StreamSourceType
         {
             get => _streamSourceType;
