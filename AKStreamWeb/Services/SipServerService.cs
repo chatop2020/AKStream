@@ -278,6 +278,10 @@ namespace AKStreamWeb.Services
                 return true;
             }
 
+            
+            GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+
 
             try
             {
