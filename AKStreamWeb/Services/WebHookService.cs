@@ -6,6 +6,7 @@ using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
+using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibLogger;
@@ -20,11 +21,11 @@ namespace AKStreamWeb.Services
     {
 
         /// <summary>
-        /// 判断是否为回放流
+        /// 判断是否为回放流,如果找到返回obj信息
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        private static bool isRecordStream(string stream)
+        private static bool isRecordStream(string stream, out VideoChannelRecordInfo outobj)
         {
             var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
             if (list != null && list.Count() > 0)
@@ -36,13 +37,18 @@ namespace AKStreamWeb.Services
                         var o = obj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(stream.Trim().ToLower()));
                         if (o != null)
                         {
+                            outobj = obj;
                             return true;
                         }
                     }
                 }
             }
+
+            outobj = null;
             return false;
         }
+
+       
         public static ResToWebHookOnRecordMP4 OnRecordMp4(ReqForWebHookOnRecordMP4 req)
         {
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRecordMp4回调->{JsonHelper.ToJson(req)}");
@@ -190,7 +196,7 @@ namespace AKStreamWeb.Services
             }
             else if (req.Player == false)
             {
-                if (!isRecordStream(req.Stream))
+                if (!isRecordStream(req.Stream,out _))
                 {
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -236,10 +242,11 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnStreamNoneReader OnStreamNoneReader(ReqForWebHookOnStreamNoneReader req)
         {
-            if (!isRecordStream(req.Stream))
+            VideoChannelRecordInfo outobj = null;
+            var b = !isRecordStream(req.Stream, out outobj);
+            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
+            if (!b)
             {
-                Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
-
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
                 if (videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true) //或者要求没有人观看时自动断流的，就断流
@@ -257,6 +264,38 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
+            else
+            {
+               
+                if (outobj != null)
+                {
+                    var record =
+                        outobj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(req.Stream.Trim().ToLower()));
+                    if (record != null)
+                    {
+                        var ret = SipServerService.StopLiveVideo(outobj.TaskId, record.SsrcId,out ResponseStruct rs);
+                        if (rs.Code == ErrorNumber.None)
+                        {
+                            if (ret)
+                            {
+                                Logger.Info($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流成功");
+  
+                            }
+                            else
+                            {
+                                Logger.Warn($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流失败");
+                            }
+                        }
+                        else
+                        {
+                            Logger.Error($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流时出现异常->{JsonHelper.ToJson(rs)}");
+ 
+                        }
+                      
+                    }
+                }
+              
+            }
 
             return new ResToWebHookOnStreamNoneReader()
             {
@@ -273,7 +312,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnStreamChange OnStreamChanged(ReqForWebHookOnStreamChange req)
         {
-            if (req.Schema.Trim().ToLower().Equals("rtmp") && !isRecordStream(req.Stream))
+            if (req.Schema.Trim().ToLower().Equals("rtmp") && !isRecordStream(req.Stream,out _))
             {
                 if (req.Regist == true)
                 {
@@ -380,7 +419,7 @@ namespace AKStreamWeb.Services
                         x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
                 }
             }
-            else if(req.Schema.Trim().ToLower().Equals("rtmp") && isRecordStream(req.Stream))
+            else if(req.Schema.Trim().ToLower().Equals("rtmp") && isRecordStream(req.Stream,out _))
             {
                 if (req.Regist == false)
                 {
@@ -409,7 +448,7 @@ namespace AKStreamWeb.Services
             
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPlay回调->{JsonHelper.ToJson(req)}");
 
-            if (!isRecordStream(req.Stream))
+            if (!isRecordStream(req.Stream,out _))
             {
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -499,7 +538,7 @@ namespace AKStreamWeb.Services
 
             VideoChannel videoChannel = null;
 
-            if (!isRecordStream(req.Stream))
+            if (!isRecordStream(req.Stream,out _))
             {
                 videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .First();
@@ -528,7 +567,7 @@ namespace AKStreamWeb.Services
 
 
             if ((videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181) ||
-                (isRecordStream(req.Stream)))
+                (isRecordStream(req.Stream,out _)))
             {
                 var taskStr = $"WAITONPUBLISH_{req.Stream}";
                 WebHookNeedReturnTask webHookNeedReturnTask;
