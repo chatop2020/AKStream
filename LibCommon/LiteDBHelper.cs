@@ -1,4 +1,6 @@
+using System;
 using System.Net;
+using LibCommon.Enums;
 using LibCommon.Structs;
 using LiteDB;
 
@@ -34,9 +36,13 @@ namespace LibCommon
             BsonMapper.Global.RegisterType<IPAddress>
             (
                 serialize: (ip) => ip.ToString(),
-                deserialize: (bson) =>IPAddress.Parse(bson.AsString)
+                deserialize: (bson) => IPAddress.Parse(bson.AsString)
             );
-            
+            BsonMapper.Global.RegisterType<StreamSourceType>
+            (
+                serialize: (type) => type.ToString(),
+                deserialize: (bson) => (StreamSourceType) Enum.Parse(typeof(StreamSourceType), bson)
+            );
         }
     }
 }
