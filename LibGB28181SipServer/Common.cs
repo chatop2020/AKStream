@@ -20,6 +20,7 @@ namespace LibGB28181SipServer
         private static string _sipServerConfigPath = GCommon.ConfigPath + "SipServerConfig.json";
         private static List<SipDevice> _sipDevices = new List<SipDevice>();
         private static ConcurrentQueue<Catalog> _tmpCatalogs = new ConcurrentQueue<Catalog>();
+        private static ConcurrentQueue<RecordInfoEx> _tmpRecItems = new ConcurrentQueue<RecordInfoEx>();
 
         /// <summary>
         /// 用于操作_sipDevices时的锁
@@ -88,6 +89,15 @@ namespace LibGB28181SipServer
         {
             get => _tmpCatalogs;
             set => _tmpCatalogs = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>
+        /// 收到历史文件目录时先缓存在这里
+        /// </summary>
+        public static ConcurrentQueue<RecordInfoEx> TmpRecItems
+        {
+            get => _tmpRecItems;
+            set => _tmpRecItems = value ?? throw new ArgumentNullException(nameof(value));
         }
 
 

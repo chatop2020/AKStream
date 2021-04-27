@@ -143,6 +143,107 @@ namespace LibGB28181SipServer
 
 
         /// <summary>
+        /// 插入历史记录到数据库
+        /// </summary>
+        /// <param name="tmpRecItem"></param>
+        private static void InsertRecordItems(RecordInfoEx tmpRecItem)
+        {
+            var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
+            if (obj != null)
+            {
+                //已经存在
+                foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
+                {
+                    var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                              item.EndTime +
+                              item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                              tmpRecItem.DeviceId + tmpRecItem.Sn;
+                    var crc32 = CRC32Helper.GetCRC32(tag);
+                    var crc32Str = crc32.ToString().PadLeft(10, '0');
+                    char[] tmpChars = crc32Str.ToCharArray();
+                    tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                    string itemId = new string(tmpChars);
+                    item.SsrcId = itemId; //ssrc的值
+                    item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                    item.App = "rtp";
+                    item.Vhost = "__defaultVhost__";
+                    item.SipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpRecItem.DeviceId));
+                    item.SipChannel =
+                        item.SipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(tmpRecItem.ChannelId));
+                    item.PushStatus = PushStatus.IDLE;
+                    item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                    obj.RecItems.Add(item);
+                }
+
+                GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
+            }
+            else
+            {
+                //第一次
+                var record = new VideoChannelRecordInfo();
+                record.TatolCount = tmpRecItem.TatolNum;
+                record.Expires = DateTime.Now.AddHours(24);
+                record.TaskId = tmpRecItem.Sn;
+                if (record.RecItems == null)
+                {
+                    record.RecItems = new List<RecordInfo.RecItem>();
+                }
+
+                foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
+                {
+                    var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                              item.EndTime +
+                              item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                              tmpRecItem.DeviceId + tmpRecItem.Sn;
+                    var crc32 = CRC32Helper.GetCRC32(tag);
+                    var crc32Str = crc32.ToString().PadLeft(10, '0');
+                    char[] tmpChars = crc32Str.ToCharArray();
+                    tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                    string itemId = new string(tmpChars);
+                    item.SsrcId = itemId; //ssrc的值
+                    item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                    item.App = "rtp";
+                    item.Vhost = "__defaultVhost__";
+                    item.SipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpRecItem.DeviceId));
+                    item.SipChannel =
+                        item.SipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(tmpRecItem.ChannelId));
+                    item.PushStatus = PushStatus.IDLE;
+                    item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                    record.RecItems.Add(item);
+                }
+
+                GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
+            }
+        }
+
+        public static void ProcessRecordInfoThread()
+        {
+            while (true)
+            {
+                while (!Common.TmpRecItems.IsEmpty)
+                {
+                    var ret = Common.TmpRecItems.TryDequeue(out RecordInfoEx recordInfo);
+                    if (ret && recordInfo != null)
+                    {
+                        try
+                        {
+                            InsertRecordItems(recordInfo);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(
+                                $"[{Common.LoggerHead}]->插入历史回放文件信息时发生异常->{ex.Message}\r\n{ex.StackTrace}");
+                        }
+                    }
+
+                    Thread.Sleep(10);
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
+        /// <summary>
         /// 线程处理队列中的设备目录
         /// </summary>
         public static void ProcessCatalogThread()
@@ -420,7 +521,50 @@ namespace LibGB28181SipServer
                         break;
                     case "RECORDINFO":
                         await SendOkMessage(sipRequest);
-                        string tmpSipDevId = sipRequest.Header.From.FromURI.User;
+                        var recObj = new RecordInfoEx();
+                        recObj.RecordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
+                        if (recObj.RecordInfo != null)
+                        {
+                            recObj.DeviceId = sipRequest.Header.From.FromURI.User;
+                            recObj.Sn = recObj.RecordInfo.SN;
+                            recObj.TatolNum = recObj.RecordInfo.SumNum;
+                            var tmpDev = Common.SipDevices.FindLast(x => x.DeviceId.Equals(recObj.DeviceId));
+                            if (tmpDev != null && tmpDev.SipChannels != null && tmpDev.SipChannels.Count > 0)
+                            {
+                                var tmpChannel =
+                                    tmpDev.SipChannels.FindLast(x => x.DeviceId.Equals(recObj.RecordInfo.DeviceID));
+                                if (tmpChannel != null)
+                                {
+                                    recObj.ChannelId = tmpChannel.DeviceId;
+                                    Common.TmpRecItems.Enqueue(recObj);
+                                    string _taskTag =
+                                        $"RECORDINFO:{recObj.DeviceId}:{recObj.ChannelId}:{recObj.Sn}";
+                                    var ret = Common.NeedResponseRequests.TryRemove(_taskTag, out NeedReturnTask _task);
+                                    if (ret && _task != null && _task.AutoResetEvent2 != null)
+                                    {
+                                        try
+                                        {
+                                            _task.AutoResetEvent2.Set();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            ResponseStruct exrs = new ResponseStruct()
+                                            {
+                                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                                ExceptMessage = ex.Message,
+                                                ExceptStackTrace = ex.StackTrace
+                                            };
+                                            Logger.Warn(
+                                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+                        /*string tmpSipDevId = sipRequest.Header.From.FromURI.User;
                         var recordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
                         int tatolNum = recordInfo.SumNum;
                         int sn = recordInfo.SN;
@@ -568,7 +712,7 @@ namespace LibGB28181SipServer
                                     }
                                 }
                             }
-                        }
+                        }*/
 
                         break;
 
@@ -998,7 +1142,7 @@ namespace LibGB28181SipServer
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
             record.InviteSipResponse = sipResponse;
-            
+
             var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
             if (list != null && list.Count() > 0)
             {
@@ -1010,7 +1154,6 @@ namespace LibGB28181SipServer
                             x.Stream.Trim().ToLower().Equals(record.Stream.Trim().ToLower()));
                         if (o != null)
                         {
-                         
                             o.InviteSipResponse = record.InviteSipResponse;
                             o.CSeq = sipResponse.Header.CSeq;
                             o.ToTag = sipResponse.Header.To.ToTag;
@@ -1018,7 +1161,6 @@ namespace LibGB28181SipServer
                             o.FromTag = record.FromTag;
                             GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
                             break;
-
                         }
                     }
                 }
@@ -1115,7 +1257,7 @@ namespace LibGB28181SipServer
                                 else
                                 {
                                     var record = (RecordInfo.RecItem) _task.Obj;
-                                  
+
                                     await InviteOk(sipResponse, record);
                                     if (_task.TimeoutCheckTimer != null && _task.TimeoutCheckTimer.Enabled == true)
                                     {
