@@ -243,7 +243,7 @@ namespace AKStreamWeb.Services
         public static ResToWebHookOnStreamNoneReader OnStreamNoneReader(ReqForWebHookOnStreamNoneReader req)
         {
             VideoChannelRecordInfo outobj = null;
-            var b = !isRecordStream(req.Stream, out outobj);
+            var b = isRecordStream(req.Stream, out outobj);
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
             if (b==false)
             {
