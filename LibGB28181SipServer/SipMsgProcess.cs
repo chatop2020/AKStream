@@ -216,6 +216,9 @@ namespace LibGB28181SipServer
             }
         }
 
+        /// <summary>
+        /// 在线程中处理历史回放文件列表
+        /// </summary>
         public static void ProcessRecordInfoThread()
         {
             while (true)
@@ -520,7 +523,6 @@ namespace LibGB28181SipServer
 
                         break;
                     case "RECORDINFO":
-                        await SendOkMessage(sipRequest);
                         var recObj = new RecordInfoEx();
                         recObj.RecordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
                         if (recObj.RecordInfo != null)
@@ -562,7 +564,7 @@ namespace LibGB28181SipServer
                                 }
                             }
                         }
-
+                        await SendOkMessage(sipRequest);
 
                         /*string tmpSipDevId = sipRequest.Header.From.FromURI.User;
                         var recordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
