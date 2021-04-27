@@ -114,7 +114,6 @@ namespace LibGB28181SipServer
             AutoResetEvent _autoResetEvent2 = null;
             try
             {
-               
                 _commandType = CommandType.RecordInfo;
                 _autoResetEvent2 = new AutoResetEvent(false);
                 Common.SipServer.GetRecordFileList(sipChannel, queryRecordFile, _autoResetEvent, _autoResetEvent2,
