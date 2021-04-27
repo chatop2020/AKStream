@@ -537,6 +537,8 @@ namespace LibGB28181SipServer
                                     tmpDev.SipChannels.FindLast(x => x.DeviceId.Equals(recObj.RecordInfo.DeviceID));
                                 if (tmpChannel != null)
                                 {
+                                    Logger.Debug(
+                                        $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{recObj.DeviceId}->{recObj.ChannelId}->录像结果总数为:{recObj.TatolNum}->包体:{JsonHelper.ToJson(recObj.RecordInfo, Formatting.Indented)}");
                                     recObj.ChannelId = tmpChannel.DeviceId;
                                     Common.TmpRecItems.Enqueue(recObj);
                                     string _taskTag =
