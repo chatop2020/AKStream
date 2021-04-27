@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,6 +149,8 @@ namespace LibGB28181SipServer
         /// <param name="tmpRecItem"></param>
         private static void InsertRecordItems(RecordInfoEx tmpRecItem)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start(); //  开始监视代码运行时间
             var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
             if (obj != null)
             {
@@ -214,6 +217,8 @@ namespace LibGB28181SipServer
 
                 GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
             }
+            stopwatch.Stop();
+            Console.WriteLine("---------> Stop1:"+stopwatch.ElapsedMilliseconds+"ms");
         }
 
         /// <summary>
@@ -523,6 +528,8 @@ namespace LibGB28181SipServer
 
                         break;
                     case "RECORDINFO":
+                        Stopwatch stopwatch = new Stopwatch();
+                        stopwatch.Start(); //  开始监视代码运行时间
                         var recObj = new RecordInfoEx();
                         recObj.RecordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
                         if (recObj.RecordInfo != null)
@@ -567,6 +574,8 @@ namespace LibGB28181SipServer
                             }
                         }
                         await SendOkMessage(sipRequest);
+                        stopwatch.Stop();
+                        Console.WriteLine("stop2222-=---->"+stopwatch.ElapsedMilliseconds+"ms");
 
                         /*string tmpSipDevId = sipRequest.Header.From.FromURI.User;
                         var recordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
