@@ -110,7 +110,7 @@ namespace LibGB28181SipServer
             out ResponseStruct rs)
         {
 
-            queryRecordFile.TaskId = new Random().Next(1, 99999999);
+            queryRecordFile.TaskId = new Random().Next(1, int.MaxValue);
             AutoResetEvent _autoResetEvent2 = null;
             try
             {

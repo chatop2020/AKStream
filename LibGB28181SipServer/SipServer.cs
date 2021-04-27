@@ -72,7 +72,7 @@ namespace LibGB28181SipServer
         private async Task SendRequestViaSipChannel(SipDevice sipDevice, SipChannel sipChannel, SIPMethodsEnum method,
             string contentType,
             string xmlBody, string subject, CommandType commandType, bool needResponse, AutoResetEvent evnt,
-            AutoResetEvent evnt2,  object obj,
+            AutoResetEvent evnt2, object obj,
             int timeout)
         {
             try
@@ -137,7 +137,7 @@ namespace LibGB28181SipServer
                     ((RecordInfo.RecItem) obj).InviteSipRequest = req;
                     ((RecordInfo.RecItem) obj).CallId = req.Header.CallId;
                     ((RecordInfo.RecItem) obj).CSeq = -1;
-                        ((RecordInfo.RecItem) obj).ToTag = "";
+                    ((RecordInfo.RecItem) obj).ToTag = "";
                     ((RecordInfo.RecItem) obj).FromTag = req.Header.From.FromTag;
                 }
                 else if (commandType == CommandType.Play)
@@ -850,7 +850,7 @@ namespace LibGB28181SipServer
             var body = new RecordQuery()
             {
                 DeviceID = sipChannel.DeviceId,
-                SN = (int)sipQueryRecordFile.TaskId,//跟进去一个sn
+                SN = (int) sipQueryRecordFile.TaskId, //跟进去一个sn
                 CmdType = CommandType.RecordInfo,
                 Secrecy = 0,
                 StartTime = sipQueryRecordFile.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -1391,7 +1391,7 @@ namespace LibGB28181SipServer
                     return;
                 }
 
-                if (sipChannel.PushStatus != PushStatus.PUSHON && sipChannel.PushStatus!=PushStatus.IGNORE)
+                if (sipChannel.PushStatus != PushStatus.PUSHON && sipChannel.PushStatus != PushStatus.IGNORE)
                 {
                     rs = new ResponseStruct()
                     {
@@ -1705,7 +1705,6 @@ namespace LibGB28181SipServer
                         _sipTransport.SIPTransportResponseReceived += SipMsgProcess.SipTransportResponseReceived;
                         Task.Factory.StartNew(() => { SipMsgProcess.ProcessCatalogThread(); });
                         Task.Factory.StartNew(() => { SipMsgProcess.ProcessRecordInfoThread(); });
-
                         break;
                 }
 
