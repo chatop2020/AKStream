@@ -153,7 +153,8 @@ namespace LibGB28181SipServer
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
 #endif
-            var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
+           // var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
+            var obj = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(tmpRecItem.Sn));
             if (obj != null)
             {
                 //已经存在
@@ -180,7 +181,7 @@ namespace LibGB28181SipServer
                     obj.RecItems.Add(item);
                 }
 
-                GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
+               // GCommon.VideoChannelRecordInfo.Update(obj);
             }
             else
             {
@@ -217,7 +218,8 @@ namespace LibGB28181SipServer
                     record.RecItems.Add(item);
                 }
 
-                GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
+              //  GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
+              GCommon.VideoChannelRecordInfo.Add(record);
             }
 #if (DEBUG)
             stopwatch.Stop();
@@ -1015,8 +1017,27 @@ namespace LibGB28181SipServer
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
             record.InviteSipResponse = sipResponse;
-
+            foreach (var obj in GCommon.VideoChannelRecordInfo)
+            {
+                if (obj != null && obj.RecItems != null && obj.RecItems.Count > 0)
+                {
+                    var o = obj.RecItems.FindLast(x =>
+                        x.Stream.Trim().ToLower().Equals(record.Stream.Trim().ToLower()));
+                    if (o != null)
+                    {
+                        o.InviteSipResponse = record.InviteSipResponse;
+                        o.CSeq = sipResponse.Header.CSeq;
+                        o.ToTag = sipResponse.Header.To.ToTag;
+                        o.CallId = record.CallId;
+                        o.FromTag = record.FromTag;
+                        break;
+                    }
+                }  
+            }
+            
+            /*
             var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
+            
             if (list != null && list.Count() > 0)
             {
                 foreach (var obj in list)
@@ -1038,6 +1059,7 @@ namespace LibGB28181SipServer
                     }
                 }
             }
+            */
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),

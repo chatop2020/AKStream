@@ -27,7 +27,23 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         private static bool isRecordStream(string stream, out VideoChannelRecordInfo outobj)
         {
-            var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
+
+
+            foreach (var obj in GCommon.VideoChannelRecordInfo)
+            {
+                if (obj != null && obj.RecItems != null && obj.RecItems.Count > 0)
+                {
+                   var o= obj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(stream.Trim().ToLower()));
+                   if (o != null)
+                   {
+                       outobj = obj;
+                       return true; 
+                   }
+                }
+            }
+            
+            
+            /*var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
             if (list != null && list.Count() > 0)
             {
                 foreach (var obj in list)
@@ -42,7 +58,7 @@ namespace AKStreamWeb.Services
                         }
                     }
                 }
-            }
+            }*/
 
             outobj = null;
             return false;

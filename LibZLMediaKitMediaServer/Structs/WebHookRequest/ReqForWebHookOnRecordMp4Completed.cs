@@ -9,7 +9,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _file_Name;
         private string? _file_Path;
         private string? _folder;
-        private long? _file_Size;
+        private ulong? _file_Size;
         private long? _start_Time;
         private string? _stream;
         private string? _mediaServerId;
@@ -42,7 +42,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
             set => _folder = value;
         }
 
-        public long? File_Size
+        public ulong? File_Size
         {
             get => _file_Size;
             set => _file_Size = value;

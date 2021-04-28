@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using LibCommon.Structs;
 using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.XML;
 using SIPSorcery.SIP;
@@ -12,6 +14,7 @@ namespace LibCommon
     {
 
         private static LiteDBHelper _ldb = new LiteDBHelper();
+        private static List<VideoChannelRecordInfo> _videoChannelRecordInfo = new List<VideoChannelRecordInfo>();
         public static string BaseStartPath = Environment.CurrentDirectory; //程序启动的目录
 
         public static string
@@ -27,6 +30,12 @@ namespace LibCommon
         {
             get => _ldb;
             set => _ldb = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        public static List<VideoChannelRecordInfo> VideoChannelRecordInfo
+        {
+            get => _videoChannelRecordInfo;
+            set => _videoChannelRecordInfo = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         #region 各类事件委托

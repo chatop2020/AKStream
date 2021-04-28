@@ -11,7 +11,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private bool? _player;
         private string? _schema;
         private string? _stream;
-        private int? _totalBytes;
+        private ulong? _totalBytes;
         private string? _vhost;
         private string? _ip;
         private int? _port;
@@ -75,7 +75,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         /// <summary>
         /// 总流量
         /// </summary>
-        public int? TotalBytes
+        public ulong? TotalBytes
         {
             get => _totalBytes;
             set => _totalBytes = value;

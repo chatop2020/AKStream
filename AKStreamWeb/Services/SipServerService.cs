@@ -34,7 +34,7 @@ namespace AKStreamWeb.Services
             };
             try
             {
-                return GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+                return GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
             }
             catch (Exception ex)
             {
@@ -237,10 +237,11 @@ namespace AKStreamWeb.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
-            if (col != null && col.RecItems != null && col.RecItems.Count > 0)
+           // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
+            if (row != null && row.RecItems != null && row.RecItems.Count > 0)
             {
-                record = col.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
+                record = row.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
             }
 
             if (record == null)
@@ -453,10 +454,11 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
-            if (col != null && col.RecItems != null && col.RecItems.Count > 0)
+           // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
+            if (row != null && row.RecItems != null && row.RecItems.Count > 0)
             {
-                record = col.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
+                record = row.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
             }
 
             if (record == null)
