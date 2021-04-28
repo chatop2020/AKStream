@@ -16,6 +16,7 @@ namespace LibCommon.Structs
         private NetWorkStat _netWorkStat = null!;
         private List<DriveInfoDiy> _driveInfo = null!;
         private DateTime _updateTime;
+      
 
 
         public string SystemType
@@ -77,6 +78,8 @@ namespace LibCommon.Structs
             get => _updateTime;
             set => _updateTime = value;
         }
+
+      
     }
 
     [Serializable]

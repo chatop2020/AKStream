@@ -16,6 +16,19 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
+        
+        /// <summary>
+        /// 获取AKStreamKeeper版本标识
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <returns></returns>
+        [Route("GetAKStreamKeeperVersion")]
+        [HttpPost]
+        public string GetAKStreamKeeperVersion([FromHeader(Name = "AccessKey")] string AccessKey)
+        {
+            return Common.Version;
+        }
+        
         /// <summary>
         /// 获取rtp端口信息列表
         /// </summary>

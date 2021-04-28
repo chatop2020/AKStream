@@ -17,6 +17,18 @@ namespace AKStreamWeb.Controllers
     public class SystemServiceController : ControllerBase
     {
         /// <summary>
+        /// 获取AKStreamWeb版本标识
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <returns></returns>
+        [Route("GetVersion")]
+        [HttpPost]
+        public string GetVersion([FromHeader(Name = "AccessKey")] string AccessKey)
+        {
+ 
+            return Common.Version;
+        }
+        /// <summary>
         /// 获取系统性能信息
         /// </summary>
         /// <param name="AccessKey"></param>

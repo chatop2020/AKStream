@@ -1368,7 +1368,7 @@ namespace AKStreamWeb.Services
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
                     req.Timeout_Ms = 20 * 1000; //20秒超时
-                    req.Ffmpeg_Cmd_Key = "rtsp_tcp2flv"; //采用ffmpeg rtsp with tcp模板
+                    req.Ffmpeg_Cmd_Key = "ffmpeg_templete.rtsp_tcp2flv"; //采用ffmpeg rtsp with tcp模板
                 }
                 else
                 {

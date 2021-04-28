@@ -10,6 +10,73 @@ namespace AKStreamWeb.Services
     public static class AKStreamKeeperService
     {
         /// <summary>
+        /// 获取AKStreamKeeper的版本标识
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static string GetVersion(string mediaServerId, out ResponseStruct rs)
+        {
+             rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper版本标识失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return "This Error";
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper版本标识失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return "This Error";
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper版本标识失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return "This Error";
+            }
+
+            var ret = mediaServer.KeeperWebApi.GetAKStreamKeeperVersion(out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper版本标识失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return "This Error";
+            }
+
+            Logger.Debug($"[{Common.LoggerHead}]->获取AKStreamKeeper版本标识成功->{mediaServerId}-版本标识->{ret}");
+
+            return ret;
+        }
+        /// <summary>
         /// 添加一个裁剪合并任务
         /// </summary>
         /// <param name="mediaServerId"></param>
@@ -417,7 +484,7 @@ namespace AKStreamWeb.Services
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->与AKStreamKeeper保持心跳失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper健康信息失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
             }
@@ -432,7 +499,7 @@ namespace AKStreamWeb.Services
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
                 };
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->与AKStreamKeeper保持心跳失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper健康信息失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
             }
@@ -445,7 +512,7 @@ namespace AKStreamWeb.Services
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
                 };
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->与AKStreamKeeper保持心跳失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper健康信息失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
             }
@@ -454,12 +521,12 @@ namespace AKStreamWeb.Services
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 Logger.Warn(
-                    $"[{Common.LoggerHead}]->与AKStreamKeeper保持心跳失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    $"[{Common.LoggerHead}]->获取AKStreamKeeper健康信息失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
             }
 
-            Logger.Debug($"[{Common.LoggerHead}]->与AKStreamKeeper保持心跳成功->{mediaServerId}");
+            Logger.Debug($"[{Common.LoggerHead}]->获取AKStreamKeeper健康信息成功->{mediaServerId}");
 
             return ret;
         }

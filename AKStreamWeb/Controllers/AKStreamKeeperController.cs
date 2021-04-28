@@ -15,6 +15,22 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体服务器治理的相关接口")]
     public class AKStreamKeeperController : ControllerBase
     {
+        
+        [Route("GetVersion")]
+        [HttpGet]
+        public string GetVersion(
+            [FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId)
+        {
+            ResponseStruct rs;
+            var ret = AKStreamKeeperService.GetVersion(mediaServerId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
         /// <summary>
         /// 获取一个可用的rtp端口（偶数端口）
         /// </summary>

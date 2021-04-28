@@ -32,6 +32,7 @@ namespace LibCommon.Structs.WebRequest
         private bool _firstPost = false;
         private string _accessKey;
         private bool _mediaServerIsRunning = false;
+        private string _version;
 
 
         /// <summary>
@@ -213,6 +214,12 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _mediaServerIsRunning;
             set => _mediaServerIsRunning = value;
+        }
+
+        public string Version
+        {
+            get => _version;
+            set => _version = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

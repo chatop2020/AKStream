@@ -37,6 +37,17 @@ namespace AKStreamKeeper
         private static bool _firstPost = true;
         public static string CutOrMergePath = GCommon.BaseStartPath + "/CutMergeFile/";
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
+        
+        public static string Version   // 版本号
+        {
+            get
+            {
+                var md5 = UtilsHelper.Md5WithFile(GCommon.WorkSpaceFullPath);
+                var crc32=CRC32Helper.GetCRC32(md5);
+                return crc32.ToString("x2").ToUpper();
+            }
+        }
+        
 
         /// <summary>
         /// 申请的rtp端口放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
@@ -563,7 +574,6 @@ namespace AKStreamKeeper
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
             }
 
-
             _counter1++;
             if (_counter1 % 60 == 0) //1分钟一次获取磁盘用量情况
             {
@@ -625,6 +635,7 @@ namespace AKStreamKeeper
                 tmpKeepAlive.ZlmRecordFileSec = MediaServerInstance.ZlmRecordFileSec;
                 tmpKeepAlive.AccessKey = _akStreamKeeperConfig.AccessKey;
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
+                tmpKeepAlive.Version = Version;
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
                 try
                 {

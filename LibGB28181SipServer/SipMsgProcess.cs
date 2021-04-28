@@ -149,11 +149,7 @@ namespace LibGB28181SipServer
         /// <param name="tmpRecItem"></param>
         private static void InsertRecordItems(RecordInfoEx tmpRecItem)
         {
-#if (DEBUG)
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-#endif
-           // var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
+            // var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
             var obj = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(tmpRecItem.Sn));
             if (obj != null)
             {
@@ -221,11 +217,6 @@ namespace LibGB28181SipServer
               //  GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
               GCommon.VideoChannelRecordInfo.Add(record);
             }
-#if (DEBUG)
-            stopwatch.Stop();
-            Logger.Info(
-                $"[{Common.LoggerHead}]->将历史回放文件列表插入到LiteDB耗时:{stopwatch.ElapsedMilliseconds} ms");
-#endif
         }
 
         /// <summary>
@@ -535,10 +526,6 @@ namespace LibGB28181SipServer
 
                         break;
                     case "RECORDINFO":
-#if (DEBUG)
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-#endif
                         var recObj = new RecordInfoEx();
                         recObj.RecordInfo = UtilsHelper.XMLToObject<RecordInfo>(bodyXml);
                         if (recObj.RecordInfo != null)
@@ -584,11 +571,6 @@ namespace LibGB28181SipServer
                         }
 
                         await SendOkMessage(sipRequest);
-#if (DEBUG)
-                        stopwatch.Stop();
-                        Logger.Info(
-                            $"[{Common.LoggerHead}]->获取历史回放文件列表并回复Sip设备耗时:{stopwatch.ElapsedMilliseconds} ms");
-#endif
                         break;
 
                     case "MEDIASTATUS":

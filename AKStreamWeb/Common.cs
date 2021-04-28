@@ -32,7 +32,15 @@ namespace AKStreamWeb
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
 
-      
+        public static string Version   // 版本号
+        {
+            get
+            {
+              var md5 = UtilsHelper.Md5WithFile(GCommon.WorkSpaceFullPath);
+              var crc32=CRC32Helper.GetCRC32(md5);
+              return crc32.ToString("x2").ToUpper();
+            }
+        }
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
@@ -116,6 +124,7 @@ namespace AKStreamWeb
         {
             Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
+            
             startTimer();
         }
 
