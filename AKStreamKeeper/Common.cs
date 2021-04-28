@@ -696,6 +696,7 @@ namespace AKStreamKeeper
             Console.WriteLine("[Debug]\t程序运行路径:" + GCommon.WorkSpacePath);
             Console.WriteLine("[Debug]\t程序运行全路径:" + GCommon.WorkSpaceFullPath);
             Console.WriteLine("[Debug]\t程序启动命令:" + GCommon.CommandLine);
+            Console.WriteLine("[Debug]\t程序版本标识:"+Common.Version);
             IsDebug = true;
 
 

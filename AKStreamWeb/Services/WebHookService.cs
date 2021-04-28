@@ -413,7 +413,7 @@ namespace AKStreamWeb.Services
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
                         var sipDevice =
-                            LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel));
+                            LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
 
                         if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                         {
