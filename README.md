@@ -22,6 +22,7 @@
 ![设备预览](https://i.loli.net/2021/01/19/DcqgMmp6kTvNURK.png)
 
 ## 开源地址 
+- https://gitee.com/sscboshi/AKStreamWebUI
 - https://github.com/langmansh/AKStreamWebUI
 - 感谢网友倾情打造
 
