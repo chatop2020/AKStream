@@ -572,6 +572,7 @@ namespace AKStreamKeeper
             lock (_performanceInfoLock)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
+                
             }
 
             _counter1++;

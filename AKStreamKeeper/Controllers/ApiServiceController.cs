@@ -23,7 +23,7 @@ namespace AKStreamKeeper.Controllers
         /// <param name="AccessKey"></param>
         /// <returns></returns>
         [Route("GetAKStreamKeeperVersion")]
-        [HttpPost]
+        [HttpGet]
         public string GetAKStreamKeeperVersion([FromHeader(Name = "AccessKey")] string AccessKey)
         {
             return Common.Version;

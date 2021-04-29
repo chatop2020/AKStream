@@ -156,6 +156,7 @@ namespace LibGB28181SipServer
                 {
                     obj.RecItems = new List<RecordInfo.RecItem>();
                 }
+
                 //已经存在
                 foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
                 {
@@ -179,8 +180,6 @@ namespace LibGB28181SipServer
                     item.MediaServerStreamInfo = new MediaServerStreamInfo();
                     obj.RecItems.Add(item);
                 }
-
-               // GCommon.VideoChannelRecordInfo.Update(obj);
             }
             else
             {
@@ -193,6 +192,7 @@ namespace LibGB28181SipServer
                 {
                     return;
                 }
+
                 if (record.RecItems == null)
                 {
                     record.RecItems = new List<RecordInfo.RecItem>();
@@ -225,8 +225,7 @@ namespace LibGB28181SipServer
                     }
                 }
 
-                //  GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
-              GCommon.VideoChannelRecordInfo.Add(record);
+                GCommon.VideoChannelRecordInfo.Add(record);
             }
         }
 
@@ -1025,34 +1024,9 @@ namespace LibGB28181SipServer
                         o.FromTag = record.FromTag;
                         break;
                     }
-                }  
-            }
-            
-            /*
-            var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
-            
-            if (list != null && list.Count() > 0)
-            {
-                foreach (var obj in list)
-                {
-                    if (obj != null && obj.RecItems != null && obj.RecItems.Count > 0)
-                    {
-                        var o = obj.RecItems.FindLast(x =>
-                            x.Stream.Trim().ToLower().Equals(record.Stream.Trim().ToLower()));
-                        if (o != null)
-                        {
-                            o.InviteSipResponse = record.InviteSipResponse;
-                            o.CSeq = sipResponse.Header.CSeq;
-                            o.ToTag = sipResponse.Header.To.ToTag;
-                            o.CallId = record.CallId;
-                            o.FromTag = record.FromTag;
-                            GCommon.Ldb.VideoChannelRecordInfo.Update(obj);
-                            break;
-                        }
-                    }
                 }
             }
-            */
+            
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
