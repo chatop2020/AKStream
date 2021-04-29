@@ -1031,6 +1031,7 @@ namespace AKStreamWeb.Services
             {
                 try
                 {
+                    sipChannel.PushStatus = PushStatus.IDLE;
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
                     if (mediaList != null && mediaList.Code == 0 && mediaList.Data!=null && mediaList.Data.Count > 0)
