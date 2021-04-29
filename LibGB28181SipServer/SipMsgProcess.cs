@@ -149,10 +149,13 @@ namespace LibGB28181SipServer
         /// <param name="tmpRecItem"></param>
         private static void InsertRecordItems(RecordInfoEx tmpRecItem)
         {
-            // var obj = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(tmpRecItem.Sn));
             var obj = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(tmpRecItem.Sn));
             if (obj != null)
             {
+                if (obj.RecItems == null)
+                {
+                    obj.RecItems = new List<RecordInfo.RecItem>();
+                }
                 //已经存在
                 foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
                 {
@@ -186,35 +189,43 @@ namespace LibGB28181SipServer
                 record.TatolCount = tmpRecItem.TatolNum;
                 record.Expires = DateTime.Now.AddHours(24);
                 record.TaskId = tmpRecItem.Sn;
+                if (record.TatolCount <= 0)
+                {
+                    return;
+                }
                 if (record.RecItems == null)
                 {
                     record.RecItems = new List<RecordInfo.RecItem>();
                 }
 
-                foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
+                if (tmpRecItem.RecordInfo.RecordItems.Items != null &&
+                    tmpRecItem.RecordInfo.RecordItems.Items.Count > 0)
                 {
-                    var tag = item.Address + item.Name + item.Secrecy + item.Type +
-                              item.EndTime +
-                              item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
-                              tmpRecItem.DeviceId + tmpRecItem.Sn;
-                    var crc32 = CRC32Helper.GetCRC32(tag);
-                    var crc32Str = crc32.ToString().PadLeft(10, '0');
-                    char[] tmpChars = crc32Str.ToCharArray();
-                    tmpChars[0] = '1'; //回放流的ssrc第一位是1
-                    string itemId = new string(tmpChars);
-                    item.SsrcId = itemId; //ssrc的值
-                    item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
-                    item.App = "rtp";
-                    item.Vhost = "__defaultVhost__";
-                    item.SipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpRecItem.DeviceId));
-                    item.SipChannel =
-                        item.SipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(tmpRecItem.ChannelId));
-                    item.PushStatus = PushStatus.IDLE;
-                    item.MediaServerStreamInfo = new MediaServerStreamInfo();
-                    record.RecItems.Add(item);
+                    foreach (var item in tmpRecItem.RecordInfo.RecordItems.Items)
+                    {
+                        var tag = item.Address + item.Name + item.Secrecy + item.Type +
+                                  item.EndTime +
+                                  item.FilePath + item.StartTime + item.DeviceID + item.RecorderID +
+                                  tmpRecItem.DeviceId + tmpRecItem.Sn;
+                        var crc32 = CRC32Helper.GetCRC32(tag);
+                        var crc32Str = crc32.ToString().PadLeft(10, '0');
+                        char[] tmpChars = crc32Str.ToCharArray();
+                        tmpChars[0] = '1'; //回放流的ssrc第一位是1
+                        string itemId = new string(tmpChars);
+                        item.SsrcId = itemId; //ssrc的值
+                        item.Stream = string.Format("{0:X8}", uint.Parse(itemId)); //ssrc的16进制表示
+                        item.App = "rtp";
+                        item.Vhost = "__defaultVhost__";
+                        item.SipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(tmpRecItem.DeviceId));
+                        item.SipChannel =
+                            item.SipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(tmpRecItem.ChannelId));
+                        item.PushStatus = PushStatus.IDLE;
+                        item.MediaServerStreamInfo = new MediaServerStreamInfo();
+                        record.RecItems.Add(item);
+                    }
                 }
 
-              //  GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
+                //  GCommon.Ldb.VideoChannelRecordInfo.Insert(record);
               GCommon.VideoChannelRecordInfo.Add(record);
             }
         }
