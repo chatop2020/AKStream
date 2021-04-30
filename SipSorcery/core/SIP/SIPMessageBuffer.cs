@@ -95,7 +95,7 @@ namespace SIPSorcery.SIP
                 }
                 else
                 {
-                    message = ByteToStr(buffer, Encoding.UTF8);
+                    message = ByteToStr(buffer,Encoding.GetEncoding("utf-8"));
                     if (message.ToUpper().Contains("ENCODING=\"GBK\"")
                         || message.ToUpper().Contains("ENCODING=\"GB2312\""))
                     {

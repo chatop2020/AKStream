@@ -880,7 +880,7 @@ namespace SIPSorcery.SIP
                             // TODO: Future improvement (4.5.2 doesn't support) is to use a ReadOnlySpan to check for the existence 
                             // of 'S', 'I', 'P' before the first EOL.
                             // rawSIPMessage = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-                            rawSIPMessage = ByteToStr(buffer, Encoding.UTF8);
+                            rawSIPMessage = ByteToStr(buffer, Encoding.GetEncoding("utf-8"));
                             if (rawSIPMessage.ToUpper().Contains("ENCODING=\"GBK\"")
                                 || rawSIPMessage.ToUpper().Contains("ENCODING=\"GB2312\""))
                             {
