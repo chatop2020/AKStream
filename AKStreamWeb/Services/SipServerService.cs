@@ -216,7 +216,6 @@ namespace AKStreamWeb.Services
         }
 
 
-
         /// <summary>
         /// 停止回放流
         /// </summary>
@@ -224,20 +223,19 @@ namespace AKStreamWeb.Services
         /// <param name="rs"></param>
         /// <returns></returns>
         /// <exception cref="AkStreamException"></exception>
-        public static bool StopLiveVideo(int taskId,string ssrcId, out ResponseStruct rs)
+        public static bool StopLiveVideo(int taskId, string ssrcId, out ResponseStruct rs)
         {
-             ServerInstance mediaServer;
+            ServerInstance mediaServer;
             VideoChannel videoChannel;
             SipDevice sipDevice;
             SipChannel sipChannel;
-            RecordInfo.RecItem record=null;
+            RecordInfo.RecItem record = null;
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-           // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
             var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
             if (row != null && row.RecItems != null && row.RecItems.Count > 0)
             {
@@ -252,9 +250,8 @@ namespace AKStreamWeb.Services
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
                 };
                 return false;
-
             }
-            
+
             var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
                 out videoChannel, out sipChannel,
                 out sipDevice);
@@ -265,21 +262,22 @@ namespace AKStreamWeb.Services
 
                 return false;
             }
-            
+
             VideoChannelMediaInfo mediaInfo = null;
-            
+
             mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
                 x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
 
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
-                Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+                Logger.Info(
+                    $"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
 
                 return true;
             }
 
-            
+
             GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
                 x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
 
@@ -322,7 +320,8 @@ namespace AKStreamWeb.Services
                 }
 
 
-                Logger.Info($"[{Common.LoggerHead}]->停止Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{retDeInvite}");
+                Logger.Info(
+                    $"[{Common.LoggerHead}]->停止Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{retDeInvite}");
 
                 return true;
             }
@@ -338,6 +337,7 @@ namespace AKStreamWeb.Services
                 throw new AkStreamException(rs);
             }
         }
+
         /// <summary>
         /// 停止GB28181设备推流
         /// </summary>
@@ -441,7 +441,7 @@ namespace AKStreamWeb.Services
         /// <param name="rs"></param>
         /// <param name="rtpPort"></param>
         /// <returns></returns>
-        public static MediaServerStreamInfo LiveVideo(int taskId,string ssrcId, out ResponseStruct rs,
+        public static MediaServerStreamInfo LiveVideo(int taskId, string ssrcId, out ResponseStruct rs,
             ushort? rtpPort = 0)
         {
             ServerInstance mediaServer;
@@ -454,7 +454,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-           // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
+            // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
             var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
             if (row != null && row.RecItems != null && row.RecItems.Count > 0)
             {
@@ -470,7 +470,7 @@ namespace AKStreamWeb.Services
                 };
                 return null;
             }
-            
+
             var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
                 out videoChannel, out sipChannel,
                 out sipDevice);
@@ -586,6 +586,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
             pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
@@ -612,12 +613,13 @@ namespace AKStreamWeb.Services
                             out _); //释放rtp端口
                     }
 
-                    Logger.Warn($"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+                    Logger.Warn(
+                        $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                     return null;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 rs = new ResponseStruct()
                 {
@@ -642,8 +644,9 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
-            
-           var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
+
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{record.Stream}", out _); //如果存在老的事件等待，就先删除它
+            var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
             Common.WebHookNeedReturnTask.TryAdd($"WAITONPUBLISH_{record.Stream}",
@@ -656,7 +659,7 @@ namespace AKStreamWeb.Services
                 {
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data !=null && mediaList.Data.Count > 0)
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(record.App) &&
                                                                  x.Stream.Equals(record.Stream)
@@ -698,13 +701,14 @@ namespace AKStreamWeb.Services
                         out _); //释放rtp端口
                 }
 
-              
+
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.MediaServer_WaitWebHookTimeOut,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WaitWebHookTimeOut]
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
 
                 GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
@@ -713,6 +717,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
 
             ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish) taskWait.OtherObj;
             Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
@@ -736,7 +741,7 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.DepartmentId = videoChannel.DepartmentId;
             videoChannelMediaInfo.DepartmentName = videoChannel.DepartmentName;
             videoChannelMediaInfo.DeviceId = videoChannel.DeviceId;
-            videoChannelMediaInfo.HasPtz =false;
+            videoChannelMediaInfo.HasPtz = false;
             videoChannelMediaInfo.MainId = record.Stream;
             videoChannelMediaInfo.UpdateTime = DateTime.Now;
             videoChannelMediaInfo.DefaultRtpPort = videoChannel.DefaultRtpPort;
@@ -826,8 +831,6 @@ namespace AKStreamWeb.Services
                 $"[{Common.LoggerHead}]->请求Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
-
-            
         }
 
         /// <summary>
@@ -1020,6 +1023,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}", out _); //如果存在老的事件等待，就先删除它
             var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
@@ -1034,7 +1038,7 @@ namespace AKStreamWeb.Services
                     sipChannel.PushStatus = PushStatus.IDLE;
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data!=null && mediaList.Data.Count > 0)
+                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
                                                                  x.Stream.Equals(videoChannel.MainId)
