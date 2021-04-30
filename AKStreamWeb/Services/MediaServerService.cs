@@ -1408,6 +1408,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}", out _); //如果存在老的事件等待，就先删除它
             var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
@@ -1682,6 +1683,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}", out _); //如果存在老的事件等待，就先删除它
             var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
