@@ -24,17 +24,6 @@ namespace LibCommon.Structs.GB28181.Net.SDP
 
 
         public int FormatID;
-        public string FormatAttribute { get; private set; }
-        public string FormatParameterAttribute { get; private set; }
-        public string Name { get; private set; }
-        public int ClockRate { get; private set; }
-
-        public bool
-            IsStandardAttribute
-        {
-            get;
-            set;
-        } // If true this is a standard media format and the attribute line is not required.
 
         static SDPMediaFormat()
         {
@@ -73,6 +62,18 @@ namespace LibCommon.Structs.GB28181.Net.SDP
             IsStandardAttribute = true;
             ClockRate = DEFAULT_CLOCK_RATE;
         }
+
+        public string FormatAttribute { get; private set; }
+        public string FormatParameterAttribute { get; private set; }
+        public string Name { get; private set; }
+        public int ClockRate { get; private set; }
+
+        public bool
+            IsStandardAttribute
+        {
+            get;
+            set;
+        } // If true this is a standard media format and the attribute line is not required.
 
         public void SetFormatAttribute(string attribute)
         {

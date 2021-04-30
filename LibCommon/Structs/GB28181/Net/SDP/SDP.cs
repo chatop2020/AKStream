@@ -14,50 +14,43 @@ namespace LibCommon.Structs.GB28181.Net.SDP
         public const string ICE_PWD_ATTRIBUTE_PREFIX = "ice-pwd";
         public const string ICE_CANDIDATE_ATTRIBUTE_PREFIX = "candidate";
 
-        public decimal Version = SDP_PROTOCOL_VERSION;
+        public string
+            Address; // IP Address of the machine that created the session, either FQDN or dotted quad or textual for IPv6.
 
-        // Owner fields.
-        public string Username = "-"; // Username of the session originator.
-        public string SessionId = "-"; // Unique Id for the session.
+        public string AddressType = "IP4"; // Address type, typically IP4 or IP6.
 
         public int
             AnnouncementVersion =
                 0; // Version number for each announcement, number must be increased for each subsequent SDP modification.
 
-        public string NetworkType = "IN"; // Type of network, IN = Internet.
-        public string AddressType = "IP4"; // Address type, typically IP4 or IP6.
-
-        public string
-            Address; // IP Address of the machine that created the session, either FQDN or dotted quad or textual for IPv6.
-
-        public string Owner
-        {
-            get
-            {
-                return Username + " " + SessionId + " " + AnnouncementVersion + " " + NetworkType + " " + AddressType +
-                       " " + Address;
-            }
-        }
-
-        public string SessionName = "-"; // Common name of the session.
-        public string Timing;
         public List<string> BandwidthAttributes = new List<string>();
 
-        // Optional fields.
-        public string SessionDescription;
-        public string URI; // URI for additional information about the session.
-        public string[] OriginatorEmailAddresses; // Email addresses for the person responsible for the session.
-        public string[] OriginatorPhoneNumbers; // Phone numbers for the person responsible for the session.
-        public string IceUfrag; // If ICE is being used the username for the STUN requests.
-        public string IcePwd; // If ICE is being used the password for the STUN requests.
-        public List<string> IceCandidates;
-
         public SDPConnectionInformation Connection;
+
+        public List<string> ExtraAttributes = new List<string>(); // Attributes that were not recognised.
+        public List<string> IceCandidates;
+        public string IcePwd; // If ICE is being used the password for the STUN requests.
+        public string IceUfrag; // If ICE is being used the username for the STUN requests.
 
         // Media.
         public List<SDPMediaAnnouncement> Media = new List<SDPMediaAnnouncement>();
 
-        public List<string> ExtraAttributes = new List<string>(); // Attributes that were not recognised.
+        public string NetworkType = "IN"; // Type of network, IN = Internet.
+        public string[] OriginatorEmailAddresses; // Email addresses for the person responsible for the session.
+        public string[] OriginatorPhoneNumbers; // Phone numbers for the person responsible for the session.
+
+        // Optional fields.
+        public string SessionDescription;
+        public string SessionId = "-"; // Unique Id for the session.
+
+        public string SessionName = "-"; // Common name of the session.
+        public string Timing;
+        public string URI; // URI for additional information about the session.
+
+        // Owner fields.
+        public string Username = "-"; // Username of the session originator.
+
+        public decimal Version = SDP_PROTOCOL_VERSION;
 
         public SDP()
         {
@@ -66,6 +59,15 @@ namespace LibCommon.Structs.GB28181.Net.SDP
         public SDP(string address)
         {
             Address = address;
+        }
+
+        public string Owner
+        {
+            get
+            {
+                return Username + " " + SessionId + " " + AnnouncementVersion + " " + NetworkType + " " + AddressType +
+                       " " + Address;
+            }
         }
 
         public void AddExtra(string attribute)

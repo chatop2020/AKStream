@@ -26,15 +26,15 @@ namespace SIPSorcery.SIP
     {
         private static readonly string m_dialogXMLNS = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
         private static readonly string m_sipsorceryXMLNS = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_URN;
+        public string CRMCompanyName;
+        public string CRMPersonName;
+        public string CRMPictureURL;
+        public int CSeq;
 
         public string DisplayName;
-        public SIPURI URI;
-        public SIPURI TargetURI;
-        public int CSeq;
         public string SwitchboardLineName;
-        public string CRMPersonName;
-        public string CRMCompanyName;
-        public string CRMPictureURL;
+        public SIPURI TargetURI;
+        public SIPURI URI;
 
         private SIPEventDialogParticipant()
         {

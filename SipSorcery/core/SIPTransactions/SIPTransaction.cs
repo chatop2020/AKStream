@@ -80,36 +80,9 @@ namespace SIPSorcery.SIP
             m_maxRingTime =
                 SIPTimings.MAX_RING_TIME; // Max time an INVITE will be left ringing for (typically 10 mins).    
 
-        public int Retransmits = 0;
         public int AckRetransmits = 0;
-        public int PrackRetransmits = 0;
-        public DateTime InitialTransmit = DateTime.MinValue;
-        public DateTime LastTransmit = DateTime.MinValue;
-        public bool DeliveryPending = true;
 
-        /// <summary>
-        /// If the transport layer does not receive a response to the request in the alloted 
-        /// time the request will be marked as failed.
-        /// </summary>
-        public bool DeliveryFailed = false;
-
-        public bool HasTimedOut { get; set; }
-
-        private string m_transactionId;
-
-        public string TransactionId
-        {
-            get { return m_transactionId; }
-        }
-
-        /// <summary>
-        ///  The contact address from the top Via header that created the transaction. 
-        ///  This is used for matching requests to server transactions.
-        /// </summary>
-        private string m_sentBy;
-
-        public SIPTransactionTypesEnum TransactionType = SIPTransactionTypesEnum.NonInvite;
-        public DateTime Created = DateTime.Now;
+        public SIPCDR CDR;
 
         /// <summary>
         /// For INVITEs this is the time they received the final response and is used to calculate the time 
@@ -117,84 +90,51 @@ namespace SIPSorcery.SIP
         /// </summary>
         public DateTime CompletedAt = DateTime.Now;
 
+        public DateTime Created = DateTime.Now;
+
         /// <summary>
-        /// If the transaction times out this holds the value it timed out at.
+        /// If the transport layer does not receive a response to the request in the alloted 
+        /// time the request will be marked as failed.
         /// </summary>
-        public DateTime TimedOutAt;
+        public bool DeliveryFailed = false;
+
+        public bool DeliveryPending = true;
+        public DateTime InitialTransmit = DateTime.MinValue;
+        public DateTime LastTransmit = DateTime.MinValue;
+        internal SIPEndPoint m_ackRequestIPEndPoint; // Socket the ACK request was sent to.
 
         protected string m_branchId;
 
-        public string BranchId
-        {
-            get { return m_branchId; }
-        }
-
         protected string m_callId;
+        internal bool m_gotPrack; // Records whether a PRACK request was received.
         protected string m_localTag;
-        protected string m_remoteTag;
-        public SIPRequest AckRequest { get; protected set; } // ACK request for INVITE transactions.
-        internal SIPEndPoint m_ackRequestIPEndPoint; // Socket the ACK request was sent to.
-
-        public SIPRequest
-            PRackRequest { get; protected set; } // PRACK request for provisional INVITE transaction responses.
 
         internal SIPEndPoint m_prackRequestIPEndPoint; // Socket the PRACK request was sent to.
-        internal bool m_gotPrack; // Records whether a PRACK request was received.
+        protected string m_remoteTag;
 
-        public SIPURI TransactionRequestURI
-        {
-            get { return m_transactionRequest.URI; }
-        }
+        /// <summary>
+        ///  The contact address from the top Via header that created the transaction. 
+        ///  This is used for matching requests to server transactions.
+        /// </summary>
+        private string m_sentBy;
 
-        public SIPUserField TransactionRequestFrom
-        {
-            get { return m_transactionRequest.Header.From.FromUserField; }
-        }
+        protected SIPTransport m_sipTransport;
+
+        protected SIPResponse m_transactionFinalResponse;
+
+        private string m_transactionId;
+
+        protected SIPRequest
+            m_transactionRequest; // This is the request which started the transaction and on which it is based.
+
+        private SIPTransactionStatesEnum m_transactionState = SIPTransactionStatesEnum.Calling;
 
         /// <summary>
         /// If not null this value is where ALL transaction requests should be sent to.
         /// </summary>
         public SIPEndPoint OutboundProxy;
 
-        public SIPCDR CDR;
-
-        private SIPTransactionStatesEnum m_transactionState = SIPTransactionStatesEnum.Calling;
-
-        public SIPTransactionStatesEnum TransactionState
-        {
-            get { return m_transactionState; }
-        }
-
-        protected SIPRequest
-            m_transactionRequest; // This is the request which started the transaction and on which it is based.
-
-        public SIPRequest TransactionRequest
-        {
-            get { return m_transactionRequest; }
-        }
-
-        /// <summary>
-        /// The most recent non reliable provisional response that was requested to be sent.
-        /// </summary>
-        public SIPResponse UnreliableProvisionalResponse { get; private set; }
-
-        /// <summary>
-        /// The most recent provisional response that was requested to be sent. If reliable provisional responses
-        /// are being used then this response needs to be sent reliably in the same manner as the final response.
-        /// </summary>
-        public SIPResponse ReliableProvisionalResponse { get; private set; }
-
-        public int RSeq { get; private set; } = 0;
-
-        protected SIPResponse m_transactionFinalResponse;
-
-        /// <summary>
-        /// This is the final response being sent by a UAS transaction or the one received by a UAC one.
-        /// </summary>
-        public SIPResponse TransactionFinalResponse
-        {
-            get { return m_transactionFinalResponse; }
-        }
+        public int PrackRetransmits = 0;
 
         /// <summary>
         /// If am INVITE transaction client indicates RFC3262 support in the Require or Supported header we'll deliver reliable 
@@ -202,30 +142,14 @@ namespace SIPSorcery.SIP
         /// </summary> 
         protected bool PrackSupported = false;
 
-        // These are the events that will normally be required by upper level transaction users such as registration or call agents.
-        protected event SIPTransactionRequestReceivedDelegate TransactionRequestReceived;
-        protected event SIPTransactionResponseReceivedDelegate TransactionInformationResponseReceived;
-        protected event SIPTransactionResponseReceivedDelegate TransactionFinalResponseReceived;
-        protected event SIPTransactionTimedOutDelegate TransactionTimedOut;
+        public int Retransmits = 0;
 
         /// <summary>
-        /// The UAS transaction needs the ACK request if the original INVITE did not have an SDP offer.
-        /// In that case the ACK request contains the SDP answer.
+        /// If the transaction times out this holds the value it timed out at.
         /// </summary>
-        protected event SIPTransactionRequestReceivedDelegate OnAckRequestReceived;
+        public DateTime TimedOutAt;
 
-        // These events are normally only used for housekeeping such as retransmits on ACK's.
-        protected event SIPTransactionResponseReceivedDelegate TransactionDuplicateResponse;
-        protected event SIPTransactionRequestRetransmitDelegate TransactionRequestRetransmit;
-
-        // Events that don't affect the transaction processing, i.e. used for logging/tracing.
-        public event SIPTransactionStateChangeDelegate TransactionStateChanged;
-        public event SIPTransactionTraceMessageDelegate TransactionTraceMessage;
-
-        public event SIPTransactionRemovedDelegate
-            TransactionRemoved; // This is called just before the SIPTransaction is expired and is to let consumer classes know to remove their event handlers to prevent memory leaks.
-
-        protected SIPTransport m_sipTransport;
+        public SIPTransactionTypesEnum TransactionType = SIPTransactionTypesEnum.NonInvite;
 
         /// <summary>
         /// Creates a new SIP transaction and adds it to the list of in progress transactions.
@@ -278,6 +202,87 @@ namespace SIPSorcery.SIP
                 throw;
             }
         }
+
+        public bool HasTimedOut { get; set; }
+
+        public string TransactionId
+        {
+            get { return m_transactionId; }
+        }
+
+        public string BranchId
+        {
+            get { return m_branchId; }
+        }
+
+        public SIPRequest AckRequest { get; protected set; } // ACK request for INVITE transactions.
+
+        public SIPRequest
+            PRackRequest { get; protected set; } // PRACK request for provisional INVITE transaction responses.
+
+        public SIPURI TransactionRequestURI
+        {
+            get { return m_transactionRequest.URI; }
+        }
+
+        public SIPUserField TransactionRequestFrom
+        {
+            get { return m_transactionRequest.Header.From.FromUserField; }
+        }
+
+        public SIPTransactionStatesEnum TransactionState
+        {
+            get { return m_transactionState; }
+        }
+
+        public SIPRequest TransactionRequest
+        {
+            get { return m_transactionRequest; }
+        }
+
+        /// <summary>
+        /// The most recent non reliable provisional response that was requested to be sent.
+        /// </summary>
+        public SIPResponse UnreliableProvisionalResponse { get; private set; }
+
+        /// <summary>
+        /// The most recent provisional response that was requested to be sent. If reliable provisional responses
+        /// are being used then this response needs to be sent reliably in the same manner as the final response.
+        /// </summary>
+        public SIPResponse ReliableProvisionalResponse { get; private set; }
+
+        public int RSeq { get; private set; } = 0;
+
+        /// <summary>
+        /// This is the final response being sent by a UAS transaction or the one received by a UAC one.
+        /// </summary>
+        public SIPResponse TransactionFinalResponse
+        {
+            get { return m_transactionFinalResponse; }
+        }
+
+        // These are the events that will normally be required by upper level transaction users such as registration or call agents.
+        protected event SIPTransactionRequestReceivedDelegate TransactionRequestReceived;
+        protected event SIPTransactionResponseReceivedDelegate TransactionInformationResponseReceived;
+        protected event SIPTransactionResponseReceivedDelegate TransactionFinalResponseReceived;
+        protected event SIPTransactionTimedOutDelegate TransactionTimedOut;
+
+        /// <summary>
+        /// The UAS transaction needs the ACK request if the original INVITE did not have an SDP offer.
+        /// In that case the ACK request contains the SDP answer.
+        /// </summary>
+        protected event SIPTransactionRequestReceivedDelegate OnAckRequestReceived;
+
+        // These events are normally only used for housekeeping such as retransmits on ACK's.
+        protected event SIPTransactionResponseReceivedDelegate TransactionDuplicateResponse;
+        protected event SIPTransactionRequestRetransmitDelegate TransactionRequestRetransmit;
+
+        // Events that don't affect the transaction processing, i.e. used for logging/tracing.
+        public event SIPTransactionStateChangeDelegate TransactionStateChanged;
+        public event SIPTransactionTraceMessageDelegate TransactionTraceMessage;
+
+        public event SIPTransactionRemovedDelegate
+            TransactionRemoved; // This is called just before the SIPTransaction is expired and is to let consumer classes know to remove their event handlers to prevent memory leaks.
 
         public static string GetRequestTransactionId(string branchId, SIPMethodsEnum method)
         {

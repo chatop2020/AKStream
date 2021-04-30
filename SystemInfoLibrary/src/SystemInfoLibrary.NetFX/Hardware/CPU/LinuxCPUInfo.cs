@@ -7,6 +7,12 @@ namespace SystemInfoLibrary.Hardware.CPU
     {
         private readonly string _cpuInfo;
 
+
+        public LinuxCPUInfo(string cpuInfo)
+        {
+            _cpuInfo = cpuInfo;
+        }
+
         public override string Name
         {
             get
@@ -74,12 +80,6 @@ namespace SystemInfoLibrary.Hardware.CPU
                     ? value
                     : 0;
             }
-        }
-
-
-        public LinuxCPUInfo(string cpuInfo)
-        {
-            _cpuInfo = cpuInfo;
         }
     }
 }

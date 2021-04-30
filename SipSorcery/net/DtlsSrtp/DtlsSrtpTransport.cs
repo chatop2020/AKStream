@@ -39,44 +39,35 @@ namespace SIPSorcery.Net
 
         private static readonly Random random = new Random();
 
-        private IPacketTransformer srtpEncoder;
-        private IPacketTransformer srtpDecoder;
-        private IPacketTransformer srtcpEncoder;
-        private IPacketTransformer srtcpDecoder;
-        IDtlsSrtpPeer connection = null;
-
         /// <summary>The collection of chunks to be written.</summary>
         private BlockingCollection<byte[]> _chunks = new BlockingCollection<byte[]>(new ConcurrentQueue<byte[]>());
 
-        public DtlsTransport Transport { get; private set; }
+        private bool _isClosed = false;
+        IDtlsSrtpPeer connection = null;
+
+        private volatile bool handshakeComplete;
+        private volatile bool handshakeFailed;
+        private volatile bool handshaking;
+
+        // Network properties
+        private int mtu;
+
+        public Action<byte[]> OnDataReady;
+        private int receiveLimit;
+        private int sendLimit;
+        private IPacketTransformer srtcpDecoder;
+        private IPacketTransformer srtcpEncoder;
+        private IPacketTransformer srtpDecoder;
+
+        private IPacketTransformer srtpEncoder;
+
+        private DateTime startTime = DateTime.MinValue;
 
         /// <summary>
         /// Sets the period in milliseconds that the handshake attempt will timeout
         /// after.
         /// </summary>
         public int TimeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS;
-
-        public Action<byte[]> OnDataReady;
-
-        /// <summary>
-        /// Parameters:
-        ///  - alert level,
-        ///  - alert type,
-        ///  - alert description.
-        /// </summary>
-        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
-
-        private DateTime startTime = DateTime.MinValue;
-        private bool _isClosed = false;
-
-        // Network properties
-        private int mtu;
-        private int receiveLimit;
-        private int sendLimit;
-
-        private volatile bool handshakeComplete;
-        private volatile bool handshakeFailed;
-        private volatile bool handshaking;
 
         public DtlsSrtpTransport(IDtlsSrtpPeer connection, int mtu = DEFAULT_MTU)
         {
@@ -89,6 +80,8 @@ namespace SIPSorcery.Net
 
             connection.OnAlert += (level, type, description) => OnAlert?.Invoke(level, type, description);
         }
+
+        public DtlsTransport Transport { get; private set; }
 
         public IPacketTransformer SrtpDecoder
         {
@@ -109,6 +102,94 @@ namespace SIPSorcery.Net
         {
             get { return srtcpEncoder; }
         }
+
+        public bool IsClient
+        {
+            get { return connection.IsClient(); }
+        }
+
+        public int GetReceiveLimit()
+        {
+            return this.receiveLimit;
+        }
+
+        public int GetSendLimit()
+        {
+            return this.sendLimit;
+        }
+
+        public int Receive(byte[] buf, int off, int len, int waitMillis)
+        {
+            if (!handshakeComplete)
+            {
+                // The timeout for the handshake applies from when it started rather than
+                // for each individual receive..
+                int millisecondsRemaining = GetMillisecondsRemaining();
+
+                //Handshake reliable contains too long default backoff times
+                waitMillis = Math.Max(100, waitMillis / (random.Next(100, 1000)));
+
+                if (millisecondsRemaining <= 0)
+                {
+                    logger.LogWarning(
+                        $"DTLS transport timed out after {TimeoutMilliseconds}ms waiting for handshake from remote {(connection.IsClient() ? "server" : "client")}.");
+                    throw new TimeoutException();
+                }
+                else if (!_isClosed)
+                {
+                    waitMillis = (int) Math.Min(waitMillis, millisecondsRemaining);
+                    return Read(buf, off, len, waitMillis);
+                }
+                else
+                {
+                    return DTLS_RECEIVE_ERROR_CODE;
+                }
+            }
+            else if (!_isClosed)
+            {
+                return Read(buf, off, len, waitMillis);
+            }
+            else
+            {
+                return DTLS_RECEIVE_ERROR_CODE;
+            }
+        }
+
+        public void Send(byte[] buf, int off, int len)
+        {
+            if (len != buf.Length)
+            {
+                // Only create a new buffer and copy bytes if the length is different
+                var tempBuf = new byte[len];
+                Buffer.BlockCopy(buf, off, tempBuf, 0, len);
+                buf = tempBuf;
+            }
+
+            OnDataReady?.Invoke(buf);
+        }
+
+        public virtual void Close()
+        {
+            _isClosed = true;
+            this.startTime = DateTime.MinValue;
+            this._chunks?.Dispose();
+        }
+
+        /// <summary>
+        /// Close the transport if the instance is out of scope.
+        /// </summary>
+        public void Dispose()
+        {
+            Close();
+        }
+
+        /// <summary>
+        /// Parameters:
+        ///  - alert level,
+        ///  - alert type,
+        ///  - alert description.
+        /// </summary>
+        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
 
         public bool IsHandshakeComplete()
         {
@@ -135,11 +216,6 @@ namespace SIPSorcery.Net
             {
                 return DoHandshakeAsServer();
             }
-        }
-
-        public bool IsClient
-        {
-            get { return connection.IsClient(); }
         }
 
         public bool DoHandshakeAsClient()
@@ -427,16 +503,6 @@ namespace SIPSorcery.Net
             return TimeoutMilliseconds - (int) (DateTime.Now - this.startTime).TotalMilliseconds;
         }
 
-        public int GetReceiveLimit()
-        {
-            return this.receiveLimit;
-        }
-
-        public int GetSendLimit()
-        {
-            return this.sendLimit;
-        }
-
         public void WriteToRecvStream(byte[] buf)
         {
             _chunks.Add(buf);
@@ -462,75 +528,10 @@ namespace SIPSorcery.Net
             return DTLS_RETRANSMISSION_CODE;
         }
 
-        public int Receive(byte[] buf, int off, int len, int waitMillis)
-        {
-            if (!handshakeComplete)
-            {
-                // The timeout for the handshake applies from when it started rather than
-                // for each individual receive..
-                int millisecondsRemaining = GetMillisecondsRemaining();
-
-                //Handshake reliable contains too long default backoff times
-                waitMillis = Math.Max(100, waitMillis / (random.Next(100, 1000)));
-
-                if (millisecondsRemaining <= 0)
-                {
-                    logger.LogWarning(
-                        $"DTLS transport timed out after {TimeoutMilliseconds}ms waiting for handshake from remote {(connection.IsClient() ? "server" : "client")}.");
-                    throw new TimeoutException();
-                }
-                else if (!_isClosed)
-                {
-                    waitMillis = (int) Math.Min(waitMillis, millisecondsRemaining);
-                    return Read(buf, off, len, waitMillis);
-                }
-                else
-                {
-                    return DTLS_RECEIVE_ERROR_CODE;
-                }
-            }
-            else if (!_isClosed)
-            {
-                return Read(buf, off, len, waitMillis);
-            }
-            else
-            {
-                return DTLS_RECEIVE_ERROR_CODE;
-            }
-        }
-
-        public void Send(byte[] buf, int off, int len)
-        {
-            if (len != buf.Length)
-            {
-                // Only create a new buffer and copy bytes if the length is different
-                var tempBuf = new byte[len];
-                Buffer.BlockCopy(buf, off, tempBuf, 0, len);
-                buf = tempBuf;
-            }
-
-            OnDataReady?.Invoke(buf);
-        }
-
-        public virtual void Close()
-        {
-            _isClosed = true;
-            this.startTime = DateTime.MinValue;
-            this._chunks?.Dispose();
-        }
-
         /// <summary>
         /// Close the transport if the instance is out of scope.
         /// </summary>
         protected void Dispose(bool disposing)
-        {
-            Close();
-        }
-
-        /// <summary>
-        /// Close the transport if the instance is out of scope.
-        /// </summary>
-        public void Dispose()
         {
             Close();
         }

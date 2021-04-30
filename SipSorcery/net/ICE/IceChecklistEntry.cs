@@ -95,8 +95,45 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
+        /// <summary>
+        /// The number of checks that have been sent without a response.
+        /// </summary>
+        public int ChecksSent;
+
+        /// <summary>
+        /// The candidate pairs whose local and remote candidates are both the
+        /// default candidates for a particular component is called the "default
+        /// candidate pair" for that component.  This is the pair that would be
+        /// used to transmit data if both agents had not been ICE aware.
+        /// </summary>
+        public bool Default;
+
+        /// <summary>
+        /// Timestamp the first connectivity check (STUN binding request) was sent at.
+        /// </summary>
+        public DateTime FirstCheckSentAt = DateTime.MinValue;
+
+        /// <summary>
+        /// Timestamp the last connectivity check (STUN binding request) was sent at.
+        /// </summary>
+        public DateTime LastCheckSentAt = DateTime.MinValue;
+
         public RTCIceCandidate LocalCandidate;
+
+        /// <summary>
+        /// Gets set to true if this entry is selected as the single nominated entry to be
+        /// used for the session communications. Setting a check list entry as nominated
+        /// indicates the ICE checks have been successful and the application can begin
+        /// normal communications.
+        /// </summary>
+        public bool Nominated;
+
         public RTCIceCandidate RemoteCandidate;
+
+        /// <summary>
+        /// The transaction ID that was set in the last STUN request connectivity check.
+        /// </summary>
+        public string RequestTransactionID;
 
         /// <summary>
         /// The current state of this checklist entry. Indicates whether a STUN check has been
@@ -109,26 +146,26 @@ namespace SIPSorcery.Net
         public ChecklistEntryState State = ChecklistEntryState.Frozen;
 
         /// <summary>
-        /// The candidate pairs whose local and remote candidates are both the
-        /// default candidates for a particular component is called the "default
-        /// candidate pair" for that component.  This is the pair that would be
-        /// used to transmit data if both agents had not been ICE aware.
-        /// </summary>
-        public bool Default;
-
-        /// <summary>
         /// Gets set to true when the connectivity checks for the candidate pair are
         /// successful. Valid entries are eligible to be set as nominated.
         /// </summary>
         public bool Valid;
 
         /// <summary>
-        /// Gets set to true if this entry is selected as the single nominated entry to be
-        /// used for the session communications. Setting a check list entry as nominated
-        /// indicates the ICE checks have been successful and the application can begin
-        /// normal communications.
+        /// Creates a new entry for the ICE session checklist.
         /// </summary>
-        public bool Nominated;
+        /// <param name="localCandidate">The local candidate for the checklist pair.</param>
+        /// <param name="remoteCandidate">The remote candidate for the checklist pair.</param>
+        /// <param name="isLocalController">True if we are acting as the controlling agent in the ICE session.</param>
+        public ChecklistEntry(RTCIceCandidate localCandidate, RTCIceCandidate remoteCandidate, bool isLocalController)
+        {
+            LocalCandidate = localCandidate;
+            RemoteCandidate = remoteCandidate;
+            IsLocalController = isLocalController;
+
+            LocalPriority = localCandidate.priority;
+            RemotePriority = remoteCandidate.priority;
+        }
 
         public uint LocalPriority { get; private set; }
 
@@ -150,26 +187,6 @@ namespace SIPSorcery.Net
                  : RemotePriority > LocalPriority ? 1 : 0));
 
         /// <summary>
-        /// Timestamp the first connectivity check (STUN binding request) was sent at.
-        /// </summary>
-        public DateTime FirstCheckSentAt = DateTime.MinValue;
-
-        /// <summary>
-        /// Timestamp the last connectivity check (STUN binding request) was sent at.
-        /// </summary>
-        public DateTime LastCheckSentAt = DateTime.MinValue;
-
-        /// <summary>
-        /// The number of checks that have been sent without a response.
-        /// </summary>
-        public int ChecksSent;
-
-        /// <summary>
-        /// The transaction ID that was set in the last STUN request connectivity check.
-        /// </summary>
-        public string RequestTransactionID;
-
-        /// <summary>
         /// Before a remote peer will be able to use the relay it's IP address needs
         /// to be authorised by sending a Create Permissions request to the TURN server.
         /// This field records the number of Create Permissions requests that have been
@@ -189,22 +206,6 @@ namespace SIPSorcery.Net
         public DateTime LastConnectedResponseAt { get; set; }
 
         public bool IsLocalController { get; private set; }
-
-        /// <summary>
-        /// Creates a new entry for the ICE session checklist.
-        /// </summary>
-        /// <param name="localCandidate">The local candidate for the checklist pair.</param>
-        /// <param name="remoteCandidate">The remote candidate for the checklist pair.</param>
-        /// <param name="isLocalController">True if we are acting as the controlling agent in the ICE session.</param>
-        public ChecklistEntry(RTCIceCandidate localCandidate, RTCIceCandidate remoteCandidate, bool isLocalController)
-        {
-            LocalCandidate = localCandidate;
-            RemoteCandidate = remoteCandidate;
-            IsLocalController = isLocalController;
-
-            LocalPriority = localCandidate.priority;
-            RemotePriority = remoteCandidate.priority;
-        }
 
         /// <summary>
         /// Compare method to allow the checklist to be sorted in priority order.

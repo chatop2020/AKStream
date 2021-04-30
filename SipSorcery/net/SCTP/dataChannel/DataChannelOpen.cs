@@ -82,20 +82,20 @@ namespace SIPSorcery.Net.Sctp
         public const byte PARTIAL_RELIABLE_TIMED = 0x02;
         public const byte PARTIAL_RELIABLE_TIMED_UNORDERED = (byte) 0x82;
         public const byte RELIABLE_UNORDERED = (byte) 0x80;
-
-        private static ILogger logger = Log.Logger;
-
-        private byte _messType;
-        private byte _chanType;
-        private int _priority;
-        private long _reliablity;
-        public int _labLen;
-        public int _protLen;
-        private byte[] _label;
-        private byte[] _protocol;
         const int OPEN = 0x03;
         const int ACK = 0x02;
+
+        private static ILogger logger = Log.Logger;
+        private byte _chanType;
         bool _isAck = false;
+        private byte[] _label;
+        public int _labLen;
+
+        private byte _messType;
+        private int _priority;
+        public int _protLen;
+        private byte[] _protocol;
+        private long _reliablity;
 
         public DataChannelOpen(string label) : this((byte) RELIABLE, 0, 0, label, "")
         {
@@ -111,28 +111,6 @@ namespace SIPSorcery.Net.Sctp
             _protocol = Encoding.UTF8.GetBytes(protocol);
             _labLen = _label.Length;
             _protLen = _protocol.Length;
-        }
-
-        public byte[] getBytes()
-        {
-            //int sz = 12 + _labLen + pad(_labLen) + _protLen + pad(_protLen);
-            int sz = 12 + _labLen + _protLen;
-            //logger.LogDebug("DataChannelOpen needs " + sz + " bytes ");
-
-            byte[] ret = new byte[sz];
-            ByteBuffer buff = new ByteBuffer(ret);
-            buff.Put((byte) _messType);
-            buff.Put((byte) _chanType);
-            buff.Put((ushort) _priority);
-            buff.Put((int) _reliablity);
-            buff.Put((ushort) _labLen);
-            buff.Put((ushort) _protLen);
-            buff.Put(_label);
-            //buff.Position += pad(_labLen);
-            buff.Put(_protocol);
-            //buff.Position += pad(_protLen);
-
-            return ret;
         }
 
         public DataChannelOpen(ByteBuffer bb)
@@ -157,6 +135,28 @@ namespace SIPSorcery.Net.Sctp
                 default:
                     throw new InvalidDataChunkException("Unexpected DCEP message type " + _messType);
             }
+        }
+
+        public byte[] getBytes()
+        {
+            //int sz = 12 + _labLen + pad(_labLen) + _protLen + pad(_protLen);
+            int sz = 12 + _labLen + _protLen;
+            //logger.LogDebug("DataChannelOpen needs " + sz + " bytes ");
+
+            byte[] ret = new byte[sz];
+            ByteBuffer buff = new ByteBuffer(ret);
+            buff.Put((byte) _messType);
+            buff.Put((byte) _chanType);
+            buff.Put((ushort) _priority);
+            buff.Put((int) _reliablity);
+            buff.Put((ushort) _labLen);
+            buff.Put((ushort) _protLen);
+            buff.Put(_label);
+            //buff.Position += pad(_labLen);
+            buff.Put(_protocol);
+            //buff.Position += pad(_protLen);
+
+            return ret;
         }
 
         public override string ToString()

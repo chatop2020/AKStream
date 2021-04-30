@@ -26,15 +26,38 @@ namespace SIPSorcery.Net.Sctp
     {
         private static ILogger logger = Log.Logger;
         private ConcurrentDictionary<uint, DataChunk> Chunks = new ConcurrentDictionary<uint, DataChunk>();
-        private DataChunk start;
         private DataChunk end;
-        private object myLock = new object();
         private bool isDone;
+        private object myLock = new object();
         public int Number;
+        private DataChunk start;
 
         public OrderedMessage(int num)
         {
             this.Number = num;
+        }
+
+        public bool IsReady
+        {
+            get
+            {
+                if (start == null || end == null)
+                {
+                    return false;
+                }
+
+                for (uint i = start.getTsn(); i <= end?.getTsn(); i++)
+                {
+                    if (!Chunks.ContainsKey(i))
+                    {
+                        return false;
+                    }
+                }
+
+                logger.LogDebug($"isready message no{this.Number}");
+
+                return true;
+            }
         }
 
         public OrderedMessage Add(DataChunk dc, int type)
@@ -69,29 +92,6 @@ namespace SIPSorcery.Net.Sctp
         public void AddToList(List<DataChunk> array)
         {
             array.AddRange(Chunks.Values);
-        }
-
-        public bool IsReady
-        {
-            get
-            {
-                if (start == null || end == null)
-                {
-                    return false;
-                }
-
-                for (uint i = start.getTsn(); i <= end?.getTsn(); i++)
-                {
-                    if (!Chunks.ContainsKey(i))
-                    {
-                        return false;
-                    }
-                }
-
-                logger.LogDebug($"isready message no{this.Number}");
-
-                return true;
-            }
         }
 
         public SortedArray<DataChunk> ToArray()

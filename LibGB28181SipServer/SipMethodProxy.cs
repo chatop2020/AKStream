@@ -17,18 +17,20 @@ namespace LibGB28181SipServer
     public class SipMethodProxy : IDisposable
     {
         private AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
+        private CommandType _commandType;
         private SipServer _sipServer;
         private int _timeout;
-        private CommandType _commandType;
 
         public SipMethodProxy(int timeout = 5000)
         {
             _timeout = timeout;
         }
 
-        ~SipMethodProxy()
+        [JsonConverter(typeof(StringEnumConverter))]
+        public CommandType CommandType
         {
-            Dispose(); //释放非托管资源
+            get => _commandType;
+            set => _commandType = value;
         }
 
         public void Dispose()
@@ -39,11 +41,9 @@ namespace LibGB28181SipServer
             }
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public CommandType CommandType
+        ~SipMethodProxy()
         {
-            get => _commandType;
-            set => _commandType = value;
+            Dispose(); //释放非托管资源
         }
 
 
@@ -109,7 +109,6 @@ namespace LibGB28181SipServer
         public int QueryRecordFileList(SipChannel sipChannel, SipQueryRecordFile queryRecordFile,
             out ResponseStruct rs)
         {
-
             queryRecordFile.TaskId = new Random().Next(1, int.MaxValue);
             AutoResetEvent _autoResetEvent2 = null;
             try
@@ -117,17 +116,16 @@ namespace LibGB28181SipServer
                 _commandType = CommandType.RecordInfo;
                 _autoResetEvent2 = new AutoResetEvent(false);
                 Common.SipServer.GetRecordFileList(sipChannel, queryRecordFile, _autoResetEvent, _autoResetEvent2,
-                    out rs,_timeout);
+                    out rs, _timeout);
                 var isTimeout = _autoResetEvent.WaitOne(_timeout);
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
-                    
                     Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
                     return -1;
                 }
 
                 isTimeout = _autoResetEvent2.WaitOne(_timeout);
-                
+
                 if (isTimeout)
                 {
                     return (int) queryRecordFile.TaskId;
@@ -251,15 +249,13 @@ namespace LibGB28181SipServer
                     sipChannel.PushStatus = PushStatus.IDLE;
                     return false;
                 }
-                
-             
+
 
                 sipChannel.PushStatus = PushStatus.PUSHON;
                 return true;
             }
             catch (Exception ex)
             {
-                
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.Sip_InviteExcept,

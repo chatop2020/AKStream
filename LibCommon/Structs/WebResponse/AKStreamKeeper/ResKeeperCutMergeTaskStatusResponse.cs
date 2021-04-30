@@ -6,10 +6,8 @@ namespace LibCommon.Structs.WebResponse.AKStreamKeeper
     [Serializable]
     public class ResKeeperCutMergeTaskStatusResponse
     {
-        private string? _taskId;
         private string? _callbakUrl;
         private DateTime _createTime;
-        private MyTaskStatus? _taskStatus;
         private string? _playUrl;
 
         /// <summary>
@@ -19,6 +17,9 @@ namespace LibCommon.Structs.WebResponse.AKStreamKeeper
         /// Mergeing=40%
         /// </summary>
         private double? _processPercentage = 0f;
+
+        private string? _taskId;
+        private MyTaskStatus? _taskStatus;
 
         public string? TaskId
         {

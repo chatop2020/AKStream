@@ -56,8 +56,8 @@ namespace SIPSorcery.Net
         public const int MIN_PACKET_SIZE = RTCPHeader.HEADER_BYTES_LENGTH + 4;
 
         public RTCPHeader Header;
-        public uint SSRC;
         public List<ReceptionReportSample> ReceptionReports;
+        public uint SSRC;
 
         /// <summary>
         /// Creates a new RTCP Reception Report payload.

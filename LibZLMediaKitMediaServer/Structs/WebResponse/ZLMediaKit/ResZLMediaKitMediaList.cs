@@ -69,12 +69,12 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private int? _codec_id;
         private string? _codec_id_name;
         private int? _codec_type;
+        private int? _fps;
+        private int? _height;
         private string? _ready;
         private int? _sample_bit;
         private int? _sample_rate;
-        private int? _fps;
         private int? _width;
-        private int? _height;
 
 
         [JsonProperty("channels")]
@@ -149,19 +149,19 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
     public class MediaDataItem
     {
         private int? _aliveSecond;
+        private string? _app;
         private int? _bytesSpeed;
         private long? _createStamp;
-        private string? _app;
-        private int? _readerCount;
-        private string? _schema;
-        private string? _stream;
-        private int? _totalReaderCount;
-        private string? _vhost;
         private OriginSock? _originSock;
         private OriginType? _originType;
         private string? _originTypeStr;
         private string? _originUrl;
+        private int? _readerCount;
+        private string? _schema;
+        private string? _stream;
+        private int? _totalReaderCount;
         private List<TracksItem> _tracks;
+        private string? _vhost;
 
         [JsonProperty("createStamp")]
         public long? CreateStamp
@@ -232,12 +232,14 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             get => _originSock;
             set => _originSock = value;
         }
+
         [JsonProperty("originType")]
         public OriginType? OriginType
         {
             get => _originType;
             set => _originType = value;
         }
+
         [JsonProperty("originTypeStr")]
         public string? OriginTypeStr
         {
@@ -246,7 +248,6 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         }
 
         [JsonProperty("originUrl")]
-        
         public string? OriginUrl
         {
             get => _originUrl;

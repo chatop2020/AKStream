@@ -36,12 +36,21 @@ namespace SIPSorcery.SIP
         public static int CONNECTION_ID_LENGTH = 7; // Length of the random numeric string to use for connection ID's.
 
         /// <summary>
-        /// The underlying TCP socket for the stream connection. To take advantage of newer async TCP IO operations the
-        /// RecvSocketArgs is used for TCP channel receives. 
+        /// The connection protocol in use for this stream (TCP or TLS).
         /// </summary>
-        public Socket StreamSocket;
+        public SIPProtocolsEnum ConnectionProtocol;
+
+        /// <summary>
+        /// Records when a transmission was last sent or received on this stream.
+        /// </summary>
+        public DateTime LastTransmission;
 
         public SocketAsyncEventArgs RecvSocketArgs;
+
+        /// <summary>
+        /// The remote end point for the stream.
+        /// </summary>
+        public IPEndPoint RemoteEndPoint;
 
         /// <summary>
         /// For secure streams the TCP connection will be upgraded to an SSL stream and the SslStreamBuffer will
@@ -55,40 +64,10 @@ namespace SIPSorcery.SIP
         public byte[] SslStreamBuffer;
 
         /// <summary>
-        /// The remote end point for the stream.
+        /// The underlying TCP socket for the stream connection. To take advantage of newer async TCP IO operations the
+        /// RecvSocketArgs is used for TCP channel receives. 
         /// </summary>
-        public IPEndPoint RemoteEndPoint;
-
-        /// <summary>
-        /// The connection protocol in use for this stream (TCP or TLS).
-        /// </summary>
-        public SIPProtocolsEnum ConnectionProtocol;
-
-        /// <summary>
-        /// Records when a transmission was last sent or received on this stream.
-        /// </summary>
-        public DateTime LastTransmission;
-
-        /// <summary>
-        /// The current start position of unprocessed data in the receive buffer.
-        /// </summary>
-        public int RecvStartPosn { get; private set; }
-
-        /// <summary>
-        /// The current end position of unprocessed data in the receive buffer.
-        /// </summary>
-        public int RecvEndPosn { get; private set; }
-
-        /// <summary>
-        /// A unique ID for this connection. It will be recorded on any received messages to allow responses to quickly
-        /// identify the same connection.
-        /// </summary>
-        public string ConnectionID { get; private set; }
-
-        /// <summary>
-        /// Event for new SIP requests or responses becoming available.
-        /// </summary>
-        public event SIPMessageReceivedAsyncDelegate SIPMessageReceived;
+        public Socket StreamSocket;
 
         /// <summary>
         /// Records the crucial stream connection properties and initialises the required buffers.
@@ -110,6 +89,27 @@ namespace SIPSorcery.SIP
                 RecvSocketArgs.SetBuffer(new byte[2 * MaxSIPTCPMessageSize], 0, 2 * MaxSIPTCPMessageSize);
             }
         }
+
+        /// <summary>
+        /// The current start position of unprocessed data in the receive buffer.
+        /// </summary>
+        public int RecvStartPosn { get; private set; }
+
+        /// <summary>
+        /// The current end position of unprocessed data in the receive buffer.
+        /// </summary>
+        public int RecvEndPosn { get; private set; }
+
+        /// <summary>
+        /// A unique ID for this connection. It will be recorded on any received messages to allow responses to quickly
+        /// identify the same connection.
+        /// </summary>
+        public string ConnectionID { get; private set; }
+
+        /// <summary>
+        /// Event for new SIP requests or responses becoming available.
+        /// </summary>
+        public event SIPMessageReceivedAsyncDelegate SIPMessageReceived;
 
         /// <summary>
         /// Attempts to extract SIP messages from the data that has been received on the SIP stream connection.

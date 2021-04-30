@@ -27,26 +27,28 @@ namespace SIPSorcery.SIP
         private static readonly string m_dialogXMLNS = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
         private static readonly string m_sipsorceryXMLNS = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_URN;
 
-        public string ID; // The ID is a only mandatory attribute for a dialog element.
+        public string
+            BridgeID; // SIPSorcery custom field that is used to show when two dialogues are bridged together by the B2BUA.
+
         public string CallID;
-        public string LocalTag;
-        public string RemoteTag;
 
         public SIPEventDialogDirectionEnum
             Direction; // Optional setting indicating whether this dialog was initiated by a sipsorcery user or not.
 
-        public string State; // The state a mandatory value for a dialog element.
-        public int StateCode;
-        public SIPEventDialogStateEvent StateEvent;
         public int Duration;
-        public SIPEventDialogParticipant LocalParticipant;
-        public SIPEventDialogParticipant RemoteParticipant;
-
-        public string
-            BridgeID; // SIPSorcery custom field that is used to show when two dialogues are bridged together by the B2BUA.
 
         public bool
             HasBeenSent; // Can be used by a subscription manager to indicate the event has been included in a notify request.
+
+        public string ID; // The ID is a only mandatory attribute for a dialog element.
+        public SIPEventDialogParticipant LocalParticipant;
+        public string LocalTag;
+        public SIPEventDialogParticipant RemoteParticipant;
+        public string RemoteTag;
+
+        public string State; // The state a mandatory value for a dialog element.
+        public int StateCode;
+        public SIPEventDialogStateEvent StateEvent;
 
         private SIPEventDialog()
         {

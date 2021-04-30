@@ -27,26 +27,6 @@ namespace SIPSorcery.Net.Sctp
 {
     public class ReconfigurationResponseParameter : KnownParam
     {
-        /*
-		 0                   1                   2                   3
-		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |     Parameter Type = 16       |      Parameter Length         |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |         Re-configuration Response Sequence Number             |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                            Result                             |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                   Sender's Next TSN (optional)                |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                  Receiver's Next TSN (optional)               |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 */
-        uint seqNo;
-        uint result;
-        uint senderNextTSN;
-        uint receiverNextTSN;
-        bool hasTSNs;
         public const int SUCCESS_NOTHING_TO_DO = 0;
         public const int SUCCESS_PERFORMED = 1;
         public const int DENIED = 2;
@@ -66,19 +46,42 @@ namespace SIPSorcery.Net.Sctp
             "In progress"
         };
 
+        bool hasTSNs;
+        uint receiverNextTSN;
+        uint result;
+
+        uint senderNextTSN;
+
         /*
-				 +--------+-------------------------------------+
-				 | Result | Description                         |
-				 +--------+-------------------------------------+
-				 | 0      | Success - Nothing to do             |
-				 | 1      | Success - Performed                 |
-				 | 2      | Denied                              |
-				 | 3      | Error - Wrong SSN                   |
-				 | 4      | Error - Request already in progress |
-				 | 5      | Error - Bad Sequence Number         |
-				 | 6      | In progress                         |
-				 +--------+-------------------------------------+
-		 */
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |     Parameter Type = 16       |      Parameter Length         |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |         Re-configuration Response Sequence Number             |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                            Result                             |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                   Sender's Next TSN (optional)                |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                  Receiver's Next TSN (optional)               |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         */
+        uint seqNo;
+
+        /*
+                 +--------+-------------------------------------+
+                 | Result | Description                         |
+                 +--------+-------------------------------------+
+                 | 0      | Success - Nothing to do             |
+                 | 1      | Success - Performed                 |
+                 | 2      | Denied                              |
+                 | 3      | Error - Wrong SSN                   |
+                 | 4      | Error - Request already in progress |
+                 | 5      | Error - Bad Sequence Number         |
+                 | 6      | In progress                         |
+                 +--------+-------------------------------------+
+         */
         public ReconfigurationResponseParameter(int t, string n) : base(t, n)
         {
         }

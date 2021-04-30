@@ -24,11 +24,6 @@ namespace SIPSorcery.Net
         public bool ChangeAddress = false;
         public bool ChangePort = false;
 
-        public override UInt16 PaddedLength
-        {
-            get { return CHANGEREQUEST_ATTRIBUTE_LENGTH; }
-        }
-
         private byte m_changeRequestByte;
 
         public STUNChangeRequestAttribute(byte[] attributeValue)
@@ -49,6 +44,11 @@ namespace SIPSorcery.Net
                 ChangePort = true;
                 ChangeAddress = true;
             }
+        }
+
+        public override UInt16 PaddedLength
+        {
+            get { return CHANGEREQUEST_ATTRIBUTE_LENGTH; }
         }
 
         public override string ToString()

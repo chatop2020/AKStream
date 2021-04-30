@@ -372,7 +372,6 @@ namespace AKStreamKeeper.Services
                                 var l = subFiles.Length;
                                 if (l == 0)
                                 {
-                                    
                                     subdir.Delete();
                                     dirList += "清理空目录 ->" + subdir + "\r\n";
                                 }

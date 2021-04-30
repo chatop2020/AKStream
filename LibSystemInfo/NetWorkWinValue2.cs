@@ -8,15 +8,28 @@ namespace LibSystemInfo
 {
     public static class NetWorkWinValue2
     {
-        [DllImport("IpHlpApi.dll")]
-        extern static public uint GetIfTable(byte[] pIfTable, ref uint pdwSize, bool bOrder);
-
-
         private static Object lockObj = new object();
         public static NetWorkStat NetWorkStat = new NetWorkStat();
 
         private static ulong _sendPer = 0;
         private static ulong _recvPer = 0;
+
+        static NetWorkWinValue2()
+        {
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    run();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
+
+        [DllImport("IpHlpApi.dll")]
+        extern static public uint GetIfTable(byte[] pIfTable, ref uint pdwSize, bool bOrder);
 
         private static List<NetInfo> GetALLNetInfo()
         {
@@ -137,20 +150,6 @@ namespace LibSystemInfo
                     //
                 }
             }
-        }
-
-        static NetWorkWinValue2()
-        {
-            new Thread(new ThreadStart(delegate
-            {
-                try
-                {
-                    run();
-                }
-                catch
-                {
-                }
-            })).Start();
         }
     }
 }

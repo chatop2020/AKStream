@@ -12,9 +12,9 @@ namespace LibCommon.Structs.GB28181
     public class PtzCtrl
     {
         private PTZCommandType _ptzCommandType;
-        private int _speed;
-        private SipDevice _sipDevice = null;
         private SipChannel? _sipChannel = null;
+        private SipDevice _sipDevice = null;
+        private int _speed;
 
         /// <summary>
         /// 控制命令类型

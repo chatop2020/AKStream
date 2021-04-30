@@ -9,10 +9,10 @@ namespace LibCommon.Structs
     [Serializable]
     public class MediaServerStreamPlayerInfo
     {
-        private string _playerId;
         private string _ipAddress = null!;
-        private ushort _port;
         private string? _params;
+        private string _playerId;
+        private ushort _port;
         private DateTime _startTime;
 
 
@@ -69,23 +69,23 @@ namespace LibCommon.Structs
     [Serializable]
     public class MediaServerStreamInfo
     {
+        private string _app = null!;
+        private bool? _isRecorded = false;
         private string _mediaServerId = null!;
         private string _mediaServerIp = null!;
-        private string _streamIp = null;
-        private string? _streamTcpId = null;
-        private ushort? _rptPort = 0;
-        private ushort _streamPort = 0;
-        private DateTime _startTime;
-        private string _vhost = null!;
-        private string _app = null!;
-        private string _stream = null!;
-        private string? _params = null;
-        private List<string> _playUrl = new List<string>();
-        private uint? ssrc;
-        private bool? _isRecorded = false;
         private string? _noGB28181Key = "";
-        private PushStreamSocketType? _pushSocketType = null;
+        private string? _params = null;
         private List<MediaServerStreamPlayerInfo> _playerList = new List<MediaServerStreamPlayerInfo>();
+        private List<string> _playUrl = new List<string>();
+        private PushStreamSocketType? _pushSocketType = null;
+        private ushort? _rptPort = 0;
+        private DateTime _startTime;
+        private string _stream = null!;
+        private string _streamIp = null;
+        private ushort _streamPort = 0;
+        private string? _streamTcpId = null;
+        private string _vhost = null!;
+        private uint? ssrc;
 
 
         /// <summary>

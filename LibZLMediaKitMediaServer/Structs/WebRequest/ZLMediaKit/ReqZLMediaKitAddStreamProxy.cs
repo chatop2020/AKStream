@@ -5,14 +5,14 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitAddStreamProxy : ReqZLMediaKitRequestBase
     {
-        private string _vhost;
         private string _app;
-        private string _stream;
-        private string _url;
         private int? _enable_hls;
         private int? _enable_mp4;
         private int _rtp_type;
+        private string _stream;
         private float? _timeout_sec;
+        private string _url;
+        private string _vhost;
 
 
         /// <summary>

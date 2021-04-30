@@ -6,20 +6,17 @@ using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
-using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebHookResponse;
-using LiteDB;
 
 namespace AKStreamWeb.Services
 {
     public static class WebHookService
     {
-
         /// <summary>
         /// 判断是否为回放流,如果找到返回obj信息
         /// </summary>
@@ -27,44 +24,24 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         private static bool isRecordStream(string stream, out VideoChannelRecordInfo outobj)
         {
-
-
             foreach (var obj in GCommon.VideoChannelRecordInfo)
             {
                 if (obj != null && obj.RecItems != null && obj.RecItems.Count > 0)
                 {
-                   var o= obj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(stream.Trim().ToLower()));
-                   if (o != null)
-                   {
-                       outobj = obj;
-                       return true; 
-                   }
-                }
-            }
-            
-            
-            /*var list = GCommon.Ldb.VideoChannelRecordInfo.FindAll();
-            if (list != null && list.Count() > 0)
-            {
-                foreach (var obj in list)
-                {
-                    if (obj.RecItems != null && obj.RecItems.Count > 0)
+                    var o = obj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(stream.Trim().ToLower()));
+                    if (o != null)
                     {
-                        var o = obj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(stream.Trim().ToLower()));
-                        if (o != null)
-                        {
-                            outobj = obj;
-                            return true;
-                        }
+                        outobj = obj;
+                        return true;
                     }
                 }
-            }*/
+            }
 
             outobj = null;
             return false;
         }
 
-       
+
         public static ResToWebHookOnRecordMP4 OnRecordMp4(ReqForWebHookOnRecordMP4 req)
         {
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRecordMp4回调->{JsonHelper.ToJson(req)}");
@@ -212,7 +189,7 @@ namespace AKStreamWeb.Services
             }
             else if (req.Player == false)
             {
-                if (!isRecordStream(req.Stream,out _))
+                if (!isRecordStream(req.Stream, out _))
                 {
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -261,7 +238,7 @@ namespace AKStreamWeb.Services
             VideoChannelRecordInfo outobj = null;
             var b = isRecordStream(req.Stream, out outobj);
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
-            if (b==false)
+            if (b == false)
             {
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -282,20 +259,18 @@ namespace AKStreamWeb.Services
             }
             else
             {
-               
                 if (outobj != null)
                 {
                     var record =
                         outobj.RecItems.FindLast(x => x.Stream.Trim().ToLower().Equals(req.Stream.Trim().ToLower()));
                     if (record != null)
                     {
-                        var ret = SipServerService.StopLiveVideo(outobj.TaskId, record.SsrcId,out ResponseStruct rs);
+                        var ret = SipServerService.StopLiveVideo(outobj.TaskId, record.SsrcId, out ResponseStruct rs);
                         if (rs.Code == ErrorNumber.None)
                         {
                             if (ret)
                             {
                                 Logger.Info($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流成功");
-  
                             }
                             else
                             {
@@ -305,12 +280,9 @@ namespace AKStreamWeb.Services
                         else
                         {
                             Logger.Error($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流时出现异常->{JsonHelper.ToJson(rs)}");
- 
                         }
-                      
                     }
                 }
-              
             }
 
             return new ResToWebHookOnStreamNoneReader()
@@ -328,7 +300,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnStreamChange OnStreamChanged(ReqForWebHookOnStreamChange req)
         {
-            if (req.Schema.Trim().ToLower().Equals("rtmp") && !isRecordStream(req.Stream,out _))
+            if (req.Schema.Trim().ToLower().Equals("rtmp") && !isRecordStream(req.Stream, out _))
             {
                 if (req.Regist == true)
                 {
@@ -413,7 +385,8 @@ namespace AKStreamWeb.Services
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
                         var sipDevice =
-                            LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(videoChannel.DeviceId));
+                            LibGB28181SipServer.Common.SipDevices.FindLast(
+                                x => x.DeviceId.Equals(videoChannel.DeviceId));
 
                         if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
                         {
@@ -435,15 +408,13 @@ namespace AKStreamWeb.Services
                         x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
                 }
             }
-            else if(req.Schema.Trim().ToLower().Equals("rtmp") && isRecordStream(req.Stream,out _))
+            else if (req.Schema.Trim().ToLower().Equals("rtmp") && isRecordStream(req.Stream, out _))
             {
                 if (req.Regist == false)
                 {
-                    
                     GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                        x.MediaServerId.Equals(req.MediaServerId) && x.MainId.Equals(req.Stream)); 
+                        x.MediaServerId.Equals(req.MediaServerId) && x.MainId.Equals(req.Stream));
                 }
-                
             }
 
             return new ResToWebHookOnStreamChange()
@@ -461,10 +432,9 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnPlay OnPlay(ReqForWebHookOnPlay req)
         {
-            
             Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPlay回调->{JsonHelper.ToJson(req)}");
 
-            if (!isRecordStream(req.Stream,out _))
+            if (!isRecordStream(req.Stream, out _))
             {
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
@@ -502,7 +472,7 @@ namespace AKStreamWeb.Services
             else
             {
                 var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(req.Stream) );
+                    x.MainId.Equals(req.Stream));
                 if (retobj != null && retobj.MediaServerStreamInfo != null)
                 {
                     if (retobj.MediaServerStreamInfo.PlayerList == null)
@@ -519,7 +489,7 @@ namespace AKStreamWeb.Services
                         StartTime = DateTime.Now,
                     });
                     GCommon.Ldb.VideoOnlineInfo.Update(retobj);
-                } 
+                }
             }
 
 
@@ -554,7 +524,7 @@ namespace AKStreamWeb.Services
 
             VideoChannel videoChannel = null;
 
-            if (!isRecordStream(req.Stream,out _))
+            if (!isRecordStream(req.Stream, out _))
             {
                 videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .First();
@@ -583,7 +553,7 @@ namespace AKStreamWeb.Services
 
 
             if ((videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181) ||
-                (isRecordStream(req.Stream,out _)))
+                (isRecordStream(req.Stream, out _)))
             {
                 var taskStr = $"WAITONPUBLISH_{req.Stream}";
                 WebHookNeedReturnTask webHookNeedReturnTask;

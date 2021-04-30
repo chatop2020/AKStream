@@ -24,11 +24,6 @@ namespace SIPSorcery.Net
         public byte ErrorNumber; // The units value of the error code must be between 0 and 99.
         public string ReasonPhrase;
 
-        public int ErrorCode
-        {
-            get { return ErrorClass * 100 + ErrorNumber; }
-        }
-
         public STUNErrorCodeAttribute(byte[] attributeValue)
             : base(STUNAttributeTypesEnum.ErrorCode, attributeValue)
         {
@@ -43,6 +38,11 @@ namespace SIPSorcery.Net
             ErrorClass = errorCode < 700 ? Convert.ToByte(ErrorCode / 100) : (byte) 0x00;
             ErrorNumber = Convert.ToByte(errorCode % 100);
             ReasonPhrase = reasonPhrase;
+        }
+
+        public int ErrorCode
+        {
+            get { return ErrorClass * 100 + ErrorNumber; }
         }
 
         public override int ToByteBuffer(byte[] buffer, int startIndex)

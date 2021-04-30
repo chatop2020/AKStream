@@ -23,6 +23,8 @@ namespace LibCommon.Structs.GB28181.XML
             }
         }
 
+        [XmlElement("MonitorLoopbackPort")] public MonitorLoopbackPort MonitorPort { get; set; }
+
         public override string Save<T>(T t)
         {
             XmlSerializer xs = new XmlSerializer(typeof(T));
@@ -45,8 +47,6 @@ namespace LibCommon.Structs.GB28181.XML
 
             return Encoding.UTF8.GetString(stream.ToArray()).Replace("\r", "");
         }
-
-        [XmlElement("MonitorLoopbackPort")] public MonitorLoopbackPort MonitorPort { get; set; }
 
         public class MonitorLoopbackPort
         {

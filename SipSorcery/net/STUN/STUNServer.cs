@@ -34,21 +34,16 @@ namespace SIPSorcery.Net
     public class STUNServer
     {
         private static ILogger logger = Log.Logger;
+        private IPEndPoint m_primaryDiffPortEndPoint;
+        private UdpClient m_primaryDiffPortSocket;
 
         private IPEndPoint m_primaryEndPoint;
-        private IPEndPoint m_secondaryEndPoint;
-        private IPEndPoint m_primaryDiffPortEndPoint;
-        private IPEndPoint m_secondaryDiffPortEndPoint;
 
         private STUNSendMessageDelegate m_primarySend;
-        private STUNSendMessageDelegate m_secondarySend;
-        private UdpClient m_primaryDiffPortSocket;
+        private IPEndPoint m_secondaryDiffPortEndPoint;
         private UdpClient m_secondaryDiffPortSocket;
-
-        public event STUNServerRequestInTraceDelegate STUNPrimaryRequestInTraceEvent;
-        public event STUNServerRequestInTraceDelegate STUNSecondaryRequestInTraceEvent;
-        public event STUNServerResponseOutTraceDelegate STUNPrimaryResponseOutTraceEvent;
-        public event STUNServerResponseOutTraceDelegate STUNSecondaryResponseOutTraceEvent;
+        private IPEndPoint m_secondaryEndPoint;
+        private STUNSendMessageDelegate m_secondarySend;
 
         public STUNServer(IPEndPoint primaryEndPoint, STUNSendMessageDelegate primarySend, IPEndPoint secondaryEndPoint,
             STUNSendMessageDelegate secondarySend)
@@ -73,6 +68,11 @@ namespace SIPSorcery.Net
                             IPSocket.GetSocketString(m_primaryDiffPortEndPoint) + ", secondary=" +
                             IPSocket.GetSocketString(m_secondaryDiffPortEndPoint) + ".");
         }
+
+        public event STUNServerRequestInTraceDelegate STUNPrimaryRequestInTraceEvent;
+        public event STUNServerRequestInTraceDelegate STUNSecondaryRequestInTraceEvent;
+        public event STUNServerResponseOutTraceDelegate STUNPrimaryResponseOutTraceEvent;
+        public event STUNServerResponseOutTraceDelegate STUNSecondaryResponseOutTraceEvent;
 
         public void STUNPrimaryReceived(IPEndPoint localEndPoint, IPEndPoint receivedEndPoint, byte[] buffer,
             int bufferLength)

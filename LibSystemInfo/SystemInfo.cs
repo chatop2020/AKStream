@@ -13,11 +13,8 @@ namespace LibSystemInfo
         private static PerformanceInfo _globalSystemInfo = new PerformanceInfo();
         private static object _lockObj = new object();
         private static bool _abort = false;
-     
-     
 
 
-        
         public SystemInfo()
         {
             _globalSystemInfo.Architecture = _operatingSystemInfo.Architecture;

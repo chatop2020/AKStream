@@ -9,10 +9,10 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqPtzCtrl
     {
+        private string? _channelId;
+        private string _deviceId;
         private PTZCommandType _ptzCommandType;
         private int _speed;
-        private string _deviceId;
-        private string? _channelId;
 
         /// <summary>
         /// 控制类型

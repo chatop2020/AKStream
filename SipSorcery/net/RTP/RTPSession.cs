@@ -168,6 +168,10 @@ namespace SIPSorcery.Net
         public const int DTMF_EVENT_PAYLOAD_ID = 101;
 
         private static ILogger logger = Log.Logger;
+        private RtpVideoFramer _rtpVideoFramer;
+
+        private IPAddress m_bindAddress = null; // If set the address to use for binding the RTP and control sockets.
+        private int m_bindPort = 0; // If non-zero specifies the port number to attempt to bind the first RTP socket on.
 
         private bool
             m_isMediaMultiplexed =
@@ -177,23 +181,74 @@ namespace SIPSorcery.Net
             m_isRtcpMultiplexed =
                 false; // Indicates whether the RTP channel is multiplexing RTP and RTCP packets on the same port.
 
-        private IPAddress m_bindAddress = null; // If set the address to use for binding the RTP and control sockets.
-        private int m_bindPort = 0; // If non-zero specifies the port number to attempt to bind the first RTP socket on.
+        private uint m_lastRtpTimestamp; // The last timestamp used in an RTP packet.    
+
+        internal Dictionary<SDPMediaTypesEnum, RTPChannel> m_rtpChannels =
+            new Dictionary<SDPMediaTypesEnum, RTPChannel>();
 
         private bool
             m_rtpEventInProgress; // Gets set to true when an RTP event is being sent and the normal stream is interrupted.
-
-        private uint m_lastRtpTimestamp; // The last timestamp used in an RTP packet.    
-        private RtpVideoFramer _rtpVideoFramer;
-
-        private string m_sdpSessionID = null; // Need to maintain the same SDP session ID for all offers and answers.
 
         private int
             m_sdpAnnouncementVersion =
                 0; // The SDP version needs to increase whenever the local SDP is modified (see https://tools.ietf.org/html/rfc6337#section-5.2.5).
 
-        internal Dictionary<SDPMediaTypesEnum, RTPChannel> m_rtpChannels =
-            new Dictionary<SDPMediaTypesEnum, RTPChannel>();
+        private string m_sdpSessionID = null; // Need to maintain the same SDP session ID for all offers and answers.
+
+        /// <summary>
+        /// Function pointer to an SRTCP context that encrypts an RTP packet.
+        /// </summary>
+        private ProtectRtpPacket m_srtcpControlProtect;
+
+        /// <summary>
+        /// Function pointer to an SRTP context that decrypts an RTP packet.
+        /// </summary>
+        private ProtectRtpPacket m_srtcpControlUnprotect;
+
+        /// <summary>
+        /// Function pointer to an SRTP context that encrypts an RTP packet.
+        /// </summary>
+        private ProtectRtpPacket m_srtpProtect;
+
+        /// <summary>
+        /// Function pointer to an SRTP context that decrypts an RTP packet.
+        /// </summary>
+        private ProtectRtpPacket m_srtpUnprotect;
+
+        /// <summary>
+        /// Creates a new RTP session. The synchronisation source and sequence number are initialised to
+        /// pseudo random values.
+        /// </summary>
+        /// <param name="isRtcpMultiplexed">If true RTCP reports will be multiplexed with RTP on a single channel.
+        /// If false (standard mode) then a separate socket is used to send and receive RTCP reports.</param>
+        /// <param name="isSecure">If true indicated this session is using SRTP to encrypt and authorise
+        /// RTP and RTCP packets. No communications or reporting will commence until the 
+        /// is explicitly set as complete.</param>
+        /// <param name="isMediaMultiplexed">If true only a single RTP socket will be used for both audio
+        /// and video (standard case for WebRTC). If false two separate RTP sockets will be used for
+        /// audio and video (standard case for VoIP).</param>
+        /// <param name="bindAddress">Optional. If specified this address will be used as the bind address for any RTP
+        /// and control sockets created. Generally this address does not need to be set. The default behaviour
+        /// is to bind to [::] or 0.0.0.0,d depending on system support, which minimises network routing
+        /// causing connection issues.</param>
+        /// <param name="bindPort">Optional. If specified a single attempt will be made to bind the RTP socket
+        /// on this port. It's recommended to leave this parameter as the default of 0 to let the Operating
+        /// System select the port number.</param>
+        public RTPSession(
+            bool isMediaMultiplexed,
+            bool isRtcpMultiplexed,
+            bool isSecure,
+            IPAddress bindAddress = null,
+            int bindPort = 0)
+        {
+            m_isMediaMultiplexed = isMediaMultiplexed;
+            m_isRtcpMultiplexed = isRtcpMultiplexed;
+            IsSecure = isSecure;
+            m_bindAddress = bindAddress;
+            m_bindPort = bindPort;
+
+            m_sdpSessionID = Crypto.GetRandomInt(SDP_SESSIONID_LENGTH).ToString();
+        }
 
         /// <summary>
         /// The local audio stream for this session. Will be null if we are not sending audio.
@@ -224,31 +279,6 @@ namespace SIPSorcery.Net
         /// The reporting session for the video stream. Will be null if only audio is being sent.
         /// </summary>
         public RTCPSession VideoRtcpSession { get; private set; }
-
-        /// <summary>
-        /// The SDP offered by the remote call party for this session.
-        /// </summary>
-        public SDP RemoteDescription { get; protected set; }
-
-        /// <summary>
-        /// Function pointer to an SRTP context that encrypts an RTP packet.
-        /// </summary>
-        private ProtectRtpPacket m_srtpProtect;
-
-        /// <summary>
-        /// Function pointer to an SRTP context that decrypts an RTP packet.
-        /// </summary>
-        private ProtectRtpPacket m_srtpUnprotect;
-
-        /// <summary>
-        /// Function pointer to an SRTCP context that encrypts an RTP packet.
-        /// </summary>
-        private ProtectRtpPacket m_srtcpControlProtect;
-
-        /// <summary>
-        /// Function pointer to an SRTP context that decrypts an RTP packet.
-        /// </summary>
-        private ProtectRtpPacket m_srtcpControlUnprotect;
 
         /// <summary>
         /// Indicates whether this session is using a secure SRTP context to encrypt RTP and
@@ -291,16 +321,37 @@ namespace SIPSorcery.Net
         public int RemoteRtpEventPayloadID { get; set; } = DEFAULT_DTMF_EVENT_PAYLOAD_ID;
 
         /// <summary>
-        /// Indicates whether the session has been closed. Once a session is closed it cannot
-        /// be restarted.
-        /// </summary>
-        public bool IsClosed { get; private set; }
-
-        /// <summary>
         /// Indicates whether the session has been started. Starting a session tells the RTP 
         /// socket to start receiving,
         /// </summary>
         public bool IsStarted { get; private set; }
+
+        /// <summary>
+        /// If set to true RTP will be accepted from ANY remote end point. If false
+        /// certain rules are used to determine whether RTP should be accepted for 
+        /// a particular audio or video stream. It is recommended to leave the
+        /// value to false unless a specific need exists.
+        /// </summary>
+        public bool AcceptRtpFromAny { get; set; } = false;
+
+        /// <summary>
+        /// Close the session if the instance is out of scope.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            Close("disposed");
+        }
+
+        /// <summary>
+        /// The SDP offered by the remote call party for this session.
+        /// </summary>
+        public SDP RemoteDescription { get; protected set; }
+
+        /// <summary>
+        /// Indicates whether the session has been closed. Once a session is closed it cannot
+        /// be restarted.
+        /// </summary>
+        public bool IsClosed { get; private set; }
 
         /// <summary>
         /// Indicates whether this session is using audio.
@@ -329,23 +380,6 @@ namespace SIPSorcery.Net
         }
 
         /// <summary>
-        /// If set to true RTP will be accepted from ANY remote end point. If false
-        /// certain rules are used to determine whether RTP should be accepted for 
-        /// a particular audio or video stream. It is recommended to leave the
-        /// value to false unless a specific need exists.
-        /// </summary>
-        public bool AcceptRtpFromAny { get; set; } = false;
-
-        /// <summary>
-        /// Gets fired when an RTP packet is received from a remote party.
-        /// Parameters are:
-        ///  - Remote endpoint packet was received from,
-        ///  - The media type the packet contains, will be audio or video,
-        ///  - The full RTP packet.
-        /// </summary>
-        public event Action<IPEndPoint, SDPMediaTypesEnum, RTPPacket> OnRtpPacketReceived;
-
-        /// <summary>
         /// Gets fired when an RTP event is detected on the remote call party's RTP stream.
         /// </summary>
         public event Action<IPEndPoint, RTPEvent, RTPHeader> OnRtpEvent;
@@ -354,129 +388,6 @@ namespace SIPSorcery.Net
         /// Gets fired when the RTP session and underlying channel are closed.
         /// </summary>
         public event Action<string> OnRtpClosed;
-
-        /// <summary>
-        /// Gets fired when an RTCP BYE packet is received from the remote party.
-        /// The string parameter contains the BYE reason. Normally a BYE
-        /// report means the RTP session is finished. But... cases have been observed where
-        /// an RTCP BYE is received when a remote party is put on hold and then the session
-        /// resumes when take off hold. It's up to the application to decide what action to
-        /// take when n RTCP BYE is received.
-        /// </summary>
-        public event Action<string> OnRtcpBye;
-
-        /// <summary>
-        /// Fires when the connection for a media type is classified as timed out due to not
-        /// receiving any RTP or RTCP packets within the given period.
-        /// </summary>
-        public event Action<SDPMediaTypesEnum> OnTimeout;
-
-        /// <summary>
-        /// Gets fired when an RTCP report is received. This event is for diagnostics only.
-        /// </summary>
-        public event Action<IPEndPoint, SDPMediaTypesEnum, RTCPCompoundPacket> OnReceiveReport;
-
-        /// <summary>
-        /// Gets fired when an RTCP report is sent. This event is for diagnostics only.
-        /// </summary>
-        public event Action<SDPMediaTypesEnum, RTCPCompoundPacket> OnSendReport;
-
-        /// <summary>
-        /// Gets fired when the start method is called on the session. This is the point
-        /// audio and video sources should commence generating samples.
-        /// </summary>
-        public event Action OnStarted;
-
-        /// <summary>
-        /// Gets fired when the session is closed. This is the point audio and video
-        /// source should stop generating samples.
-        /// </summary>
-        public event Action OnClosed;
-
-        /// <summary>
-        /// Gets fired when the remote SDP is received and the set of common audio formats is set.
-        /// </summary>
-        public event Action<List<AudioFormat>> OnAudioFormatsNegotiated;
-
-        /// <summary>
-        /// Gets fired when the remote SDP is received and the set of common video formats is set.
-        /// </summary>
-        public event Action<List<VideoFormat>> OnVideoFormatsNegotiated;
-
-        /// <summary>
-        /// Gets fired when a full video frame is reconstructed from one or more RTP packets
-        /// received from the remote party.
-        /// </summary>
-        /// <remarks>
-        ///  - Received from end point,
-        ///  - The frame timestamp,
-        ///  - The frame payload.
-        /// </remarks>
-        public event Action<IPEndPoint, uint, byte[]> OnVideoFrameReceived;
-
-        /// <summary>
-        /// Creates a new RTP session. The synchronisation source and sequence number are initialised to
-        /// pseudo random values.
-        /// </summary>
-        /// <param name="isRtcpMultiplexed">If true RTCP reports will be multiplexed with RTP on a single channel.
-        /// If false (standard mode) then a separate socket is used to send and receive RTCP reports.</param>
-        /// <param name="isSecure">If true indicated this session is using SRTP to encrypt and authorise
-        /// RTP and RTCP packets. No communications or reporting will commence until the 
-        /// is explicitly set as complete.</param>
-        /// <param name="isMediaMultiplexed">If true only a single RTP socket will be used for both audio
-        /// and video (standard case for WebRTC). If false two separate RTP sockets will be used for
-        /// audio and video (standard case for VoIP).</param>
-        /// <param name="bindAddress">Optional. If specified this address will be used as the bind address for any RTP
-        /// and control sockets created. Generally this address does not need to be set. The default behaviour
-        /// is to bind to [::] or 0.0.0.0,d depending on system support, which minimises network routing
-        /// causing connection issues.</param>
-        /// <param name="bindPort">Optional. If specified a single attempt will be made to bind the RTP socket
-        /// on this port. It's recommended to leave this parameter as the default of 0 to let the Operating
-        /// System select the port number.</param>
-        public RTPSession(
-            bool isMediaMultiplexed,
-            bool isRtcpMultiplexed,
-            bool isSecure,
-            IPAddress bindAddress = null,
-            int bindPort = 0)
-        {
-            m_isMediaMultiplexed = isMediaMultiplexed;
-            m_isRtcpMultiplexed = isRtcpMultiplexed;
-            IsSecure = isSecure;
-            m_bindAddress = bindAddress;
-            m_bindPort = bindPort;
-
-            m_sdpSessionID = Crypto.GetRandomInt(SDP_SESSIONID_LENGTH).ToString();
-        }
-
-        /// <summary>
-        /// Used for child classes that require a single RTP channel for all RTP (audio and video)
-        /// and RTCP communications.
-        /// </summary>
-        protected void addSingleTrack()
-        {
-            // We use audio as the media type when multiplexing.
-            CreateRtpChannel(SDPMediaTypesEnum.audio);
-            AudioRtcpSession = CreateRtcpSession(SDPMediaTypesEnum.audio);
-        }
-
-        /// <summary>
-        /// Adds a media track to this session. A media track represents an audio or video
-        /// stream and can be a local (which means we're sending) or remote (which means
-        /// we're receiving).
-        /// </summary>
-        /// <param name="track">The media track to add to the session.</param>
-        public virtual void addTrack(MediaStreamTrack track)
-        {
-            if (track.IsRemote)
-            {
-                AddRemoteTrack(track);
-            }
-            else
-            {
-                AddLocalTrack(track);
-            }
-        }
 
         /// <summary>
         /// Generates the SDP for an offer that can be made to a remote user agent.
@@ -755,6 +666,173 @@ namespace SIPSorcery.Net
             {
                 VideoLocalTrack.StreamStatus = status;
                 m_sdpAnnouncementVersion++;
+            }
+        }
+
+        /// <summary>
+        /// Starts the RTCP session(s) that monitor this RTP session.
+        /// </summary>
+        public virtual Task Start()
+        {
+            if (!IsStarted)
+            {
+                IsStarted = true;
+
+                if (HasAudio && AudioRtcpSession != null &&
+                    AudioLocalTrack.StreamStatus != MediaStreamStatusEnum.Inactive)
+                {
+                    // The local audio track may have been disabled if there were no matching capabilities with
+                    // the remote party.
+                    AudioRtcpSession.Start();
+                }
+
+                if (HasVideo && VideoRtcpSession != null &&
+                    VideoLocalTrack.StreamStatus != MediaStreamStatusEnum.Inactive)
+                {
+                    // The local video track may have been disabled if there were no matching capabilities with
+                    // the remote party.
+                    VideoRtcpSession.Start();
+                }
+
+                OnStarted?.Invoke();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Sends a DTMF tone as an RTP event to the remote party.
+        /// </summary>
+        /// <param name="key">The DTMF tone to send.</param>
+        /// <param name="ct">RTP events can span multiple RTP packets. This token can
+        /// be used to cancel the send.</param>
+        public virtual Task SendDtmf(byte key, CancellationToken ct)
+        {
+            var dtmfEvent = new RTPEvent(key, false, RTPEvent.DEFAULT_VOLUME, DTMF_EVENT_DURATION,
+                DTMF_EVENT_PAYLOAD_ID);
+            return SendDtmfEvent(dtmfEvent, ct);
+        }
+
+        /// <summary>
+        /// Close the session and RTP channel.
+        /// </summary>
+        public virtual void Close(string reason)
+        {
+            if (!IsClosed)
+            {
+                IsClosed = true;
+
+                AudioRtcpSession?.Close(reason);
+                VideoRtcpSession?.Close(reason);
+
+                foreach (var rtpChannel in m_rtpChannels.Values)
+                {
+                    rtpChannel.OnRTPDataReceived -= OnReceive;
+                    rtpChannel.OnControlDataReceived -= OnReceive;
+                    rtpChannel.OnClosed -= OnRTPChannelClosed;
+                    rtpChannel.Close(reason);
+                }
+
+                OnRtpClosed?.Invoke(reason);
+
+                OnClosed?.Invoke();
+            }
+        }
+
+        /// <summary>
+        /// Gets fired when an RTP packet is received from a remote party.
+        /// Parameters are:
+        ///  - Remote endpoint packet was received from,
+        ///  - The media type the packet contains, will be audio or video,
+        ///  - The full RTP packet.
+        /// </summary>
+        public event Action<IPEndPoint, SDPMediaTypesEnum, RTPPacket> OnRtpPacketReceived;
+
+        /// <summary>
+        /// Gets fired when an RTCP BYE packet is received from the remote party.
+        /// The string parameter contains the BYE reason. Normally a BYE
+        /// report means the RTP session is finished. But... cases have been observed where
+        /// an RTCP BYE is received when a remote party is put on hold and then the session
+        /// resumes when take off hold. It's up to the application to decide what action to
+        /// take when n RTCP BYE is received.
+        /// </summary>
+        public event Action<string> OnRtcpBye;
+
+        /// <summary>
+        /// Fires when the connection for a media type is classified as timed out due to not
+        /// receiving any RTP or RTCP packets within the given period.
+        /// </summary>
+        public event Action<SDPMediaTypesEnum> OnTimeout;
+
+        /// <summary>
+        /// Gets fired when an RTCP report is received. This event is for diagnostics only.
+        /// </summary>
+        public event Action<IPEndPoint, SDPMediaTypesEnum, RTCPCompoundPacket> OnReceiveReport;
+
+        /// <summary>
+        /// Gets fired when an RTCP report is sent. This event is for diagnostics only.
+        /// </summary>
+        public event Action<SDPMediaTypesEnum, RTCPCompoundPacket> OnSendReport;
+
+        /// <summary>
+        /// Gets fired when the start method is called on the session. This is the point
+        /// audio and video sources should commence generating samples.
+        /// </summary>
+        public event Action OnStarted;
+
+        /// <summary>
+        /// Gets fired when the session is closed. This is the point audio and video
+        /// source should stop generating samples.
+        /// </summary>
+        public event Action OnClosed;
+
+        /// <summary>
+        /// Gets fired when the remote SDP is received and the set of common audio formats is set.
+        /// </summary>
+        public event Action<List<AudioFormat>> OnAudioFormatsNegotiated;
+
+        /// <summary>
+        /// Gets fired when the remote SDP is received and the set of common video formats is set.
+        /// </summary>
+        public event Action<List<VideoFormat>> OnVideoFormatsNegotiated;
+
+        /// <summary>
+        /// Gets fired when a full video frame is reconstructed from one or more RTP packets
+        /// received from the remote party.
+        /// </summary>
+        /// <remarks>
+        ///  - Received from end point,
+        ///  - The frame timestamp,
+        ///  - The frame payload.
+        /// </remarks>
+        public event Action<IPEndPoint, uint, byte[]> OnVideoFrameReceived;
+
+        /// <summary>
+        /// Used for child classes that require a single RTP channel for all RTP (audio and video)
+        /// and RTCP communications.
+        /// </summary>
+        protected void addSingleTrack()
+        {
+            // We use audio as the media type when multiplexing.
+            CreateRtpChannel(SDPMediaTypesEnum.audio);
+            AudioRtcpSession = CreateRtcpSession(SDPMediaTypesEnum.audio);
+        }
+
+        /// <summary>
+        /// Adds a media track to this session. A media track represents an audio or video
+        /// stream and can be a local (which means we're sending) or remote (which means
+        /// we're receiving).
+        /// </summary>
+        /// <param name="track">The media track to add to the session.</param>
+        public virtual void addTrack(MediaStreamTrack track)
+        {
+            if (track.IsRemote)
+            {
+                AddRemoteTrack(track);
+            }
+            else
+            {
+                AddLocalTrack(track);
             }
         }
 
@@ -1182,37 +1260,6 @@ namespace SIPSorcery.Net
                     VideoControlDestinationEndPoint = rtcpEndPoint;
                 }
             }
-        }
-
-        /// <summary>
-        /// Starts the RTCP session(s) that monitor this RTP session.
-        /// </summary>
-        public virtual Task Start()
-        {
-            if (!IsStarted)
-            {
-                IsStarted = true;
-
-                if (HasAudio && AudioRtcpSession != null &&
-                    AudioLocalTrack.StreamStatus != MediaStreamStatusEnum.Inactive)
-                {
-                    // The local audio track may have been disabled if there were no matching capabilities with
-                    // the remote party.
-                    AudioRtcpSession.Start();
-                }
-
-                if (HasVideo && VideoRtcpSession != null &&
-                    VideoLocalTrack.StreamStatus != MediaStreamStatusEnum.Inactive)
-                {
-                    // The local video track may have been disabled if there were no matching capabilities with
-                    // the remote party.
-                    VideoRtcpSession.Start();
-                }
-
-                OnStarted?.Invoke();
-            }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -1743,19 +1790,6 @@ namespace SIPSorcery.Net
         }
 
         /// <summary>
-        /// Sends a DTMF tone as an RTP event to the remote party.
-        /// </summary>
-        /// <param name="key">The DTMF tone to send.</param>
-        /// <param name="ct">RTP events can span multiple RTP packets. This token can
-        /// be used to cancel the send.</param>
-        public virtual Task SendDtmf(byte key, CancellationToken ct)
-        {
-            var dtmfEvent = new RTPEvent(key, false, RTPEvent.DEFAULT_VOLUME, DTMF_EVENT_DURATION,
-                DTMF_EVENT_PAYLOAD_ID);
-            return SendDtmfEvent(dtmfEvent, ct);
-        }
-
-        /// <summary>
         /// Sends an RTP event for a DTMF tone as per RFC2833. Sending the event requires multiple packets to be sent.
         /// This method will hold onto the socket until all the packets required for the event have been sent. The send
         /// can be cancelled using the cancellation token.
@@ -1925,32 +1959,6 @@ namespace SIPSorcery.Net
         {
             var reportBytes = feedback.GetBytes();
             SendRtcpReport(mediaType, reportBytes);
-        }
-
-        /// <summary>
-        /// Close the session and RTP channel.
-        /// </summary>
-        public virtual void Close(string reason)
-        {
-            if (!IsClosed)
-            {
-                IsClosed = true;
-
-                AudioRtcpSession?.Close(reason);
-                VideoRtcpSession?.Close(reason);
-
-                foreach (var rtpChannel in m_rtpChannels.Values)
-                {
-                    rtpChannel.OnRTPDataReceived -= OnReceive;
-                    rtpChannel.OnControlDataReceived -= OnReceive;
-                    rtpChannel.OnClosed -= OnRTPChannelClosed;
-                    rtpChannel.Close(reason);
-                }
-
-                OnRtpClosed?.Invoke(reason);
-
-                OnClosed?.Invoke();
-            }
         }
 
         /// <summary>
@@ -2592,14 +2600,6 @@ namespace SIPSorcery.Net
         /// Close the session if the instance is out of scope.
         /// </summary>
         protected virtual void Dispose(bool disposing)
-        {
-            Close("disposed");
-        }
-
-        /// <summary>
-        /// Close the session if the instance is out of scope.
-        /// </summary>
-        public virtual void Dispose()
         {
             Close("disposed");
         }

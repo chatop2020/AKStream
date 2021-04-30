@@ -47,38 +47,27 @@ namespace SIPSorcery.SIP.App
         private static readonly string m_filterTextType = SIPMIMETypes.MWI_TEXT_TYPE;
 
         private static ILogger logger = Log.Logger;
-
-        private SIPTransport m_sipTransport;
-        private SIPEndPoint m_outboundProxy;
-        private SIPEventPackage m_sipEventPackage;
-
-        private SIPURI m_resourceURI;
-        private string m_authUsername;
+        private int m_attempts;
         private string m_authDomain;
         private string m_authPassword;
-        private string m_filter;
+        private string m_authUsername;
+        private bool m_exit;
         private int m_expiry;
+        private string m_filter;
         private int m_localCSeq;
+        private SIPEndPoint m_outboundProxy;
         private int m_remoteCSeq;
+
+        private SIPURI m_resourceURI;
+        private SIPEventPackage m_sipEventPackage;
+
+        private SIPTransport m_sipTransport;
         private string m_subscribeCallID;
+        private bool m_subscribed;
         private string m_subscriptionFromTag;
         private string m_subscriptionToTag;
-        private bool m_subscribed;
-        private int m_attempts;
-        private ManualResetEvent m_waitForSubscribeResponse = new ManualResetEvent(false);
         private ManualResetEvent m_waitForNextSubscribe = new ManualResetEvent(false);
-        private bool m_exit;
-
-        public DateTime LastSubscribeAttempt { get; private set; }
-
-        public string CallID
-        {
-            get { return m_subscribeCallID; }
-        }
-
-        public event Action<T> NotificationReceived;
-        public event Action<SIPURI, SIPResponseStatusCodesEnum, string> SubscriptionFailed;
-        public event Action<SIPURI> SubscriptionSuccessful;
+        private ManualResetEvent m_waitForSubscribeResponse = new ManualResetEvent(false);
 
         public SIPNotifierClient(
             SIPTransport sipTransport,
@@ -103,6 +92,17 @@ namespace SIPSorcery.SIP.App
             m_subscribeCallID = CallProperties.CreateNewCallId();
             m_subscriptionFromTag = CallProperties.CreateNewTag();
         }
+
+        public DateTime LastSubscribeAttempt { get; private set; }
+
+        public string CallID
+        {
+            get { return m_subscribeCallID; }
+        }
+
+        public event Action<T> NotificationReceived;
+        public event Action<SIPURI, SIPResponseStatusCodesEnum, string> SubscriptionFailed;
+        public event Action<SIPURI> SubscriptionSuccessful;
 
         public void Start()
         {

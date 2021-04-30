@@ -21,12 +21,6 @@ namespace SIPSorcery.SIP
 {
     public class SIPNonInviteTransaction : SIPTransaction
     {
-        public event SIPTransactionResponseReceivedDelegate NonInviteTransactionInfoResponseReceived;
-        public event SIPTransactionResponseReceivedDelegate NonInviteTransactionFinalResponseReceived;
-        public event SIPTransactionTimedOutDelegate NonInviteTransactionTimedOut;
-        public event SIPTransactionRequestReceivedDelegate NonInviteRequestReceived;
-        public event SIPTransactionRequestRetransmitDelegate NonInviteTransactionRequestRetransmit;
-
         public SIPNonInviteTransaction(SIPTransport sipTransport, SIPRequest sipRequest, SIPEndPoint outboundProxy)
             : base(sipTransport, sipRequest, outboundProxy)
         {
@@ -40,6 +34,12 @@ namespace SIPSorcery.SIP
 
             sipTransport.AddTransaction(this);
         }
+
+        public event SIPTransactionResponseReceivedDelegate NonInviteTransactionInfoResponseReceived;
+        public event SIPTransactionResponseReceivedDelegate NonInviteTransactionFinalResponseReceived;
+        public event SIPTransactionTimedOutDelegate NonInviteTransactionTimedOut;
+        public event SIPTransactionRequestReceivedDelegate NonInviteRequestReceived;
+        public event SIPTransactionRequestRetransmitDelegate NonInviteTransactionRequestRetransmit;
 
         private void SIPNonInviteTransaction_TransactionRemoved(SIPTransaction transaction)
         {

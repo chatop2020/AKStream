@@ -37,42 +37,6 @@ namespace SIPSorcery.SIP
     /// </summary>
     public class SIPClientWebSocketChannel : SIPChannel
     {
-        /// <summary>
-        /// Holds the state for a current web socket client connection.
-        /// </summary>
-        private class ClientWebSocketConnection
-        {
-            private static int MaxSIPTCPMessageSize = SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH;
-
-            public SIPEndPoint LocalEndPoint;
-            public Uri ServerUri;
-            public SIPEndPoint RemoteEndPoint;
-            public string ConnectionID;
-            public ArraySegment<byte> ReceiveBuffer;
-            public Task<WebSocketReceiveResult> ReceiveTask;
-            public ClientWebSocket Client;
-
-            /// <summary>
-            /// Records when a transmission was last sent or received on this stream.
-            /// </summary>
-            public DateTime LastTransmission;
-
-            /// <summary>
-            /// Pending receives that we don't have the full SIP message for yet.
-            /// </summary>
-            public byte[] PendingReceiveBuffer { get; internal set; } = new byte[2 * MaxSIPTCPMessageSize];
-
-            /// <summary>
-            /// The current start position of unprocessed data in the receive buffer.
-            /// </summary>
-            public int RecvStartPosn { get; internal set; }
-
-            /// <summary>
-            /// The current end position of unprocessed data in the receive buffer.
-            /// </summary>
-            public int RecvEndPosn { get; internal set; }
-        }
-
         public const string
             SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
 
@@ -80,15 +44,15 @@ namespace SIPSorcery.SIP
         public const string WEB_SOCKET_SECURE_URI_PREFIX = "wss://";
 
         /// <summary>
+        /// Cancellation source passed to all async operations in this class.
+        /// </summary>
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
+
+        /// <summary>
         /// Maintains a list of current egress web socket connections (one's that have been initiated by us).
         /// </summary>
         private ConcurrentDictionary<string, ClientWebSocketConnection> m_egressConnections =
             new ConcurrentDictionary<string, ClientWebSocketConnection>();
-
-        /// <summary>
-        /// Cancellation source passed to all async operations in this class.
-        /// </summary>
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
 
         /// <summary>
         /// Indicates whether the receive thread that monitors the receive tasks for each web socket client is running.
@@ -477,6 +441,42 @@ namespace SIPSorcery.SIP
                         clientConn.RecvStartPosn, clientConn.RecvEndPosn, out bytesSkipped);
                 }
             }
+        }
+
+        /// <summary>
+        /// Holds the state for a current web socket client connection.
+        /// </summary>
+        private class ClientWebSocketConnection
+        {
+            private static int MaxSIPTCPMessageSize = SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH;
+            public ClientWebSocket Client;
+            public string ConnectionID;
+
+            /// <summary>
+            /// Records when a transmission was last sent or received on this stream.
+            /// </summary>
+            public DateTime LastTransmission;
+
+            public SIPEndPoint LocalEndPoint;
+            public ArraySegment<byte> ReceiveBuffer;
+            public Task<WebSocketReceiveResult> ReceiveTask;
+            public SIPEndPoint RemoteEndPoint;
+            public Uri ServerUri;
+
+            /// <summary>
+            /// Pending receives that we don't have the full SIP message for yet.
+            /// </summary>
+            public byte[] PendingReceiveBuffer { get; internal set; } = new byte[2 * MaxSIPTCPMessageSize];
+
+            /// <summary>
+            /// The current start position of unprocessed data in the receive buffer.
+            /// </summary>
+            public int RecvStartPosn { get; internal set; }
+
+            /// <summary>
+            /// The current end position of unprocessed data in the receive buffer.
+            /// </summary>
+            public int RecvEndPosn { get; internal set; }
         }
     }
 }

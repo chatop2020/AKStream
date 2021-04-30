@@ -11,9 +11,9 @@ namespace LibCommon.Structs.WebResponse
     [Serializable]
     public class ResGetVideoChannelList
     {
-        private List<VideoChannel>? _videoChannelList;
         private ReqGetVideoChannelList? _request;
         private long? _total;
+        private List<VideoChannel>? _videoChannelList;
 
         /// <summary>
         /// 音视频通道实例列表

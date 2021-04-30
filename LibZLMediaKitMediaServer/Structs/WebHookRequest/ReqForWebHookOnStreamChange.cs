@@ -4,27 +4,26 @@ using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 
 namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
 {
-  
     [Serializable]
     public class ReqForWebHookOnStreamChange
     {
-        private string? _mediaServerId;
-        private string? _app;
-        private string? _schema;
-        private string? _stream;
-        private string? _vhost;
-        private bool? _regist;
         private int? _aliveSecond;
+        private string? _app;
         private long? _bytesSpeed;
         private long? _createStamp;
+        private string? _mediaServerId;
         private OriginSock? _originSock;
         private OriginType? _originType;
         private string? _originTypeStr;
         private string? _originUrl;
         private int? _readerCount;
+        private bool? _regist;
+        private string? _schema;
+        private string? _stream;
         private int? _totalReaderCount;
         private List<TracksItem>? _tracks;
-        
+        private string? _vhost;
+
 
         public string? MediaServerId
         {

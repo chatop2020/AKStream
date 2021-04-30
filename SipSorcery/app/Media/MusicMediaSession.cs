@@ -23,16 +23,16 @@ namespace SIPSorcery.Media
             _mediaStream = new MediaStreamTrack(SDPMediaTypesEnum.audio, true, AudioLocalTrack.Capabilities);
         }
 
+        public override MediaStreamTrack AudioRemoteTrack
+        {
+            get { return _mediaStream; }
+        }
+
         public async Task SendAudioFile(string fileToPlay)
         {
             await AudioExtrasSource.SendAudioFromStream(
                 new FileStream(fileToPlay, FileMode.Open, FileAccess.Read, FileShare.Read),
                 AudioSamplingRatesEnum.Rate8KHz);
-        }
-
-        public override MediaStreamTrack AudioRemoteTrack
-        {
-            get { return _mediaStream; }
         }
     }
 }

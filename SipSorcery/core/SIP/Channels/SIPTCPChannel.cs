@@ -65,21 +65,9 @@ namespace SIPSorcery.SIP
                 70; // The number of minutes after which if no transmissions are sent or received a connection will be pruned.
 
         /// <summary>
-        /// This is the main object managed by this class. It is the socket listening for incoming connections.
+        /// Keeps a list of TCP sockets this process is listening on to prevent it establishing TCP connections to itself.
         /// </summary>
-        protected TcpListener m_tcpServerListener;
-
-        /// <summary>
-        /// List of sockets that are in the process of being connected to. 
-        /// Needed to avoid SIP re-transmits initiating multiple connect attempts.
-        /// </summary>
-        protected List<string> m_connectingSockets = new List<string>();
-
-        /// <summary>
-        /// This string is used in debug messages. It makes it possible to differentiate
-        /// whether an instance in acting solely as a TCP channel or as the base class of a TLS channel.
-        /// </summary>
-        virtual protected string ProtDescr { get; } = "TCP";
+        private static List<string> m_localTCPSockets = new List<string>();
 
         /// <summary>
         /// Can be set to allow TCP channels hosted in the same process to send to each other. Useful for testing.
@@ -88,9 +76,10 @@ namespace SIPSorcery.SIP
         public bool DisableLocalTCPSocketsCheck;
 
         /// <summary>
-        /// Keeps a list of TCP sockets this process is listening on to prevent it establishing TCP connections to itself.
+        /// List of sockets that are in the process of being connected to. 
+        /// Needed to avoid SIP re-transmits initiating multiple connect attempts.
         /// </summary>
-        private static List<string> m_localTCPSockets = new List<string>();
+        protected List<string> m_connectingSockets = new List<string>();
 
         /// <summary>
         /// Maintains a list of all current TCP connections currently connected to/from this channel. This allows the SIP transport
@@ -100,6 +89,11 @@ namespace SIPSorcery.SIP
             new ConcurrentDictionary<string, SIPStreamConnection>();
 
         private CancellationTokenSource m_cts = new CancellationTokenSource();
+
+        /// <summary>
+        /// This is the main object managed by this class. It is the socket listening for incoming connections.
+        /// </summary>
+        protected TcpListener m_tcpServerListener;
 
         /// <summary>
         /// Creates a SIP channel to listen for and send SIP messages over TCP.
@@ -136,6 +130,12 @@ namespace SIPSorcery.SIP
             : this(new IPEndPoint(listenAddress, listenPort), SIPProtocolsEnum.tcp)
         {
         }
+
+        /// <summary>
+        /// This string is used in debug messages. It makes it possible to differentiate
+        /// whether an instance in acting solely as a TCP channel or as the base class of a TLS channel.
+        /// </summary>
+        virtual protected string ProtDescr { get; } = "TCP";
 
         /// <summary>
         /// Initialises the SIP channel's socket listener.

@@ -42,12 +42,6 @@ namespace SIPSorcery.Net
     /// </summary>
     public class SDPSecurityDescription
     {
-        public const string CRYPTO_ATTRIBUE_PREFIX = "a=crypto:";
-        private readonly char[] WHITE_SPACES = new char[] {' ', '\t'};
-        private const char SEMI_COLON = ';';
-        private const string COLON = ":";
-        private const string WHITE_SPACE = " ";
-
         public enum CryptoSuites
         {
             unknown,
@@ -68,6 +62,219 @@ namespace SIPSorcery.Net
             AES_CM_256_HMAC_SHA1_32 //https://tools.ietf.org/html/rfc6188
         }
 
+        public const string CRYPTO_ATTRIBUE_PREFIX = "a=crypto:";
+        private const char SEMI_COLON = ';';
+        private const string COLON = ":";
+        private const string WHITE_SPACE = " ";
+        private readonly char[] WHITE_SPACES = new char[] {' ', '\t'};
+
+
+        private uint m_iTag = 1;
+
+        public SDPSecurityDescription() : this(1, CryptoSuites.AES_CM_128_HMAC_SHA1_80)
+        {
+        }
+
+        public SDPSecurityDescription(uint tag, CryptoSuites cryptoSuite)
+        {
+            this.Tag = tag;
+            this.CryptoSuite = cryptoSuite;
+            this.KeyParams = new List<KeyParameter>();
+        }
+
+        public uint Tag
+        {
+            get { return this.m_iTag; }
+            set
+            {
+                if (value > 0 && value < 1000000000)
+                {
+                    this.m_iTag = value;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("Tag",
+                        "Tag value must be greater than 0 and not exceed 9 digits");
+                }
+            }
+        }
+
+
+        public CryptoSuites CryptoSuite { get; set; }
+
+        public List<KeyParameter> KeyParams { get; set; }
+        public SessionParameter SessionParam { get; set; }
+
+        public static SDPSecurityDescription CreateNew(uint tag = 1,
+            CryptoSuites cryptoSuite = CryptoSuites.AES_CM_128_HMAC_SHA1_80)
+        {
+            SDPSecurityDescription secdesc = new SDPSecurityDescription(tag, cryptoSuite);
+            secdesc.KeyParams.Add(KeyParameter.CreateNew(cryptoSuite));
+            return secdesc;
+        }
+
+        public override string ToString()
+        {
+            if (this.Tag < 1 || this.CryptoSuite == CryptoSuites.unknown || this.KeyParams.Count < 1)
+            {
+                return null;
+            }
+
+            string s = CRYPTO_ATTRIBUE_PREFIX + this.Tag + WHITE_SPACE + this.CryptoSuite.ToString() + WHITE_SPACE;
+            for (int i = 0; i < this.KeyParams.Count; i++)
+            {
+                if (i > 0)
+                {
+                    s += SEMI_COLON;
+                }
+
+                s += this.KeyParams[i].ToString();
+            }
+
+            if (this.SessionParam != null)
+            {
+                s += WHITE_SPACE + this.SessionParam.ToString();
+            }
+
+            return s;
+        }
+
+        public static SDPSecurityDescription Parse(string cryptoLine)
+        {
+            if (string.IsNullOrWhiteSpace(cryptoLine))
+            {
+                return null;
+            }
+
+            if (!cryptoLine.StartsWith(CRYPTO_ATTRIBUE_PREFIX))
+            {
+                throw new FormatException(
+                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+            }
+
+            string sCryptoValue = cryptoLine.Substring(cryptoLine.IndexOf(COLON) + 1);
+
+            SDPSecurityDescription sdpCryptoAttribute = new SDPSecurityDescription();
+            string[] sCryptoParts =
+                sCryptoValue.Split(sdpCryptoAttribute.WHITE_SPACES, StringSplitOptions.RemoveEmptyEntries);
+            if (sCryptoValue.Length < 2)
+            {
+                throw new FormatException(
+                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+            }
+
+            try
+            {
+                sdpCryptoAttribute.Tag = uint.Parse(sCryptoParts[0]);
+                sdpCryptoAttribute.CryptoSuite =
+                    (from e in Enum.GetNames(typeof(CryptoSuites))
+                        where e.CompareTo(sCryptoParts[1]) == 0
+                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
+
+                if (sdpCryptoAttribute.CryptoSuite == CryptoSuites.unknown)
+                {
+                    throw new FormatException(
+                        $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+                }
+
+                string[] sKeyParams = sCryptoParts[2].Split(SEMI_COLON);
+                if (sKeyParams.Length < 1)
+                {
+                    throw new FormatException(
+                        $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+                }
+
+                foreach (string kp in sKeyParams)
+                {
+                    KeyParameter keyParam = KeyParameter.Parse(kp, sdpCryptoAttribute.CryptoSuite);
+                    sdpCryptoAttribute.KeyParams.Add(keyParam);
+                }
+
+                if (sCryptoParts.Length > 3)
+                {
+                    sdpCryptoAttribute.SessionParam =
+                        SessionParameter.Parse(sCryptoParts[3], sdpCryptoAttribute.CryptoSuite);
+                }
+
+                return sdpCryptoAttribute;
+            }
+            catch
+            {
+                //catch all errors and throw own FormatException
+            }
+
+            throw new FormatException(
+                $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+        }
+
+        public static bool TryParse(string cryptoLine, out SDPSecurityDescription securityDescription)
+        {
+            securityDescription = null;
+            if (string.IsNullOrWhiteSpace(cryptoLine))
+            {
+                return false;
+            }
+
+            if (!cryptoLine.StartsWith(CRYPTO_ATTRIBUE_PREFIX))
+            {
+                throw new FormatException(
+                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+            }
+
+            string sCryptoValue = cryptoLine.Substring(cryptoLine.IndexOf(COLON) + 1);
+
+            securityDescription = new SDPSecurityDescription();
+            string[] sCryptoParts =
+                sCryptoValue.Split(securityDescription.WHITE_SPACES, StringSplitOptions.RemoveEmptyEntries);
+            if (sCryptoValue.Length < 2)
+            {
+                throw new FormatException(
+                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
+            }
+
+            try
+            {
+                securityDescription.Tag = uint.Parse(sCryptoParts[0]);
+                securityDescription.CryptoSuite =
+                    (from e in Enum.GetNames(typeof(CryptoSuites))
+                        where e.CompareTo(sCryptoParts[1]) == 0
+                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
+
+                if (securityDescription.CryptoSuite == CryptoSuites.unknown)
+                {
+                    //this may not be a reason to return FALSE
+                    //there might be a new crypto key used
+                }
+
+                string[] sKeyParams = sCryptoParts[2].Split(SEMI_COLON);
+                if (sKeyParams.Length < 1)
+                {
+                    securityDescription = null;
+                    return false;
+                }
+
+                foreach (string kp in sKeyParams)
+                {
+                    KeyParameter keyParam = KeyParameter.Parse(kp, securityDescription.CryptoSuite);
+                    securityDescription.KeyParams.Add(keyParam);
+                }
+
+                if (sCryptoParts.Length > 3)
+                {
+                    securityDescription.SessionParam =
+                        SessionParameter.Parse(sCryptoParts[3], securityDescription.CryptoSuite);
+                }
+
+                return true;
+            }
+            catch
+            {
+                //catch all errors and throw own FormatException
+            }
+
+            return false;
+        }
+
         public class KeyParameter
         {
             private const string COLON = ":";
@@ -75,6 +282,29 @@ namespace SIPSorcery.Net
             public const string KEY_METHOD = "inline";
 
             private byte[] m_key = null;
+
+            private ulong m_lifeTime = 0;
+            private uint m_mkiLength = 0;
+
+            private byte[] m_salt = null;
+
+            private string m_sLifeTime = null;
+
+            public KeyParameter() : this(Crypto.GetRandomString(128 / 8), Crypto.GetRandomString(112 / 8))
+            {
+            }
+
+            public KeyParameter(string key, string salt)
+            {
+                this.Key = Encoding.ASCII.GetBytes(key);
+                this.Salt = Encoding.ASCII.GetBytes(salt);
+            }
+
+            public KeyParameter(byte[] key, byte[] salt)
+            {
+                this.Key = key;
+                this.Salt = salt;
+            }
 
             //128 bit for AES_CM_128_HMAC_SHA1_80, AES_CM_128_HMAC_SHA1_32, F8_128_HMAC_SHA1_80, AEAD_AES_128_GCM
             //192 bit for AES_192_CM_HMAC_SHA1_80, AES_192_CM_HMAC_SHA1_32
@@ -98,8 +328,6 @@ namespace SIPSorcery.Net
                     this.m_key = value;
                 }
             }
-
-            private byte[] m_salt = null;
 
             //112 bit for AES_CM_128_HMAC_SHA1_80, AES_CM_128_HMAC_SHA1_32, F8_128_HMAC_SHA1_80
             //112 bit for AES_192_CM_HMAC_SHA1_80,AES_192_CM_HMAC_SHA1_32 , AES_256_CM_HMAC_SHA1_80, AES_256_CM_HMAC_SHA1_32 
@@ -138,8 +366,6 @@ namespace SIPSorcery.Net
                     return s64;
                 }
             }
-
-            private ulong m_lifeTime = 0;
 
             public ulong LifeTime
             {
@@ -185,8 +411,6 @@ namespace SIPSorcery.Net
                 }
             }
 
-            private string m_sLifeTime = null;
-
             public string LifeTimeString
             {
                 get { return this.m_sLifeTime; }
@@ -218,7 +442,6 @@ namespace SIPSorcery.Net
             }
 
             public uint MkiValue { get; set; }
-            private uint m_mkiLength = 0;
 
             public uint MkiLength
             {
@@ -234,22 +457,6 @@ namespace SIPSorcery.Net
                         throw new ArgumentOutOfRangeException("MkiLength", "MkiLength value must between 1 and 128");
                     }
                 }
-            }
-
-            public KeyParameter() : this(Crypto.GetRandomString(128 / 8), Crypto.GetRandomString(112 / 8))
-            {
-            }
-
-            public KeyParameter(string key, string salt)
-            {
-                this.Key = Encoding.ASCII.GetBytes(key);
-                this.Salt = Encoding.ASCII.GetBytes(salt);
-            }
-
-            public KeyParameter(byte[] key, byte[] salt)
-            {
-                this.Key = key;
-                this.Salt = salt;
             }
 
             public override string ToString()
@@ -597,6 +804,13 @@ namespace SIPSorcery.Net
 
         public class SessionParameter
         {
+            public enum FecTypes
+            {
+                unknown,
+                FEC_SRTP,
+                SRTP_FEC
+            }
+
             public enum SrtpSessionParams
             {
                 unknown,
@@ -609,21 +823,26 @@ namespace SIPSorcery.Net
                 wsh
             }
 
-            public SrtpSessionParams SrtpSessionParam { get; set; }
-
-            public enum FecTypes
-            {
-                unknown,
-                FEC_SRTP,
-                SRTP_FEC
-            }
-
-            public FecTypes FecOrder { get; set; }
             public const string FEC_KEY_PREFIX = "FEC_KEY=";
             public const string FEC_ORDER_PREFIX = "FEC_ORDER=";
             public const string WSH_PREFIX = "WSH=";
             public const string KDR_PREFIX = "KDR=";
             private ulong m_kdr = 0;
+
+            private ulong m_wsh = 64;
+
+            public SessionParameter() : this(SrtpSessionParams.unknown)
+            {
+            }
+
+            public SessionParameter(SrtpSessionParams paramType)
+            {
+                this.SrtpSessionParam = paramType;
+            }
+
+            public SrtpSessionParams SrtpSessionParam { get; set; }
+
+            public FecTypes FecOrder { get; set; }
 
             public ulong Kdr
             {
@@ -664,8 +883,6 @@ namespace SIPSorcery.Net
                 }
             }
 
-            private ulong m_wsh = 64;
-
             public ulong Wsh
             {
                 get { return this.m_wsh; }
@@ -681,15 +898,6 @@ namespace SIPSorcery.Net
             }
 
             public KeyParameter FecKey { get; set; }
-
-            public SessionParameter() : this(SrtpSessionParams.unknown)
-            {
-            }
-
-            public SessionParameter(SrtpSessionParams paramType)
-            {
-                this.SrtpSessionParam = paramType;
-            }
 
             public override string ToString()
             {
@@ -796,213 +1004,6 @@ namespace SIPSorcery.Net
                 throw new FormatException(
                     $"sessionParam '{sessionParam}' is not recognized as a valid SRTP_SESSION_PARAM ");
             }
-        }
-
-
-        private uint m_iTag = 1;
-
-        public uint Tag
-        {
-            get { return this.m_iTag; }
-            set
-            {
-                if (value > 0 && value < 1000000000)
-                {
-                    this.m_iTag = value;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException("Tag",
-                        "Tag value must be greater than 0 and not exceed 9 digits");
-                }
-            }
-        }
-
-
-        public CryptoSuites CryptoSuite { get; set; }
-
-        public List<KeyParameter> KeyParams { get; set; }
-        public SessionParameter SessionParam { get; set; }
-
-        public SDPSecurityDescription() : this(1, CryptoSuites.AES_CM_128_HMAC_SHA1_80)
-        {
-        }
-
-        public SDPSecurityDescription(uint tag, CryptoSuites cryptoSuite)
-        {
-            this.Tag = tag;
-            this.CryptoSuite = cryptoSuite;
-            this.KeyParams = new List<KeyParameter>();
-        }
-
-        public static SDPSecurityDescription CreateNew(uint tag = 1,
-            CryptoSuites cryptoSuite = CryptoSuites.AES_CM_128_HMAC_SHA1_80)
-        {
-            SDPSecurityDescription secdesc = new SDPSecurityDescription(tag, cryptoSuite);
-            secdesc.KeyParams.Add(KeyParameter.CreateNew(cryptoSuite));
-            return secdesc;
-        }
-
-        public override string ToString()
-        {
-            if (this.Tag < 1 || this.CryptoSuite == CryptoSuites.unknown || this.KeyParams.Count < 1)
-            {
-                return null;
-            }
-
-            string s = CRYPTO_ATTRIBUE_PREFIX + this.Tag + WHITE_SPACE + this.CryptoSuite.ToString() + WHITE_SPACE;
-            for (int i = 0; i < this.KeyParams.Count; i++)
-            {
-                if (i > 0)
-                {
-                    s += SEMI_COLON;
-                }
-
-                s += this.KeyParams[i].ToString();
-            }
-
-            if (this.SessionParam != null)
-            {
-                s += WHITE_SPACE + this.SessionParam.ToString();
-            }
-
-            return s;
-        }
-
-        public static SDPSecurityDescription Parse(string cryptoLine)
-        {
-            if (string.IsNullOrWhiteSpace(cryptoLine))
-            {
-                return null;
-            }
-
-            if (!cryptoLine.StartsWith(CRYPTO_ATTRIBUE_PREFIX))
-            {
-                throw new FormatException(
-                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-            }
-
-            string sCryptoValue = cryptoLine.Substring(cryptoLine.IndexOf(COLON) + 1);
-
-            SDPSecurityDescription sdpCryptoAttribute = new SDPSecurityDescription();
-            string[] sCryptoParts =
-                sCryptoValue.Split(sdpCryptoAttribute.WHITE_SPACES, StringSplitOptions.RemoveEmptyEntries);
-            if (sCryptoValue.Length < 2)
-            {
-                throw new FormatException(
-                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-            }
-
-            try
-            {
-                sdpCryptoAttribute.Tag = uint.Parse(sCryptoParts[0]);
-                sdpCryptoAttribute.CryptoSuite =
-                    (from e in Enum.GetNames(typeof(CryptoSuites))
-                        where e.CompareTo(sCryptoParts[1]) == 0
-                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
-
-                if (sdpCryptoAttribute.CryptoSuite == CryptoSuites.unknown)
-                {
-                    throw new FormatException(
-                        $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-                }
-
-                string[] sKeyParams = sCryptoParts[2].Split(SEMI_COLON);
-                if (sKeyParams.Length < 1)
-                {
-                    throw new FormatException(
-                        $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-                }
-
-                foreach (string kp in sKeyParams)
-                {
-                    KeyParameter keyParam = KeyParameter.Parse(kp, sdpCryptoAttribute.CryptoSuite);
-                    sdpCryptoAttribute.KeyParams.Add(keyParam);
-                }
-
-                if (sCryptoParts.Length > 3)
-                {
-                    sdpCryptoAttribute.SessionParam =
-                        SessionParameter.Parse(sCryptoParts[3], sdpCryptoAttribute.CryptoSuite);
-                }
-
-                return sdpCryptoAttribute;
-            }
-            catch
-            {
-                //catch all errors and throw own FormatException
-            }
-
-            throw new FormatException(
-                $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-        }
-
-        public static bool TryParse(string cryptoLine, out SDPSecurityDescription securityDescription)
-        {
-            securityDescription = null;
-            if (string.IsNullOrWhiteSpace(cryptoLine))
-            {
-                return false;
-            }
-
-            if (!cryptoLine.StartsWith(CRYPTO_ATTRIBUE_PREFIX))
-            {
-                throw new FormatException(
-                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-            }
-
-            string sCryptoValue = cryptoLine.Substring(cryptoLine.IndexOf(COLON) + 1);
-
-            securityDescription = new SDPSecurityDescription();
-            string[] sCryptoParts =
-                sCryptoValue.Split(securityDescription.WHITE_SPACES, StringSplitOptions.RemoveEmptyEntries);
-            if (sCryptoValue.Length < 2)
-            {
-                throw new FormatException(
-                    $"cryptoLine '{cryptoLine}' is not recognized as a valid SDP Security Description ");
-            }
-
-            try
-            {
-                securityDescription.Tag = uint.Parse(sCryptoParts[0]);
-                securityDescription.CryptoSuite =
-                    (from e in Enum.GetNames(typeof(CryptoSuites))
-                        where e.CompareTo(sCryptoParts[1]) == 0
-                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
-
-                if (securityDescription.CryptoSuite == CryptoSuites.unknown)
-                {
-                    //this may not be a reason to return FALSE
-                    //there might be a new crypto key used
-                }
-
-                string[] sKeyParams = sCryptoParts[2].Split(SEMI_COLON);
-                if (sKeyParams.Length < 1)
-                {
-                    securityDescription = null;
-                    return false;
-                }
-
-                foreach (string kp in sKeyParams)
-                {
-                    KeyParameter keyParam = KeyParameter.Parse(kp, securityDescription.CryptoSuite);
-                    securityDescription.KeyParams.Add(keyParam);
-                }
-
-                if (sCryptoParts.Length > 3)
-                {
-                    securityDescription.SessionParam =
-                        SessionParameter.Parse(sCryptoParts[3], securityDescription.CryptoSuite);
-                }
-
-                return true;
-            }
-            catch
-            {
-                //catch all errors and throw own FormatException
-            }
-
-            return false;
         }
     }
 }

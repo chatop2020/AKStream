@@ -34,12 +34,6 @@ namespace SIPSorcery.Net
     {
         public const string MEDIA_CNAME_ATTRIBUE_PREFIX = "cname";
 
-        public uint SSRC { get; set; }
-
-        public string Cname { get; set; }
-
-        public string GroupID { get; set; }
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -53,6 +47,12 @@ namespace SIPSorcery.Net
             Cname = cname;
             GroupID = groupID;
         }
+
+        public uint SSRC { get; set; }
+
+        public string Cname { get; set; }
+
+        public string GroupID { get; set; }
     }
 
     public class SDPMediaAnnouncement
@@ -70,26 +70,44 @@ namespace SIPSorcery.Net
 
         private static ILogger logger = Log.Logger;
 
+        /// <summary>
+        /// List of media formats for "application media announcements. Application media announcements have different
+        /// semantics to audio/video announcements. They can also use aribtrary strings as the format ID.
+        /// </summary>
+        public Dictionary<string, SDPApplicationMediaFormat> ApplicationMediaFormats =
+            new Dictionary<string, SDPApplicationMediaFormat>();
+
+        public List<string> BandwidthAttributes = new List<string>();
+
         public SDPConnectionInformation Connection;
-
-        // Media Announcement fields.
-        public SDPMediaTypesEnum Media = SDPMediaTypesEnum.audio; // Media type for the stream.
-
-        public int
-            Port; // For UDP transports should be in the range 1024 to 65535 and for RTP compliance should be even (only even ports used for data).
-
-        public string Transport = "RTP/AVP"; // Defined types RTP/AVP (RTP Audio Visual Profile) and udp.
-        public string IceUfrag; // If ICE is being used the username for the STUN requests.
-        public string IcePwd; // If ICE is being used the password for the STUN requests.
-        public string IceOptions; // Optional attribute to specify support ICE options, e.g. "trickle".
-
-        public bool
-            IceEndOfCandidates; // If ICE candidate trickling is being used this needs to be set if all candidates have been gathered.
 
         public string
             DtlsFingerprint; // If DTLS handshake is being used this is the fingerprint or our DTLS certificate.
 
-        public int MLineIndex = 0;
+        public List<string> ExtraMediaAttributes = new List<string>(); // Attributes that were not recognised.
+
+        public List<string> IceCandidates;
+
+        public bool
+            IceEndOfCandidates; // If ICE candidate trickling is being used this needs to be set if all candidates have been gathered.
+
+        public string IceOptions; // Optional attribute to specify support ICE options, e.g. "trickle".
+        public string IcePwd; // If ICE is being used the password for the STUN requests.
+        public string IceUfrag; // If ICE is being used the username for the STUN requests.
+
+        /// <summary>
+        /// The "max-message-size" attribute defined in https://tools.ietf.org/html/draft-ietf-mmusic-sctp-sdp-26 for
+        /// use in WebRTC data channels.
+        /// </summary>
+        public long MaxMessageSize = 0;
+
+        // Media Announcement fields.
+        public SDPMediaTypesEnum Media = SDPMediaTypesEnum.audio; // Media type for the stream.
+
+        /// <summary>
+        ///  For AVP these will normally be a media payload type as defined in the RTP Audio/Video Profile.
+        /// </summary>
+        public Dictionary<int, SDPAudioVideoMediaFormat> MediaFormats = new Dictionary<int, SDPAudioVideoMediaFormat>();
 
         /// <summary>
         /// If being used in a bundle this the ID for the announcement.
@@ -97,10 +115,10 @@ namespace SIPSorcery.Net
         /// </summary>
         public string MediaID;
 
-        /// <summary>
-        /// The "ssrc" attributes group ID as specified in RFC5576.
-        /// </summary>
-        public string SsrcGroupID;
+        public int MLineIndex = 0;
+
+        public int
+            Port; // For UDP transports should be in the range 1024 to 65535 and for RTP compliance should be even (only even ports used for data).
 
         /// <summary>
         /// The "sctpmap" attribute defined in https://tools.ietf.org/html/draft-ietf-mmusic-sctp-sdp-26 for
@@ -114,11 +132,8 @@ namespace SIPSorcery.Net
         /// </summary>
         public ushort? SctpPort = null;
 
-        /// <summary>
-        /// The "max-message-size" attribute defined in https://tools.ietf.org/html/draft-ietf-mmusic-sctp-sdp-26 for
-        /// use in WebRTC data channels.
-        /// </summary>
-        public long MaxMessageSize = 0;
+        public List<SDPSecurityDescription>
+            SecurityDescriptions = new List<SDPSecurityDescription>(); //2018-12-21 rj2: add a=crypto parsing etc.
 
         /// <summary>
         /// If the RFC5576 is being used this is the list of "ssrc" attributes
@@ -126,31 +141,12 @@ namespace SIPSorcery.Net
         /// </summary>
         public List<SDPSsrcAttribute> SsrcAttributes = new List<SDPSsrcAttribute>();
 
-        public List<string> BandwidthAttributes = new List<string>();
-
         /// <summary>
-        ///  For AVP these will normally be a media payload type as defined in the RTP Audio/Video Profile.
+        /// The "ssrc" attributes group ID as specified in RFC5576.
         /// </summary>
-        public Dictionary<int, SDPAudioVideoMediaFormat> MediaFormats = new Dictionary<int, SDPAudioVideoMediaFormat>();
+        public string SsrcGroupID;
 
-        /// <summary>
-        /// List of media formats for "application media announcements. Application media announcements have different
-        /// semantics to audio/video announcements. They can also use aribtrary strings as the format ID.
-        /// </summary>
-        public Dictionary<string, SDPApplicationMediaFormat> ApplicationMediaFormats =
-            new Dictionary<string, SDPApplicationMediaFormat>();
-
-        public List<string> ExtraMediaAttributes = new List<string>(); // Attributes that were not recognised.
-
-        public List<SDPSecurityDescription>
-            SecurityDescriptions = new List<SDPSecurityDescription>(); //2018-12-21 rj2: add a=crypto parsing etc.
-
-        public List<string> IceCandidates;
-
-        /// <summary>
-        /// The stream status of this media announcement.
-        /// </summary>
-        public MediaStreamStatusEnum? MediaStreamStatus { get; set; }
+        public string Transport = "RTP/AVP"; // Defined types RTP/AVP (RTP Audio Visual Profile) and udp.
 
         public SDPMediaAnnouncement()
         {
@@ -195,6 +191,11 @@ namespace SIPSorcery.Net
                 }
             }
         }
+
+        /// <summary>
+        /// The stream status of this media announcement.
+        /// </summary>
+        public MediaStreamStatusEnum? MediaStreamStatus { get; set; }
 
         public void ParseMediaFormats(string formatList)
         {

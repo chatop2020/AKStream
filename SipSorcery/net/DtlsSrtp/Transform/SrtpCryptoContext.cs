@@ -99,19 +99,29 @@ namespace SIPSorcery.Net
         private readonly long REPLAY_WINDOW_SIZE = 64;
 
         /**
-         * RTP SSRC of this cryptographic context
+         * Derived session authentication key
          */
-        private long ssrcCtx;
+        private byte[] authKey;
 
         /**
-         * Master key identifier
+         * The symmetric cipher engines we need here
          */
-        private byte[] mki;
+        private IBlockCipher cipher = null;
 
         /**
-         * Roll-Over-Counter, see RFC3711 section 3.2.1 for detailed description
+         * implements the counter cipher mode for RTP according to RFC 3711
          */
-        private int roc;
+        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
+
+        /**
+         * Used inside F8 mode only
+         */
+        private IBlockCipher cipherF8 = null;
+
+        /**
+         * Derived session encryption key
+         */
+        private byte[] encKey;
 
         /**
          * Roll-Over-Counter guessed from packet
@@ -119,14 +129,9 @@ namespace SIPSorcery.Net
         private int guessedROC;
 
         /**
-         * RTP sequence number of the packet current processing
+         * Temp store.
          */
-        private int seqNum;
-
-        /**
-         * Whether we have the sequence number of current packet
-         */
-        private bool seqNumSet;
+        private byte[] ivStore = new byte[16];
 
         /**
          * Key Derivation Rate, used to derive session keys from master keys
@@ -134,9 +139,9 @@ namespace SIPSorcery.Net
         private long keyDerivationRate;
 
         /**
-         * Bit mask for replay check
+         * The HMAC object we used to do packet authentication
          */
-        private long replayWindow;
+        private IMac mac;
 
         /**
          * Master encryption key
@@ -149,19 +154,9 @@ namespace SIPSorcery.Net
         private byte[] masterSalt;
 
         /**
-         * Derived session encryption key
+         * Master key identifier
          */
-        private byte[] encKey;
-
-        /**
-         * Derived session authentication key
-         */
-        private byte[] authKey;
-
-        /**
-         * Derived session salting key
-         */
-        private byte[] saltKey;
+        private byte[] mki;
 
         /**
          * Encryption / Authentication policy for this session
@@ -169,39 +164,46 @@ namespace SIPSorcery.Net
         private SrtpPolicy policy;
 
         /**
-         * The HMAC object we used to do packet authentication
+         * Temp store.
          */
-        private IMac mac;
+        private byte[] rbStore = new byte[4];
 
         /**
-         * The symmetric cipher engines we need here
+         * Bit mask for replay check
          */
-        private IBlockCipher cipher = null;
+        private long replayWindow;
 
         /**
-         * Used inside F8 mode only
+         * Roll-Over-Counter, see RFC3711 section 3.2.1 for detailed description
          */
-        private IBlockCipher cipherF8 = null;
+        private int roc;
 
         /**
-         * implements the counter cipher mode for RTP according to RFC 3711
+         * Derived session salting key
          */
-        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
+        private byte[] saltKey;
+
+        /**
+         * RTP sequence number of the packet current processing
+         */
+        private int seqNum;
+
+        /**
+         * Whether we have the sequence number of current packet
+         */
+        private bool seqNumSet;
+
+        /**
+         * RTP SSRC of this cryptographic context
+         */
+        private long ssrcCtx;
 
         /**
          * Temp store.
          */
         private byte[] tagStore;
 
-        /**
-         * Temp store.
-         */
-        private byte[] ivStore = new byte[16];
-
-        /**
-         * Temp store.
-         */
-        private byte[] rbStore = new byte[4];
+        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
 
         /**
          * this is a working store, used by some methods to avoid new operations the
@@ -594,8 +596,6 @@ namespace SIPSorcery.Net
 
             SrtpCipherF8.Process(cipher, pkt.GetBuffer(), payloadOffset, payloadLength, ivStore, cipherF8);
         }
-
-        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
 
         /**
          * Authenticate a packet. Calculated authentication tag is returned.

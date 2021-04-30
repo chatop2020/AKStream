@@ -31,9 +31,9 @@ namespace SIPSorcery.Net.Sctp
     public class UDPForwardingStream : BlockingSCTPStream
     {
         private static ILogger logger = Log.Logger;
+        private Thread _rcv;
 
         Socket _udpSock;
-        private Thread _rcv;
 
         public UDPForwardingStream(Association a, int id, int toPort) : base(a, id)
         {

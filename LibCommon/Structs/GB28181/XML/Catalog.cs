@@ -77,14 +77,23 @@ namespace LibCommon.Structs.GB28181.XML
         /// </summary>
         public class Item
         {
+            private string _address;
+
+
+            private string _manufacturer;
+
+            private string _model;
+
+            private string _name;
+
+            private string _owner;
+
             /// <summary>
             /// 设备/区域/系统编码(必选)
             /// </summary>
             [JsonProperty("ChannelID")]
             [XmlElement("DeviceID")]
             public string DeviceID { get; set; }
-
-            private string _name;
 
             /// <summary>
             /// 设备/区域/系统名称(必选)
@@ -96,9 +105,6 @@ namespace LibCommon.Structs.GB28181.XML
                 set { _name = value == null ? "" : value.Replace(); }
             }
 
-
-            private string _manufacturer;
-
             /// <summary>
             /// 当为设备时，设备厂商(必选)
             /// </summary>
@@ -109,8 +115,6 @@ namespace LibCommon.Structs.GB28181.XML
                 set { _manufacturer = value == null ? "" : value.Replace(); }
             }
 
-            private string _model;
-
             /// <summary>
             /// 当为设备时，设备型号(必选)
             /// </summary>
@@ -120,8 +124,6 @@ namespace LibCommon.Structs.GB28181.XML
                 get { return _model; }
                 set { _model = value == null ? "" : value.Replace(); }
             }
-
-            private string _owner;
 
             /// <summary>
             /// 当为设备时，设备归属(必选)
@@ -144,8 +146,6 @@ namespace LibCommon.Structs.GB28181.XML
             /// </summary>
             [XmlElement("Block")]
             public string Block { get; set; }
-
-            private string _address;
 
             /// <summary>
             /// 当为设备时，安装地址(必选)

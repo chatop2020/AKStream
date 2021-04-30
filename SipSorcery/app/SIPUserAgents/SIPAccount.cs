@@ -33,8 +33,8 @@ namespace SIPSorcery.SIP.App
 
     public class RtccCustomerAccount
     {
-        public string ID;
         public string AccountCode;
+        public string ID;
         public int RatePlan;
     }
 
@@ -54,6 +54,24 @@ namespace SIPSorcery.SIP.App
     public class SIPAccount
     {
         public int TimeZoneOffsetMinutes;
+
+        public SIPAccount()
+        {
+        }
+
+        public SIPAccount(string owner, string sipDomain, string sipUsername, string sipPassword,
+            string outDialPlanName)
+        {
+            Id = Guid.NewGuid();
+            Owner = owner;
+            SIPDomain = sipDomain;
+            SIPUsername = sipUsername;
+            SIPPassword = sipPassword;
+            OutDialPlanName = (outDialPlanName != null && outDialPlanName.Trim().Length > 0)
+                ? outDialPlanName.Trim()
+                : null;
+            Inserted = DateTimeOffset.UtcNow;
+        }
 
         public Guid Id { get; set; }
         public string Owner { get; set; }
@@ -92,24 +110,6 @@ namespace SIPSorcery.SIP.App
         public bool IsDisabled
         {
             get { return IsUserDisabled || IsAdminDisabled; }
-        }
-
-        public SIPAccount()
-        {
-        }
-
-        public SIPAccount(string owner, string sipDomain, string sipUsername, string sipPassword,
-            string outDialPlanName)
-        {
-            Id = Guid.NewGuid();
-            Owner = owner;
-            SIPDomain = sipDomain;
-            SIPUsername = sipUsername;
-            SIPPassword = sipPassword;
-            OutDialPlanName = (outDialPlanName != null && outDialPlanName.Trim().Length > 0)
-                ? outDialPlanName.Trim()
-                : null;
-            Inserted = DateTimeOffset.UtcNow;
         }
     }
 }

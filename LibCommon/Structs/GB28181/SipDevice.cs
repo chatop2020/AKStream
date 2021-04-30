@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Timers;
 using LibCommon.Structs.GB28181.XML;
+using LiteDB;
 using Newtonsoft.Json;
 using SIPSorcery.SIP;
 
@@ -11,52 +12,44 @@ namespace LibCommon.Structs.GB28181
     [Serializable]
     public class SipDevice : IDisposable
     {
-        private IPAddress? _ipAddress;
-        private int _port;
+        private SIPURI? _contactUri;
         private string _deviceId = null!;
-        private SIPEndPoint? _remoteEndPoint;
-        private SIPEndPoint? _localSipEndPoint;
-        private List<SipChannel> _sipChannels = new List<SipChannel>();
         private DeviceInfo _deviceInfo = new DeviceInfo();
-        private DateTime _registerTime;
-        private string? _username;
-        private string? _password;
-        private DateTime _keepAliveTime;
-        private int _keepAliveLostTime;
+        private DeviceStatus _deviceStatus = null;
+        private IPAddress? _ipAddress;
+        private bool _isReday = false;
         private Timer _keepAliveCheckTimer;
+        private int _keepAliveLostTime;
+        private DateTime _keepAliveTime;
         private SIPRequest? _lastSipRequest;
         private SIPResponse? _lastSipResponse;
-        private SIPURI? _contactUri;
+        private SIPEndPoint? _localSipEndPoint;
+        private string? _password;
+        private int _port;
+        private DateTime _registerTime;
+        private SIPEndPoint? _remoteEndPoint;
         private SIPChannel? _sipChannelLayout;
+        private List<SipChannel> _sipChannels = new List<SipChannel>();
         private SipServerConfig _sipServerConfig;
-        private DeviceStatus _deviceStatus = null;
-        private bool _isReday = false;
-
-        public event GCommon.DoKickSipDevice KickMe = null!;
+        private string? _username;
 
 
         /// <summary>
         /// 对sip通道操作时的锁
         /// </summary>
-        [JsonIgnore] 
-        [LiteDB.BsonIgnore]
-        public object SipChannelOptLock = new object();
+        [JsonIgnore] [BsonIgnore] public object SipChannelOptLock = new object();
 
-        public void Dispose()
+        public SipDevice()
         {
-            if (_keepAliveCheckTimer != null)
-            {
-                _keepAliveCheckTimer.Dispose();
-                _keepAliveCheckTimer = null!;
-            }
         }
 
-        ~SipDevice()
+        public SipDevice(SipServerConfig sipServerConfig)
         {
-            Dispose(); //释放非托管资源
+            _sipServerConfig = sipServerConfig;
+            startTimer();
         }
 
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         /// <summary>
         /// 设备ip地址
         /// </summary>
@@ -89,7 +82,7 @@ namespace LibCommon.Structs.GB28181
         /// sip设备ip端口协议
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPEndPoint? RemoteEndPoint
         {
             get => _remoteEndPoint;
@@ -100,7 +93,7 @@ namespace LibCommon.Structs.GB28181
         /// sip服务ip端口协议
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPEndPoint? LocalSipEndPoint
         {
             get => _localSipEndPoint;
@@ -171,29 +164,12 @@ namespace LibCommon.Structs.GB28181
             set => _keepAliveLostTime = value;
         }
 
-
-        private void startTimer()
-        {
-            if (_keepAliveCheckTimer == null)
-            {
-                _keepAliveCheckTimer = new Timer(_sipServerConfig.KeepAliveInterval * 1000);
-                _keepAliveCheckTimer.Enabled = true; //启动Elapsed事件触发
-                _keepAliveCheckTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
-                _keepAliveCheckTimer.AutoReset = true; //需要自动reset
-                _keepAliveCheckTimer.Start(); //启动计时器
-            }
-        }
-
-        public SipDevice()
-        {
-        }
-
         /// <summary>
         ///最后一次SipRequest
         /// </summary>
 
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPRequest? LastSipRequest
         {
             get => _lastSipRequest;
@@ -204,7 +180,7 @@ namespace LibCommon.Structs.GB28181
         /// 最后一次sipresponse
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPResponse? LastSipResponse
         {
             get => _lastSipResponse;
@@ -216,7 +192,7 @@ namespace LibCommon.Structs.GB28181
         /// 注册时候的uri
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPURI? ContactUri
         {
             get => _contactUri;
@@ -228,7 +204,7 @@ namespace LibCommon.Structs.GB28181
         /// 设备所在的Sip通道实例
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPChannel? SipChannelLayout
         {
             get => _sipChannelLayout;
@@ -239,7 +215,7 @@ namespace LibCommon.Structs.GB28181
         /// sip服务器的配置类
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SipServerConfig SipServerConfig
         {
             get => _sipServerConfig;
@@ -264,10 +240,33 @@ namespace LibCommon.Structs.GB28181
             set => _isReday = value;
         }
 
-        public SipDevice(SipServerConfig sipServerConfig)
+        public void Dispose()
         {
-            _sipServerConfig = sipServerConfig;
-            startTimer();
+            if (_keepAliveCheckTimer != null)
+            {
+                _keepAliveCheckTimer.Dispose();
+                _keepAliveCheckTimer = null!;
+            }
+        }
+
+        public event GCommon.DoKickSipDevice KickMe = null!;
+
+        ~SipDevice()
+        {
+            Dispose(); //释放非托管资源
+        }
+
+
+        private void startTimer()
+        {
+            if (_keepAliveCheckTimer == null)
+            {
+                _keepAliveCheckTimer = new Timer(_sipServerConfig.KeepAliveInterval * 1000);
+                _keepAliveCheckTimer.Enabled = true; //启动Elapsed事件触发
+                _keepAliveCheckTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
+                _keepAliveCheckTimer.AutoReset = true; //需要自动reset
+                _keepAliveCheckTimer.Start(); //启动计时器
+            }
         }
 
 

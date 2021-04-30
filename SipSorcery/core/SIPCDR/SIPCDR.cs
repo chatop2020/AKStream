@@ -39,10 +39,38 @@ namespace SIPSorcery.SIP
         private static ILogger logger = Log.Logger;
         private static string m_newLine = Environment.NewLine;
 
-        public static event CDRReadyDelegate CDRCreated = c => { };
-        public static event CDRReadyDelegate CDRUpdated = c => { };
-        public static event CDRReadyDelegate CDRAnswered = c => { };
-        public static event CDRReadyDelegate CDRHungup = c => { };
+        private DateTimeOffset? m_answerTime;
+
+        private DateTimeOffset? m_hangupTime;
+
+        private DateTimeOffset? m_progressTime;
+
+        public SIPCDR()
+        {
+        }
+
+        public SIPCDR(
+            SIPCallDirection callDirection,
+            SIPURI destination,
+            SIPFromHeader from,
+            string callId,
+            SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint)
+        {
+            CDRId = Guid.NewGuid();
+            Created = DateTimeOffset.UtcNow;
+            CallDirection = callDirection;
+            Destination = destination;
+            From = from;
+            CallId = callId;
+            LocalSIPEndPoint = localSIPEndPoint;
+            RemoteEndPoint = remoteEndPoint;
+            InProgress = false;
+            IsAnswered = false;
+            IsHungup = false;
+
+            CDRCreated(this);
+        }
 
         [DataMember] public Guid CDRId { get; set; }
 
@@ -62,8 +90,6 @@ namespace SIPSorcery.SIP
         [DataMember] public int ProgressStatus { get; set; }
 
         [DataMember] public string ProgressReasonPhrase { get; set; }
-
-        private DateTimeOffset? m_progressTime;
 
         [DataMember]
         public DateTimeOffset? ProgressTime
@@ -86,8 +112,6 @@ namespace SIPSorcery.SIP
 
         [DataMember] public string AnswerReasonPhrase { get; set; }
 
-        private DateTimeOffset? m_answerTime;
-
         [DataMember]
         public DateTimeOffset? AnswerTime
         {
@@ -104,8 +128,6 @@ namespace SIPSorcery.SIP
                 }
             }
         }
-
-        private DateTimeOffset? m_hangupTime;
 
         [DataMember]
         public DateTimeOffset? HangupTime
@@ -146,32 +168,10 @@ namespace SIPSorcery.SIP
         public bool IsAnswered { get; set; }
         public bool IsHungup { get; set; }
 
-        public SIPCDR()
-        {
-        }
-
-        public SIPCDR(
-            SIPCallDirection callDirection,
-            SIPURI destination,
-            SIPFromHeader from,
-            string callId,
-            SIPEndPoint localSIPEndPoint,
-            SIPEndPoint remoteEndPoint)
-        {
-            CDRId = Guid.NewGuid();
-            Created = DateTimeOffset.UtcNow;
-            CallDirection = callDirection;
-            Destination = destination;
-            From = from;
-            CallId = callId;
-            LocalSIPEndPoint = localSIPEndPoint;
-            RemoteEndPoint = remoteEndPoint;
-            InProgress = false;
-            IsAnswered = false;
-            IsHungup = false;
-
-            CDRCreated(this);
-        }
+        public static event CDRReadyDelegate CDRCreated = c => { };
+        public static event CDRReadyDelegate CDRUpdated = c => { };
+        public static event CDRReadyDelegate CDRAnswered = c => { };
+        public static event CDRReadyDelegate CDRHungup = c => { };
 
         public void Progress(SIPResponseStatusCodesEnum progressStatus, string progressReason,
             SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint)

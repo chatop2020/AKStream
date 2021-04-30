@@ -8,10 +8,10 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitStopSendRtp : ReqZLMediaKitRequestBase
     {
-        private string _vhost;
         private string _app;
-        private string _stream;
         private string _ssrc;
+        private string _stream;
+        private string _vhost;
 
         /// <summary>
         /// vhost

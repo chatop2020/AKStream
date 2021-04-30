@@ -31,9 +31,9 @@ namespace SIPSorcery.Net.Sctp
     public class ReConfigChunk : Chunk
     {
         private static ILogger logger = Log.Logger;
+        private int retries;
 
         private long sentAt;
-        private int retries;
 
         public ReConfigChunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
             : base(type, flags, length, pkt)

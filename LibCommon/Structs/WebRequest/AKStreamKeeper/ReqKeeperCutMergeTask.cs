@@ -24,11 +24,9 @@ namespace LibCommon.Structs.WebRequest.AKStreamKeeper
     [Serializable]
     public class ReqKeeperCutMergeTask
     {
-        private List<CutMergeStruct>? _cutMergeFileList;
-        private string? _taskId;
         private string? _callbakUrl;
         private DateTime _createTime;
-        private MyTaskStatus? _taskStatus;
+        private List<CutMergeStruct>? _cutMergeFileList;
         private string? _playUrl;
 
         /// <summary>
@@ -38,6 +36,9 @@ namespace LibCommon.Structs.WebRequest.AKStreamKeeper
         /// Mergeing=40%
         /// </summary>
         private double? _processPercentage = 0f;
+
+        private string? _taskId;
+        private MyTaskStatus? _taskStatus;
 
         /// <summary>
         /// 

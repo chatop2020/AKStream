@@ -10,7 +10,15 @@ namespace LibSystemInfo
         public static double CPULOAD = 0f;
 
         private static ProcessHelper SystemInfoProcessHelper =
-            new ProcessHelper(p_StdOutputDataReceived,null!, p_Process_Exited!);
+            new ProcessHelper(p_StdOutputDataReceived, null!, p_Process_Exited!);
+
+        static CPULinuxLoadValue()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                SystemInfoProcessHelper.RunProcess("/usr/bin/top", "-b -p0");
+            }
+        }
 
         private static void p_Process_Exited(object sender, EventArgs e)
         {
@@ -42,14 +50,6 @@ namespace LibSystemInfo
                         }
                     }
                 }
-            }
-        }
-
-        static CPULinuxLoadValue()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                SystemInfoProcessHelper.RunProcess("/usr/bin/top", "-b -p0");
             }
         }
     }

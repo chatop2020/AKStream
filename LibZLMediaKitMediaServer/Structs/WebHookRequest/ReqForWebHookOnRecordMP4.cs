@@ -5,14 +5,14 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _app;
         private string? _file_Name;
         private string? _file_Path;
-        private string? _folder;
         private long? _file_Size;
+        private string? _folder;
+        private string? _mediaServerId;
         private long? _start_Time;
         private string? _stream;
-        private string? _mediaServerId;
+        private int? _time_len;
         private string? _url;
         private string? _vhost;
-        private int? _time_len;
 
         public string? App
         {

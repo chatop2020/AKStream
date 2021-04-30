@@ -15,7 +15,6 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体服务器治理的相关接口")]
     public class AKStreamKeeperController : ControllerBase
     {
-        
         [Route("GetVersion")]
         [HttpGet]
         public string GetVersion(
@@ -30,7 +29,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
+
         /// <summary>
         /// 获取一个可用的rtp端口（偶数端口）
         /// </summary>

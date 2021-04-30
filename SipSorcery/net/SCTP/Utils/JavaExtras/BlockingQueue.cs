@@ -5,8 +5,17 @@ namespace SCTP4CS.Utils
 {
     public class BlockingQueue<T> where T : class
     {
-        private bool closing;
         private readonly Queue<T> queue = new Queue<T>();
+        private bool closing;
+
+        public BlockingQueue()
+        {
+            lock (queue)
+            {
+                closing = false;
+                Monitor.PulseAll(queue);
+            }
+        }
 
         public int Count
         {
@@ -16,15 +25,6 @@ namespace SCTP4CS.Utils
                 {
                     return queue.Count;
                 }
-            }
-        }
-
-        public BlockingQueue()
-        {
-            lock (queue)
-            {
-                closing = false;
-                Monitor.PulseAll(queue);
             }
         }
 

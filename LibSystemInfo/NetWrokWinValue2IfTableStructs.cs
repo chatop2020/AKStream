@@ -9,10 +9,10 @@ namespace LibSystemInfo
 {
     public class NetWorkAdapter
     {
-        private long _send;
-        private long _recv;
-        private string _mac;
         private string _ipAddress;
+        private string _mac;
+        private long _recv;
+        private long _send;
 
         public long Send
         {
@@ -71,11 +71,31 @@ namespace LibSystemInfo
     /// </summary>
     public class NetInfo
     {
+        private uint m_Index;
+
+        private uint m_InErrors;
+
+        private uint m_InOctets;
+
+        private uint m_InUnknownProtos;
+
+        private string m_Name;
+
+        private uint m_OutErrors;
+
+        private uint m_OutOctets;
+
+        private string m_PhysAddr;
+
+        private uint m_Speed;
+
+        private NetState m_Status;
+
+        private NetType m_Type;
+
         public NetInfo()
         {
         }
-
-        private string m_Name;
 
         /// <summary>
         /// 名称
@@ -86,8 +106,6 @@ namespace LibSystemInfo
             set { m_Name = value; }
         }
 
-        private uint m_Index;
-
         /// <summary>
         /// 有效编号
         /// </summary>
@@ -96,8 +114,6 @@ namespace LibSystemInfo
             get { return m_Index; }
             set { m_Index = value; }
         }
-
-        private NetType m_Type;
 
         /// <summary>
         /// 类型
@@ -108,8 +124,6 @@ namespace LibSystemInfo
             set { m_Type = value; }
         }
 
-        private uint m_Speed;
-
         /// <summary>
         /// 速度
         /// </summary>
@@ -118,8 +132,6 @@ namespace LibSystemInfo
             get { return m_Speed; }
             set { m_Speed = value; }
         }
-
-        private uint m_InOctets;
 
         /// <summary>
         /// 总接收字节数
@@ -130,8 +142,6 @@ namespace LibSystemInfo
             set { m_InOctets = value; }
         }
 
-        private uint m_OutOctets;
-
         /// <summary>
         /// 总发送字节数
         /// </summary>
@@ -140,8 +150,6 @@ namespace LibSystemInfo
             get { return m_OutOctets; }
             set { m_OutOctets = value; }
         }
-
-        private NetState m_Status;
 
         /// <summary>
         /// 操作状态
@@ -152,8 +160,6 @@ namespace LibSystemInfo
             set { m_Status = value; }
         }
 
-        private uint m_InErrors;
-
         /// <summary>
         /// 总错收字节数
         /// </summary>
@@ -162,8 +168,6 @@ namespace LibSystemInfo
             get { return m_InErrors; }
             set { m_InErrors = value; }
         }
-
-        private uint m_OutErrors;
 
         /// <summary>
         /// 总错发字节数
@@ -174,8 +178,6 @@ namespace LibSystemInfo
             set { m_OutErrors = value; }
         }
 
-        private uint m_InUnknownProtos;
-
         /// <summary>
         /// 未知协议共收字节数
         /// </summary>
@@ -184,8 +186,6 @@ namespace LibSystemInfo
             get { return m_InUnknownProtos; }
             set { m_InUnknownProtos = value; }
         }
-
-        private string m_PhysAddr;
 
         /// <summary>
         /// 物理地址
@@ -220,42 +220,42 @@ namespace LibSystemInfo
 
     public class MIB_IFROW : CustomMarshaler
     {
-        [CustomMarshalAs(SizeConst = MAX_INTERFACE_NAME_LEN)]
-        public string wszName;
+        private const int MAX_INTERFACE_NAME_LEN = 256;
+        private const int MAXLEN_PHYSADDR = 8;
+        private const int MAXLEN_IFDESCR = 256;
+        private const int MAX_ADAPTER_NAME = 128;
 
-        public uint dwIndex; // index of the interface
-        public uint dwType; // type of interface
-        public uint dwMtu; // max transmission unit 
-        public uint dwSpeed; // speed of the interface 
-        public uint dwPhysAddrLen; // length of physical address
+        [CustomMarshalAs(SizeConst = MAXLEN_IFDESCR)]
+        public byte[] bDescr; // interface description         
 
         [CustomMarshalAs(SizeConst = MAXLEN_PHYSADDR)]
         public byte[] bPhysAddr; // physical address of adapter
 
         public uint dwAdminStatus; // administrative status
-        public uint dwOperStatus; // operational status
-        public uint dwLastChange; // last time operational status changed 
-        public uint dwInOctets; // octets received
-        public uint dwInUcastPkts; // unicast packets received 
-        public uint dwInNUcastPkts; // non-unicast packets received 
-        public uint dwInDiscards; // received packets discarded 
-        public uint dwInErrors; // erroneous packets received 
-        public uint dwInUnknownProtos; // unknown protocol packets received 
-        public uint dwOutOctets; // octets sent 
-        public uint dwOutUcastPkts; // unicast packets sent 
-        public uint dwOutNUcastPkts; // non-unicast packets sent 
-        public uint dwOutDiscards; // outgoing packets discarded 
-        public uint dwOutErrors; // erroneous packets sent 
-        public uint dwOutQLen; // output queue length 
         public uint dwDescrLen; // length of bDescr member 
 
-        [CustomMarshalAs(SizeConst = MAXLEN_IFDESCR)]
-        public byte[] bDescr; // interface description         
+        public uint dwIndex; // index of the interface
+        public uint dwInDiscards; // received packets discarded 
+        public uint dwInErrors; // erroneous packets received 
+        public uint dwInNUcastPkts; // non-unicast packets received 
+        public uint dwInOctets; // octets received
+        public uint dwInUcastPkts; // unicast packets received 
+        public uint dwInUnknownProtos; // unknown protocol packets received 
+        public uint dwLastChange; // last time operational status changed 
+        public uint dwMtu; // max transmission unit 
+        public uint dwOperStatus; // operational status
+        public uint dwOutDiscards; // outgoing packets discarded 
+        public uint dwOutErrors; // erroneous packets sent 
+        public uint dwOutNUcastPkts; // non-unicast packets sent 
+        public uint dwOutOctets; // octets sent 
+        public uint dwOutQLen; // output queue length 
+        public uint dwOutUcastPkts; // unicast packets sent 
+        public uint dwPhysAddrLen; // length of physical address
+        public uint dwSpeed; // speed of the interface 
+        public uint dwType; // type of interface
 
-        private const int MAX_INTERFACE_NAME_LEN = 256;
-        private const int MAXLEN_PHYSADDR = 8;
-        private const int MAXLEN_IFDESCR = 256;
-        private const int MAX_ADAPTER_NAME = 128;
+        [CustomMarshalAs(SizeConst = MAX_INTERFACE_NAME_LEN)]
+        public string wszName;
     }
 
     /// <summary>
@@ -263,6 +263,57 @@ namespace LibSystemInfo
     /// </summary>
     public abstract class CustomMarshaler
     {
+        #region constructors
+
+        public CustomMarshaler()
+        {
+        }
+
+        #endregion
+
+        #region properties
+
+        public byte[] ByteArray
+        {
+            get { return data; }
+        }
+
+        #endregion
+
+        #region helper methods
+
+        private static bool CompareByteArrays(byte[] data1, byte[] data2)
+        {
+            // If both are null, they're equal
+            if (data1 == null && data2 == null)
+            {
+                return true;
+            }
+
+            // If either but not both are null, they're not equal
+            if (data1 == null || data2 == null)
+            {
+                return false;
+            }
+
+            if (data1.Length != data2.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < data1.Length; i++)
+            {
+                if (data1[i] != data2[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        #endregion
+
         #region Fields
 
         // The internal buffer
@@ -270,14 +321,6 @@ namespace LibSystemInfo
         private MemoryStream stream;
         private BinaryReader binReader;
         private BinaryWriter binWriter;
-
-        #endregion
-
-        #region constructors
-
-        public CustomMarshaler()
-        {
-        }
 
         #endregion
 
@@ -335,15 +378,6 @@ namespace LibSystemInfo
             }
 
             return size;
-        }
-
-        #endregion
-
-        #region properties
-
-        public byte[] ByteArray
-        {
-            get { return data; }
         }
 
         #endregion
@@ -488,40 +522,6 @@ namespace LibSystemInfo
             }
 
             return size;
-        }
-
-        #endregion
-
-        #region helper methods
-
-        private static bool CompareByteArrays(byte[] data1, byte[] data2)
-        {
-            // If both are null, they're equal
-            if (data1 == null && data2 == null)
-            {
-                return true;
-            }
-
-            // If either but not both are null, they're not equal
-            if (data1 == null || data2 == null)
-            {
-                return false;
-            }
-
-            if (data1.Length != data2.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < data1.Length; i++)
-            {
-                if (data1[i] != data2[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         #endregion

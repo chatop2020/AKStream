@@ -24,28 +24,20 @@ namespace SIPSorcery.Net
         public const int MIN_HEADER_LEN = 12;
 
         public const int RTP_VERSION = 2;
-
-        public int Version = RTP_VERSION; // 2 bits.
-        public int PaddingFlag = 0; // 1 bit.
-        public int HeaderExtensionFlag = 0; // 1 bit.
         public int CSRCCount = 0; // 4 bits
-        public int MarkerBit = 0; // 1 bit.
-        public int PayloadType = 0; // 7 bits.
-        public UInt16 SequenceNumber; // 16 bits.
-        public uint Timestamp; // 32 bits.
-        public uint SyncSource; // 32 bits.
         public int[] CSRCList; // 32 bits.
-        public UInt16 ExtensionProfile; // 16 bits.
         public UInt16 ExtensionLength; // 16 bits, length of the header extensions in 32 bit words.
         public byte[] ExtensionPayload;
+        public UInt16 ExtensionProfile; // 16 bits.
+        public int HeaderExtensionFlag = 0; // 1 bit.
+        public int MarkerBit = 0; // 1 bit.
+        public int PaddingFlag = 0; // 1 bit.
+        public int PayloadType = 0; // 7 bits.
+        public UInt16 SequenceNumber; // 16 bits.
+        public uint SyncSource; // 32 bits.
+        public uint Timestamp; // 32 bits.
 
-        public int Length
-        {
-            get
-            {
-                return MIN_HEADER_LEN + (CSRCCount * 4) + ((HeaderExtensionFlag == 0) ? 0 : 4 + (ExtensionLength * 4));
-            }
-        }
+        public int Version = RTP_VERSION; // 2 bits.
 
         public RTPHeader()
         {
@@ -109,6 +101,14 @@ namespace SIPSorcery.Net
                     ExtensionPayload = new byte[ExtensionLength * 4];
                     Buffer.BlockCopy(packet, headerAndCSRCLength + 4, ExtensionPayload, 0, ExtensionLength * 4);
                 }
+            }
+        }
+
+        public int Length
+        {
+            get
+            {
+                return MIN_HEADER_LEN + (CSRCCount * 4) + ((HeaderExtensionFlag == 0) ? 0 : 4 + (ExtensionLength * 4));
             }
         }
 

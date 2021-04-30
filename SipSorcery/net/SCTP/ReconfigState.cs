@@ -29,16 +29,16 @@ namespace SIPSorcery.Net.Sctp
     class ReconfigState
     {
         private static ILogger logger = Log.Logger;
+        Association assoc;
+        uint farSeqno = 0;
+        Queue<SCTPStream> listOfStreamsToReset;
+        uint nearSeqno = 0;
 
         ReConfigChunk recentInbound = null;
 
         //ReConfigChunk recentOutboundRequest = null;
         ReConfigChunk sentReply = null;
         bool timerRunning = false;
-        uint nearSeqno = 0;
-        uint farSeqno = 0;
-        Association assoc;
-        Queue<SCTPStream> listOfStreamsToReset;
 
         public ReconfigState(Association a, uint farTSN)
         {

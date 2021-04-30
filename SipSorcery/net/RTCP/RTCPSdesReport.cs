@@ -68,8 +68,6 @@ namespace SIPSorcery.Net
         public const int MIN_PACKET_SIZE = RTCPHeader.HEADER_BYTES_LENGTH + PACKET_SIZE_WITHOUT_CNAME;
 
         public RTCPHeader Header;
-        public uint SSRC { get; private set; }
-        public string CNAME { get; private set; }
 
         /// <summary>
         /// Creates a new RTCP SDES payload that can be included in an RTCP packet.
@@ -127,6 +125,9 @@ namespace SIPSorcery.Net
             int cnameLength = packet[9];
             CNAME = Encoding.UTF8.GetString(packet, 10, cnameLength);
         }
+
+        public uint SSRC { get; private set; }
+        public string CNAME { get; private set; }
 
         /// <summary>
         /// Gets the raw bytes for the SDES item. This packet is ready to be included 

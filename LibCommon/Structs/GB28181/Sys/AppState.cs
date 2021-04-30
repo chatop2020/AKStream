@@ -64,6 +64,14 @@ namespace LibCommon.Structs.GB28181.Sys
             }
         }
 
+        /// <summary>
+        /// Handler for processing the App.Config file and retrieving a custom XML node.
+        /// </summary>
+        public object Create(object parent, object context, XmlNode configSection)
+        {
+            return configSection;
+        }
+
 
         /// <summary>
         /// Configures the logging object to use a console logger. This would normally be used
@@ -263,14 +271,6 @@ namespace LibCommon.Structs.GB28181.Sys
             }
 
             return directoryPath;
-        }
-
-        /// <summary>
-        /// Handler for processing the App.Config file and retrieving a custom XML node.
-        /// </summary>
-        public object Create(object parent, object context, XmlNode configSection)
-        {
-            return configSection;
         }
     }
 }

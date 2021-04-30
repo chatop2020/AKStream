@@ -12,15 +12,6 @@ namespace SIPSorcery.Media
     public class EmptyAudioSource : IAudioSource
     {
         private readonly List<AudioFormat> _audioFormats = new List<AudioFormat>();
-#pragma warning disable CS0067
-        public event EncodedSampleDelegate OnAudioSourceEncodedSample;
-        public event RawAudioSampleDelegate OnAudioSourceRawSample;
-        public event SourceErrorDelegate OnAudioSourceError;
-
-        protected bool _isStarted;
-        protected bool _isPaused;
-        protected bool _isClosed;
-#pragma warning restore CS0067
 
         public EmptyAudioSource()
         {
@@ -84,5 +75,14 @@ namespace SIPSorcery.Media
             _isStarted = true;
             return Task.CompletedTask;
         }
+#pragma warning disable CS0067
+        public event EncodedSampleDelegate OnAudioSourceEncodedSample;
+        public event RawAudioSampleDelegate OnAudioSourceRawSample;
+        public event SourceErrorDelegate OnAudioSourceError;
+
+        protected bool _isStarted;
+        protected bool _isPaused;
+        protected bool _isClosed;
+#pragma warning restore CS0067
     }
 }

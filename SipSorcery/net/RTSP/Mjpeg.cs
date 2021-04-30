@@ -58,35 +58,6 @@ namespace SIPSorcery.Net
     {
         private static ILogger logger = Log.Logger;
 
-        public sealed class Tags
-        {
-            static Tags()
-            {
-            }
-
-            public const byte Prefix = 0xff;
-
-            public const byte TextComment = 0xfe;
-
-            public const byte StartOfFrame = 0xc0;
-
-            public const byte HuffmanTable = 0xc4;
-
-            public const byte StartOfInformation = 0xd8;
-
-            public const byte AppFirst = 0xe0;
-
-            public const byte AppLast = 0xee;
-
-            public const byte EndOfInformation = 0xd9;
-
-            public const byte QuantizationTable = 0xdb;
-
-            public const byte DataRestartInterval = 0xdd;
-
-            public const byte StartOfScan = 0xda;
-        }
-
         //static byte[] dc_luminance = { 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
         static byte[] bits_dc_luminance = {0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
 
@@ -654,6 +625,35 @@ namespace SIPSorcery.Net
                 //Image = System.Drawing.Image.FromStream(Buffer, false, true);
 
                 return Buffer.ToArray();
+            }
+        }
+
+        public sealed class Tags
+        {
+            public const byte Prefix = 0xff;
+
+            public const byte TextComment = 0xfe;
+
+            public const byte StartOfFrame = 0xc0;
+
+            public const byte HuffmanTable = 0xc4;
+
+            public const byte StartOfInformation = 0xd8;
+
+            public const byte AppFirst = 0xe0;
+
+            public const byte AppLast = 0xee;
+
+            public const byte EndOfInformation = 0xd9;
+
+            public const byte QuantizationTable = 0xdb;
+
+            public const byte DataRestartInterval = 0xdd;
+
+            public const byte StartOfScan = 0xda;
+
+            static Tags()
+            {
             }
         }
     }

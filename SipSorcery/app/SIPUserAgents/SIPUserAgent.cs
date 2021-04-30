@@ -53,28 +53,45 @@ namespace SIPSorcery.SIP.App
 
         private static ILogger logger = Log.Logger;
 
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
-
-        /// <summary>
-        /// Client user agent for placing calls.
-        /// </summary>
-        private SIPClientUserAgent m_uac;
-
-        /// <summary>
-        /// Server user agent for receiving calls.
-        /// </summary>
-        private SIPServerUserAgent m_uas;
-
-        /// <summary>
-        /// The SIP transport layer for sending requests and responses.
-        /// </summary>
-        private SIPTransport m_transport;
-
         /// <summary>
         /// If true indicates the SIP transport instance is specific to this user agent and
         /// is not being shared.
         /// </summary>
         private readonly bool m_isTransportExclusive;
+
+        /// <summary>
+        /// Gets set to true if the SIP user agent has been explicitly closed and is no longer
+        /// required.
+        /// </summary>
+        private bool _isClosed;
+
+        /// <summary>
+        /// When a blind and attended transfer is in progress the original call will be placed
+        /// on hold (if not already). To prevent the response from the on hold re-INVITE 
+        /// being applied to the media session while the new transfer call is being made or
+        /// accepted we don't apply session descriptions on requests or responses with the 
+        /// old (original) call ID.
+        /// </summary>
+        private string _oldCallID;
+
+        /// <summary>
+        /// Used to keep track of received RTP events. An RTP event will typically span
+        /// multiple packets but the application only needs to get informed once per event.
+        /// </summary>
+        private uint _rtpEventSsrc;
+
+        /// <summary>
+        /// When a call is hungup a reference is kept to the BYE transaction so it can
+        /// be monitored for delivery.
+        /// </summary>
+        private SIPNonInviteTransaction m_byeTransaction;
+
+        /// <summary>
+        /// Holds the call descriptor for an in progress client (outbound) call.
+        /// </summary>
+        private SIPCallDescriptor m_callDescriptor;
+
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
 
         /// <summary>
         /// If set all communications are sent to this address irrespective of what the 
@@ -89,36 +106,50 @@ namespace SIPSorcery.SIP.App
         private SIPDialogue m_sipDialogue;
 
         /// <summary>
-        /// When a call is hungup a reference is kept to the BYE transaction so it can
-        /// be monitored for delivery.
+        /// The SIP transport layer for sending requests and responses.
         /// </summary>
-        private SIPNonInviteTransaction m_byeTransaction;
+        private SIPTransport m_transport;
 
         /// <summary>
-        /// Holds the call descriptor for an in progress client (outbound) call.
+        /// Client user agent for placing calls.
         /// </summary>
-        private SIPCallDescriptor m_callDescriptor;
+        private SIPClientUserAgent m_uac;
 
         /// <summary>
-        /// Used to keep track of received RTP events. An RTP event will typically span
-        /// multiple packets but the application only needs to get informed once per event.
+        /// Server user agent for receiving calls.
         /// </summary>
-        private uint _rtpEventSsrc;
+        private SIPServerUserAgent m_uas;
 
         /// <summary>
-        /// When a blind and attended transfer is in progress the original call will be placed
-        /// on hold (if not already). To prevent the response from the on hold re-INVITE 
-        /// being applied to the media session while the new transfer call is being made or
-        /// accepted we don't apply session descriptions on requests or responses with the 
-        /// old (original) call ID.
+        /// Creates a new instance where the user agent has exclusive control of the SIP transport.
+        /// This is significant for incoming requests. WIth exclusive control the agent knows that
+        /// any request are for it and can handle accordingly. If the transport needs to be shared 
+        /// amongst multiple user agents use the alternative constructor.
         /// </summary>
-        private string _oldCallID;
+        public SIPUserAgent()
+        {
+            m_transport = new SIPTransport();
+            m_transport.SIPTransportRequestReceived += SIPTransportRequestReceived;
+            m_isTransportExclusive = true;
+        }
 
         /// <summary>
-        /// Gets set to true if the SIP user agent has been explicitly closed and is no longer
-        /// required.
+        /// Creates a new SIP client and server combination user agent with a shared SIP transport instance.
+        /// With a shared transport outgoing calls and registrations work the same but for incoming calls
+        /// and requests the destination needs to be co-ordinated externally.
         /// </summary>
-        private bool _isClosed;
+        /// <param name="transport">The transport layer to use for requests and responses.</param>
+        /// <param name="outboundProxy">Optional. If set all requests and responses will be forwarded to this
+        /// end point irrespective of their headers.</param>
+        /// <param name="isTransportExclusive">True is the SIP transport instance is for the exclusive use of 
+        /// this user agent or false if it's being shared amongst multiple agents.</param>
+        public SIPUserAgent(SIPTransport transport, SIPEndPoint outboundProxy, bool isTransportExclusive = false)
+        {
+            m_transport = transport;
+            m_outboundProxy = outboundProxy;
+            m_isTransportExclusive = isTransportExclusive;
+            m_transport.SIPTransportRequestReceived += SIPTransportRequestReceived;
+        }
 
         /// <summary>
         /// The media (RTP) session in use for the current call.
@@ -218,6 +249,24 @@ namespace SIPSorcery.SIP.App
         public SIPCallDescriptor CallDescriptor
         {
             get { return m_callDescriptor; }
+        }
+
+        /// <summary>
+        /// Final cleanup if instance is being discarded.
+        /// </summary>
+        public void Dispose()
+        {
+            if (IsCallActive)
+            {
+                Hangup();
+            }
+
+            m_transport.SIPTransportRequestReceived -= SIPTransportRequestReceived;
+
+            if (m_isTransportExclusive)
+            {
+                m_transport.Shutdown();
+            }
         }
 
         /// <summary>
@@ -342,37 +391,6 @@ namespace SIPSorcery.SIP.App
         /// state machine processing.
         /// </summary>
         public event SIPTransactionTraceMessageDelegate OnTransactionTraceMessage;
-
-        /// <summary>
-        /// Creates a new instance where the user agent has exclusive control of the SIP transport.
-        /// This is significant for incoming requests. WIth exclusive control the agent knows that
-        /// any request are for it and can handle accordingly. If the transport needs to be shared 
-        /// amongst multiple user agents use the alternative constructor.
-        /// </summary>
-        public SIPUserAgent()
-        {
-            m_transport = new SIPTransport();
-            m_transport.SIPTransportRequestReceived += SIPTransportRequestReceived;
-            m_isTransportExclusive = true;
-        }
-
-        /// <summary>
-        /// Creates a new SIP client and server combination user agent with a shared SIP transport instance.
-        /// With a shared transport outgoing calls and registrations work the same but for incoming calls
-        /// and requests the destination needs to be co-ordinated externally.
-        /// </summary>
-        /// <param name="transport">The transport layer to use for requests and responses.</param>
-        /// <param name="outboundProxy">Optional. If set all requests and responses will be forwarded to this
-        /// end point irrespective of their headers.</param>
-        /// <param name="isTransportExclusive">True is the SIP transport instance is for the exclusive use of 
-        /// this user agent or false if it's being shared amongst multiple agents.</param>
-        public SIPUserAgent(SIPTransport transport, SIPEndPoint outboundProxy, bool isTransportExclusive = false)
-        {
-            m_transport = transport;
-            m_outboundProxy = outboundProxy;
-            m_isTransportExclusive = isTransportExclusive;
-            m_transport.SIPTransportRequestReceived += SIPTransportRequestReceived;
-        }
 
         /// <summary>
         /// Attempts to place a new outgoing call AND waits for the call to be answered or fail.
@@ -1723,24 +1741,6 @@ namespace SIPSorcery.SIP.App
         {
             _isClosed = true;
             m_transport.SIPTransportRequestReceived -= SIPTransportRequestReceived;
-        }
-
-        /// <summary>
-        /// Final cleanup if instance is being discarded.
-        /// </summary>
-        public void Dispose()
-        {
-            if (IsCallActive)
-            {
-                Hangup();
-            }
-
-            m_transport.SIPTransportRequestReceived -= SIPTransportRequestReceived;
-
-            if (m_isTransportExclusive)
-            {
-                m_transport.Shutdown();
-            }
         }
     }
 }

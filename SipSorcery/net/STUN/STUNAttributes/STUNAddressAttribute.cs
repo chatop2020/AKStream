@@ -22,15 +22,10 @@ namespace SIPSorcery.Net
     public class STUNAddressAttribute : STUNAttribute
     {
         public const UInt16 ADDRESS_ATTRIBUTE_LENGTH = 8;
+        public IPAddress Address;
 
         public int Family = 1; // Ipv4 = 1, IPv6 = 2.
         public int Port;
-        public IPAddress Address;
-
-        public override UInt16 PaddedLength
-        {
-            get { return ADDRESS_ATTRIBUTE_LENGTH; }
-        }
 
         public STUNAddressAttribute(byte[] attributeValue)
             : base(STUNAttributeTypesEnum.MappedAddress, attributeValue)
@@ -56,6 +51,11 @@ namespace SIPSorcery.Net
 
             base.AttributeType = attributeType;
             //base.Length = ADDRESS_ATTRIBUTE_LENGTH;
+        }
+
+        public override UInt16 PaddedLength
+        {
+            get { return ADDRESS_ATTRIBUTE_LENGTH; }
         }
 
         public override int ToByteBuffer(byte[] buffer, int startIndex)

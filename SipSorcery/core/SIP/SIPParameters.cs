@@ -51,15 +51,9 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        [DataMember] public char TagDelimiter = DEFAULT_PARAMETER_DELIMITER;
-
         [DataMember] public Dictionary<string, string> m_dictionary;
 
-        [IgnoreDataMember]
-        public int Count
-        {
-            get { return (m_dictionary != null) ? m_dictionary.Count : 0; }
-        }
+        [DataMember] public char TagDelimiter = DEFAULT_PARAMETER_DELIMITER;
 
         internal SIPParameters()
         {
@@ -76,6 +70,12 @@ namespace SIPSorcery.SIP
             {
                 Initialise(sipString, delimiter);
             }
+        }
+
+        [IgnoreDataMember]
+        public int Count
+        {
+            get { return (m_dictionary != null) ? m_dictionary.Count : 0; }
         }
 
         private void Initialise(string sipString, char delimiter)

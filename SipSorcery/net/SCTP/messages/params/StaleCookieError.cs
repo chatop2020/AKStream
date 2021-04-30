@@ -29,33 +29,33 @@ namespace SIPSorcery.Net.Sctp
     {
         private uint _measure;
         /*
-		 <code>
-		 Stale Cookie Error (3)
+         <code>
+         Stale Cookie Error (3)
 
-		 Cause of error
-		 --------------
+         Cause of error
+         --------------
 
-		 Stale Cookie Error: Indicates the receipt of a valid State Cookie
-		 that has expired.
+         Stale Cookie Error: Indicates the receipt of a valid State Cookie
+         that has expired.
 
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |     Cause Code=3              |       Cause Length=8          |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                 Measure of Staleness (usec.)                  |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |     Cause Code=3              |       Cause Length=8          |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                 Measure of Staleness (usec.)                  |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-		 Measure of Staleness: 32 bits (unsigned integer)
+         Measure of Staleness: 32 bits (unsigned integer)
 
-		 This field contains the difference, in microseconds, between the
-		 current time and the time the State Cookie expired.
+         This field contains the difference, in microseconds, between the
+         current time and the time the State Cookie expired.
 
-		 The sender of this error cause MAY choose to report how long past
-		 expiration the State Cookie is by including a non-zero value in
-		 the Measure of Staleness field.  If the sender does not wish to
-		 provide this information, it should set the Measure of Staleness
-		 field to the value of zero.
-		 </code>
-		 */
+         The sender of this error cause MAY choose to report how long past
+         expiration the State Cookie is by including a non-zero value in
+         the Measure of Staleness field.  If the sender does not wish to
+         provide this information, it should set the Measure of Staleness
+         field to the value of zero.
+         </code>
+         */
 
         public StaleCookieError() : base(3, "StaleCookieError")
         {

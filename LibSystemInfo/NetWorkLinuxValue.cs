@@ -13,68 +13,11 @@ namespace LibSystemInfo
         private static object lockObj = new object();
         private static string ethName = "";
 
-        public static void GetInfo()
-        {
-            while (true)
-            {
-                if (string.IsNullOrEmpty(ethName))
-                {
-                    Thread.Sleep(1000);
-                    continue;
-                }
 
-                var lines = File.ReadAllLines("/proc/net/dev");
-                if (lines.Length > 0)
-                {
-                    foreach (var str in lines)
-                    {
-                        if (str.Contains(ethName))
-                        {
-                            string[] strTmpArr = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                            if (strTmpArr.Length > 0)
-                            {
-                               var b1= ulong.TryParse(strTmpArr[1], out var tmpRecv);
-                               var b2= ulong.TryParse(strTmpArr[9], out var tmpSend);
+        private static ulong _perSendBytes = 0;
+        private static ulong _perRecvBytes = 0;
 
-                                if (tmpRecv > 0 && tmpSend > 0 && b1 && b2)
-                                {
-                                    if (_perRecvBytes == 0 && _perSendBytes == 0)
-                                    {
-                                        lock (lockObj)
-                                        {
-                                            _perRecvBytes = tmpRecv;
-                                            _perSendBytes = tmpSend;
-                                            NetWorkStat.CurrentRecvBytes = 0;
-                                            NetWorkStat.CurrentSendBytes = 0;
-                                            NetWorkStat.TotalRecvBytes = 0;
-                                            NetWorkStat.TotalSendBytes = 0;
-                                            NetWorkStat.UpdateTime = DateTime.Now;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        lock (lockObj)
-                                        {
-                                            NetWorkStat.CurrentRecvBytes = tmpRecv - _perRecvBytes;
-                                            NetWorkStat.CurrentSendBytes = tmpSend - _perSendBytes;
-                                            _perRecvBytes = tmpRecv;
-                                            _perSendBytes = tmpSend;
-                                            NetWorkStat.TotalRecvBytes =tmpRecv;
-                                            NetWorkStat.TotalSendBytes =tmpSend;
-                                            NetWorkStat.UpdateTime = DateTime.Now;
-                                        }
-                                    }
-                                }
-                            }
-
-                            break;
-                        }
-                    }
-                }
-
-                Thread.Sleep(1000);
-            }
-        }
+        public static NetWorkStat NetWorkStat = new NetWorkStat();
 
         static NetWorkLinuxValue()
         {
@@ -125,7 +68,7 @@ namespace LibSystemInfo
                                             {
                                                 foreach (var str2 in tmpStrArr1)
                                                 {
-                                                    if (!string.IsNullOrEmpty(str2) && str2.ToLower().Contains("ether") )
+                                                    if (!string.IsNullOrEmpty(str2) && str2.ToLower().Contains("ether"))
                                                     {
                                                         var regex = "([0-9a-fA-F]{2})(([/\\s:-][0-9a-fA-F]{2}){5})";
                                                         var mac = Regex.Match(str2, regex);
@@ -168,11 +111,68 @@ namespace LibSystemInfo
             }
         }
 
+        public static void GetInfo()
+        {
+            while (true)
+            {
+                if (string.IsNullOrEmpty(ethName))
+                {
+                    Thread.Sleep(1000);
+                    continue;
+                }
 
-        private static ulong _perSendBytes = 0;
-        private static ulong _perRecvBytes = 0;
+                var lines = File.ReadAllLines("/proc/net/dev");
+                if (lines.Length > 0)
+                {
+                    foreach (var str in lines)
+                    {
+                        if (str.Contains(ethName))
+                        {
+                            string[] strTmpArr = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            if (strTmpArr.Length > 0)
+                            {
+                                var b1 = ulong.TryParse(strTmpArr[1], out var tmpRecv);
+                                var b2 = ulong.TryParse(strTmpArr[9], out var tmpSend);
 
-        public static NetWorkStat NetWorkStat = new NetWorkStat();
+                                if (tmpRecv > 0 && tmpSend > 0 && b1 && b2)
+                                {
+                                    if (_perRecvBytes == 0 && _perSendBytes == 0)
+                                    {
+                                        lock (lockObj)
+                                        {
+                                            _perRecvBytes = tmpRecv;
+                                            _perSendBytes = tmpSend;
+                                            NetWorkStat.CurrentRecvBytes = 0;
+                                            NetWorkStat.CurrentSendBytes = 0;
+                                            NetWorkStat.TotalRecvBytes = 0;
+                                            NetWorkStat.TotalSendBytes = 0;
+                                            NetWorkStat.UpdateTime = DateTime.Now;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        lock (lockObj)
+                                        {
+                                            NetWorkStat.CurrentRecvBytes = tmpRecv - _perRecvBytes;
+                                            NetWorkStat.CurrentSendBytes = tmpSend - _perSendBytes;
+                                            _perRecvBytes = tmpRecv;
+                                            _perSendBytes = tmpSend;
+                                            NetWorkStat.TotalRecvBytes = tmpRecv;
+                                            NetWorkStat.TotalSendBytes = tmpSend;
+                                            NetWorkStat.UpdateTime = DateTime.Now;
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
 
         public static NetWorkStat GetNetworkStat()
         {

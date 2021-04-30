@@ -26,14 +26,24 @@ namespace SystemInfoLibrary.OperatingSystem
 {
     internal class WindowsOperatingSystemInfo : OperatingSystemInfo
     {
+        private HardwareInfo _hardware;
+
+        public Version _javaVersion;
         private ManagementBaseObject _win32_OperatingSystem;
+
+
+        public WindowsOperatingSystemInfo()
+        {
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem"))
+            {
+                _win32_OperatingSystem = (from ManagementBaseObject os in searcher.Get() select os).FirstOrDefault();
+            }
+        }
 
         public override string Architecture => (String) _win32_OperatingSystem.GetPropertyValue("OSArchitecture");
 
         public override string Name =>
             $"{(String) _win32_OperatingSystem.GetPropertyValue("Caption")} SP{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMajorVersion")}.{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMinorVersion")}";
-
-        public Version _javaVersion;
 
         public override Version JavaVersion
         {
@@ -60,18 +70,7 @@ namespace SystemInfoLibrary.OperatingSystem
             }
         }
 
-
-        private HardwareInfo _hardware;
         public override HardwareInfo Hardware => _hardware ?? (_hardware = new WindowsHardwareInfo());
-
-
-        public WindowsOperatingSystemInfo()
-        {
-            using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem"))
-            {
-                _win32_OperatingSystem = (from ManagementBaseObject os in searcher.Get() select os).FirstOrDefault();
-            }
-        }
 
 
         public override OperatingSystemInfo Update()

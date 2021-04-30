@@ -70,17 +70,6 @@ namespace SIPSorcery.SIP
 
         private static LookupClient _lookupClient;
 
-        public static LookupClient LookupClient
-        {
-            get { return _lookupClient; }
-            internal set
-            {
-                // Intended to allow unit testing with client options that will cause the
-                // lookup logic to execute failure conditions.
-                _lookupClient = value;
-            }
-        }
-
         static SIPDns()
         {
             var nameServers = NameServer.ResolveNameServers(skipIPv6SiteLocal: true, fallbackToGooglePublicDns: true);
@@ -94,6 +83,17 @@ namespace SIPSorcery.SIP
             };
 
             _lookupClient = new LookupClient(clientOptions);
+        }
+
+        public static LookupClient LookupClient
+        {
+            get { return _lookupClient; }
+            internal set
+            {
+                // Intended to allow unit testing with client options that will cause the
+                // lookup logic to execute failure conditions.
+                _lookupClient = value;
+            }
         }
 
         public static SIPEndPoint ResolveFromCache(SIPURI uri, bool preferIPv6)

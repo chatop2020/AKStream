@@ -11,23 +11,23 @@ namespace LibCommon.Structs.GB28181.Net.SDP
 
         public const string m_CRLF = "\r\n";
 
+        public List<string> BandwidthAttributes = new List<string>();
+
         public SDPConnectionInformation Connection;
+
+        public List<string> ExtraAttributes = new List<string>(); // Attributes that were not recognised.
 
         // Media Announcement fields.
         public SDPMediaTypesEnum Media = SDPMediaTypesEnum.audio; // Media type for the stream.
-
-        public int
-            Port; // For UDP transports should be in the range 1024 to 65535 and for RTP compliance should be even (only even ports used for data).
-
-        public string Transport = "RTP/AVP"; // Defined types RTP/AVP (RTP Audio Visual Profile) and udp.
-
-        public List<string> BandwidthAttributes = new List<string>();
 
         public List<SDPMediaFormat>
             MediaFormats =
                 new List<SDPMediaFormat>(); // For AVP these will normally be a media payload type as defined in the RTP Audio/Video Profile.
 
-        public List<string> ExtraAttributes = new List<string>(); // Attributes that were not recognised.
+        public int
+            Port; // For UDP transports should be in the range 1024 to 65535 and for RTP compliance should be even (only even ports used for data).
+
+        public string Transport = "RTP/AVP"; // Defined types RTP/AVP (RTP Audio Visual Profile) and udp.
 
         public SDPMediaAnnouncement()
         {

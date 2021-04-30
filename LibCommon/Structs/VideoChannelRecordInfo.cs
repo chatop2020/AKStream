@@ -10,13 +10,13 @@ namespace LibCommon.Structs
     [Serializable]
     public class VideoChannelRecordInfo
     {
+        private DateTime _expires;
 
 
         private long _id;
+        private List<RecordInfo.RecItem> _recItems = new List<RecordInfo.RecItem>();
         private int _taskId;
-        private List<RecordInfo.RecItem> _recItems= new List<RecordInfo.RecItem>();
         private int _tatolCount;
-        private DateTime _expires;
 
         public long Id
         {
@@ -57,7 +57,7 @@ namespace LibCommon.Structs
         /// </summary>
         public int GetCount
         {
-            get =>  _recItems.Count;
+            get => _recItems.Count;
         }
 
         /// <summary>

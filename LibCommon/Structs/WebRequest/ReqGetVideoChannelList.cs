@@ -11,43 +11,43 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqGetVideoChannelList : ReqPaginationBase
     {
-        private long? _id;
-        private string? _mainId;
         private string? _app;
-        private string? _vhost;
-        private string? _mediaServerId;
+        private bool? _autoRecord;
+        private bool? _autoVideo;
+        private string? _channelId;
+        private string? _channelIdLike;
         private string? _channelName;
+        private string? _channelNameLike;
+        private DateTime? _createTime;
+        private bool? _defaultRtpPort;
         private string? _departmentId;
         private string? _departmentName;
-        private string? _pDepartmentId;
-        private string? _pDepartmentName;
+        private string? _departmentNameLike;
+        private string? _deviceId;
+        private string? _deviceIdLike;
         private DeviceNetworkType? _deviceNetworkType;
         private DeviceStreamType? _deviceStreamType;
-        private MethodByGetStream? _methodByGetStream;
-        private VideoDeviceType? _videoDeviceType;
-        private bool? _autoVideo;
-        private bool? _autoRecord;
-        private string? _recordPlanName;
-        private string? _ipV4Address;
-        private string? _ipV6Address;
-        private bool? _hasPtz;
-        private string? _deviceId;
-        private string? _channelId;
-        private bool? _rtpWithTcp;
-        private string? _videoSrcUrl;
-        private bool? _defaultRtpPort;
-        private DateTime? _createTime;
-        private DateTime? _updateTime;
         private bool? _enabled;
-        private bool? _noPlayerBreak;
-        private string? _channelNameLike;
-        private string? _departmentNameLike;
-        private string? _ipV4AddressLike;
-        private string? _ipV6AddressLike;
-        private string? _videoSrcUrlLike;
-        private string? _deviceIdLike;
-        private string? _channelIdLike;
+        private bool? _hasPtz;
+        private long? _id;
         private bool? _includeSubDeptartment;
+        private string? _ipV4Address;
+        private string? _ipV4AddressLike;
+        private string? _ipV6Address;
+        private string? _ipV6AddressLike;
+        private string? _mainId;
+        private string? _mediaServerId;
+        private MethodByGetStream? _methodByGetStream;
+        private bool? _noPlayerBreak;
+        private string? _pDepartmentId;
+        private string? _pDepartmentName;
+        private string? _recordPlanName;
+        private bool? _rtpWithTcp;
+        private DateTime? _updateTime;
+        private string? _vhost;
+        private VideoDeviceType? _videoDeviceType;
+        private string? _videoSrcUrl;
+        private string? _videoSrcUrlLike;
 
         /// <summary>
         /// 数据库主键

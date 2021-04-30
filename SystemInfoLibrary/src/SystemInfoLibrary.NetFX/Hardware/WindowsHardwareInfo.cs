@@ -11,6 +11,10 @@ namespace SystemInfoLibrary.Hardware
     {
         private IList<CPUInfo> _CPUs;
 
+        private IList<GPUInfo> _GPUs;
+
+        private RAMInfo _RAM;
+
         public override IList<CPUInfo> CPUs
         {
             get
@@ -28,8 +32,6 @@ namespace SystemInfoLibrary.Hardware
             }
         }
 
-        private IList<GPUInfo> _GPUs;
-
         public override IList<GPUInfo> GPUs
         {
             get
@@ -46,8 +48,6 @@ namespace SystemInfoLibrary.Hardware
                 return _GPUs;
             }
         }
-
-        private RAMInfo _RAM;
 
         public override RAMInfo RAM
         {

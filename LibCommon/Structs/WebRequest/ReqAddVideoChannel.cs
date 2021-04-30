@@ -10,32 +10,32 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqAddVideoChannel
     {
-        private string _mediaServerId;
         private string _app;
-        private string _vhost;
+        private bool _autoRecord;
+        private bool _autoVideo;
+        private string? _channelId;
         private string? _channelName;
+        private bool? _defaultRtpPort;
         private string? _departmentId;
         private string? _departmentName;
-        private string? _pDepartmentId;
-        private string? _pDepartmentName;
+        private string? _deviceId;
         private DeviceNetworkType _deviceNetworkType;
         private DeviceStreamType _deviceStreamType;
-        private MethodByGetStream _methodByGetStream;
-        private VideoDeviceType _videoDeviceType;
-        private bool _autoVideo;
-        private bool _autoRecord;
-        private int? _recordSecs;
-        private string? _recordPlanName;
+        private bool? _enabled;
+        private bool _hasPtz;
         private string _ipV4Address;
         private string? _ipV6Address;
-        private bool _hasPtz;
-        private string? _deviceId;
-        private string? _channelId;
-        private bool? _rtpWithTcp;
-        private string? _videoSrcUrl;
-        private bool? _defaultRtpPort;
-        private bool? _enabled;
+        private string _mediaServerId;
+        private MethodByGetStream _methodByGetStream;
         private bool? _noPlayerBreak;
+        private string? _pDepartmentId;
+        private string? _pDepartmentName;
+        private string? _recordPlanName;
+        private int? _recordSecs;
+        private bool? _rtpWithTcp;
+        private string _vhost;
+        private VideoDeviceType _videoDeviceType;
+        private string? _videoSrcUrl;
 
         public string MediaServerId
         {

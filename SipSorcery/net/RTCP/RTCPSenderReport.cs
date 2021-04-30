@@ -69,12 +69,12 @@ namespace SIPSorcery.Net
         public const int MIN_PACKET_SIZE = RTCPHeader.HEADER_BYTES_LENGTH + 4 + SENDER_PAYLOAD_SIZE;
 
         public RTCPHeader Header;
-        public uint SSRC;
         public ulong NtpTimestamp;
-        public uint RtpTimestamp;
-        public uint PacketCount;
         public uint OctetCount;
+        public uint PacketCount;
         public List<ReceptionReportSample> ReceptionReports;
+        public uint RtpTimestamp;
+        public uint SSRC;
 
         public RTCPSenderReport(uint ssrc, ulong ntpTimestamp, uint rtpTimestamp, uint packetCount, uint octetCount,
             List<ReceptionReportSample> receptionReports)

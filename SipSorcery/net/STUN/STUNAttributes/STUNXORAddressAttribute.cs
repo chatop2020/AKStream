@@ -26,15 +26,10 @@ namespace SIPSorcery.Net
     public class STUNXORAddressAttribute : STUNAttribute
     {
         public const UInt16 ADDRESS_ATTRIBUTE_LENGTH = 8;
+        public IPAddress Address;
 
         public int Family = 1; // Ipv4 = 1, IPv6 = 2.
         public int Port;
-        public IPAddress Address;
-
-        public override UInt16 PaddedLength
-        {
-            get { return ADDRESS_ATTRIBUTE_LENGTH; }
-        }
 
         public STUNXORAddressAttribute(STUNAttributeTypesEnum attributeType, byte[] attributeValue)
             : base(attributeType, attributeValue)
@@ -60,6 +55,11 @@ namespace SIPSorcery.Net
         {
             Port = port;
             Address = address;
+        }
+
+        public override UInt16 PaddedLength
+        {
+            get { return ADDRESS_ATTRIBUTE_LENGTH; }
         }
 
         public override int ToByteBuffer(byte[] buffer, int startIndex)

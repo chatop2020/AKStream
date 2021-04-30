@@ -38,19 +38,27 @@ namespace SIPSorcery.Net.Sctp
 		 */
 
         private static ILogger logger = Log.Logger;
+        protected Association _ass;
 
         private SCTPStreamBehaviour _behave;
-        protected Association _ass;
-        private int _sno;
         private string _label;
-        private SortedArray<DataChunk> _stash;
-        private SCTPStreamListener _sl;
         private int _nextMessageSeqIn;
         private int _nextMessageSeqOut;
+        private SCTPStreamListener _sl;
+        private int _sno;
+        private SortedArray<DataChunk> _stash;
         private bool closing;
-        private State state = State.OPEN;
 
         public Action OnOpen;
+        private State state = State.OPEN;
+
+        public SCTPStream(Association a, int id)
+        {
+            _ass = a;
+            _sno = id;
+            _stash = new SortedArray<DataChunk>(); // sort bt tsn
+            _behave = new OrderedStreamBehaviour(); // default 'till we know different
+        }
 
         public bool InboundIsOpen()
         {
@@ -78,22 +86,6 @@ namespace SIPSorcery.Net.Sctp
         }
 
         abstract public void delivered(DataChunk d);
-
-        enum State
-        {
-            CLOSED,
-            INBOUNDONLY,
-            OUTBOUNDONLY,
-            OPEN
-        }
-
-        public SCTPStream(Association a, int id)
-        {
-            _ass = a;
-            _sno = id;
-            _stash = new SortedArray<DataChunk>(); // sort bt tsn
-            _behave = new OrderedStreamBehaviour(); // default 'till we know different
-        }
 
         public void setLabel(string l)
         {
@@ -286,6 +278,14 @@ namespace SIPSorcery.Net.Sctp
         public virtual bool idle()
         {
             return true;
+        }
+
+        enum State
+        {
+            CLOSED,
+            INBOUNDONLY,
+            OUTBOUNDONLY,
+            OPEN
         }
     }
 }

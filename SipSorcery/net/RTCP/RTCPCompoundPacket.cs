@@ -34,11 +34,6 @@ namespace SIPSorcery.Net
     {
         private static ILogger logger = Log.Logger;
 
-        public RTCPSenderReport SenderReport { get; private set; }
-        public RTCPReceiverReport ReceiverReport { get; private set; }
-        public RTCPSDesReport SDesReport { get; private set; }
-        public RTCPBye Bye { get; set; }
-
         public RTCPCompoundPacket(RTCPSenderReport senderReport, RTCPSDesReport sdesReport)
         {
             SenderReport = senderReport;
@@ -112,6 +107,11 @@ namespace SIPSorcery.Net
                 }
             }
         }
+
+        public RTCPSenderReport SenderReport { get; private set; }
+        public RTCPReceiverReport ReceiverReport { get; private set; }
+        public RTCPSDesReport SDesReport { get; private set; }
+        public RTCPBye Bye { get; set; }
 
         /// <summary>
         /// Serialises a compound RTCP packet to a byte array ready for transmission.

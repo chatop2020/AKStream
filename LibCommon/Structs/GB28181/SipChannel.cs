@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using LibCommon.Enums;
 using LibCommon.Structs.GB28181.Sys;
 using LibCommon.Structs.GB28181.XML;
+using LiteDB;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SIPSorcery.SIP;
@@ -13,23 +12,23 @@ namespace LibCommon.Structs.GB28181
     [Serializable]
     public class SipChannel : IDisposable
     {
-        private string _parentId = null!;
         private string _deviceId = null!;
-        private string _ssrcId;
-        private string _stream;
-        private SIPEndPoint _remoteEndPoint = null!;
-        private SIPEndPoint _localSipEndPoint = null!;
-        private PushStatus _pushStatus;
-        private DateTime _lastUpdateTime;
-        private SipChannelType _sipChannelType;
-        private DevStatus _sipChannelStatus;
-
-        private Catalog.Item _sipChannelDesc = null!;
 
         //  private MediaServerStreamInfo? _channelMediaServerStreamInfo;
         private SIPRequest _inviteSipRequest; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPResponse _inviteSipResponse; //要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
         private SIPRequest _lastSipRequest; //保存最后一次sipRequest
+        private DateTime _lastUpdateTime;
+        private SIPEndPoint _localSipEndPoint = null!;
+        private string _parentId = null!;
+        private PushStatus _pushStatus;
+        private SIPEndPoint _remoteEndPoint = null!;
+
+        private Catalog.Item _sipChannelDesc = null!;
+        private DevStatus _sipChannelStatus;
+        private SipChannelType _sipChannelType;
+        private string _ssrcId;
+        private string _stream;
 
         /*
         private List<KeyValuePair<int, RecordInfo.RecItem>> _lastRecordInfos =
@@ -64,7 +63,7 @@ namespace LibCommon.Structs.GB28181
 
 
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         /// <summary>
         /// sip设备的ip端口协议
         /// </summary>
@@ -76,7 +75,7 @@ namespace LibCommon.Structs.GB28181
 
 
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         /// <summary>
         /// sip服务的ip端口协议
         /// </summary>
@@ -154,12 +153,6 @@ namespace LibCommon.Structs.GB28181
             set => _sipChannelDesc = value;
         }
 
-
-        public void Dispose()
-        {
-            _sipChannelDesc = null!;
-        }
-
         /*/// <summary>
         /// Sip通道的流媒体相关信息
         /// </summary>
@@ -173,7 +166,7 @@ namespace LibCommon.Structs.GB28181
         /// 保存请求实时流时的request,因为在终止实时流的时候要用到
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPRequest InviteSipRequest
         {
             get => _inviteSipRequest;
@@ -185,7 +178,7 @@ namespace LibCommon.Structs.GB28181
         /// 保存请求实时流时的response,因为在终止实时流的时候要用到
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPResponse InviteSipResponse
         {
             get => _inviteSipResponse;
@@ -196,14 +189,19 @@ namespace LibCommon.Structs.GB28181
         /// 保存最后一次SipRequest
         /// </summary>
         [JsonIgnore]
-        [LiteDB.BsonIgnore]
+        [BsonIgnore]
         public SIPRequest LastSipRequest
         {
             get => _lastSipRequest;
             set => _lastSipRequest = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-       
+
+        public void Dispose()
+        {
+            _sipChannelDesc = null!;
+        }
+
 
         ~SipChannel()
         {

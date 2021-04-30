@@ -36,35 +36,64 @@ namespace SIPSorcery.SIP.App
 
         private static string m_userAgent = SIPConstants.SIP_USERAGENT_STRING;
 
-        private SIPTransport m_sipTransport;
-
-        private SIPCallDescriptor m_sipCallDescriptor; // Describes the server leg of the call from the sipswitch.
-
-        //private SIPEndPoint m_serverEndPoint;
-        private UACInviteTransaction m_serverTransaction;
+        public Func<SIPRequest, SIPRequest> AdjustInvite;
 
         private bool
             m_callCancelled; // It's possible for the call to be cancelled before the INVITE has been sent. This could occur if a DNS lookup on the server takes a while.
 
-        private bool
-            m_hungupOnCancel; // Set to true if a call has been cancelled AND and then an OK response was received AND a BYE has been sent to hang it up. This variable is used to stop another BYE transaction being generated.
-
-        private int m_serverAuthAttempts; // Used to determine if credentials for a server leg call fail.
-
         internal SIPNonInviteTransaction
             m_cancelTransaction; // If the server call is cancelled this transaction contains the CANCEL in case it needs to be resent.
+
+        private bool
+            m_hungupOnCancel; // Set to true if a call has been cancelled AND and then an OK response was received AND a BYE has been sent to hang it up. This variable is used to stop another BYE transaction being generated.
 
         private SIPEndPoint
             m_outboundProxy; // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
 
+        private int m_serverAuthAttempts; // Used to determine if credentials for a server leg call fail.
+
+        //private SIPEndPoint m_serverEndPoint;
+        private UACInviteTransaction m_serverTransaction;
+
+        private SIPCallDescriptor m_sipCallDescriptor; // Describes the server leg of the call from the sipswitch.
+
         private SIPDialogue m_sipDialogue;
+
+        private SIPTransport m_sipTransport;
+
+        /// <summary>
+        /// Creates a new SIP user agent client to act as the client on a SIP INVITE transaction.
+        /// </summary>
+        /// <param name="sipTransport">The SIP transport this user agent will use for sending and receiving SIP messages.</param>
+        public SIPClientUserAgent(SIPTransport sipTransport)
+        {
+            m_sipTransport = sipTransport;
+        }
+
+        public SIPClientUserAgent(
+            SIPTransport sipTransport,
+            SIPEndPoint outboundProxy)
+        {
+            m_sipTransport = sipTransport;
+            m_outboundProxy = outboundProxy?.CopyOf();
+        }
+
+        public SIPCallDescriptor SipCallDescriptor
+        {
+            get => m_sipCallDescriptor;
+            set => m_sipCallDescriptor = value;
+        }
+
+        /// <summary>
+        /// Determines whether the agent will operate with support for reliable provisional responses as per RFC3262.
+        /// If support is not desired it should be set to false before the initial INVITE request is sent.
+        /// </summary>
+        public bool PrackSupported { get; set; } = true;
 
         public event SIPCallResponseDelegate CallTrying;
         public event SIPCallResponseDelegate CallRinging;
         public event SIPCallResponseDelegate CallAnswered;
         public event SIPCallFailedDelegate CallFailed;
-
-        public Func<SIPRequest, SIPRequest> AdjustInvite;
 
         public UACInviteTransaction ServerTransaction
         {
@@ -84,107 +113,6 @@ namespace SIPSorcery.SIP.App
         public SIPCallDescriptor CallDescriptor
         {
             get { return m_sipCallDescriptor; }
-        }
-
-        public SIPCallDescriptor SipCallDescriptor
-        {
-            get => m_sipCallDescriptor;
-            set => m_sipCallDescriptor = value;
-        }
-
-        /// <summary>
-        /// Determines whether the agent will operate with support for reliable provisional responses as per RFC3262.
-        /// If support is not desired it should be set to false before the initial INVITE request is sent.
-        /// </summary>
-        public bool PrackSupported { get; set; } = true;
-
-        /// <summary>
-        /// Creates a new SIP user agent client to act as the client on a SIP INVITE transaction.
-        /// </summary>
-        /// <param name="sipTransport">The SIP transport this user agent will use for sending and receiving SIP messages.</param>
-        public SIPClientUserAgent(SIPTransport sipTransport)
-        {
-            m_sipTransport = sipTransport;
-        }
-
-        public SIPClientUserAgent(
-            SIPTransport sipTransport,
-            SIPEndPoint outboundProxy)
-        {
-            m_sipTransport = sipTransport;
-            m_outboundProxy = outboundProxy?.CopyOf();
-        }
-
-        /// <summary>
-        /// Gets the destination of the remote SIP end point for this call.
-        /// </summary>
-        /// <param name="sipCallDescriptor">The call descriptor containing the settings to use to place the call.</param>
-        /// <returns>The server end point for the call.</returns>
-        public async Task<SIPEndPoint> GetCallDestination(SIPCallDescriptor sipCallDescriptor)
-        {
-            SIPURI callURI = SIPURI.ParseSIPURI(sipCallDescriptor.Uri);
-            SIPEndPoint serverEndPoint = null;
-
-            // If the outbound proxy is a loopback address, as it will normally be for local deployments, then it cannot be overriden.
-            if (m_outboundProxy != null && IPAddress.IsLoopback(m_outboundProxy.Address))
-            {
-                serverEndPoint = m_outboundProxy;
-            }
-            else if (!sipCallDescriptor.ProxySendFrom.IsNullOrBlank())
-            {
-                // If the binding has a specific proxy end point sent then the request needs to be forwarded to the proxy's default end point for it to take care of.
-                //SIPEndPoint outboundProxyEndPoint = SIPEndPoint.ParseSIPEndPoint(sipCallDescriptor.ProxySendFrom);
-                //m_outboundProxy = new SIPEndPoint(SIPProtocolsEnum.udp, outboundProxyEndPoint.Address, SIPConstants.DEFAULT_SIP_PORT);
-                //m_serverEndPoint = m_outboundProxy;
-                m_outboundProxy = SIPEndPoint.ParseSIPEndPoint(sipCallDescriptor.ProxySendFrom);
-                serverEndPoint = m_outboundProxy;
-                logger.LogDebug($"SIPClientUserAgent Call using alternate outbound proxy of {serverEndPoint}.");
-            }
-            else if (m_outboundProxy != null)
-            {
-                // Using the system outbound proxy only, no additional user routing requirements.
-                serverEndPoint = m_outboundProxy;
-            }
-
-            // No outbound proxy, determine the forward destination based on the SIP request.
-            if (serverEndPoint == null)
-            {
-                //SIPDNSLookupResult lookupResult = null;
-                SIPEndPoint lookupResult = null;
-                double lookupDurationMilliseconds = 0;
-
-                if (sipCallDescriptor.RouteSet != null &&
-                    sipCallDescriptor.RouteSet.IndexOf(OUTBOUNDPROXY_AS_ROUTESET_CHAR) != -1)
-                {
-                    var routeSet = new SIPRouteSet();
-                    routeSet.PushRoute(new SIPRoute(sipCallDescriptor.RouteSet, true));
-                    logger.LogDebug("Route set for call " + routeSet.ToString() + ".");
-                    //lookupResult = m_sipTransport.GetURIEndPoint(routeSet.TopRoute.URI, false);
-                    lookupResult = await m_sipTransport.ResolveSIPUriAsync(routeSet.TopRoute.URI).ConfigureAwait(false);
-                }
-                else
-                {
-                    logger.LogDebug("SIPClientUserAgent attempting to resolve " + callURI.Host + ".");
-                    //lookupResult = m_sipTransport.GetURIEndPoint(callURI, false);
-                    DateTime lookupStartedAt = DateTime.Now;
-                    lookupResult = await m_sipTransport.ResolveSIPUriAsync(callURI).ConfigureAwait(false);
-                    lookupDurationMilliseconds = DateTime.Now.Subtract(lookupStartedAt).TotalMilliseconds;
-                }
-
-                if (lookupResult == null)
-                {
-                    logger.LogDebug(
-                        $"SIPClientUserAgent DNS failure resolving {callURI.Host} in {lookupDurationMilliseconds:0.##}ms. Call cannot proceed.");
-                }
-                else
-                {
-                    logger.LogDebug(
-                        $"SIPClientUserAgent resolved {callURI.Host} to {lookupResult} in {lookupDurationMilliseconds:0.##}ms.");
-                    serverEndPoint = lookupResult;
-                }
-            }
-
-            return serverEndPoint;
         }
 
         public SIPRequest Call(SIPCallDescriptor sipCallDescriptor)
@@ -358,6 +286,78 @@ namespace SIPSorcery.SIP.App
             {
                 logger.LogError("Exception SIPClientUserAgent Update. " + excp.Message);
             }
+        }
+
+        /// <summary>
+        /// Gets the destination of the remote SIP end point for this call.
+        /// </summary>
+        /// <param name="sipCallDescriptor">The call descriptor containing the settings to use to place the call.</param>
+        /// <returns>The server end point for the call.</returns>
+        public async Task<SIPEndPoint> GetCallDestination(SIPCallDescriptor sipCallDescriptor)
+        {
+            SIPURI callURI = SIPURI.ParseSIPURI(sipCallDescriptor.Uri);
+            SIPEndPoint serverEndPoint = null;
+
+            // If the outbound proxy is a loopback address, as it will normally be for local deployments, then it cannot be overriden.
+            if (m_outboundProxy != null && IPAddress.IsLoopback(m_outboundProxy.Address))
+            {
+                serverEndPoint = m_outboundProxy;
+            }
+            else if (!sipCallDescriptor.ProxySendFrom.IsNullOrBlank())
+            {
+                // If the binding has a specific proxy end point sent then the request needs to be forwarded to the proxy's default end point for it to take care of.
+                //SIPEndPoint outboundProxyEndPoint = SIPEndPoint.ParseSIPEndPoint(sipCallDescriptor.ProxySendFrom);
+                //m_outboundProxy = new SIPEndPoint(SIPProtocolsEnum.udp, outboundProxyEndPoint.Address, SIPConstants.DEFAULT_SIP_PORT);
+                //m_serverEndPoint = m_outboundProxy;
+                m_outboundProxy = SIPEndPoint.ParseSIPEndPoint(sipCallDescriptor.ProxySendFrom);
+                serverEndPoint = m_outboundProxy;
+                logger.LogDebug($"SIPClientUserAgent Call using alternate outbound proxy of {serverEndPoint}.");
+            }
+            else if (m_outboundProxy != null)
+            {
+                // Using the system outbound proxy only, no additional user routing requirements.
+                serverEndPoint = m_outboundProxy;
+            }
+
+            // No outbound proxy, determine the forward destination based on the SIP request.
+            if (serverEndPoint == null)
+            {
+                //SIPDNSLookupResult lookupResult = null;
+                SIPEndPoint lookupResult = null;
+                double lookupDurationMilliseconds = 0;
+
+                if (sipCallDescriptor.RouteSet != null &&
+                    sipCallDescriptor.RouteSet.IndexOf(OUTBOUNDPROXY_AS_ROUTESET_CHAR) != -1)
+                {
+                    var routeSet = new SIPRouteSet();
+                    routeSet.PushRoute(new SIPRoute(sipCallDescriptor.RouteSet, true));
+                    logger.LogDebug("Route set for call " + routeSet.ToString() + ".");
+                    //lookupResult = m_sipTransport.GetURIEndPoint(routeSet.TopRoute.URI, false);
+                    lookupResult = await m_sipTransport.ResolveSIPUriAsync(routeSet.TopRoute.URI).ConfigureAwait(false);
+                }
+                else
+                {
+                    logger.LogDebug("SIPClientUserAgent attempting to resolve " + callURI.Host + ".");
+                    //lookupResult = m_sipTransport.GetURIEndPoint(callURI, false);
+                    DateTime lookupStartedAt = DateTime.Now;
+                    lookupResult = await m_sipTransport.ResolveSIPUriAsync(callURI).ConfigureAwait(false);
+                    lookupDurationMilliseconds = DateTime.Now.Subtract(lookupStartedAt).TotalMilliseconds;
+                }
+
+                if (lookupResult == null)
+                {
+                    logger.LogDebug(
+                        $"SIPClientUserAgent DNS failure resolving {callURI.Host} in {lookupDurationMilliseconds:0.##}ms. Call cannot proceed.");
+                }
+                else
+                {
+                    logger.LogDebug(
+                        $"SIPClientUserAgent resolved {callURI.Host} to {lookupResult} in {lookupDurationMilliseconds:0.##}ms.");
+                    serverEndPoint = lookupResult;
+                }
+            }
+
+            return serverEndPoint;
         }
 
         public void Hangup()

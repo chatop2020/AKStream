@@ -5,15 +5,10 @@ namespace LibSystemInfo
 {
     public static class CPUWinLoadValue
     {
-        public static double CPULOAD = 0f;
-
-        [DllImport("ntdll.dll", EntryPoint = "NtQuerySystemInformation")]
-        private static extern int NtQuerySystemInformation(int dwInfoType, byte[] lpStructure, int dwSize,
-            IntPtr returnLength);
-
         private const int SYSTEM_PERFORMANCEINFORMATION = 2;
         private const int SYSTEM_TIMEINFORMATION = 3;
         private const int NO_ERROR = 0;
+        public static double CPULOAD = 0f;
         private static long oldIdleTime;
         private static long oldSystemTime;
         private static double processorCount;
@@ -39,6 +34,10 @@ namespace LibSystemInfo
             oldIdleTime = BitConverter.ToInt64(perfInfo, 0);
             oldSystemTime = BitConverter.ToInt64(timeInfo, 8);
         }
+
+        [DllImport("ntdll.dll", EntryPoint = "NtQuerySystemInformation")]
+        private static extern int NtQuerySystemInformation(int dwInfoType, byte[] lpStructure, int dwSize,
+            IntPtr returnLength);
 
         public static double Refresh()
         {

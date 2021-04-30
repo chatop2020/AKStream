@@ -9,10 +9,10 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqGetOnlineStreamInfoList : ReqPaginationBase
     {
-        private string? _mediaServerId;
         private string? _mainId;
-        private string? _videoChannelIp;
+        private string? _mediaServerId;
         private StreamSourceType? _streamSourceType;
+        private string? _videoChannelIp;
 
         public string? MediaServerId
         {

@@ -27,6 +27,8 @@ namespace SIPSorcery.Net.Sctp
 {
     public class OutgoingSSNResetRequestParameter : KnownParam
     {
+        uint lastTsn;
+
         /*
 		 0                   1                   2                   3
 		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -48,7 +50,6 @@ namespace SIPSorcery.Net.Sctp
 		 */
         uint reqSeqNo;
         uint respSeqNo;
-        uint lastTsn;
         int[] streams;
 
         public OutgoingSSNResetRequestParameter(int t, string n) : base(t, n)

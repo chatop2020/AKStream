@@ -47,15 +47,70 @@ namespace SIPSorcery.SIP
         private static string m_sipRegisterRemoveAll = SIPConstants.SIP_REGISTER_REMOVEALL;
         private static string m_uriParamTransportKey = SIPHeaderAncillary.SIP_HEADERANC_TRANSPORT;
 
-        [DataMember] public SIPSchemesEnum Scheme = m_defaultSIPScheme;
-
-        [DataMember] public string User;
+        [DataMember] public SIPParameters Headers = new SIPParameters();
 
         [DataMember] public string Host;
 
         [DataMember] public SIPParameters Parameters = new SIPParameters();
 
-        [DataMember] public SIPParameters Headers = new SIPParameters();
+        [DataMember] public SIPSchemesEnum Scheme = m_defaultSIPScheme;
+
+        [DataMember] public string User;
+
+        private SIPURI()
+        {
+        }
+
+        public SIPURI(string user, string host, string paramsAndHeaders)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+        }
+
+        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+            Scheme = scheme;
+        }
+
+        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme,
+            SIPProtocolsEnum protocol)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+            Scheme = scheme;
+
+            if (protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
+            {
+                Parameters.Set(m_uriParamTransportKey, protocol.ToString());
+            }
+        }
+
+        public SIPURI(SIPSchemesEnum scheme, SIPEndPoint sipEndPoint)
+        {
+            Scheme = scheme;
+            Host = sipEndPoint.GetIPEndPoint().ToString();
+
+            if (sipEndPoint.Protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
+            {
+                Parameters.Set(m_uriParamTransportKey, sipEndPoint.Protocol.ToString());
+            }
+        }
+
+        public SIPURI(SIPSchemesEnum scheme, IPAddress address, int port)
+        {
+            Scheme = scheme;
+            if (address != null)
+            {
+                Host = address.AddressFamily == AddressFamily.InterNetworkV6
+                    ? $"[{address}]:{port}"
+                    : $"{address}:{port}";
+            }
+        }
 
         /// <summary>
         /// The protocol for a SIP URI is dictated by the scheme of the URI and then by the transport parameter and finally by the 
@@ -207,61 +262,6 @@ namespace SIPSorcery.SIP
         public string UnescapedUser
         {
             get { return (User.IsNullOrBlank()) ? User : SIPEscape.SIPURIUserUnescape(User); }
-        }
-
-        private SIPURI()
-        {
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-            Scheme = scheme;
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme,
-            SIPProtocolsEnum protocol)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-            Scheme = scheme;
-
-            if (protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
-            {
-                Parameters.Set(m_uriParamTransportKey, protocol.ToString());
-            }
-        }
-
-        public SIPURI(SIPSchemesEnum scheme, SIPEndPoint sipEndPoint)
-        {
-            Scheme = scheme;
-            Host = sipEndPoint.GetIPEndPoint().ToString();
-
-            if (sipEndPoint.Protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
-            {
-                Parameters.Set(m_uriParamTransportKey, sipEndPoint.Protocol.ToString());
-            }
-        }
-
-        public SIPURI(SIPSchemesEnum scheme, IPAddress address, int port)
-        {
-            Scheme = scheme;
-            if (address != null)
-            {
-                Host = address.AddressFamily == AddressFamily.InterNetworkV6
-                    ? $"[{address}]:{port}"
-                    : $"{address}:{port}";
-            }
         }
 
         public static SIPURI ParseSIPURI(string uri)

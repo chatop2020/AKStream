@@ -10,13 +10,11 @@ namespace LibSystemInfo
     {
         private static object lockObj = new object();
 
-        public static NetWorkStat GetNetworkStat()
-        {
-            lock (lockObj)
-            {
-                return NetWorkStat;
-            }
-        }
+        private static ProcessHelper SystemInfoProcessHelper =
+            new ProcessHelper(p_StdOutputDataReceived, null!, p_Process_Exited!);
+
+
+        public static NetWorkStat NetWorkStat = new NetWorkStat();
 
         static NetWorkMacValue()
         {
@@ -75,11 +73,13 @@ namespace LibSystemInfo
             }
         }
 
-        private static ProcessHelper SystemInfoProcessHelper =
-            new ProcessHelper(p_StdOutputDataReceived, null!, p_Process_Exited!);
-
-
-        public static NetWorkStat NetWorkStat = new NetWorkStat();
+        public static NetWorkStat GetNetworkStat()
+        {
+            lock (lockObj)
+            {
+                return NetWorkStat;
+            }
+        }
 
         private static void p_Process_Exited(object sender, EventArgs e)
         {
@@ -109,18 +109,18 @@ namespace LibSystemInfo
                                 s1 = s1.Substring(s1.IndexOf('/') + 1);
                                 string s2 = s1.Substring(0, s1.Length - 1);
                                 string s3 = s1.Substring(s1.Length - 1);
-                              
+
                                 switch (s3)
                                 {
                                     case "B":
-                                       b= ulong.TryParse(s2, out tmpRecvBytes);
+                                        b = ulong.TryParse(s2, out tmpRecvBytes);
                                         break;
                                     case "K":
-                                       b= ulong.TryParse(s2, out tmpRecvBytes);
+                                        b = ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024;
                                         break;
                                     case "M":
-                                       b= ulong.TryParse(s2, out tmpRecvBytes);
+                                        b = ulong.TryParse(s2, out tmpRecvBytes);
                                         tmpRecvBytes = tmpRecvBytes * 1024 * 1024;
                                         break;
                                 }
@@ -136,14 +136,14 @@ namespace LibSystemInfo
                                 switch (s3)
                                 {
                                     case "B":
-                                       b= ulong.TryParse(s2, out tmpSendBytes);
+                                        b = ulong.TryParse(s2, out tmpSendBytes);
                                         break;
                                     case "K":
-                                       b= ulong.TryParse(s2, out tmpSendBytes);
+                                        b = ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024;
                                         break;
                                     case "M":
-                                      b=  ulong.TryParse(s2, out tmpSendBytes);
+                                        b = ulong.TryParse(s2, out tmpSendBytes);
                                         tmpSendBytes = tmpSendBytes * 1024 * 1024;
                                         break;
                                 }

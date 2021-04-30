@@ -21,8 +21,8 @@ namespace SIPSorcery.SIP
     public class SIPReplacesParameter
     {
         public string CallID;
-        public string ToTag;
         public string FromTag;
+        public string ToTag;
 
         public static SIPReplacesParameter Parse(string replaces)
         {

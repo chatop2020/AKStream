@@ -31,12 +31,9 @@ namespace SIPSorcery.SIP
     /// </summary>
     public class UACInviteTransaction : SIPTransaction
     {
-        public event SIPTransactionResponseReceivedDelegate UACInviteTransactionInformationResponseReceived;
-        public event SIPTransactionResponseReceivedDelegate UACInviteTransactionFinalResponseReceived;
-        public event SIPTransactionTimedOutDelegate UACInviteTransactionTimedOut;
+        internal bool _disablePrackSupport = false;
 
         private bool _sendOkAckManually = false;
-        internal bool _disablePrackSupport = false;
         internal bool m_sentPrack; // Records whether the PRACK request was sent.
 
         /// <summary>
@@ -67,6 +64,10 @@ namespace SIPSorcery.SIP
 
             sipTransport.AddTransaction(this);
         }
+
+        public event SIPTransactionResponseReceivedDelegate UACInviteTransactionInformationResponseReceived;
+        public event SIPTransactionResponseReceivedDelegate UACInviteTransactionFinalResponseReceived;
+        public event SIPTransactionTimedOutDelegate UACInviteTransactionTimedOut;
 
         private void UACInviteTransaction_TransactionRemoved(SIPTransaction transaction)
         {

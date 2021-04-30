@@ -5,12 +5,12 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitAddFFmpegProxy : ReqZLMediaKitRequestBase
     {
-        private string _src_url;
         private string _dst_url;
-        private int _timeout_ms;
         private int? _enable_hls;
         private int? _enable_mp4;
         private string? _ffmpeg_cmd_key;
+        private string _src_url;
+        private int _timeout_ms;
 
         /// <summary>
         /// 源地址

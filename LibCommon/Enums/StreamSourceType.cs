@@ -14,6 +14,7 @@ namespace LibCommon.Enums
         /// 回放流
         /// </summary>
         PlayBack,
+
         /// <summary>
         /// 全部
         /// </summary>

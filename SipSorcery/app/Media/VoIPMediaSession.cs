@@ -49,24 +49,10 @@ namespace SIPSorcery.Media
         private const int TEST_PATTERN_ONHOLD_FPS = 3;
 
         private static ILogger logger = Log.Logger;
-
-        private VideoTestPatternSource _videoTestPatternSource;
         private AudioExtrasSource _audioExtrasSource;
         private bool _videoCaptureDeviceFailed;
 
-        public MediaEndPoints Media { get; private set; }
-
-        public AudioExtrasSource AudioExtrasSource
-        {
-            get => _audioExtrasSource;
-        }
-
-        public VideoTestPatternSource TestPatternSource
-        {
-            get => _videoTestPatternSource;
-        }
-
-        public event VideoSinkSampleDecodedDelegate OnVideoSinkSample;
+        private VideoTestPatternSource _videoTestPatternSource;
 
         public VoIPMediaSession(MediaEndPoints mediaEndPoint, VideoTestPatternSource testPatternSource)
             : this(mediaEndPoint, null, 0, testPatternSource)
@@ -131,35 +117,16 @@ namespace SIPSorcery.Media
             base.OnVideoFormatsNegotiated += VideoFormatsNegotiated;
         }
 
-        private async void VideoSource_OnVideoSourceError(string errorMessage)
+        public MediaEndPoints Media { get; private set; }
+
+        public AudioExtrasSource AudioExtrasSource
         {
-            if (!_videoCaptureDeviceFailed)
-            {
-                _videoCaptureDeviceFailed = true;
-
-                logger.LogWarning($"Video source for capture device failure. {errorMessage}");
-
-                // Can't use the webcam, switch to the test pattern source.
-                await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
-            }
+            get => _audioExtrasSource;
         }
 
-        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
+        public VideoTestPatternSource TestPatternSource
         {
-            var audioFormat = audoFormats.First();
-            logger.LogDebug(
-                $"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate}.");
-            Media.AudioSink?.SetAudioSinkFormat(audioFormat);
-            Media.AudioSource?.SetAudioSourceFormat(audioFormat);
-            _audioExtrasSource.SetAudioSourceFormat(audioFormat);
-        }
-
-        private void VideoFormatsNegotiated(List<VideoFormat> videoFormats)
-        {
-            var videoFormat = videoFormats.First();
-            logger.LogDebug($"Setting video sink and source format to {videoFormat.FormatID}:{videoFormat.Codec}.");
-            Media.VideoSink?.SetVideoSinkFormat(videoFormat);
-            Media.VideoSource?.SetVideoSourceFormat(videoFormat);
+            get => _videoTestPatternSource;
         }
 
         public async override Task Start()
@@ -231,6 +198,39 @@ namespace SIPSorcery.Media
                     base.OnVideoFrameReceived -= Media.VideoSink.GotVideoFrame;
                 }
             }
+        }
+
+        public event VideoSinkSampleDecodedDelegate OnVideoSinkSample;
+
+        private async void VideoSource_OnVideoSourceError(string errorMessage)
+        {
+            if (!_videoCaptureDeviceFailed)
+            {
+                _videoCaptureDeviceFailed = true;
+
+                logger.LogWarning($"Video source for capture device failure. {errorMessage}");
+
+                // Can't use the webcam, switch to the test pattern source.
+                await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
+            }
+        }
+
+        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
+        {
+            var audioFormat = audoFormats.First();
+            logger.LogDebug(
+                $"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate}.");
+            Media.AudioSink?.SetAudioSinkFormat(audioFormat);
+            Media.AudioSource?.SetAudioSourceFormat(audioFormat);
+            _audioExtrasSource.SetAudioSourceFormat(audioFormat);
+        }
+
+        private void VideoFormatsNegotiated(List<VideoFormat> videoFormats)
+        {
+            var videoFormat = videoFormats.First();
+            logger.LogDebug($"Setting video sink and source format to {videoFormat.FormatID}:{videoFormat.Codec}.");
+            Media.VideoSink?.SetVideoSinkFormat(videoFormat);
+            Media.VideoSource?.SetVideoSourceFormat(videoFormat);
         }
 
         private void VideoSinkSampleReady(byte[] buffer, uint width, uint height, int stride,

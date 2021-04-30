@@ -8,13 +8,13 @@ namespace LibCommon.Structs.WebRequest.AKStreamKeeper
     [Serializable]
     public class ReqKeeperCutOrMergeVideoFile
     {
-        private DateTime _startTime;
-        private DateTime _endTime;
-        private string? _mediaServerId;
         private string? _app;
-        private string? _vhost;
-        private string? _mainId;
         private string? _callbackUrl;
+        private DateTime _endTime;
+        private string? _mainId;
+        private string? _mediaServerId;
+        private DateTime _startTime;
+        private string? _vhost;
 
         /// <summary>
         /// 

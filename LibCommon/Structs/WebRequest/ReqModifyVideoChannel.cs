@@ -6,13 +6,13 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqModifyVideoChannel : ReqActiveVideoChannel
     {
+        private string? _channelId;
+        private string? _deviceId;
+        private DeviceStreamType? _deviceStreamType;
         private bool? _enabled;
         private string? _mediaServerId;
-        private DeviceStreamType? _deviceStreamType;
         private MethodByGetStream? _methodByGetStream;
         private string? _videoSrcUrl;
-        private string? _deviceId;
-        private string? _channelId;
 
 
         /// <summary>

@@ -24,12 +24,12 @@ namespace SIPSorcery.Sys
     {
         private const string LOG_CATEGORY = "sipsorcery";
 
+        private static ILogger _logger;
+
         static Log()
         {
             LogFactory.Instance.OnFactorySet += Reset;
         }
-
-        private static ILogger _logger;
 
         internal static ILogger Logger
         {

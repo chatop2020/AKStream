@@ -41,19 +41,11 @@ namespace LibCommon.Structs.GB28181.XML
         [XmlElement("Item")]
         public List<Item> Items { get; set; }
 
-        #region 方法
-
-        public void Save()
+        public void Dispose()
         {
-            base.Save(this);
+            Items.Clear();
+            _instance = null;
         }
-
-        public void Read()
-        {
-            _instance = base.Read(this.GetType());
-        }
-
-        #endregion
 
         /// <summary>
         /// 设备信息
@@ -465,10 +457,18 @@ namespace LibCommon.Structs.GB28181.XML
             public int IsFront { get; set; }
         }
 
-        public void Dispose()
+        #region 方法
+
+        public void Save()
         {
-            Items.Clear();
-            _instance = null;
+            base.Save(this);
         }
+
+        public void Read()
+        {
+            _instance = base.Read(this.GetType());
+        }
+
+        #endregion
     }
 }

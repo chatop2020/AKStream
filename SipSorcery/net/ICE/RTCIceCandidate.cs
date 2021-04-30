@@ -32,11 +32,42 @@ namespace SIPSorcery.Net
         public const string REMOTE_PORT_KEY = "rport";
         public const string CANDIDATE_PREFIX = "candidate";
 
+        private RTCIceCandidate()
+        {
+        }
+
+        public RTCIceCandidate(RTCIceCandidateInit init)
+        {
+            sdpMid = init.sdpMid;
+            sdpMLineIndex = init.sdpMLineIndex;
+            usernameFragment = init.usernameFragment;
+
+            if (!String.IsNullOrEmpty(init.candidate))
+            {
+                var iceCandidate = Parse(init.candidate);
+                foundation = iceCandidate.foundation;
+                priority = iceCandidate.priority;
+                component = iceCandidate.component;
+                address = iceCandidate.address;
+                port = iceCandidate.port;
+                type = iceCandidate.type;
+                relatedAddress = iceCandidate.relatedAddress;
+                relatedPort = iceCandidate.relatedPort;
+            }
+        }
+
         /// <summary>
         /// The ICE server (STUN or TURN) the candidate was generated from.
         /// Will be null for non-ICE server candidates.
         /// </summary>
         public IceServer IceServer { get; internal set; }
+
+        /// <summary>
+        /// This is the end point to use for a remote candidate. The address supplied for an ICE
+        /// candidate could be a hostname or IP address. This field will be set before the candidate
+        /// is used.
+        /// </summary>
+        public IPEndPoint DestinationEndPoint { get; private set; }
 
         public string candidate { get; set; }
 
@@ -104,35 +135,17 @@ namespace SIPSorcery.Net
 
         public string usernameFragment { get; set; }
 
-        /// <summary>
-        /// This is the end point to use for a remote candidate. The address supplied for an ICE
-        /// candidate could be a hostname or IP address. This field will be set before the candidate
-        /// is used.
-        /// </summary>
-        public IPEndPoint DestinationEndPoint { get; private set; }
-
-        private RTCIceCandidate()
+        public string toJSON()
         {
-        }
-
-        public RTCIceCandidate(RTCIceCandidateInit init)
-        {
-            sdpMid = init.sdpMid;
-            sdpMLineIndex = init.sdpMLineIndex;
-            usernameFragment = init.usernameFragment;
-
-            if (!String.IsNullOrEmpty(init.candidate))
+            var rtcCandInit = new RTCIceCandidateInit
             {
-                var iceCandidate = Parse(init.candidate);
-                foundation = iceCandidate.foundation;
-                priority = iceCandidate.priority;
-                component = iceCandidate.component;
-                address = iceCandidate.address;
-                port = iceCandidate.port;
-                type = iceCandidate.type;
-                relatedAddress = iceCandidate.relatedAddress;
-                relatedPort = iceCandidate.relatedPort;
-            }
+                sdpMid = sdpMid ?? sdpMLineIndex.ToString(),
+                sdpMLineIndex = sdpMLineIndex,
+                usernameFragment = usernameFragment,
+                candidate = CANDIDATE_PREFIX + ":" + this.ToString()
+            };
+
+            return rtcCandInit.toJSON();
         }
 
         public void SetAddressProperties(
@@ -278,19 +291,6 @@ namespace SIPSorcery.Net
                            (2 ^ 8) *
                            (65535) + // TODO: Add some kind of priority to different local IP addresses if needed.
                            (2 ^ 0) * (256 - component.GetHashCode()));
-        }
-
-        public string toJSON()
-        {
-            var rtcCandInit = new RTCIceCandidateInit
-            {
-                sdpMid = sdpMid ?? sdpMLineIndex.ToString(),
-                sdpMLineIndex = sdpMLineIndex,
-                usernameFragment = usernameFragment,
-                candidate = CANDIDATE_PREFIX + ":" + this.ToString()
-            };
-
-            return rtcCandInit.toJSON();
         }
 
         /// <summary>

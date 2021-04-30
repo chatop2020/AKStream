@@ -6,17 +6,16 @@ namespace LibCommon.Structs
     [Serializable]
     public class PerformanceInfo
     {
-        private string _systemType = null!;
         private string _architecture = null!;
-        private string _osName = null!;
-        private string _frameworkVersion = null!;
         private int _cpuCores;
-        private MemoryInfo _memoryInfo = null!;
         private double _cpuLoad;
-        private NetWorkStat _netWorkStat = null!;
         private List<DriveInfoDiy> _driveInfo = null!;
+        private string _frameworkVersion = null!;
+        private MemoryInfo _memoryInfo = null!;
+        private NetWorkStat _netWorkStat = null!;
+        private string _osName = null!;
+        private string _systemType = null!;
         private DateTime _updateTime;
-      
 
 
         public string SystemType
@@ -78,18 +77,16 @@ namespace LibCommon.Structs
             get => _updateTime;
             set => _updateTime = value;
         }
-
-      
     }
 
     [Serializable]
     public class MemoryInfo
     {
-        private ulong _total;
-        private ulong _used;
         private ulong _free;
         private double _freePercent;
+        private ulong _total;
         private DateTime _updateTime;
+        private ulong _used;
 
         public ulong Total
         {
@@ -125,13 +122,13 @@ namespace LibCommon.Structs
     [Serializable]
     public class DriveInfoDiy
     {
-        private string? _name;
-        private bool? _isReady;
-        private double? _total;
-        private double? _used;
         private double? _free;
         private double? _freePercent;
+        private bool? _isReady;
+        private string? _name;
+        private double? _total;
         private DateTime? _updateTime;
+        private double? _used;
 
 
         public string? Name
@@ -180,11 +177,11 @@ namespace LibCommon.Structs
     [Serializable]
     public class NetWorkStat
     {
-        private string _mac = null!;
-        private ulong _totalSendBytes;
-        private ulong _totalRecvBytes;
-        private ulong _currentSendBytes;
         private ulong _currentRecvBytes;
+        private ulong _currentSendBytes;
+        private string _mac = null!;
+        private ulong _totalRecvBytes;
+        private ulong _totalSendBytes;
         private DateTime _updateTime;
 
 

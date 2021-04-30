@@ -29,26 +29,6 @@ namespace SIPSorcery.SIP
     {
         private static string m_sipServerAgent = SIPConstants.SIP_USERAGENT_STRING;
 
-        /// <summary>
-        /// The local tag is set on the To SIP header and forms part of the information used to identify a SIP dialog.
-        /// </summary>
-        public string LocalTag
-        {
-            get { return m_localTag; }
-            set { m_localTag = value; }
-        }
-
-        public event SIPTransactionCancelledDelegate UASInviteTransactionCancelled;
-        public event SIPTransactionRequestReceivedDelegate NewCallReceived;
-        public event SIPTransactionTimedOutDelegate UASInviteTransactionTimedOut;
-
-        /// <summary>
-        /// An application will be interested in getting a notification about the ACK request if it
-        /// is being used to carry the SDP answer. This occurs if the original INVITE did not contain an
-        /// SDP offer.
-        /// </summary>
-        public event SIPTransactionRequestReceivedDelegate OnAckReceived;
-
         public UASInviteTransaction(
             SIPTransport sipTransport,
             SIPRequest sipRequest,
@@ -91,6 +71,26 @@ namespace SIPSorcery.SIP
 
             sipTransport.AddTransaction(this);
         }
+
+        /// <summary>
+        /// The local tag is set on the To SIP header and forms part of the information used to identify a SIP dialog.
+        /// </summary>
+        public string LocalTag
+        {
+            get { return m_localTag; }
+            set { m_localTag = value; }
+        }
+
+        public event SIPTransactionCancelledDelegate UASInviteTransactionCancelled;
+        public event SIPTransactionRequestReceivedDelegate NewCallReceived;
+        public event SIPTransactionTimedOutDelegate UASInviteTransactionTimedOut;
+
+        /// <summary>
+        /// An application will be interested in getting a notification about the ACK request if it
+        /// is being used to carry the SDP answer. This occurs if the original INVITE did not contain an
+        /// SDP offer.
+        /// </summary>
+        public event SIPTransactionRequestReceivedDelegate OnAckReceived;
 
         private Task<SocketError> UASInviteTransaction_OnAckRequestReceived(SIPEndPoint localSIPEndPoint,
             SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)

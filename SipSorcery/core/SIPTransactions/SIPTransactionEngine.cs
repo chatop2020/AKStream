@@ -36,13 +36,13 @@ namespace SIPSorcery.SIP
         private const int
             TXCHECK_WAIT_MILLISECONDS = 50; // Time to wait between checking for actions on existing transactions.
 
-        private static readonly int m_t1 = SIPTimings.T1;
-        private static readonly int m_t2 = SIPTimings.T2;
-        private static readonly int m_t6 = SIPTimings.T6;
-
         private const int
             MAX_RELIABLETRANSMISSIONS_COUNT =
                 5000; // The maximum number of pending transactions that can be outstanding.
+
+        private static readonly int m_t1 = SIPTimings.T1;
+        private static readonly int m_t2 = SIPTimings.T2;
+        private static readonly int m_t6 = SIPTimings.T6;
 
         protected static ILogger logger = Log.Logger;
 
@@ -50,7 +50,6 @@ namespace SIPSorcery.SIP
             m_maxRingTime = SIPTimings.MAX_RING_TIME; // Max time an INVITE will be left ringing for.    
 
         private bool m_isClosed = false;
-        private SIPTransport m_sipTransport;
 
         /// <summary>
         /// Contains a list of the transactions that are being monitored or responses and retransmitted 
@@ -60,13 +59,7 @@ namespace SIPSorcery.SIP
         private ConcurrentDictionary<string, SIPTransaction> m_pendingTransactions =
             new ConcurrentDictionary<string, SIPTransaction>();
 
-        public int TransactionsCount
-        {
-            get { return m_pendingTransactions.Count; }
-        }
-
-        public event SIPTransactionRequestRetransmitDelegate SIPRequestRetransmitTraceEvent;
-        public event SIPTransactionResponseRetransmitDelegate SIPResponseRetransmitTraceEvent;
+        private SIPTransport m_sipTransport;
 
         public SIPTransactionEngine(SIPTransport sipTransport)
         {
@@ -74,6 +67,14 @@ namespace SIPSorcery.SIP
 
             Task.Factory.StartNew(ProcessPendingTransactions, TaskCreationOptions.LongRunning);
         }
+
+        public int TransactionsCount
+        {
+            get { return m_pendingTransactions.Count; }
+        }
+
+        public event SIPTransactionRequestRetransmitDelegate SIPRequestRetransmitTraceEvent;
+        public event SIPTransactionResponseRetransmitDelegate SIPResponseRetransmitTraceEvent;
 
         public void AddTransaction(SIPTransaction sipTransaction)
         {

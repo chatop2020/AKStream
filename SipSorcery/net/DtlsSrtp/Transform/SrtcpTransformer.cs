@@ -31,13 +31,12 @@ namespace SIPSorcery.Net
     /// </summary>
     public class SrtcpTransformer : IPacketTransformer
     {
-        private RawPacket packet;
-
-        private SrtpTransformEngine forwardEngine;
-        private SrtpTransformEngine reverseEngine;
-
         /** All the known SSRC's corresponding SRTCPCryptoContexts */
         private ConcurrentDictionary<long, SrtcpCryptoContext> contexts;
+
+        private SrtpTransformEngine forwardEngine;
+        private RawPacket packet;
+        private SrtpTransformEngine reverseEngine;
 
         public SrtcpTransformer(SrtpTransformEngine engine) : this(engine, engine)
         {

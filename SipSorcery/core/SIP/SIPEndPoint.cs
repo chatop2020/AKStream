@@ -36,35 +36,6 @@ namespace SIPSorcery.SIP
         private const string CHANNELID_ATTRIBUTE_NAME = "cid";
         private const string CONNECTIONID_ATTRIBUTE_NAME = "xid";
 
-        public static SIPEndPoint Empty { get; } = new SIPEndPoint(SIPProtocolsEnum.udp, null, 0);
-
-        /// <summary>
-        /// The transport/application layer protocol the SIP end point is using.
-        /// </summary>
-        public SIPProtocolsEnum Protocol { get; private set; } = SIPProtocolsEnum.udp;
-
-        /// <summary>
-        /// The network address for the SIP end point. IPv4 and IPv6 are supported.
-        /// </summary>
-        public IPAddress Address { get; private set; }
-
-        /// <summary>
-        /// The network port for the SIP end point.
-        /// </summary>
-        public int Port { get; private set; }
-
-        /// <summary>
-        /// For connection oriented transport protocols such as TCP, TLS and WebSockets this
-        /// ID can record the unique connection a SIP message was received on. This makes it 
-        /// possible to ensure responses or subsequent request can re-use the same connection.
-        /// </summary>
-        public string ConnectionID { get; set; }
-
-        /// <summary>
-        /// If set represents the SIP channel ID that this SIP end point was created from.
-        /// </summary>
-        public string ChannelID { get; set; }
-
         private SIPEndPoint()
         {
         }
@@ -138,6 +109,35 @@ namespace SIPSorcery.SIP
             ChannelID = channelID;
             ConnectionID = connectionID;
         }
+
+        public static SIPEndPoint Empty { get; } = new SIPEndPoint(SIPProtocolsEnum.udp, null, 0);
+
+        /// <summary>
+        /// The transport/application layer protocol the SIP end point is using.
+        /// </summary>
+        public SIPProtocolsEnum Protocol { get; private set; } = SIPProtocolsEnum.udp;
+
+        /// <summary>
+        /// The network address for the SIP end point. IPv4 and IPv6 are supported.
+        /// </summary>
+        public IPAddress Address { get; private set; }
+
+        /// <summary>
+        /// The network port for the SIP end point.
+        /// </summary>
+        public int Port { get; private set; }
+
+        /// <summary>
+        /// For connection oriented transport protocols such as TCP, TLS and WebSockets this
+        /// ID can record the unique connection a SIP message was received on. This makes it 
+        /// possible to ensure responses or subsequent request can re-use the same connection.
+        /// </summary>
+        public string ConnectionID { get; set; }
+
+        /// <summary>
+        /// If set represents the SIP channel ID that this SIP end point was created from.
+        /// </summary>
+        public string ChannelID { get; set; }
 
         /// <summary>
         /// Parses a SIP end point from either a serialised SIP end point string, format of:

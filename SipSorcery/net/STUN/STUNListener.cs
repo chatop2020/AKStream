@@ -30,17 +30,10 @@ namespace SIPSorcery.Net
         private const string STUN_LISTENER_THREAD_NAME = "stunlistener-";
 
         private static ILogger logger = Log.Logger;
+        private bool m_closed = false;
 
         private IPEndPoint m_localEndPoint = null;
         private UdpClient m_stunConn = null;
-        private bool m_closed = false;
-
-        public event STUNMessageReceived MessageReceived;
-
-        public IPEndPoint SIPChannelEndPoint
-        {
-            get { return m_localEndPoint; }
-        }
 
         public STUNListener(IPEndPoint endPoint)
         {
@@ -55,6 +48,13 @@ namespace SIPSorcery.Net
                 throw;
             }
         }
+
+        public IPEndPoint SIPChannelEndPoint
+        {
+            get { return m_localEndPoint; }
+        }
+
+        public event STUNMessageReceived MessageReceived;
 
         public void Dispose(bool disposing)
         {

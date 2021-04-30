@@ -75,17 +75,17 @@ namespace SIPSorcery.Media
         public AudioSourcesEnum AudioSource;
 
         /// <summary>
-        /// The sampling rate used to generate the input or if the source is
-        /// being generated the sample rate to generate it at.
-        /// </summary>
-        public AudioSamplingRatesEnum MusicInputSamplingRate = AudioSamplingRatesEnum.Rate8KHz;
-
-        /// <summary>
         /// If the audio source is set to music this must be the path to a raw PCM 8K sampled file.
         /// If set to null or the file doesn't exist the default embedded resource music file will
         /// be used.
         /// </summary>
         public string MusicFile;
+
+        /// <summary>
+        /// The sampling rate used to generate the input or if the source is
+        /// being generated the sample rate to generate it at.
+        /// </summary>
+        public AudioSamplingRatesEnum MusicInputSamplingRate = AudioSamplingRatesEnum.Rate8KHz;
     }
 
     /// <summary>
@@ -115,51 +115,29 @@ namespace SIPSorcery.Media
             //new AudioFormat(121, "L16", "L16/48000", null),
         };
 
-        private List<AudioFormat> _supportedFormats = new List<AudioFormat>(SupportedFormats);
-        private BinaryReader _musicStreamReader;
-        private SignalGenerator _signalGenerator;
-        private Timer _sendSampleTimer;
-        private AudioSourceOptions _audioOpts;
-        private AudioFormat _sendingFormat; // The codec that was selected to send with during the SDP negotiation.
-        private bool _isStarted;
-        private bool _isPaused;
-        private bool _isClosed;
         private AudioEncoder _audioEncoder;
+        private AudioSourceOptions _audioOpts;
 
-        // Fields for interrupting the main audio source with a different stream. For example playing
-        // an announcement over music etc.
-        private Timer _streamSourceTimer;
-        private BinaryReader _streamSourceReader;
+        public int _audioSamplePeriodMilliseconds = AUDIO_SAMPLE_PERIOD_MILLISECONDS_DEFAULT;
+        private bool _isClosed;
+        private bool _isPaused;
+        private bool _isStarted;
+        private BinaryReader _musicStreamReader;
+        private AudioFormat _sendingFormat; // The codec that was selected to send with during the SDP negotiation.
+        private Timer _sendSampleTimer;
+        private SignalGenerator _signalGenerator;
 
         private bool
             _streamSendInProgress; // When a send for stream is in progress it takes precedence over the existing audio source.
 
         private AudioSamplingRatesEnum _streamSourceRate = AudioSamplingRatesEnum.Rate8KHz;
+        private BinaryReader _streamSourceReader;
 
-        /// <summary>
-        /// Fires when the current send audio from stream operation completes. Send from
-        /// stream operations are intended to be short snippets of audio that get sent 
-        /// as interruptions to the primary audio stream.
-        /// </summary>
-        public event Action OnSendFromAudioStreamComplete;
+        // Fields for interrupting the main audio source with a different stream. For example playing
+        // an announcement over music etc.
+        private Timer _streamSourceTimer;
 
-        public event EncodedSampleDelegate OnAudioSourceEncodedSample;
-
-        /// <summary>
-        /// This audio source DOES NOT generate raw samples. Subscribe to the encoded samples event
-        /// to get samples ready for passing to the RTP transport layer.
-        /// </summary>
-        [Obsolete("This audio source only produces encoded samples. Do not subscribe to this event.")]
-        public event RawAudioSampleDelegate OnAudioSourceRawSample
-        {
-            add { }
-            remove { }
-        }
-
-#pragma warning disable CS0067
-        public event SourceErrorDelegate OnAudioSourceError;
-        public event SourceErrorDelegate OnAudioSinkError;
-#pragma warning restore CS0067
+        private List<AudioFormat> _supportedFormats = new List<AudioFormat>(SupportedFormats);
 
         public AudioExtrasSource()
         {
@@ -167,7 +145,19 @@ namespace SIPSorcery.Media
             _audioOpts = new AudioSourceOptions {AudioSource = AudioSourcesEnum.None};
         }
 
-        public int _audioSamplePeriodMilliseconds = AUDIO_SAMPLE_PERIOD_MILLISECONDS_DEFAULT;
+        /// <summary>
+        /// Instantiates an audio source that can generate output samples from a variety of different
+        /// non-live sources.
+        /// </summary>
+        /// <param name="audioOptions">Optional. The options that determine the type of audio to stream to the remote party. 
+        /// Example type of audio sources are music, silence, white noise etc.</param>
+        public AudioExtrasSource(
+            AudioEncoder audioEncoder,
+            AudioSourceOptions audioOptions = null)
+        {
+            _audioEncoder = audioEncoder;
+            _audioOpts = audioOptions ?? new AudioSourceOptions {AudioSource = AudioSourcesEnum.None};
+        }
 
         public int AudioSamplePeriodMilliseconds
         {
@@ -186,18 +176,17 @@ namespace SIPSorcery.Media
             }
         }
 
+        public event EncodedSampleDelegate OnAudioSourceEncodedSample;
+
         /// <summary>
-        /// Instantiates an audio source that can generate output samples from a variety of different
-        /// non-live sources.
+        /// This audio source DOES NOT generate raw samples. Subscribe to the encoded samples event
+        /// to get samples ready for passing to the RTP transport layer.
         /// </summary>
-        /// <param name="audioOptions">Optional. The options that determine the type of audio to stream to the remote party. 
-        /// Example type of audio sources are music, silence, white noise etc.</param>
-        public AudioExtrasSource(
-            AudioEncoder audioEncoder,
-            AudioSourceOptions audioOptions = null)
+        [Obsolete("This audio source only produces encoded samples. Do not subscribe to this event.")]
+        public event RawAudioSampleDelegate OnAudioSourceRawSample
         {
-            _audioEncoder = audioEncoder;
-            _audioOpts = audioOptions ?? new AudioSourceOptions {AudioSource = AudioSourcesEnum.None};
+            add { }
+            remove { }
         }
 
         public void ExternalAudioSourceRawSample(AudioSamplingRatesEnum samplingRate, uint durationMilliseconds,
@@ -285,6 +274,13 @@ namespace SIPSorcery.Media
             _isPaused = false;
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// Fires when the current send audio from stream operation completes. Send from
+        /// stream operations are intended to be short snippets of audio that get sent 
+        /// as interruptions to the primary audio stream.
+        /// </summary>
+        public event Action OnSendFromAudioStreamComplete;
 
         /// <summary>
         /// Same as the async method of the same name but returns a task that waits for the 
@@ -590,5 +586,10 @@ namespace SIPSorcery.Media
 
             OnSendFromAudioStreamComplete?.Invoke();
         }
+
+#pragma warning disable CS0067
+        public event SourceErrorDelegate OnAudioSourceError;
+        public event SourceErrorDelegate OnAudioSinkError;
+#pragma warning restore CS0067
     }
 }

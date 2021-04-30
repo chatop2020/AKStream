@@ -454,7 +454,6 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            // var col = GCommon.Ldb.VideoChannelRecordInfo.FindOne(x => x.TaskId.Equals(taskId));
             var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
             if (row != null && row.RecItems != null && row.RecItems.Count > 0)
             {

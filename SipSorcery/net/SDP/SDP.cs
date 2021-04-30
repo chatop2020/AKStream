@@ -134,49 +134,23 @@ namespace SIPSorcery.Net
 
         private static ILogger logger = Log.Logger;
 
-        public decimal Version = SDP_PROTOCOL_VERSION;
+        public string
+            AddressOrHost; // IP Address or Host of the machine that created the session, either FQDN or dotted quad or textual for IPv6.
 
-        private string m_rawSdp = null;
-
-        // Owner fields.
-        public string Username = "-"; // Username of the session originator.
-        public string SessionId = "-"; // Unique Id for the session.
+        public string AddressType = ADDRESS_TYPE_IPV4; // Address type, typically IP4 or IP6.
 
         public int
             AnnouncementVersion =
                 0; // Version number for each announcement, number must be increased for each subsequent SDP modification.
 
-        public string NetworkType = "IN"; // Type of network, IN = Internet.
-        public string AddressType = ADDRESS_TYPE_IPV4; // Address type, typically IP4 or IP6.
-
-        public string
-            AddressOrHost; // IP Address or Host of the machine that created the session, either FQDN or dotted quad or textual for IPv6.
-
-        public string Owner
-        {
-            get
-            {
-                return Username + " " + SessionId + " " + AnnouncementVersion + " " + NetworkType + " " + AddressType +
-                       " " + AddressOrHost;
-            }
-        }
-
-        public string SessionName = "-"; // Common name of the session.
-        public string Timing = DEFAULT_TIMING;
         public List<string> BandwidthAttributes = new List<string>();
 
-        // Optional fields.
-        public string SessionDescription;
-        public string URI; // URI for additional information about the session.
-        public string[] OriginatorEmailAddresses; // Email addresses for the person responsible for the session.
-        public string[] OriginatorPhoneNumbers; // Phone numbers for the person responsible for the session.
-        public string IceUfrag; // If ICE is being used the username for the STUN requests.
-        public string IcePwd; // If ICE is being used the password for the STUN requests.
+        public SDPConnectionInformation Connection;
 
         public string
             DtlsFingerprint; // If DTLS handshake is being used this is the fingerprint or our DTLS certificate.
 
-        public List<string> IceCandidates;
+        public List<string> ExtraSessionAttributes = new List<string>(); // Attributes that were not recognised.
 
         /// <summary>
         /// Indicates multiple media offers will be bundled on a single RTP connection.
@@ -184,19 +158,31 @@ namespace SIPSorcery.Net
         /// </summary>
         public string Group;
 
-        public SDPConnectionInformation Connection;
+        public List<string> IceCandidates;
+        public string IcePwd; // If ICE is being used the password for the STUN requests.
+        public string IceUfrag; // If ICE is being used the username for the STUN requests.
+
+        private string m_rawSdp = null;
 
         // Media.
         public List<SDPMediaAnnouncement> Media = new List<SDPMediaAnnouncement>();
 
-        /// <summary>
-        /// The stream status of this session. The default is sendrecv.
-        /// If child media announcements have an explicit status set then 
-        /// they take precedence.
-        /// </summary>
-        public MediaStreamStatusEnum? SessionMediaStreamStatus { get; set; } = null;
+        public string NetworkType = "IN"; // Type of network, IN = Internet.
+        public string[] OriginatorEmailAddresses; // Email addresses for the person responsible for the session.
+        public string[] OriginatorPhoneNumbers; // Phone numbers for the person responsible for the session.
 
-        public List<string> ExtraSessionAttributes = new List<string>(); // Attributes that were not recognised.
+        // Optional fields.
+        public string SessionDescription;
+        public string SessionId = "-"; // Unique Id for the session.
+
+        public string SessionName = "-"; // Common name of the session.
+        public string Timing = DEFAULT_TIMING;
+        public string URI; // URI for additional information about the session.
+
+        // Owner fields.
+        public string Username = "-"; // Username of the session originator.
+
+        public decimal Version = SDP_PROTOCOL_VERSION;
 
         public SDP()
         {
@@ -209,6 +195,22 @@ namespace SIPSorcery.Net
                 ? ADDRESS_TYPE_IPV6
                 : ADDRESS_TYPE_IPV4;
         }
+
+        public string Owner
+        {
+            get
+            {
+                return Username + " " + SessionId + " " + AnnouncementVersion + " " + NetworkType + " " + AddressType +
+                       " " + AddressOrHost;
+            }
+        }
+
+        /// <summary>
+        /// The stream status of this session. The default is sendrecv.
+        /// If child media announcements have an explicit status set then 
+        /// they take precedence.
+        /// </summary>
+        public MediaStreamStatusEnum? SessionMediaStreamStatus { get; set; } = null;
 
         public static SDP ParseSDPDescription(string sdpDescription)
         {

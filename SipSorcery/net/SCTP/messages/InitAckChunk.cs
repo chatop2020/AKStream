@@ -52,17 +52,52 @@ namespace SIPSorcery.Net.Sctp
     public class InitAckChunk : Chunk
     {
         private static ILogger logger = Log.Logger;
+        uint _adRecWinCredit;
+        private byte[] _cookie;
+        uint _initialTSN;
 
         int _initiateTag;
-        uint _adRecWinCredit;
-        int _numOutStreams;
         int _numInStreams;
-        uint _initialTSN;
-        private byte[] _cookie;
+        int _numOutStreams;
         private byte[] _supportedExtensions;
 
         public InitAckChunk() : base(ChunkType.INITACK)
         {
+        }
+
+        public InitAckChunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
+            : base(type, flags, length, pkt)
+        {
+            if (_body.remaining() >= 16)
+            {
+                _initiateTag = _body.GetInt();
+                _adRecWinCredit = _body.GetUInt();
+                ;
+                _numOutStreams = _body.GetUShort();
+                _numInStreams = _body.GetUShort();
+                _initialTSN = _body.GetUInt();
+                logger.LogDebug("Init Ack" + this.ToString());
+                while (_body.hasRemaining())
+                {
+                    VariableParam v = readVariable();
+                    _varList.Add(v);
+                }
+
+                foreach (VariableParam v in _varList)
+                {
+                    // now look for variables we are expecting...
+                    //logger.LogDebug("variable of type: " + v.getName() + " " + v.ToString());
+                    if (typeof(StateCookie).IsAssignableFrom(v.GetType()))
+                    {
+                        _cookie = ((StateCookie) v).getData();
+                    }
+
+                    //else
+                    //{
+                    //    logger.LogDebug("ignored variable of type: " + v.getName());
+                    //}
+                }
+            }
         }
 
         public int getInitiateTag()
@@ -123,41 +158,6 @@ namespace SIPSorcery.Net.Sctp
         public void setCookie(byte[] v)
         {
             _cookie = v;
-        }
-
-        public InitAckChunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
-            : base(type, flags, length, pkt)
-        {
-            if (_body.remaining() >= 16)
-            {
-                _initiateTag = _body.GetInt();
-                _adRecWinCredit = _body.GetUInt();
-                ;
-                _numOutStreams = _body.GetUShort();
-                _numInStreams = _body.GetUShort();
-                _initialTSN = _body.GetUInt();
-                logger.LogDebug("Init Ack" + this.ToString());
-                while (_body.hasRemaining())
-                {
-                    VariableParam v = readVariable();
-                    _varList.Add(v);
-                }
-
-                foreach (VariableParam v in _varList)
-                {
-                    // now look for variables we are expecting...
-                    //logger.LogDebug("variable of type: " + v.getName() + " " + v.ToString());
-                    if (typeof(StateCookie).IsAssignableFrom(v.GetType()))
-                    {
-                        _cookie = ((StateCookie) v).getData();
-                    }
-
-                    //else
-                    //{
-                    //    logger.LogDebug("ignored variable of type: " + v.getName());
-                    //}
-                }
-            }
         }
 
         public override string ToString()

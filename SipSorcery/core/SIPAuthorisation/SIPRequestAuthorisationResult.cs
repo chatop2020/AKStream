@@ -17,11 +17,11 @@ namespace SIPSorcery.SIP
 {
     public class SIPRequestAuthorisationResult
     {
-        public bool Authorised;
-        public string SIPUsername;
-        public string SIPDomain;
-        public SIPResponseStatusCodesEnum ErrorResponse;
         public SIPAuthenticationHeader AuthenticationRequiredHeader;
+        public bool Authorised;
+        public SIPResponseStatusCodesEnum ErrorResponse;
+        public string SIPDomain;
+        public string SIPUsername;
 
         public SIPRequestAuthorisationResult(bool authorised, string sipUsername, string sipDomain)
         {

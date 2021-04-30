@@ -5,8 +5,10 @@ namespace SCTP4CS.Utils
     public class Iterator<K, V>
     {
         Dictionary<K, V> dict;
-        K[] keys;
         int i;
+        K[] keys;
+
+        K lastKey;
 
         public Iterator(Dictionary<K, V> dict)
         {
@@ -20,8 +22,6 @@ namespace SCTP4CS.Utils
         {
             return i < keys.Length;
         }
-
-        K lastKey;
 
         public V next()
         {
@@ -39,8 +39,8 @@ namespace SCTP4CS.Utils
 
     public class Iterator<V>
     {
-        List<V> list;
         int i;
+        List<V> list;
 
         public Iterator(List<V> list)
         {

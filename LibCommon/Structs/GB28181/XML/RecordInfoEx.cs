@@ -5,11 +5,11 @@ namespace LibCommon.Structs.GB28181.XML
     [Serializable]
     public class RecordInfoEx
     {
-        private RecordInfo _recordInfo;
-        private string _deviceId;
         private string _channelId;
-        private int _tatolNum;
+        private string _deviceId;
+        private RecordInfo _recordInfo;
         private int _sn;
+        private int _tatolNum;
 
         public RecordInfo RecordInfo
         {
@@ -41,5 +41,4 @@ namespace LibCommon.Structs.GB28181.XML
             set => _sn = value;
         }
     }
-    
 }

@@ -29,10 +29,6 @@ namespace SIPSorcery.SIP
     {
         private X509Certificate2 m_serverCertificate;
 
-        override protected string ProtDescr { get; } = "TLS";
-
-        public bool BypassCertificateValidation { get; set; } = true;
-
         public SIPTLSChannel(IPEndPoint endPoint)
             : base(endPoint, SIPProtocolsEnum.tls, false)
         {
@@ -70,6 +66,10 @@ namespace SIPSorcery.SIP
             this(serverCertificate, new IPEndPoint(listenAddress, listenPort))
         {
         }
+
+        override protected string ProtDescr { get; } = "TLS";
+
+        public bool BypassCertificateValidation { get; set; } = true;
 
         /// <summary>
         /// For the TLS channel the SSL stream must be created and any authentication actions undertaken.

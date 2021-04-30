@@ -10,9 +10,9 @@ namespace LibCommon.Structs.WebResponse
     [Serializable]
     public class ResGetOnlineStreamInfoList
     {
-        private List<VideoChannelMediaInfo>? _videoChannelMediaInfo;
         private ReqGetOnlineStreamInfoList? _request;
         private long? _total;
+        private List<VideoChannelMediaInfo>? _videoChannelMediaInfo;
 
         public List<VideoChannelMediaInfo>? VideoChannelMediaInfo
         {

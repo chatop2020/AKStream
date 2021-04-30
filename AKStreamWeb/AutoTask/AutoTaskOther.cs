@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using LibCommon;
 using LibCommon.Structs.DBModels;
-using LibCommon.Structs.GB28181.XML;
 using LibLogger;
 
 namespace AKStreamWeb.AutoTask
@@ -12,6 +11,20 @@ namespace AKStreamWeb.AutoTask
     public class AutoTaskOther
     {
         private long count = 0;
+
+        public AutoTaskOther()
+        {
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    run();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
 
         private void run()
         {
@@ -28,8 +41,7 @@ namespace AKStreamWeb.AutoTask
                     if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
-                       // GCommon.Ldb.VideoChannelRecordInfo.DeleteMany(x => x.Expires < DateTime.Now);//删除24小时以后的失效的回放文件列表数据
-                       GCommon.VideoChannelRecordInfo.RemoveAll(x => x.Expires < DateTime.Now);
+                        GCommon.VideoChannelRecordInfo.RemoveAll(x => x.Expires < DateTime.Now);
                     }
 
                     if (count % 3600 == 0) //3600秒一次
@@ -85,20 +97,6 @@ namespace AKStreamWeb.AutoTask
                 Logger.Warn(
                     $"[{Common.LoggerHead}]->删除被软删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
             }
-        }
-
-        public AutoTaskOther()
-        {
-            new Thread(new ThreadStart(delegate
-            {
-                try
-                {
-                    run();
-                }
-                catch
-                {
-                }
-            })).Start();
         }
     }
 }

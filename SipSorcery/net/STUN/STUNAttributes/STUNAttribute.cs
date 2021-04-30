@@ -106,23 +106,6 @@ namespace SIPSorcery.Net
         public STUNAttributeTypesEnum AttributeType = STUNAttributeTypesEnum.Unknown;
         public byte[] Value;
 
-        public virtual UInt16 PaddedLength
-        {
-            get
-            {
-                if (Value != null)
-                {
-                    return Convert.ToUInt16((Value.Length % 4 == 0)
-                        ? Value.Length
-                        : Value.Length + (4 - (Value.Length % 4)));
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
-
         public STUNAttribute(STUNAttributeTypesEnum attributeType, byte[] value)
         {
             AttributeType = attributeType;
@@ -154,6 +137,23 @@ namespace SIPSorcery.Net
             else
             {
                 Value = BitConverter.GetBytes(value);
+            }
+        }
+
+        public virtual UInt16 PaddedLength
+        {
+            get
+            {
+                if (Value != null)
+                {
+                    return Convert.ToUInt16((Value.Length % 4 == 0)
+                        ? Value.Length
+                        : Value.Length + (4 - (Value.Length % 4)));
+                }
+                else
+                {
+                    return 0;
+                }
             }
         }
 

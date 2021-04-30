@@ -6,19 +6,12 @@ namespace SCTP4CS.Utils
     {
         private byte[] _data;
 
+        public Endianness endianness = Endianness.Big;
+
         /// <summary>
         /// Absolute
         /// </summary>
-        public int positionAbsolute;
-
-        /// <summary>
-        /// Relative
-        /// </summary>
-        public int Position
-        {
-            get { return positionAbsolute - offset; }
-            set { positionAbsolute = value + offset; }
-        }
+        public int limitAbsolute;
 
         /// <summary>
         /// Absolute
@@ -28,22 +21,7 @@ namespace SCTP4CS.Utils
         /// <summary>
         /// Absolute
         /// </summary>
-        public int limitAbsolute;
-
-        /// <summary>
-        /// Relative
-        /// </summary>
-        public int Limit
-        {
-            get { return limitAbsolute - offset; }
-            set
-            {
-                limitAbsolute = value + offset;
-                if (positionAbsolute > limitAbsolute) positionAbsolute = limitAbsolute;
-            }
-        }
-
-        public Endianness endianness = Endianness.Big;
+        public int positionAbsolute;
 
         public ByteBuffer(byte[] buffer)
         {
@@ -61,19 +39,26 @@ namespace SCTP4CS.Utils
             this.offset = offset;
         }
 
-        public static ByteBuffer wrap(byte[] buffer, int offset, int length)
+        /// <summary>
+        /// Relative
+        /// </summary>
+        public int Position
         {
-            return new ByteBuffer(buffer, offset, length);
+            get { return positionAbsolute - offset; }
+            set { positionAbsolute = value + offset; }
         }
 
-        public static ByteBuffer wrap(byte[] buffer)
+        /// <summary>
+        /// Relative
+        /// </summary>
+        public int Limit
         {
-            return new ByteBuffer(buffer);
-        }
-
-        public static ByteBuffer allocate(int length)
-        {
-            return new ByteBuffer(new byte[length], 0, length);
+            get { return limitAbsolute - offset; }
+            set
+            {
+                limitAbsolute = value + offset;
+                if (positionAbsolute > limitAbsolute) positionAbsolute = limitAbsolute;
+            }
         }
 
         public byte[] Data
@@ -92,6 +77,21 @@ namespace SCTP4CS.Utils
         public int AvailableBytes
         {
             get { return limitAbsolute - positionAbsolute; }
+        }
+
+        public static ByteBuffer wrap(byte[] buffer, int offset, int length)
+        {
+            return new ByteBuffer(buffer, offset, length);
+        }
+
+        public static ByteBuffer wrap(byte[] buffer)
+        {
+            return new ByteBuffer(buffer);
+        }
+
+        public static ByteBuffer allocate(int length)
+        {
+            return new ByteBuffer(new byte[length], 0, length);
         }
 
         public int remaining()

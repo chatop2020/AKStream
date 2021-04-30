@@ -48,9 +48,9 @@ namespace SIPSorcery.SIP
 
         [DataMember] public string Name;
 
-        [DataMember] public SIPURI URI;
-
         [DataMember] public SIPParameters Parameters = new SIPParameters(null, PARAM_TAG_DELIMITER);
+
+        [DataMember] public SIPURI URI;
 
         public SIPUserField()
         {

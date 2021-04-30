@@ -8,7 +8,6 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
     [Serializable]
     public class ZLMediaKitConfigForResponse
     {
-        private string? _mediaServerId;
         private bool? _api_apiDebug;
         private string? _api_defaultSnap;
         private string? _api_secret;
@@ -66,6 +65,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private string? _http_rootPath;
         private int? _http_sendBufSize;
         private ushort? _http_sslport;
+        private string? _mediaServerId;
         private string? _multicast_addrMax;
         private string? _multicast_addrMin;
         private int? _multicast_udpTTL;
@@ -85,11 +85,11 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private int? _rtp_clearCount;
         private ulong? _rtp_cycleMS;
         private int? _rtp_maxRtpCount;
-        private int? _rtp_videoMtuSize;
         private bool? _rtp_Proxy_checkSource;
         private string? _rtp_Proxy_dumpDir;
         private ushort? _rtp_Proxy_port;
         private int? _rtp_Proxy_timeoutSec;
+        private int? _rtp_videoMtuSize;
         private bool? _rtsp_authBasic;
         private bool? _rtsp_directProxy;
         private int? _rtsp_handshakeSecond;

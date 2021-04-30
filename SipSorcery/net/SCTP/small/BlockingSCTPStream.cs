@@ -30,11 +30,11 @@ namespace SIPSorcery.Net.Sctp
 {
     public class BlockingSCTPStream : SCTPStream
     {
-        private ConcurrentDictionary<int, SCTPMessage> undeliveredOutboundMessages =
-            new ConcurrentDictionary<int, SCTPMessage>();
-
         private static ILogger logger = Log.Logger;
         private SemaphoreSlim semaphore = new SemaphoreSlim(1);
+
+        private ConcurrentDictionary<int, SCTPMessage> undeliveredOutboundMessages =
+            new ConcurrentDictionary<int, SCTPMessage>();
 
         public BlockingSCTPStream(Association a, int id) : base(a, id)
         {

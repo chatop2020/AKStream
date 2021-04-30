@@ -71,20 +71,25 @@ namespace SIPSorcery.Net
         /** The replay check windows size */
         private const long REPLAY_WINDOW_SIZE = 64;
 
-        /** RTCP SSRC of this cryptographic context */
-        private long ssrcCtx;
+        /** Derived session authentication key */
+        private byte[] authKey;
 
-        /** Master key identifier */
-        private byte[] mki;
+        // The symmetric cipher engines we need here
+        private IBlockCipher cipher = null;
 
-        /** Index received so far */
-        private int receivedIndex = 0;
+        // implements the counter cipher mode for RTP according to RFC 3711
+        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
+        private IBlockCipher cipherF8 = null; // used inside F8 mode only
 
-        /** Index sent so far */
-        private int sentIndex = 0;
+        /** Derived session encryption key */
+        private byte[] encKey;
 
-        /** Bit mask for replay check */
-        private long replayWindow;
+        private byte[] ivStore = new byte[16];
+
+        /**
+         * The HMAC object we used to do packet authentication
+         */
+        private IMac mac; // used for various HMAC computations
 
         /** Master encryption key */
         private byte[] masterKey;
@@ -92,36 +97,35 @@ namespace SIPSorcery.Net
         /** Master salting key */
         private byte[] masterSalt;
 
-        /** Derived session encryption key */
-        private byte[] encKey;
-
-        /** Derived session authentication key */
-        private byte[] authKey;
-
-        /** Derived session salting key */
-        private byte[] saltKey;
+        /** Master key identifier */
+        private byte[] mki;
 
         /** Encryption / Authentication policy for this session */
         private SrtpPolicy policy;
 
-        /**
-         * The HMAC object we used to do packet authentication
-         */
-        private IMac mac; // used for various HMAC computations
+        private byte[] rbStore = new byte[4];
 
-        // The symmetric cipher engines we need here
-        private IBlockCipher cipher = null;
-        private IBlockCipher cipherF8 = null; // used inside F8 mode only
+        /** Index received so far */
+        private int receivedIndex = 0;
 
-        // implements the counter cipher mode for RTP according to RFC 3711
-        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
+        /** Bit mask for replay check */
+        private long replayWindow;
+
+        /** Derived session salting key */
+        private byte[] saltKey;
+
+        /** Index sent so far */
+        private int sentIndex = 0;
+
+        /** RTCP SSRC of this cryptographic context */
+        private long ssrcCtx;
 
         // Here some fields that a allocated here or in constructor. The methods
         // use these fields to avoid too many new operations
 
         private byte[] tagStore;
-        private byte[] ivStore = new byte[16];
-        private byte[] rbStore = new byte[4];
+
+        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
 
         // this is some working store, used by some methods to avoid new operations
         // the methods must use this only to store some results for immediate processing
@@ -500,8 +504,6 @@ namespace SIPSorcery.Net
             int payloadLength = pkt.GetLength() - (4 + policy.AuthTagLength);
             SrtpCipherF8.Process(cipher, pkt.GetBuffer(), payloadOffset, payloadLength, ivStore, cipherF8);
         }
-
-        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
 
         /**
          * Authenticate a packet.

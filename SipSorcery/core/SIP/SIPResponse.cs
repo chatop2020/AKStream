@@ -32,6 +32,11 @@ namespace SIPSorcery.SIP
     public class SIPResponse : SIPMessageBase
     {
         /// <summary>
+        /// The optional reason phrase for the SIP response.
+        /// </summary>
+        public string ReasonPhrase;
+
+        /// <summary>
         /// The version string for the SIP response.
         /// </summary>
         public string SIPVersion;
@@ -45,19 +50,6 @@ namespace SIPSorcery.SIP
         /// The status code of the SIP response, e.g. 200 for an OK response.
         /// </summary>
         public int StatusCode;
-
-        /// <summary>
-        /// The optional reason phrase for the SIP response.
-        /// </summary>
-        public string ReasonPhrase;
-
-        /// <summary>
-        /// A short one line summary of the SIP response. Useful for logging or diagnostics.
-        /// </summary>
-        public string ShortDescription
-        {
-            get { return Header?.CSeqMethod + " " + StatusCode + " " + ReasonPhrase; }
-        }
 
         private SIPResponse()
         {
@@ -77,6 +69,14 @@ namespace SIPSorcery.SIP
             Status = responseStatus;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseStatus.ToString();
+        }
+
+        /// <summary>
+        /// A short one line summary of the SIP response. Useful for logging or diagnostics.
+        /// </summary>
+        public string ShortDescription
+        {
+            get { return Header?.CSeqMethod + " " + StatusCode + " " + ReasonPhrase; }
         }
 
         /// <summary>

@@ -8,26 +8,26 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqActiveVideoChannel
     {
-        private string _mediaServerId;
         private string? _app;
-        private string? _vhost;
+        private bool? _autoRecord;
+        private bool? _autoVideo;
         private string? _channelName;
+        private bool? _defaultRtpPort;
         private string? _departmentId;
         private string? _departmentName;
-        private string? _pDepartmentId;
-        private string? _pDepartmentName;
         private DeviceNetworkType? _deviceNetworkType;
-        private VideoDeviceType? _videoDeviceType;
-        private bool? _autoVideo;
-        private bool? _autoRecord;
-        private int? _recordSecs;
-        private string? _recordPlanName;
+        private bool? _hasPtz;
         private string? _ipV4Address;
         private string? _ipV6Address;
-        private bool? _hasPtz;
-        private bool? _rtpWithTcp;
-        private bool? _defaultRtpPort;
+        private string _mediaServerId;
         private bool? _noPlayerBreak;
+        private string? _pDepartmentId;
+        private string? _pDepartmentName;
+        private string? _recordPlanName;
+        private int? _recordSecs;
+        private bool? _rtpWithTcp;
+        private string? _vhost;
+        private VideoDeviceType? _videoDeviceType;
 
         /// <summary>
         /// 流媒体服务器id

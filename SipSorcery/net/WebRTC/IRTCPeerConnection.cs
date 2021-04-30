@@ -63,8 +63,8 @@ namespace SIPSorcery.Net
 
     public class RTCSessionDescription
     {
-        public RTCSdpType type;
         public SDP sdp;
+        public RTCSdpType type;
     }
 
     /// <summary>
@@ -86,10 +86,10 @@ namespace SIPSorcery.Net
     /// </remarks>
     public class RTCIceServer
     {
+        public string credential;
+        public RTCIceCredentialType credentialType;
         public string urls;
         public string username;
-        public RTCIceCredentialType credentialType;
-        public string credential;
     }
 
     /// <summary>
@@ -207,6 +207,8 @@ namespace SIPSorcery.Net
     /// </remarks>
     public class RTCCertificate
     {
+        public X509Certificate2 Certificate;
+
         /// <summary>
         /// The expires attribute indicates the date and time in milliseconds relative to 1970-01-01T00:00:00Z 
         /// after which the certificate will be considered invalid by the browser.
@@ -226,8 +228,6 @@ namespace SIPSorcery.Net
             }
         }
 
-        public X509Certificate2 Certificate;
-
         public List<RTCDtlsFingerprint> getFingerprints()
         {
             return new List<RTCDtlsFingerprint> {DtlsUtils.Fingerprint(Certificate)};
@@ -242,16 +242,17 @@ namespace SIPSorcery.Net
     /// </remarks>
     public class RTCConfiguration
     {
-        public List<RTCIceServer> iceServers;
-        public RTCIceTransportPolicy iceTransportPolicy;
         public RTCBundlePolicy bundlePolicy;
-        public RTCRtcpMuxPolicy rtcpMuxPolicy;
         public List<RTCCertificate> certificates;
 
         /// <summary>
         /// Size of the pre-fetched ICE pool. Defaults to 0.
         /// </summary>
         public int iceCandidatePoolSize = 0;
+
+        public List<RTCIceServer> iceServers;
+        public RTCIceTransportPolicy iceTransportPolicy;
+        public RTCRtcpMuxPolicy rtcpMuxPolicy;
 
         /// <summary>
         /// Optional. If specified this address will be used as the bind address for any RTP
@@ -318,23 +319,25 @@ namespace SIPSorcery.Net
 
     interface IRTCPeerConnection
     {
-        //IRTCPeerConnection(RTCConfiguration configuration = null);
-        RTCSessionDescriptionInit createOffer(RTCOfferOptions options = null);
-        RTCSessionDescriptionInit createAnswer(RTCAnswerOptions options = null);
-        Task setLocalDescription(RTCSessionDescriptionInit description);
         RTCSessionDescription localDescription { get; }
         RTCSessionDescription currentLocalDescription { get; }
         RTCSessionDescription pendingLocalDescription { get; }
-        SetDescriptionResultEnum setRemoteDescription(RTCSessionDescriptionInit description);
         RTCSessionDescription remoteDescription { get; }
         RTCSessionDescription currentRemoteDescription { get; }
         RTCSessionDescription pendingRemoteDescription { get; }
-        void addIceCandidate(RTCIceCandidateInit candidate = null);
         RTCSignalingState signalingState { get; }
         RTCIceGatheringState iceGatheringState { get; }
         RTCIceConnectionState iceConnectionState { get; }
         RTCPeerConnectionState connectionState { get; }
+
         bool canTrickleIceCandidates { get; }
+
+        //IRTCPeerConnection(RTCConfiguration configuration = null);
+        RTCSessionDescriptionInit createOffer(RTCOfferOptions options = null);
+        RTCSessionDescriptionInit createAnswer(RTCAnswerOptions options = null);
+        Task setLocalDescription(RTCSessionDescriptionInit description);
+        SetDescriptionResultEnum setRemoteDescription(RTCSessionDescriptionInit description);
+        void addIceCandidate(RTCIceCandidateInit candidate = null);
         void restartIce();
         RTCConfiguration getConfiguration();
         void setConfiguration(RTCConfiguration configuration = null);

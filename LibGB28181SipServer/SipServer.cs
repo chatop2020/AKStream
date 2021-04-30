@@ -23,6 +23,16 @@ namespace LibGB28181SipServer
     public class SipServer
     {
         /// <summary>
+        /// SipTCP通道(IPV4)
+        /// </summary>
+        private SIPTCPChannel _sipTcpIpV4Channel = null!;
+
+        /// <summary>
+        /// SipTCP通道(IPV6)
+        /// </summary>
+        private SIPTCPChannel _sipTcpIpV6Channel = null!;
+
+        /// <summary>
         /// SIP传输通道
         /// </summary>
         private SIPTransport _sipTransport = null!;
@@ -37,15 +47,21 @@ namespace LibGB28181SipServer
         /// </summary>
         private SIPUDPChannel _sipUdpIpV6Channel = null!;
 
-        /// <summary>
-        /// SipTCP通道(IPV4)
-        /// </summary>
-        private SIPTCPChannel _sipTcpIpV4Channel = null!;
+        public SipServer()
+        {
+            ResponseStruct rs;
+            Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
+            var ret = Common.ReadSipServerConfig(out rs);
 
-        /// <summary>
-        /// SipTCP通道(IPV6)
-        /// </summary>
-        private SIPTCPChannel _sipTcpIpV6Channel = null!;
+            if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipServerConfigPath}");
+                throw new AkStreamException(rs);
+            }
+
+            Common.SipServer = this;
+            Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipServerConfigPath}");
+        }
 
         /// <summary>
         /// SIP传输通道(公开)
@@ -1725,22 +1741,6 @@ namespace LibGB28181SipServer
                 };
                 throw new AkStreamException(rs);
             }
-        }
-
-        public SipServer()
-        {
-            ResponseStruct rs;
-            Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
-            var ret = Common.ReadSipServerConfig(out rs);
-
-            if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
-            {
-                Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipServerConfigPath}");
-                throw new AkStreamException(rs);
-            }
-
-            Common.SipServer = this;
-            Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipServerConfigPath}");
         }
     }
 }

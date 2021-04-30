@@ -49,28 +49,52 @@ namespace SIPSorcery.SIP
         private static string m_receivedKey = SIPHeaderAncillary.SIP_HEADERANC_RECEIVED;
         private static string m_rportKey = SIPHeaderAncillary.SIP_HEADERANC_RPORT;
         private static string m_branchKey = SIPHeaderAncillary.SIP_HEADERANC_BRANCH;
-
-        /// <summary>
-        /// Special SIP Via header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
-        /// one with IP end point details that reflect the socket the request or response was sent from.
-        /// </summary>
-        public static SIPViaHeader GetDefaultSIPViaHeader(SIPEndPoint sipEndPoint = null) //支持ipv6,ipv4
-        {
-            if (sipEndPoint == null)
-            {
-                return new SIPViaHeader(new IPEndPoint(IPAddress.Any, 0), CallProperties.CreateBranchId(),
-                    SIPProtocolsEnum.udp);
-            }
-
-            return new SIPViaHeader(new IPEndPoint(sipEndPoint.Address, sipEndPoint.Port),
-                CallProperties.CreateBranchId(),
-                SIPProtocolsEnum.udp);
-        }
-
-        public string Version;
-        public SIPProtocolsEnum Transport;
         public string Host;
         public int Port = 0;
+        public SIPProtocolsEnum Transport;
+
+        public string Version;
+
+        public SIPParameters ViaParameters = new SIPParameters(null, m_paramDelimChar);
+
+        public SIPViaHeader()
+        {
+        }
+
+        public SIPViaHeader(string contactIPAddress, int contactPort, string branch, SIPProtocolsEnum protocol)
+        {
+            Version = SIPConstants.SIP_FULLVERSION_STRING;
+            Transport = protocol;
+            Host = contactIPAddress;
+            Port = contactPort;
+            Branch = branch;
+            ViaParameters.Set(m_rportKey, null);
+        }
+
+        public SIPViaHeader(string contactIPAddress, int contactPort, string branch) :
+            this(contactIPAddress, contactPort, branch, SIPProtocolsEnum.udp)
+        {
+        }
+
+        public SIPViaHeader(IPEndPoint contactEndPoint, string branch) :
+            this(contactEndPoint.Address.ToString(), contactEndPoint.Port, branch, SIPProtocolsEnum.udp)
+        {
+        }
+
+        public SIPViaHeader(SIPEndPoint localEndPoint, string branch) :
+            this(localEndPoint.GetIPEndPoint(), branch, localEndPoint.Protocol)
+        {
+        }
+
+        public SIPViaHeader(string contactEndPoint, string branch) :
+            this(IPSocket.ParseSocketString(contactEndPoint), branch, SIPProtocolsEnum.udp)
+        {
+        }
+
+        public SIPViaHeader(IPEndPoint contactEndPoint, string branch, SIPProtocolsEnum protocol) :
+            this(contactEndPoint.Address.ToString(), contactEndPoint.Port, branch, protocol)
+        {
+        }
 
         public string Branch
         {
@@ -119,8 +143,6 @@ namespace SIPSorcery.SIP
             }
             set { ViaParameters.Set(m_rportKey, value.ToString()); }
         }
-
-        public SIPParameters ViaParameters = new SIPParameters(null, m_paramDelimChar);
 
         public string ContactAddress // This the address placed into the Via header by the User Agent.
         {
@@ -213,43 +235,21 @@ namespace SIPSorcery.SIP
             }
         }
 
-        public SIPViaHeader()
+        /// <summary>
+        /// Special SIP Via header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
+        /// one with IP end point details that reflect the socket the request or response was sent from.
+        /// </summary>
+        public static SIPViaHeader GetDefaultSIPViaHeader(SIPEndPoint sipEndPoint = null) //支持ipv6,ipv4
         {
-        }
+            if (sipEndPoint == null)
+            {
+                return new SIPViaHeader(new IPEndPoint(IPAddress.Any, 0), CallProperties.CreateBranchId(),
+                    SIPProtocolsEnum.udp);
+            }
 
-        public SIPViaHeader(string contactIPAddress, int contactPort, string branch, SIPProtocolsEnum protocol)
-        {
-            Version = SIPConstants.SIP_FULLVERSION_STRING;
-            Transport = protocol;
-            Host = contactIPAddress;
-            Port = contactPort;
-            Branch = branch;
-            ViaParameters.Set(m_rportKey, null);
-        }
-
-        public SIPViaHeader(string contactIPAddress, int contactPort, string branch) :
-            this(contactIPAddress, contactPort, branch, SIPProtocolsEnum.udp)
-        {
-        }
-
-        public SIPViaHeader(IPEndPoint contactEndPoint, string branch) :
-            this(contactEndPoint.Address.ToString(), contactEndPoint.Port, branch, SIPProtocolsEnum.udp)
-        {
-        }
-
-        public SIPViaHeader(SIPEndPoint localEndPoint, string branch) :
-            this(localEndPoint.GetIPEndPoint(), branch, localEndPoint.Protocol)
-        {
-        }
-
-        public SIPViaHeader(string contactEndPoint, string branch) :
-            this(IPSocket.ParseSocketString(contactEndPoint), branch, SIPProtocolsEnum.udp)
-        {
-        }
-
-        public SIPViaHeader(IPEndPoint contactEndPoint, string branch, SIPProtocolsEnum protocol) :
-            this(contactEndPoint.Address.ToString(), contactEndPoint.Port, branch, protocol)
-        {
+            return new SIPViaHeader(new IPEndPoint(sipEndPoint.Address, sipEndPoint.Port),
+                CallProperties.CreateBranchId(),
+                SIPProtocolsEnum.udp);
         }
 
         public static SIPViaHeader[] ParseSIPViaHeader(string viaHeaderStr)
@@ -407,13 +407,16 @@ namespace SIPSorcery.SIP
         public const string DEFAULT_FROM_URI = SIPConstants.SIP_DEFAULT_FROMURI;
         public const string PARAMETER_TAG = SIPHeaderAncillary.SIP_HEADERANC_TAG;
 
-        /// <summary>
-        /// Special SIP From header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
-        /// one with IP end point details that reflect the socket the request or response was sent from.
-        /// </summary>
-        public static SIPFromHeader GetDefaultSIPFromHeader(SIPSchemesEnum scheme)
+        private SIPUserField m_userField = new SIPUserField();
+
+        private SIPFromHeader()
         {
-            return new SIPFromHeader(null, new SIPURI(scheme, IPAddress.Any, 0), CallProperties.CreateNewTag());
+        }
+
+        public SIPFromHeader(string fromName, SIPURI fromURI, string fromTag)
+        {
+            m_userField = new SIPUserField(fromName, fromURI, null);
+            FromTag = fromTag;
         }
 
         public string FromName
@@ -453,22 +456,19 @@ namespace SIPSorcery.SIP
             set { m_userField.Parameters = value; }
         }
 
-        private SIPUserField m_userField = new SIPUserField();
-
         public SIPUserField FromUserField
         {
             get { return m_userField; }
             set { m_userField = value; }
         }
 
-        private SIPFromHeader()
+        /// <summary>
+        /// Special SIP From header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
+        /// one with IP end point details that reflect the socket the request or response was sent from.
+        /// </summary>
+        public static SIPFromHeader GetDefaultSIPFromHeader(SIPSchemesEnum scheme)
         {
-        }
-
-        public SIPFromHeader(string fromName, SIPURI fromURI, string fromTag)
-        {
-            m_userField = new SIPUserField(fromName, fromURI, null);
-            FromTag = fromTag;
+            return new SIPFromHeader(null, new SIPURI(scheme, IPAddress.Any, 0), CallProperties.CreateNewTag());
         }
 
         public static SIPFromHeader ParseFromHeader(string fromHeaderStr)
@@ -527,6 +527,18 @@ namespace SIPSorcery.SIP
     {
         public const string PARAMETER_TAG = SIPHeaderAncillary.SIP_HEADERANC_TAG;
 
+        private SIPUserField m_userField;
+
+        private SIPToHeader()
+        {
+        }
+
+        public SIPToHeader(string toName, SIPURI toURI, string toTag)
+        {
+            m_userField = new SIPUserField(toName, toURI, null);
+            ToTag = toTag;
+        }
+
         public string ToName
         {
             get { return m_userField.Name; }
@@ -564,22 +576,10 @@ namespace SIPSorcery.SIP
             set { m_userField.Parameters = value; }
         }
 
-        private SIPUserField m_userField;
-
         public SIPUserField ToUserField
         {
             get { return m_userField; }
             set { m_userField = value; }
-        }
-
-        private SIPToHeader()
-        {
-        }
-
-        public SIPToHeader(string toName, SIPURI toURI, string toTag)
-        {
-            m_userField = new SIPUserField(toName, toURI, null);
-            ToTag = toTag;
         }
 
         public static SIPToHeader ParseToHeader(string toHeaderStr)
@@ -633,18 +633,23 @@ namespace SIPSorcery.SIP
         public const string EXPIRES_PARAMETER_KEY = "expires";
         public const string QVALUE_PARAMETER_KEY = "q";
 
-        //private static char[] m_nonStandardURIDelimChars = new char[] { '\n', '\r', ' ' };	// Characters that can delimit a SIP URI, supposed to be > but it is sometimes missing.
-
-        /// <summary>
-        /// Special SIP contact header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
-        /// one with IP end point details that reflect the socket the request or response was sent from.
-        /// </summary>
-        public static SIPContactHeader GetDefaultSIPContactHeader()
-        {
-            return new SIPContactHeader(null, new SIPURI(SIPSchemesEnum.sip, IPAddress.Any, 0));
-        }
+        private SIPUserField m_userField;
 
         public string RawHeader;
+
+        private SIPContactHeader()
+        {
+        }
+
+        public SIPContactHeader(string contactName, SIPURI contactURI)
+        {
+            m_userField = new SIPUserField(contactName, contactURI, null);
+        }
+
+        public SIPContactHeader(SIPUserField contactUserField)
+        {
+            m_userField = contactUserField;
+        }
 
         public string ContactName
         {
@@ -688,20 +693,15 @@ namespace SIPSorcery.SIP
             set { ContactParameters.Set(QVALUE_PARAMETER_KEY, value); }
         }
 
-        private SIPUserField m_userField;
+        //private static char[] m_nonStandardURIDelimChars = new char[] { '\n', '\r', ' ' };	// Characters that can delimit a SIP URI, supposed to be > but it is sometimes missing.
 
-        private SIPContactHeader()
+        /// <summary>
+        /// Special SIP contact header that is recognised by the SIP transport classes Send methods. At send time this header will be replaced by 
+        /// one with IP end point details that reflect the socket the request or response was sent from.
+        /// </summary>
+        public static SIPContactHeader GetDefaultSIPContactHeader()
         {
-        }
-
-        public SIPContactHeader(string contactName, SIPURI contactURI)
-        {
-            m_userField = new SIPUserField(contactName, contactURI, null);
-        }
-
-        public SIPContactHeader(SIPUserField contactUserField)
-        {
-            m_userField = contactUserField;
+            return new SIPContactHeader(null, new SIPURI(SIPSchemesEnum.sip, IPAddress.Any, 0));
         }
 
         public static List<SIPContactHeader> ParseContactHeader(string contactHeaderStr)
@@ -960,33 +960,6 @@ namespace SIPSorcery.SIP
 
         private SIPUserField m_userField;
 
-        public string Host
-        {
-            get { return m_userField.URI.Host; }
-            set { m_userField.URI.Host = value; }
-        }
-
-        public SIPURI URI
-        {
-            get { return m_userField.URI; }
-        }
-
-        public bool IsStrictRouter
-        {
-            get { return !m_userField.URI.Parameters.Has(m_looseRouterParameter); }
-            set
-            {
-                if (value)
-                {
-                    m_userField.URI.Parameters.Remove(m_looseRouterParameter);
-                }
-                else
-                {
-                    m_userField.URI.Parameters.Set(m_looseRouterParameter, null);
-                }
-            }
-        }
-
         private SIPRoute()
         {
         }
@@ -1025,6 +998,33 @@ namespace SIPSorcery.SIP
             m_userField = new SIPUserField();
             m_userField.URI = uri;
             this.IsStrictRouter = !looseRouter;
+        }
+
+        public string Host
+        {
+            get { return m_userField.URI.Host; }
+            set { m_userField.URI.Host = value; }
+        }
+
+        public SIPURI URI
+        {
+            get { return m_userField.URI; }
+        }
+
+        public bool IsStrictRouter
+        {
+            get { return !m_userField.URI.Parameters.Has(m_looseRouterParameter); }
+            set
+            {
+                if (value)
+                {
+                    m_userField.URI.Parameters.Remove(m_looseRouterParameter);
+                }
+                else
+                {
+                    m_userField.URI.Parameters.Set(m_looseRouterParameter, null);
+                }
+            }
         }
 
         public static SIPRoute ParseSIPRoute(string route)
@@ -1075,30 +1075,6 @@ namespace SIPSorcery.SIP
             get { return m_sipRoutes.Count; }
         }
 
-        public static SIPRouteSet ParseSIPRouteSet(string routeSet)
-        {
-            SIPRouteSet sipRouteSet = new SIPRouteSet();
-
-            string[] routes = SIPParameters.GetKeyValuePairsFromQuoted(routeSet, ',');
-            foreach (string route in routes)
-            {
-                SIPRoute sipRoute = SIPRoute.ParseSIPRoute(route);
-                sipRouteSet.AddBottomRoute(sipRoute);
-            }
-
-            return sipRouteSet;
-        }
-
-        public SIPRoute GetAt(int index)
-        {
-            return m_sipRoutes[index];
-        }
-
-        public void SetAt(int index, SIPRoute sipRoute)
-        {
-            m_sipRoutes[index] = sipRoute;
-        }
-
         public SIPRoute TopRoute
         {
             get
@@ -1127,6 +1103,30 @@ namespace SIPSorcery.SIP
                     return null;
                 }
             }
+        }
+
+        public static SIPRouteSet ParseSIPRouteSet(string routeSet)
+        {
+            SIPRouteSet sipRouteSet = new SIPRouteSet();
+
+            string[] routes = SIPParameters.GetKeyValuePairsFromQuoted(routeSet, ',');
+            foreach (string route in routes)
+            {
+                SIPRoute sipRoute = SIPRoute.ParseSIPRoute(route);
+                sipRouteSet.AddBottomRoute(sipRoute);
+            }
+
+            return sipRouteSet;
+        }
+
+        public SIPRoute GetAt(int index)
+        {
+            return m_sipRoutes[index];
+        }
+
+        public void SetAt(int index, SIPRoute sipRoute)
+        {
+            m_sipRoutes[index] = sipRoute;
         }
 
         public void PushRoute(SIPRoute route)
@@ -1351,16 +1351,24 @@ namespace SIPSorcery.SIP
         public string AlertInfo;
         public string Allow;
         public string AllowEvents; // RFC3265 SIP Events.
-        public string AuthenticationInfo;
         public SIPAuthenticationHeader AuthenticationHeader;
+        public string AuthenticationInfo;
         public string CallId;
         public string CallInfo;
         public List<SIPContactHeader> Contact = new List<SIPContactHeader>();
         public string ContentDisposition;
         public string ContentEncoding;
         public string ContentLanguage;
-        public string ContentType;
         public int ContentLength = 0;
+        public string ContentType;
+        public string CRMCompanyName; // The matching company name from the CRM system for the caller.
+
+        // Non-core custom headers for CRM integration.
+        public string CRMPersonName; // The matching name from the CRM system for the caller.
+
+        public string
+            CRMPictureURL; // If available a URL for a picture for the person or company from the CRM system for the caller.
+
         public int CSeq = -1;
         public SIPMethodsEnum CSeqMethod;
         public string Date;
@@ -1370,12 +1378,17 @@ namespace SIPSorcery.SIP
         public int Expires = -1;
         public SIPFromHeader From;
         public string InReplyTo;
-        public int MinExpires = -1;
         public int MaxForwards = SIPConstants.DEFAULT_MAX_FORWARDS;
         public string MIMEVersion;
+        public int MinExpires = -1;
         public string Organization;
         public string Priority;
+        public string ProxyReceivedFrom; // The remote socket that the Proxy received the SIP message on.
+
+        // Non-core custom SIP headers used to allow a SIP Proxy to communicate network info to internal server agents.
+        public string ProxyReceivedOn; // The Proxy socket that the SIP message was received on.
         public string ProxyRequire;
+        public string ProxySendFrom; // The Proxy socket that the SIP message should be transmitted from.
         public int RAckCSeq = -1; // RFC3262 the CSeq number the PRACK request is acknowledging.
 
         public SIPMethodsEnum
@@ -1390,40 +1403,28 @@ namespace SIPSorcery.SIP
             ReferSub; // RFC 4488 If set to false indicates the implicit REFER subscription should not be created.
 
         public string ReferTo; // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method"
-        public string ReplyTo;
         public string Replaces;
+        public string ReplyTo;
         public string Require;
+
+        public List<SIPExtensions> RequiredExtensions = new List<SIPExtensions>();
         public string RetryAfter;
-        public int RSeq = -1; // RFC3262 reliable provisional response sequence number.
         public SIPRouteSet Routes = new SIPRouteSet();
+        public int RSeq = -1; // RFC3262 reliable provisional response sequence number.
         public string Server;
         public string Subject;
         public string SubscriptionState; // RFC3265 SIP Events.
         public string Supported;
+        public List<SIPExtensions> SupportedExtensions = new List<SIPExtensions>();
         public string Timestamp;
         public SIPToHeader To;
+
+        public List<string> UnknownHeaders = new List<string>(); // Holds any unrecognised headers.
+        public string UnknownRequireExtension = null;
         public string Unsupported;
         public string UserAgent;
         public SIPViaSet Vias = new SIPViaSet();
         public string Warning;
-
-        // Non-core custom SIP headers used to allow a SIP Proxy to communicate network info to internal server agents.
-        public string ProxyReceivedOn; // The Proxy socket that the SIP message was received on.
-        public string ProxyReceivedFrom; // The remote socket that the Proxy received the SIP message on.
-        public string ProxySendFrom; // The Proxy socket that the SIP message should be transmitted from.
-
-        // Non-core custom headers for CRM integration.
-        public string CRMPersonName; // The matching name from the CRM system for the caller.
-        public string CRMCompanyName; // The matching company name from the CRM system for the caller.
-
-        public string
-            CRMPictureURL; // If available a URL for a picture for the person or company from the CRM system for the caller.
-
-        public List<string> UnknownHeaders = new List<string>(); // Holds any unrecognised headers.
-
-        public List<SIPExtensions> RequiredExtensions = new List<SIPExtensions>();
-        public string UnknownRequireExtension = null;
-        public List<SIPExtensions> SupportedExtensions = new List<SIPExtensions>();
 
         public SIPHeader()
         {

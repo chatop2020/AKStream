@@ -24,19 +24,20 @@ namespace SystemInfoLibrary.OperatingSystem
 {
     internal class LinuxOperatingSystemInfo : UnixOperatingSystemInfo
     {
+        private HardwareInfo _hardware;
+
+        private string _java;
         private string _unameM;
+
+        private string _unameRS;
 
         private string UnameM => string.IsNullOrEmpty(_unameM)
             ? (_unameM = Utils.GetCommandExecutionOutput("uname", "-m"))
             : _unameM;
 
-        private string _unameRS;
-
         private string UnameRS => string.IsNullOrEmpty(_unameRS)
             ? (_unameRS = Utils.GetCommandExecutionOutput("uname", "-rs"))
             : _unameRS;
-
-        private string _java;
 
         private string Java => string.IsNullOrEmpty(_java)
             ? (_java = Utils.GetCommandExecutionOutput("java", "-version"))
@@ -73,7 +74,6 @@ namespace SystemInfoLibrary.OperatingSystem
             }
         }
 
-        private HardwareInfo _hardware;
         public override HardwareInfo Hardware => _hardware ?? (_hardware = new LinuxHardwareInfo());
 
         public override OperatingSystemInfo Update()
