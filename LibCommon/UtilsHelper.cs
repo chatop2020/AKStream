@@ -235,7 +235,7 @@ namespace LibCommon
         {
             try
             {
-                FileStream file = new FileStream(fileName, System.IO.FileMode.Open);
+                FileStream file = new FileStream(fileName, System.IO.FileMode.Open,FileAccess.Read);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(file);
                 file.Close();
