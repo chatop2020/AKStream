@@ -126,6 +126,7 @@ namespace LibCommon
 
                 if (!string.IsNullOrEmpty(std))
                 {
+                    
                     if (std.ToLower().Contains("ffmpeg version"))
                     {
                         return true;
@@ -134,6 +135,7 @@ namespace LibCommon
 
                 if (!string.IsNullOrEmpty(err))
                 {
+                 
                     if (err.ToLower().Contains("ffmpeg version"))
                     {
                         return true;

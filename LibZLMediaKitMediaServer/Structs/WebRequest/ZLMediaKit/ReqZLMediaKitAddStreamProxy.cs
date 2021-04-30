@@ -12,6 +12,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private int? _enable_hls;
         private int? _enable_mp4;
         private int _rtp_type;
+        private float? _timeout_sec;
 
 
         /// <summary>
@@ -75,6 +76,15 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         {
             get => _rtp_type;
             set => _rtp_type = value;
+        }
+
+        /// <summary>
+        /// 超时时间
+        /// </summary>
+        public float? Timeout_Sec
+        {
+            get => _timeout_sec;
+            set => _timeout_sec = value;
         }
     }
 }

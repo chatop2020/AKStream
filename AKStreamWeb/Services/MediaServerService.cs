@@ -615,12 +615,12 @@ namespace AKStreamWeb.Services
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                         x.IpV4Address.Equals(req.VideoChannelIp)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                        x.IpV4Address.Equals(req.VideoChannelIp)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -641,14 +641,14 @@ namespace AKStreamWeb.Services
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                         x.IpV4Address.Equals(req.VideoChannelIp)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                        x.IpV4Address.Equals(req.VideoChannelIp)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -668,11 +668,11 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -690,13 +690,13 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -716,11 +716,11 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -738,13 +738,13 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                         && x.MainId.Equals(req.MainId) &&
-                                                                        x.StreamSourceType==req.StreamSourceType)
+                                                                        x.StreamSourceType == req.StreamSourceType)
                             .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                        && x.MainId.Equals(req.MainId) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -765,10 +765,11 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                         && x.IpV4Address.Equals(req.VideoChannelIp)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList();
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                        && x.IpV4Address.Equals(req.VideoChannelIp) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -787,12 +788,13 @@ namespace AKStreamWeb.Services
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                         && x.IpV4Address.Equals(req.VideoChannelIp)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList()
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                        && x.IpV4Address.Equals(req.VideoChannelIp) &&
-                                                                       x.StreamSourceType==req.StreamSourceType);
+                                                                       x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -810,10 +812,11 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList();
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                             x.IpV4Address.Equals(req.VideoChannelIp) &&
-                            x.StreamSourceType==req.StreamSourceType);
+                            x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -829,12 +832,13 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList()
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                             x.IpV4Address.Equals(req.VideoChannelIp) &&
-                            x.StreamSourceType==req.StreamSourceType);
+                            x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -851,9 +855,9 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x =>
-                            x.MainId.Equals(req.MainId) && x.StreamSourceType==req.StreamSourceType).ToList();
+                            x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
-                            x.MainId.Equals(req.MainId) && x.StreamSourceType==req.StreamSourceType);
+                            x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -868,11 +872,11 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x =>
-                                x.MainId.Equals(req.MainId) && x.StreamSourceType==req.StreamSourceType).ToList()
+                                x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType).ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
-                            x.MainId.Equals(req.MainId) && x.StreamSourceType==req.StreamSourceType);
+                            x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -890,10 +894,11 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList();
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                             x.MediaServerId.Equals(req.MediaServerId) &&
-                            x.StreamSourceType==req.StreamSourceType);
+                            x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -909,12 +914,13 @@ namespace AKStreamWeb.Services
                     else
                     {
                         retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
-                                                                        && x.StreamSourceType==req.StreamSourceType).ToList()
+                                                                        && x.StreamSourceType == req.StreamSourceType)
+                            .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
                         count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                             x.MediaServerId.Equals(req.MediaServerId) &&
-                            x.StreamSourceType==req.StreamSourceType);
+                            x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -930,9 +936,9 @@ namespace AKStreamWeb.Services
                     }
                     else
                     {
-                        retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.StreamSourceType==req.StreamSourceType)
+                        retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.StreamSourceType == req.StreamSourceType)
                             .ToList();
-                        count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.StreamSourceType==req.StreamSourceType);
+                        count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.StreamSourceType == req.StreamSourceType);
                     }
                 }
                 else
@@ -946,11 +952,11 @@ namespace AKStreamWeb.Services
                     }
                     else
                     {
-                        retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.StreamSourceType==req.StreamSourceType)
+                        retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.StreamSourceType == req.StreamSourceType)
                             .ToList()
                             .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
                             .Take((int) req.PageSize).ToList();
-                        count = GCommon.Ldb.VideoOnlineInfo.Count(x =>  x.StreamSourceType==req.StreamSourceType);
+                        count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.StreamSourceType == req.StreamSourceType);
                     }
                 }
             }
@@ -1367,7 +1373,7 @@ namespace AKStreamWeb.Services
                     req.Enable_Hls = 1;
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
-                    req.Timeout_Ms = 20 * 1000; //20秒超时
+                    req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec;
                     req.Ffmpeg_Cmd_Key = "ffmpeg_templete.rtsp_tcp2flv"; //采用ffmpeg rtsp with tcp模板
                 }
                 else
@@ -1376,7 +1382,7 @@ namespace AKStreamWeb.Services
                     req.Enable_Hls = 1;
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
-                    req.Timeout_Ms = 20 * 1000; //20秒超时 
+                    req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec; 
                 }
             }
             else
@@ -1385,7 +1391,7 @@ namespace AKStreamWeb.Services
                 req.Enable_Hls = 1;
                 req.Enable_Mp4 = 0;
                 req.Src_Url = videoChannel.VideoSrcUrl;
-                req.Timeout_Ms = 20 * 1000; //20秒超时  
+                req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec; 
             }
 
             var ret = mediaServer.WebApiHelper.AddFFmpegSource(req, out rs);
@@ -1408,7 +1414,8 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}", out _); //如果存在老的事件等待，就先删除它
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}",
+                out _); //如果存在老的事件等待，就先删除它
             var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
@@ -1664,6 +1671,7 @@ namespace AKStreamWeb.Services
             req.Enable_Hls = 1; //转hls要开
             req.Enable_Mp4 = 0; //录制mp4要关
             req.Rtp_Type = videoChannel.RtpWithTcp == true ? 0 : 1; //rtsp拉流时，是否使用tcp,0为tcp,1为udp,2为组播
+            req.Timeout_Sec = Common.AkStreamWebConfig.WaitEventTimeOutMSec / 1000; //超时时间
             var ret = mediaServer.WebApiHelper.AddStreamProxy(req, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None) || ret.Code != 0)
             {
@@ -1683,7 +1691,8 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}", out _); //如果存在老的事件等待，就先删除它
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONSTREAMCHANGE_{videoChannel.MainId}",
+                out _); //如果存在老的事件等待，就先删除它
             var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
             AutoResetEvent myWait = new AutoResetEvent(false);
             taskWait.AutoResetEvent = myWait;
