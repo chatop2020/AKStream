@@ -12,6 +12,31 @@ namespace SCTP4CS.Utils
             list = new List<T>();
         }
 
+        public T this[int index]
+        {
+            get { return list[index]; }
+            set
+            {
+                list[index] = value;
+                list.Sort();
+            }
+        }
+
+        public T First
+        {
+            get { return list[0]; }
+        }
+
+        public T Last
+        {
+            get { return list[list.Count - 1]; }
+        }
+
+        public int Count
+        {
+            get { return list.Count; }
+        }
+
         public void Add(T item)
         {
             list.Add(item);
@@ -40,31 +65,6 @@ namespace SCTP4CS.Utils
         public void Clear()
         {
             list.Clear();
-        }
-
-        public T this[int index]
-        {
-            get { return list[index]; }
-            set
-            {
-                list[index] = value;
-                list.Sort();
-            }
-        }
-
-        public T First
-        {
-            get { return list[0]; }
-        }
-
-        public T Last
-        {
-            get { return list[list.Count - 1]; }
-        }
-
-        public int Count
-        {
-            get { return list.Count; }
         }
 
         public SortedArrayEnumerator GetEnumerator()

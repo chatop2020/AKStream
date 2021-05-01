@@ -5,11 +5,11 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitCloseStreams : ReqZLMediaKitRequestBase
     {
-        private string? _schema;
-        private string? _vhost;
         private string? _app;
-        private string? _stream;
         private bool? _force;
+        private string? _schema;
+        private string? _stream;
+        private string? _vhost;
 
 
         public string? Schema

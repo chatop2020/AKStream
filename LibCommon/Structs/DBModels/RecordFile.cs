@@ -22,32 +22,32 @@ namespace LibCommon.Structs.DBModels
     [Index("idx_rfs_rede", "RecordDate", false)]
     public class RecordFile
     {
+        private string? _app;
+        private string? _channelId;
+        private string? _channelName;
+        private DateTime _createTime;
+        private bool? _deleted;
+        private string? _departmentId;
+        private string? _departmentName;
+        private string? _deviceId;
+        private string? _downloadUrl;
+        private long? _duration;
+        private DateTime? _endTime;
+        private long? _fileSize;
         private long _id;
         private string _mainId;
         private string _mediaServerId;
         private string _mediaServerIp;
-        private string? _channelName;
-        private string? _departmentId;
-        private string? _departmentName;
         private string? _pDepartmentId;
         private string? _pDepartmentName;
-        private string? _deviceId;
-        private string? _channelId;
-        private string? _videoSrcUrl;
-        private DateTime? _startTime;
-        private DateTime? _endTime;
-        private long? _duration;
-        private string? _videoPath;
-        private long? _fileSize;
-        private string? _vhost;
-        private string? _streamid;
-        private string? _app;
-        private string? _downloadUrl;
-        private DateTime _createTime;
-        private DateTime? _updateTime;
         private string? _recordDate;
+        private DateTime? _startTime;
+        private string? _streamid;
         private bool? _undo;
-        private bool? _deleted;
+        private DateTime? _updateTime;
+        private string? _vhost;
+        private string? _videoPath;
+        private string? _videoSrcUrl;
 
         /// <summary>
         /// 数据库主键

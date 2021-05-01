@@ -8,9 +8,9 @@ namespace LibCommon.Structs.GB28181
     [Serializable]
     public class NoAuthenticationRequired
     {
+        private string _deviceId;
         private string? _ipV4Address;
         private string? _ipV6Address;
-        private string _deviceId;
 
         /// <summary>
         /// 设备ipv4地址(可空)

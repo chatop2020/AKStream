@@ -90,39 +90,27 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
+        private int[] cipherSuites;
+        byte[] masterSecret = null;
+
         Certificate mCertificateChain = null;
-        AsymmetricKeyParameter mPrivateKey = null;
 
         private RTCDtlsFingerprint mFingerPrint;
-
-        //private AlgorithmCertificate algorithmCertificate;
-
-        public Certificate ClientCertificate { get; private set; }
+        AsymmetricKeyParameter mPrivateKey = null;
 
         // the server response to the client handshake request
         // http://tools.ietf.org/html/rfc5764#section-4.1.1
         private UseSrtpData serverSrtpData;
+        private SrtpPolicy srtcpPolicy;
 
         // Asymmetric shared keys derived from the DTLS handshake and used for the SRTP encryption/
         private byte[] srtpMasterClientKey;
-        private byte[] srtpMasterServerKey;
         private byte[] srtpMasterClientSalt;
+        private byte[] srtpMasterServerKey;
         private byte[] srtpMasterServerSalt;
-        byte[] masterSecret = null;
 
         // Policies
         private SrtpPolicy srtpPolicy;
-        private SrtpPolicy srtcpPolicy;
-
-        private int[] cipherSuites;
-
-        /// <summary>
-        /// Parameters:
-        ///  - alert level,
-        ///  - alert type,
-        ///  - alert description.
-        /// </summary>
-        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
 
         public DtlsSrtpServer() : this((Certificate) null, null)
         {
@@ -160,6 +148,10 @@ namespace SIPSorcery.Net
             this.mFingerPrint = certificate != null ? DtlsUtils.Fingerprint(certificate) : null;
         }
 
+        //private AlgorithmCertificate algorithmCertificate;
+
+        public Certificate ClientCertificate { get; private set; }
+
         public RTCDtlsFingerprint Fingerprint
         {
             get { return mFingerPrint; }
@@ -183,6 +175,54 @@ namespace SIPSorcery.Net
         protected override ProtocolVersion MinimumVersion
         {
             get { return ProtocolVersion.DTLSv10; }
+        }
+
+        /// <summary>
+        /// Parameters:
+        ///  - alert level,
+        ///  - alert type,
+        ///  - alert description.
+        /// </summary>
+        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
+
+        public SrtpPolicy GetSrtpPolicy()
+        {
+            return srtpPolicy;
+        }
+
+        public SrtpPolicy GetSrtcpPolicy()
+        {
+            return srtcpPolicy;
+        }
+
+        public byte[] GetSrtpMasterServerKey()
+        {
+            return srtpMasterServerKey;
+        }
+
+        public byte[] GetSrtpMasterServerSalt()
+        {
+            return srtpMasterServerSalt;
+        }
+
+        public byte[] GetSrtpMasterClientKey()
+        {
+            return srtpMasterClientKey;
+        }
+
+        public byte[] GetSrtpMasterClientSalt()
+        {
+            return srtpMasterClientSalt;
+        }
+
+        public bool IsClient()
+        {
+            return false;
+        }
+
+        public Certificate GetRemoteCertificate()
+        {
+            return ClientCertificate;
         }
 
         public override int GetSelectedCipherSuite()
@@ -293,36 +333,6 @@ namespace SIPSorcery.Net
             serverSrtpData = new UseSrtpData(protectionProfiles, clientSrtpData.Mki);
         }
 
-        public SrtpPolicy GetSrtpPolicy()
-        {
-            return srtpPolicy;
-        }
-
-        public SrtpPolicy GetSrtcpPolicy()
-        {
-            return srtcpPolicy;
-        }
-
-        public byte[] GetSrtpMasterServerKey()
-        {
-            return srtpMasterServerKey;
-        }
-
-        public byte[] GetSrtpMasterServerSalt()
-        {
-            return srtpMasterServerSalt;
-        }
-
-        public byte[] GetSrtpMasterClientKey()
-        {
-            return srtpMasterClientKey;
-        }
-
-        public byte[] GetSrtpMasterClientSalt()
-        {
-            return srtpMasterClientSalt;
-        }
-
         public override void NotifyHandshakeComplete()
         {
             //Copy master Secret (will be inaccessible after this call)
@@ -333,11 +343,6 @@ namespace SIPSorcery.Net
 
             //Prepare Srtp Keys (we must to it here because master key will be cleared after that)
             PrepareSrtpSharedSecret();
-        }
-
-        public bool IsClient()
-        {
-            return false;
         }
 
         protected override TlsSignerCredentials GetECDsaSignerCredentials()
@@ -449,11 +454,6 @@ namespace SIPSorcery.Net
             }
 
             return cipherSuites;
-        }
-
-        public Certificate GetRemoteCertificate()
-        {
-            return ClientCertificate;
         }
 
         public override void NotifyAlertRaised(byte alertLevel, byte alertDescription, string message, Exception cause)

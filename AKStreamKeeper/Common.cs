@@ -20,6 +20,8 @@ namespace AKStreamKeeper
 {
     public static class Common
     {
+        public delegate void MediaServerKilled(bool self = false);
+
         private static string _configPath = GCommon.ConfigPath + "AKStreamKeeper.json";
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static SystemInfo _keeperSystemInfo = new SystemInfo();
@@ -37,17 +39,7 @@ namespace AKStreamKeeper
         private static bool _firstPost = true;
         public static string CutOrMergePath = GCommon.BaseStartPath + "/CutMergeFile/";
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
-        
-        public static string Version   // 版本号
-        {
-            get
-            {
-                var md5 = UtilsHelper.Md5WithFile(GCommon.WorkSpaceFullPath);
-                var crc32=CRC32Helper.GetCRC32(md5);
-                return crc32.ToString("x2").ToUpper();
-            }
-        }
-        
+
 
         /// <summary>
         /// 申请的rtp端口放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
@@ -56,12 +48,32 @@ namespace AKStreamKeeper
 
         public static int FFmpegThreadCount = 2;
 
-        public delegate void MediaServerKilled(bool self = false);
-
         /// <summary>
         /// 调试模式，不判断accesskey
         /// </summary>
         public static bool IsDebug = false;
+
+        public static MediaServerInstance MediaServerInstance;
+
+        static Common()
+        {
+#if (DEBUG)
+            IsDebug = true;
+#endif
+
+            CutMergeService.start = true;
+            MediaServerInstance.OnMediaKilled += OnMediaServerKilled;
+        }
+
+        public static string Version // 版本号
+        {
+            get
+            {
+                var md5 = UtilsHelper.Md5WithFile(GCommon.WorkSpaceFullPath);
+                var crc32 = CRC32Helper.GetCRC32(md5);
+                return crc32.ToString("x2").ToUpper();
+            }
+        }
 
 
         /// <summary>
@@ -90,8 +102,6 @@ namespace AKStreamKeeper
             get => _loggerHead;
             set => _loggerHead = value;
         }
-
-        public static MediaServerInstance MediaServerInstance;
 
         /// <summary>
         /// 启动流媒体服务器
@@ -572,7 +582,6 @@ namespace AKStreamKeeper
             lock (_performanceInfoLock)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
-                
             }
 
             _counter1++;
@@ -697,7 +706,7 @@ namespace AKStreamKeeper
             Console.WriteLine("[Debug]\t程序运行路径:" + GCommon.WorkSpacePath);
             Console.WriteLine("[Debug]\t程序运行全路径:" + GCommon.WorkSpaceFullPath);
             Console.WriteLine("[Debug]\t程序启动命令:" + GCommon.CommandLine);
-            Console.WriteLine("[Debug]\t程序版本标识:"+Common.Version);
+            Console.WriteLine("[Debug]\t程序版本标识:" + Version);
             IsDebug = true;
 
 
@@ -792,16 +801,6 @@ namespace AKStreamKeeper
                     Directory.CreateDirectory(CutOrMergeTempPath);
                 }
             }
-        }
-
-        static Common()
-        {
-#if (DEBUG)
-            IsDebug = true;
-#endif
-
-            CutMergeService.start = true;
-            MediaServerInstance.OnMediaKilled += OnMediaServerKilled;
         }
     }
 }

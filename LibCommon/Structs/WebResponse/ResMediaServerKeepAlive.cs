@@ -5,9 +5,9 @@ namespace LibCommon.Structs.WebResponse
     [Serializable]
     public class ResMediaServerKeepAlive : ResAKStreamWebResponseBase
     {
+        private bool _needRestartMediaServer = false;
         private bool _recommendTimeSynchronization = false;
         private DateTime _serverDateTime;
-        private bool _needRestartMediaServer = false;
 
         /// <summary>
         /// 是否建议同步时间

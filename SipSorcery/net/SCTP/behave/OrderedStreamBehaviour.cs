@@ -30,10 +30,10 @@ namespace SIPSorcery.Net.Sctp
 {
     internal class OrderedStreamBehaviour : SCTPStreamBehaviour
     {
-        private OrderedMessageHandler _orderedMessageHandler = new OrderedMessageHandler();
         private static ILogger logger = Log.Logger;
 
         protected bool _ordered = true;
+        private OrderedMessageHandler _orderedMessageHandler = new OrderedMessageHandler();
 
         public void deliver(SCTPStream s, SortedArray<DataChunk> stash, SCTPStreamListener l)
         {

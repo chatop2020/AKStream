@@ -32,9 +32,9 @@ namespace SIPSorcery.SIP
     internal class IncomingMessage
     {
         /// <summary>
-        /// The SIP channel we received the message on.
+        /// The message data.
         /// </summary>
-        public SIPChannel LocalSIPChannel;
+        public byte[] Buffer;
 
         /// <summary>
         /// The local end point that the message was received on. If a SIP channel
@@ -44,19 +44,19 @@ namespace SIPSorcery.SIP
         public SIPEndPoint LocalEndPoint;
 
         /// <summary>
-        /// The next hop remote SIP end point the message came from.
+        /// The SIP channel we received the message on.
         /// </summary>
-        public SIPEndPoint RemoteEndPoint;
-
-        /// <summary>
-        /// The message data.
-        /// </summary>
-        public byte[] Buffer;
+        public SIPChannel LocalSIPChannel;
 
         /// <summary>
         /// The time at which the message was received.
         /// </summary>
         public DateTime ReceivedAt;
+
+        /// <summary>
+        /// The next hop remote SIP end point the message came from.
+        /// </summary>
+        public SIPEndPoint RemoteEndPoint;
 
         public IncomingMessage(SIPChannel sipChannel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint,
             byte[] buffer)
@@ -77,7 +77,34 @@ namespace SIPSorcery.SIP
     {
         private static int _lastUsedChannelID = 0;
 
+        /// <summary>
+        /// Indicates whether close has been called on the SIP channel. Once closed a SIP channel can no longer be used
+        /// to send or receive messages. It should generally only be called at the same time the SIP transport class using it
+        /// is shutdown.
+        /// </summary>
+        protected bool Closed;
+
         protected ILogger logger = Log.Logger;
+
+        /// <summary>
+        /// The function delegate that will be called whenever a new SIP message is received on the SIP channel.
+        /// </summary>
+        public SIPMessageReceivedAsyncDelegate SIPMessageReceived;
+
+        static SIPChannel()
+        {
+            LocalIPAddresses = NetServices.LocalIPAddresses;
+
+            // When using IPAddress.Any a default end point is still needed for placing in SIP headers and payloads.
+            // Using 0.0.0.0 in SIP headers causes issues for some SIP software stacks.
+            InternetDefaultAddress = NetServices.InternetDefaultAddress;
+        }
+
+        public SIPChannel()
+        {
+            int id = Interlocked.Increment(ref _lastUsedChannelID);
+            ID = id.ToString();
+        }
 
         /// <summary>
         /// A unique ID for the channel. Useful for ensuring a transmission can occur
@@ -143,31 +170,9 @@ namespace SIPSorcery.SIP
         public SIPProtocolsEnum SIPProtocol { get; protected set; }
 
         /// <summary>
-        /// Indicates whether close has been called on the SIP channel. Once closed a SIP channel can no longer be used
-        /// to send or receive messages. It should generally only be called at the same time the SIP transport class using it
-        /// is shutdown.
+        /// Calls close on the SIP channel when the object is disposed.
         /// </summary>
-        protected bool Closed;
-
-        /// <summary>
-        /// The function delegate that will be called whenever a new SIP message is received on the SIP channel.
-        /// </summary>
-        public SIPMessageReceivedAsyncDelegate SIPMessageReceived;
-
-        static SIPChannel()
-        {
-            LocalIPAddresses = NetServices.LocalIPAddresses;
-
-            // When using IPAddress.Any a default end point is still needed for placing in SIP headers and payloads.
-            // Using 0.0.0.0 in SIP headers causes issues for some SIP software stacks.
-            InternetDefaultAddress = NetServices.InternetDefaultAddress;
-        }
-
-        public SIPChannel()
-        {
-            int id = Interlocked.Increment(ref _lastUsedChannelID);
-            ID = id.ToString();
-        }
+        public abstract void Dispose();
 
         /// <summary>
         /// Checks whether the host string corresponds to a socket address that this SIP channel is listening on.
@@ -295,10 +300,5 @@ namespace SIPSorcery.SIP
         /// should only be done at the same time the parent SIP transport layer is shutdown.
         /// </summary>
         public abstract void Close();
-
-        /// <summary>
-        /// Calls close on the SIP channel when the object is disposed.
-        /// </summary>
-        public abstract void Dispose();
     }
 }

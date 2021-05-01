@@ -37,14 +37,13 @@ namespace SIPSorcery.Net
         private const int MAX_RECEIVE_BUFFER = 8192;
         private const int MAX_SEND_BUFFER = 8192;
         private const int WEB_SOCKET_CONNECTION_TIMEOUT_MS = 10000;
-
-        private ILogger logger = Log.Logger;
-
-        private Uri _webSocketServerUri;
         private Func<Task<RTCPeerConnection>> _createPeerConnection;
 
         private RTCPeerConnection _pc;
-        public RTCPeerConnection RTCPeerConnection => _pc;
+
+        private Uri _webSocketServerUri;
+
+        private ILogger logger = Log.Logger;
 
         /// <summary>
         /// Default constructor.
@@ -63,6 +62,8 @@ namespace SIPSorcery.Net
             _webSocketServerUri = new Uri(webSocketServer);
             _createPeerConnection = createPeerConnection;
         }
+
+        public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
         /// Creates a new WebRTC peer connection and then starts polling the web socket server.

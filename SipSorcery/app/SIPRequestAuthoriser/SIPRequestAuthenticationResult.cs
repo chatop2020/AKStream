@@ -15,9 +15,9 @@ namespace SIPSorcery.SIP
     public class SIPRequestAuthenticationResult
     {
         public bool Authenticated;
-        public bool WasAuthenticatedByIP;
-        public SIPResponseStatusCodesEnum ErrorResponse;
         public SIPAuthenticationHeader AuthenticationRequiredHeader;
+        public SIPResponseStatusCodesEnum ErrorResponse;
+        public bool WasAuthenticatedByIP;
 
         public SIPRequestAuthenticationResult(bool isAuthenticated, bool wasAuthenticatedByIP)
         {

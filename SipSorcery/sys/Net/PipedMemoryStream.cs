@@ -22,9 +22,9 @@ namespace SIPSorcery.Sys
     internal class PipedMemoryStream
     {
         private readonly MemoryStream _ms = new MemoryStream();
-        private long _writePos = 0;
-        private long _readPos = 0;
         private bool _isClosed = false;
+        private long _readPos = 0;
+        private long _writePos = 0;
 
         internal PipedMemoryStream()
         {

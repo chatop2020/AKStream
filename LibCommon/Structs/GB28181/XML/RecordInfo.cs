@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using LibCommon.Enums;
+using LiteDB;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SIPSorcery.SIP;
@@ -163,20 +164,20 @@ namespace LibCommon.Structs.GB28181.XML
         [Serializable]
         public class RecItem
         {
-            private SIPRequest? _inviteSipRequest = null;
-            private SIPResponse? _inviteSipResponse = null;
-            private SipDevice? _sipDevice = null;
-            private SipChannel? _sipChannel = null;
-            private MediaServerStreamInfo? _mediaServerStreamInfo;
-            private PushStatus _pushStatus;
-            private string _ssrcId;
-            private string _stream;
             private string _app;
-            private string _vhost;
-            private string _fromTag;
-            private string _toTag;
             private string _callId;
             private int _cSeq;
+            private string _fromTag;
+            private SIPRequest? _inviteSipRequest = null;
+            private SIPResponse? _inviteSipResponse = null;
+            private MediaServerStreamInfo? _mediaServerStreamInfo;
+            private PushStatus _pushStatus;
+            private SipChannel? _sipChannel = null;
+            private SipDevice? _sipDevice = null;
+            private string _ssrcId;
+            private string _stream;
+            private string _toTag;
+            private string _vhost;
 
             [XmlIgnore]
             /// <summary>
@@ -202,12 +203,14 @@ namespace LibCommon.Structs.GB28181.XML
                 get => _stream;
                 set => _stream = value ?? throw new ArgumentNullException(nameof(value));
             }
+
             [XmlIgnore]
             public string App
             {
                 get => _app;
                 set => _app = value ?? throw new ArgumentNullException(nameof(value));
             }
+
             [XmlIgnore]
             public string Vhost
             {
@@ -222,7 +225,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-            [LiteDB.BsonIgnore]
+            [BsonIgnore]
             public SIPRequest? InviteSipRequest
             {
                 get => _inviteSipRequest;
@@ -231,7 +234,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-            [LiteDB.BsonIgnore]
+            [BsonIgnore]
             /// <summary>
             /// 推流时的response
             /// 要把请求实时视频时的req和res存起来，因为在结束时要用到这两个内容
@@ -244,7 +247,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-          
+
             /// <summary>
             /// 录像文件所在Sip设备
             /// </summary>
@@ -256,7 +259,7 @@ namespace LibCommon.Structs.GB28181.XML
 
             [JsonIgnore]
             [XmlIgnore]
-           
+
             /// <summary>
             /// 录像文件所在Sip通道
             /// </summary>

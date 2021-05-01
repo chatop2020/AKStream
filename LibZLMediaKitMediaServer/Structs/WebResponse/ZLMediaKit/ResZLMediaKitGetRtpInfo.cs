@@ -6,10 +6,10 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
     public class ResZLMediaKitGetRtpInfo : ResZLMediaKitResponseBase
     {
         private bool _exist;
-        private string _peer_ip;
-        private int _peer_port;
         private string _local_ip;
         private int _local_port;
+        private string _peer_ip;
+        private int _peer_port;
 
         /// <summary>
         /// 是否存在

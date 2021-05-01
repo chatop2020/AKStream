@@ -6,8 +6,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitOpenRtpPort : ReqZLMediaKitRequestBase
     {
-        private ushort? _port;
         private bool? _enable_tcp;
+        private ushort? _port;
         private string? _stream_id;
 
         [JsonIgnore]

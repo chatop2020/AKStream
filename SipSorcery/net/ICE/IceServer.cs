@@ -32,8 +32,6 @@ namespace SIPSorcery.Net
     /// </summary>
     public class IceServer
     {
-        private static readonly ILogger logger = Log.Logger;
-
         /// <summary>
         /// A magic cookie to use as the prefix for STUN requests generated for ICE servers.
         /// Allows quick matching of responses for ICE servers compared to responses for
@@ -89,10 +87,35 @@ namespace SIPSorcery.Net
         /// </summary>
         internal const int STUN_UNAUTHORISED_ERROR_CODE = 401;
 
+        private static readonly ILogger logger = Log.Logger;
+        internal int _id; // An incrementing number that needs to be unique for each server in the session.
+        internal string _password;
+
         internal STUNUri _uri;
         internal string _username;
-        internal string _password;
-        internal int _id; // An incrementing number that needs to be unique for each server in the session.
+
+        /// <summary>
+        /// Count of the number of error responses received without a success response.
+        /// </summary>
+        internal int ErrorResponseCount = 0;
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="uri">The STUN or TURN server URI the connection is being attempted to.</param>
+        /// <param name="id">Needs to be set uniquely for each ICE server used in this session. Gets added to the
+        /// transaction ID to facilitate quick matching of STUN requests and responses. Needs to be between
+        /// 0 and 9.</param>
+        /// <param name="username">Optional. If authentication is required the username to use.</param>
+        /// <param name="password">Optional. If authentication is required the password to use.</param>
+        internal IceServer(STUNUri uri, int id, string username, string password)
+        {
+            _uri = uri;
+            _id = id;
+            _username = username;
+            _password = password;
+            GenerateNewTransactionID();
+        }
 
         /// <summary>
         /// The end point for this STUN or TURN server. Will be set asynchronously once
@@ -157,29 +180,6 @@ namespace SIPSorcery.Net
         /// Unauthorized response.
         /// </summary>
         internal byte[] Realm { get; set; }
-
-        /// <summary>
-        /// Count of the number of error responses received without a success response.
-        /// </summary>
-        internal int ErrorResponseCount = 0;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="uri">The STUN or TURN server URI the connection is being attempted to.</param>
-        /// <param name="id">Needs to be set uniquely for each ICE server used in this session. Gets added to the
-        /// transaction ID to facilitate quick matching of STUN requests and responses. Needs to be between
-        /// 0 and 9.</param>
-        /// <param name="username">Optional. If authentication is required the username to use.</param>
-        /// <param name="password">Optional. If authentication is required the password to use.</param>
-        internal IceServer(STUNUri uri, int id, string username, string password)
-        {
-            _uri = uri;
-            _id = id;
-            _username = username;
-            _password = password;
-            GenerateNewTransactionID();
-        }
 
         /// <summary>
         /// Gets an ICE candidate for this ICE server once the required server responses have been received.

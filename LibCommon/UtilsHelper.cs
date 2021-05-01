@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using LibCommon.Structs;
-using NetTopologySuite.IO;
 using Newtonsoft.Json;
 
 namespace LibCommon
@@ -22,8 +21,6 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
-       
-        
         /// <summary>
         /// 日期转long 
         /// </summary>
@@ -126,7 +123,6 @@ namespace LibCommon
 
                 if (!string.IsNullOrEmpty(std))
                 {
-                    
                     if (std.ToLower().Contains("ffmpeg version"))
                     {
                         return true;
@@ -135,7 +131,6 @@ namespace LibCommon
 
                 if (!string.IsNullOrEmpty(err))
                 {
-                 
                     if (err.ToLower().Contains("ffmpeg version"))
                     {
                         return true;
@@ -227,7 +222,7 @@ namespace LibCommon
         {
             return (num & 1) == 1;
         }
-        
+
         /// <summary>
         /// 获取文件的MD5码
         /// </summary>
@@ -237,7 +232,7 @@ namespace LibCommon
         {
             try
             {
-                FileStream file = new FileStream(fileName, System.IO.FileMode.Open,FileAccess.Read);
+                FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                 MD5 md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(file);
                 file.Close();
@@ -246,6 +241,7 @@ namespace LibCommon
                 {
                     sb.Append(retVal[i].ToString("x2"));
                 }
+
                 return sb.ToString();
             }
             catch (Exception ex)

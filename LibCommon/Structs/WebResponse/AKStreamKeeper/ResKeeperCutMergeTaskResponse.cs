@@ -16,14 +16,14 @@ namespace LibCommon.Structs.WebResponse.AKStreamKeeper
     [Serializable]
     public class ResKeeperCutMergeTaskResponse
     {
-        private ReqKeeperCutMergeTask _task = null!;
-        private string? _filePath;
-        private string? _uri;
-        private long? _fileSize;
         private long? _duration;
-        private CutMergeRequestStatus? _status;
-        private double? _timeConsuming;
+        private string? _filePath;
+        private long? _fileSize;
         private ReqKeeperCutOrMergeVideoFile? _request;
+        private CutMergeRequestStatus? _status;
+        private ReqKeeperCutMergeTask _task = null!;
+        private double? _timeConsuming;
+        private string? _uri;
 
         public ReqKeeperCutMergeTask Task
         {

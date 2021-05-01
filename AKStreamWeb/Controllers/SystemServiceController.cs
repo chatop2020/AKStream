@@ -25,9 +25,9 @@ namespace AKStreamWeb.Controllers
         [HttpPost]
         public string GetVersion([FromHeader(Name = "AccessKey")] string AccessKey)
         {
- 
             return Common.Version;
         }
+
         /// <summary>
         /// 获取系统性能信息
         /// </summary>

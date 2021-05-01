@@ -30,9 +30,15 @@ namespace SIPSorcery.Net
     /// </summary>
     public class WebRTCWebSocketPeer : WebSocketBehavior
     {
+        private RTCPeerConnection _pc;
+
+        public Func<Task<RTCPeerConnection>> CreatePeerConnection;
         private ILogger logger = Sys.Log.Logger;
 
-        private RTCPeerConnection _pc;
+        public WebRTCWebSocketPeer()
+        {
+        }
+
         public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
@@ -46,12 +52,6 @@ namespace SIPSorcery.Net
         /// normally desirable to accept all remote ICE candidates.
         /// </summary>
         public Func<RTCIceCandidateInit, bool> FilterRemoteICECandidates { get; set; }
-
-        public Func<Task<RTCPeerConnection>> CreatePeerConnection;
-
-        public WebRTCWebSocketPeer()
-        {
-        }
 
         protected override void OnMessage(MessageEventArgs e)
         {

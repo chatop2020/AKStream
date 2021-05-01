@@ -58,80 +58,7 @@ namespace SIPSorcery.SIP
         public const string
             SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
 
-        /// <summary>
-        /// The web socket server instantiates an instance of this class for each web socket client that connects. The methods 
-        /// in this class are responsible for translating the SIP transport send and receives to and from the web socket server.
-        /// </summary>
-        private class SIPMessagWebSocketBehavior : WebSocketBehavior
-        {
-            internal SIPWebSocketChannel Channel;
-            internal ILogger Logger;
-            private SIPProtocolsEnum _sipProtocol;
-
-            /// <summary>
-            /// This is the remote end point for the web socket connection.
-            /// </summary>
-            private IPEndPoint _remoteEndPoint;
-
-            /// <summary>
-            /// This is the local end point for the web socket connection. It can be different from the listening end point if
-            /// the IPAddress.Any is being used.
-            /// </summary>
-            private IPEndPoint _localEndPoint;
-
-            public Action<string> OnClientClose;
-
-            public SIPMessagWebSocketBehavior()
-            {
-                base.Protocol = SIP_Sec_WebSocket_Protocol;
-            }
-
-            protected override void OnOpen()
-            {
-                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnOpen.");
-
-                _sipProtocol = this.Context.IsSecureConnection ? SIPProtocolsEnum.wss : SIPProtocolsEnum.ws;
-                _remoteEndPoint = this.Context.UserEndPoint;
-                _localEndPoint = this.Context.ServerEndPoint;
-
-                Channel.AddClientConnection(this.ID, this);
-            }
-
-            protected override void OnMessage(MessageEventArgs e)
-            {
-                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnMessage: bytes received {e.Data?.Length}.");
-
-                if (e.RawData?.Length > 0)
-                {
-                    Channel.SIPMessageReceived?.Invoke(Channel,
-                        new SIPEndPoint(_sipProtocol, _localEndPoint, Channel.ID, this.ID),
-                        new SIPEndPoint(_sipProtocol, _remoteEndPoint, Channel.ID, this.ID),
-                        e.RawData);
-                }
-            }
-
-            protected override void OnClose(CloseEventArgs e)
-            {
-                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnClose: reason {e.Reason}, was clean {e.WasClean}.");
-                OnClientClose?.Invoke(this.ID);
-            }
-
-            protected override void OnError(ErrorEventArgs e)
-            {
-                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnError: reason {e.Message}.");
-            }
-
-            public void Send(byte[] buffer, int offset, int length)
-            {
-                base.Send(buffer.Skip(offset).Take(length).ToArray());
-            }
-        }
-
-        /// <summary>
-        /// This object is responsible for all the web sockets magic including accepting HTTP requests, matching URLs, handling the
-        /// keep alives etc. etc. Any data messages received by the server will be handed over to the SIP transport layer for processing.
-        /// </summary>
-        private WebSocketServer m_webSocketServer;
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
 
         /// <summary>
         /// Maintains a list of current ingress web socket connections across for this web socket server. This allows the SIP transport
@@ -140,7 +67,11 @@ namespace SIPSorcery.SIP
         private ConcurrentDictionary<string, SIPMessagWebSocketBehavior> m_ingressConnections =
             new ConcurrentDictionary<string, SIPMessagWebSocketBehavior>();
 
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
+        /// <summary>
+        /// This object is responsible for all the web sockets magic including accepting HTTP requests, matching URLs, handling the
+        /// keep alives etc. etc. Any data messages received by the server will be handed over to the SIP transport layer for processing.
+        /// </summary>
+        private WebSocketServer m_webSocketServer;
 
         /// <summary>
         /// Creates a SIP channel to listen for and send SIP messages over a web socket communications layer.
@@ -380,6 +311,75 @@ namespace SIPSorcery.SIP
             }
 
             return client;
+        }
+
+        /// <summary>
+        /// The web socket server instantiates an instance of this class for each web socket client that connects. The methods 
+        /// in this class are responsible for translating the SIP transport send and receives to and from the web socket server.
+        /// </summary>
+        private class SIPMessagWebSocketBehavior : WebSocketBehavior
+        {
+            /// <summary>
+            /// This is the local end point for the web socket connection. It can be different from the listening end point if
+            /// the IPAddress.Any is being used.
+            /// </summary>
+            private IPEndPoint _localEndPoint;
+
+            /// <summary>
+            /// This is the remote end point for the web socket connection.
+            /// </summary>
+            private IPEndPoint _remoteEndPoint;
+
+            private SIPProtocolsEnum _sipProtocol;
+            internal SIPWebSocketChannel Channel;
+            internal ILogger Logger;
+
+            public Action<string> OnClientClose;
+
+            public SIPMessagWebSocketBehavior()
+            {
+                base.Protocol = SIP_Sec_WebSocket_Protocol;
+            }
+
+            protected override void OnOpen()
+            {
+                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnOpen.");
+
+                _sipProtocol = this.Context.IsSecureConnection ? SIPProtocolsEnum.wss : SIPProtocolsEnum.ws;
+                _remoteEndPoint = this.Context.UserEndPoint;
+                _localEndPoint = this.Context.ServerEndPoint;
+
+                Channel.AddClientConnection(this.ID, this);
+            }
+
+            protected override void OnMessage(MessageEventArgs e)
+            {
+                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnMessage: bytes received {e.Data?.Length}.");
+
+                if (e.RawData?.Length > 0)
+                {
+                    Channel.SIPMessageReceived?.Invoke(Channel,
+                        new SIPEndPoint(_sipProtocol, _localEndPoint, Channel.ID, this.ID),
+                        new SIPEndPoint(_sipProtocol, _remoteEndPoint, Channel.ID, this.ID),
+                        e.RawData);
+                }
+            }
+
+            protected override void OnClose(CloseEventArgs e)
+            {
+                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnClose: reason {e.Reason}, was clean {e.WasClean}.");
+                OnClientClose?.Invoke(this.ID);
+            }
+
+            protected override void OnError(ErrorEventArgs e)
+            {
+                Logger.LogDebug($"SIPMessagWebSocketBehavior.OnError: reason {e.Message}.");
+            }
+
+            public void Send(byte[] buffer, int offset, int length)
+            {
+                base.Send(buffer.Skip(offset).Take(length).ToArray());
+            }
         }
     }
 }

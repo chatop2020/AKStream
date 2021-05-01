@@ -5,8 +5,8 @@ namespace LibCommon.Structs.WebResponse.AKStreamKeeper
     [Serializable]
     public class ResKeeperCheckMediaServerRunning
     {
-        private int _pid;
         private bool? _isRunning;
+        private int _pid;
 
         public int Pid
         {

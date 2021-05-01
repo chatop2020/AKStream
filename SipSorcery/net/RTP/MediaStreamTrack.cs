@@ -26,67 +26,6 @@ namespace SIPSorcery.Net
     public class MediaStreamTrack
     {
         /// <summary>
-        /// The type of media stream represented by this track. Must be audio or video.
-        /// </summary>
-        public SDPMediaTypesEnum Kind { get; private set; }
-
-        /// <summary>
-        /// The value used in the RTP Synchronisation Source header field for media packets
-        /// sent using this media stream.
-        /// </summary>
-        public uint Ssrc { get; internal set; }
-
-        /// <summary>
-        /// The value used in the RTP Sequence Number header field for media packets
-        /// sent using this media stream.
-        /// </summary>
-        public ushort SeqNum { get; internal set; }
-
-        /// <summary>
-        /// The value used in the RTP Timestamp header field for media packets
-        /// sent using this media stream.
-        /// </summary>
-        public uint Timestamp { get; internal set; }
-
-        /// <summary>
-        /// Indicates whether this track was sourced by a remote connection.
-        /// </summary>
-        public bool IsRemote { get; set; }
-
-        /// <summary>
-        /// By default audio channels will support DTMF via telephone events. To opt
-        /// out of DTMF support set this property to true.
-        /// </summary>
-        public bool NoDtmfSupport { get; set; }
-
-        /// <summary>
-        /// The media capabilities supported by this track.
-        /// </summary>
-        public List<SDPAudioVideoMediaFormat> Capabilities { get; internal set; }
-
-        /// <summary>
-        /// Represents the original and default stream status for the track. This is set
-        /// when the track is created and does not change. It allows tracks to be set back to
-        /// their original state after being put on hold etc. For example if a track is
-        /// added as receive only video source then when after on and off hold it needs to
-        /// be known that the track reverts receive only rather than sendrecv.
-        /// </summary>
-        public MediaStreamStatusEnum DefaultStreamStatus { get; private set; }
-
-        /// <summary>
-        /// Holds the stream state of the track.
-        /// </summary>
-        public MediaStreamStatusEnum StreamStatus { get; internal set; }
-
-        /// <summary>
-        /// If the SDP remote the remote party provides "a=ssrc" attributes, as specified
-        /// in RFC5576, this property will hold the values. The list can be used when
-        /// an RTP/RTCP packet is received and needs to be matched against a media type or 
-        /// RTCP report.
-        /// </summary>
-        public Dictionary<uint, SDPSsrcAttribute> SdpSsrc { get; set; } = new Dictionary<uint, SDPSsrcAttribute>();
-
-        /// <summary>
         /// Creates a lightweight class to track a media stream track within an RTP session 
         /// When supporting RFC3550 (the standard RTP specification) the relationship between
         /// an RTP stream and session is 1:1. For WebRTC and RFC8101 there can be multiple
@@ -200,6 +139,67 @@ namespace SIPSorcery.Net
             : this(wellKnownAudioFormats.Select(x => new AudioFormat(x)).ToList())
         {
         }
+
+        /// <summary>
+        /// The type of media stream represented by this track. Must be audio or video.
+        /// </summary>
+        public SDPMediaTypesEnum Kind { get; private set; }
+
+        /// <summary>
+        /// The value used in the RTP Synchronisation Source header field for media packets
+        /// sent using this media stream.
+        /// </summary>
+        public uint Ssrc { get; internal set; }
+
+        /// <summary>
+        /// The value used in the RTP Sequence Number header field for media packets
+        /// sent using this media stream.
+        /// </summary>
+        public ushort SeqNum { get; internal set; }
+
+        /// <summary>
+        /// The value used in the RTP Timestamp header field for media packets
+        /// sent using this media stream.
+        /// </summary>
+        public uint Timestamp { get; internal set; }
+
+        /// <summary>
+        /// Indicates whether this track was sourced by a remote connection.
+        /// </summary>
+        public bool IsRemote { get; set; }
+
+        /// <summary>
+        /// By default audio channels will support DTMF via telephone events. To opt
+        /// out of DTMF support set this property to true.
+        /// </summary>
+        public bool NoDtmfSupport { get; set; }
+
+        /// <summary>
+        /// The media capabilities supported by this track.
+        /// </summary>
+        public List<SDPAudioVideoMediaFormat> Capabilities { get; internal set; }
+
+        /// <summary>
+        /// Represents the original and default stream status for the track. This is set
+        /// when the track is created and does not change. It allows tracks to be set back to
+        /// their original state after being put on hold etc. For example if a track is
+        /// added as receive only video source then when after on and off hold it needs to
+        /// be known that the track reverts receive only rather than sendrecv.
+        /// </summary>
+        public MediaStreamStatusEnum DefaultStreamStatus { get; private set; }
+
+        /// <summary>
+        /// Holds the stream state of the track.
+        /// </summary>
+        public MediaStreamStatusEnum StreamStatus { get; internal set; }
+
+        /// <summary>
+        /// If the SDP remote the remote party provides "a=ssrc" attributes, as specified
+        /// in RFC5576, this property will hold the values. The list can be used when
+        /// an RTP/RTCP packet is received and needs to be matched against a media type or 
+        /// RTCP report.
+        /// </summary>
+        public Dictionary<uint, SDPSsrcAttribute> SdpSsrc { get; set; } = new Dictionary<uint, SDPSsrcAttribute>();
 
         /// <summary>
         /// Checks whether the payload ID in an RTP packet received from the remote call party

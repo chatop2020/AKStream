@@ -76,17 +76,6 @@ namespace SIPSorcery.Net
          */
         private const int BLKLEN = 16;
 
-        /**
-         * F8 mode encryption context, see RFC3711 section 4.1.2 for detailed
-         * description.
-         */
-        public class F8Context
-        {
-            public byte[] S;
-            public byte[] ivAccent;
-            public long J;
-        }
-
         public static void DeriveForIV(IBlockCipher f8Cipher, byte[] key, byte[] salt)
         {
             /*
@@ -214,6 +203,17 @@ namespace SIPSorcery.Net
                 _out.Position = outOff + i;
                 _out.WriteByte((byte) (inByte ^ f8ctx.S[i]));
             }
+        }
+
+        /**
+         * F8 mode encryption context, see RFC3711 section 4.1.2 for detailed
+         * description.
+         */
+        public class F8Context
+        {
+            public byte[] ivAccent;
+            public long J;
+            public byte[] S;
         }
     }
 }

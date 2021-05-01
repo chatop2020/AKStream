@@ -16,29 +16,75 @@ namespace AKStreamKeeper
     [Serializable]
     public class MediaServerInstance
     {
-        private string _binPath;
-        private string _configPath;
-        private string _workPath;
-        private Process _process;
-        private string _secret;
-        private string _mediaServerId;
         private static int _pid;
-        private bool _isRunning => CheckRunning();
-        private ushort _zlmHttpPort;
-        private ushort _zlmHttpsPort;
-        private ushort _zlmRtspPort;
-        private ushort _zlmRtmpPort;
-        private ushort _zlmRtspsPort;
-        private ushort _zlmRtmpsPort;
-        private ushort _zlmRtpProxyPort;
-        private uint _zlmRecordFileSec;
-        private string _zlmFFMPEGCmd;
         private static bool _isSelfClose = false;
-
-        public static event Common.MediaServerKilled OnMediaKilled = null!;
 
         private static ProcessHelper _mediaServerProcessHelper =
             new ProcessHelper(p_StdOutputDataReceived, p_ErrOutputDataReceived, p_Process_Exited!);
+
+        private string _binPath;
+        private string _configPath;
+        private string _mediaServerId;
+        private Process _process;
+        private string _secret;
+        private string _workPath;
+        private string _zlmFFMPEGCmd;
+        private ushort _zlmHttpPort;
+        private ushort _zlmHttpsPort;
+        private uint _zlmRecordFileSec;
+        private ushort _zlmRtmpPort;
+        private ushort _zlmRtmpsPort;
+        private ushort _zlmRtpProxyPort;
+        private ushort _zlmRtspPort;
+        private ushort _zlmRtspsPort;
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="binPath"></param>
+        /// <param name="configPath"></param>
+        public MediaServerInstance(string binPath, string configPath = "")
+        {
+            _binPath = binPath;
+            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
+            {
+                _workPath = Path.GetDirectoryName(binPath);
+                _configPath = _workPath + "/config.ini";
+            }
+            else
+            {
+                _configPath = configPath;
+            }
+
+            ResponseStruct rs;
+            try
+            {
+                var ret = GetConfig(out rs);
+                if (!ret || !rs.Code.Equals(ErrorNumber.None))
+                {
+                    throw new AkStreamException(rs);
+                }
+
+                var ret2 = SetConfig(out rs);
+                if (!ret2 || !rs.Code.Equals(ErrorNumber.None))
+                {
+                    throw new AkStreamException(rs);
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Other,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                throw new AkStreamException(rs);
+            }
+        }
+
+        private bool _isRunning => CheckRunning();
 
         /// <summary>
         /// 可执行文件路径
@@ -171,51 +217,7 @@ namespace AKStreamKeeper
             get => _isRunning;
         }
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="binPath"></param>
-        /// <param name="configPath"></param>
-        public MediaServerInstance(string binPath, string configPath = "")
-        {
-            _binPath = binPath;
-            if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
-            {
-                _workPath = Path.GetDirectoryName(binPath);
-                _configPath = _workPath + "/config.ini";
-            }
-            else
-            {
-                _configPath = configPath;
-            }
-
-            ResponseStruct rs;
-            try
-            {
-                var ret = GetConfig(out rs);
-                if (!ret || !rs.Code.Equals(ErrorNumber.None))
-                {
-                    throw new AkStreamException(rs);
-                }
-
-                var ret2 = SetConfig(out rs);
-                if (!ret2 || !rs.Code.Equals(ErrorNumber.None))
-                {
-                    throw new AkStreamException(rs);
-                }
-            }
-            catch (Exception ex)
-            {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Other,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
-                    ExceptMessage = ex.Message,
-                    ExceptStackTrace = ex.StackTrace,
-                };
-                throw new AkStreamException(rs);
-            }
-        }
+        public static event Common.MediaServerKilled OnMediaKilled = null!;
 
 
         public bool SetConfig(out ResponseStruct rs)

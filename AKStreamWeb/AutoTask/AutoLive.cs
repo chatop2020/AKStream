@@ -8,6 +8,20 @@ namespace AKStreamWeb.AutoTask
 {
     public class AutoLive
     {
+        public AutoLive()
+        {
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    KeepLive();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
+
         private void KeepLive()
         {
             while (true)
@@ -82,20 +96,6 @@ namespace AKStreamWeb.AutoTask
                     //
                 }
             }
-        }
-
-        public AutoLive()
-        {
-            new Thread(new ThreadStart(delegate
-            {
-                try
-                {
-                    KeepLive();
-                }
-                catch
-                {
-                }
-            })).Start();
         }
     }
 }

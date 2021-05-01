@@ -8,9 +8,9 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitGetSnap : ReqZLMediaKitRequestBase
     {
-        private string _url;
-        private int _timeout_sec;
         private int _expire_sec;
+        private int _timeout_sec;
+        private string _url;
 
         /// <summary>
         /// 需要截图的url，可以是本机的，也可以是远程主机的

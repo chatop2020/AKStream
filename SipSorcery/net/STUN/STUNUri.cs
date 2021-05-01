@@ -90,18 +90,29 @@ namespace SIPSorcery.Net
 
         public const STUNSchemesEnum DefaultSTUNScheme = STUNSchemesEnum.stun;
 
-        public STUNProtocolsEnum Transport = STUNProtocolsEnum.udp;
-        public STUNSchemesEnum Scheme = DefaultSTUNScheme;
-
-        public string Host;
-        public int Port;
-
         /// <summary>
         /// If the port is specified in a URI it affects the way a DNS lookup occurs.
         /// An explicit port means to lookup the A or AAAA record directly without
         /// checking for SRV records.
         /// </summary>
         public bool ExplicitPort;
+
+        public string Host;
+        public int Port;
+        public STUNSchemesEnum Scheme = DefaultSTUNScheme;
+
+        public STUNProtocolsEnum Transport = STUNProtocolsEnum.udp;
+
+        private STUNUri()
+        {
+        }
+
+        public STUNUri(STUNSchemesEnum scheme, string host, int port = STUNConstants.DEFAULT_STUN_PORT)
+        {
+            Scheme = scheme;
+            Host = host;
+            Port = port;
+        }
 
         /// <summary>
         /// The network protocol for this URI type.
@@ -119,17 +130,6 @@ namespace SIPSorcery.Net
                     return ProtocolType.Udp;
                 }
             }
-        }
-
-        private STUNUri()
-        {
-        }
-
-        public STUNUri(STUNSchemesEnum scheme, string host, int port = STUNConstants.DEFAULT_STUN_PORT)
-        {
-            Scheme = scheme;
-            Host = host;
-            Port = port;
         }
 
         public static STUNUri ParseSTUNUri(string uri)

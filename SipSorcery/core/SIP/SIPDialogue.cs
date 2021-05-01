@@ -52,116 +52,17 @@ namespace SIPSorcery.SIP
         protected static string m_sipVersion = SIPConstants.SIP_VERSION_STRING;
         private static readonly int m_defaultSIPPort = SIPConstants.DEFAULT_SIP_PORT;
 
-        public Guid Id { get; set; } // Id for persistence, NOT used for SIP call purposes.
-        public string CallId { get; set; }
-        public SIPRouteSet RouteSet { get; set; }
-        public SIPUserField LocalUserField { get; set; } // To header for a UAS, From header for a UAC.
-        public string LocalTag { get; set; }
-        public SIPUserField RemoteUserField { get; set; } // To header for a UAC, From header for a UAS.    
-        public string RemoteTag { get; set; }
-        public int CSeq { get; set; } // CSeq being used by the remote UA for sending requests.
-        public int RemoteCSeq { get; set; } // Latest CSeq received from the remote UA.
+        public SIPDialogueStateEnum DialogueState = SIPDialogueStateEnum.Unknown;
 
-        public SIPURI
-            RemoteTarget
-        {
-            get;
-            set;
-        } // This will be the Contact URI in the INVITE request or in the 2xx INVITE response and is where subsequent dialogue requests should be sent.
+        internal SIPNonInviteTransaction m_byeTransaction;
 
-        public Guid CDRId { get; set; } // Call detail record for call the dialogue belongs to.
-
-        public string
-            ContentType
-        {
-            get;
-            private set;
-        } // The content type on the request or response that created this dialogue. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-
-        public string
-            SDP
-        {
-            get;
-            set;
-        } // The sessions description protocol payload. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-
-        public string
-            RemoteSDP
-        {
-            get;
-            set;
-        } // The sessions description protocol payload from the remote end. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-
-        public Guid
-            BridgeId
-        {
-            get;
-            set;
-        } // If this dialogue gets bridged by a higher level application server the id for the bridge can be stored here.                   
-
-        public int
-            CallDurationLimit
-        {
-            get;
-            set;
-        } // If non-zero indicates the dialogue established should only be permitted to stay up for this many seconds.
-
-        public string ProxySendFrom { get; set; } // If set this is the socket the upstream proxy received the call on.
-
-        public SIPDialogueTransferModesEnum
-            TransferMode { get; set; } // Specifies how the dialogue will handle REFER requests (transfers).
-
-        /// <summary>
-        /// Indicates whether the dialogue was created by a ingress or egress call.
-        /// </summary>
-        public SIPCallDirection Direction { get; set; }
-
-        public string CRMPersonName { get; set; }
-        public string CRMCompanyName { get; set; }
-        public string CRMPictureURL { get; set; }
+        private DateTimeOffset m_inserted;
 
         /// <summary>
         /// Used as a flag to indicate whether to send an immediate or slightly delayed re-INVITE request 
         /// when a call is answered as an attempt to help solve audio issues.
         /// </summary>
         public int ReinviteDelay = 0;
-
-        public string DialogueName
-        {
-            get
-            {
-                string dialogueName = "L(??)";
-                if (LocalUserField != null && !LocalUserField.URI.User.IsNullOrBlank())
-                {
-                    dialogueName = "L(" + LocalUserField.URI.ToString() + ")";
-                }
-
-                dialogueName += "-";
-
-                if (RemoteUserField != null && !RemoteUserField.URI.User.IsNullOrBlank())
-                {
-                    dialogueName += "R(" + RemoteUserField.URI.ToString() + ")";
-                }
-                else
-                {
-                    dialogueName += "R(??)";
-                }
-
-                return dialogueName;
-            }
-        }
-
-        private DateTimeOffset m_inserted;
-
-        public DateTimeOffset Inserted
-        {
-            get { return m_inserted; }
-            set { m_inserted = value.ToUniversalTime(); }
-        }
-
-        public SIPDialogueStateEnum DialogueState = SIPDialogueStateEnum.Unknown;
-
-        internal SIPNonInviteTransaction m_byeTransaction;
 
         public SIPDialogue()
         {
@@ -354,6 +255,105 @@ namespace SIPSorcery.SIP
                     RemoteTarget.Host = remoteUASIPEndPoint.GetIPEndPoint().ToString();
                 }
             }
+        }
+
+        public Guid Id { get; set; } // Id for persistence, NOT used for SIP call purposes.
+        public string CallId { get; set; }
+        public SIPRouteSet RouteSet { get; set; }
+        public SIPUserField LocalUserField { get; set; } // To header for a UAS, From header for a UAC.
+        public string LocalTag { get; set; }
+        public SIPUserField RemoteUserField { get; set; } // To header for a UAC, From header for a UAS.    
+        public string RemoteTag { get; set; }
+        public int CSeq { get; set; } // CSeq being used by the remote UA for sending requests.
+        public int RemoteCSeq { get; set; } // Latest CSeq received from the remote UA.
+
+        public SIPURI
+            RemoteTarget
+        {
+            get;
+            set;
+        } // This will be the Contact URI in the INVITE request or in the 2xx INVITE response and is where subsequent dialogue requests should be sent.
+
+        public Guid CDRId { get; set; } // Call detail record for call the dialogue belongs to.
+
+        public string
+            ContentType
+        {
+            get;
+            private set;
+        } // The content type on the request or response that created this dialogue. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public string
+            SDP
+        {
+            get;
+            set;
+        } // The sessions description protocol payload. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public string
+            RemoteSDP
+        {
+            get;
+            set;
+        } // The sessions description protocol payload from the remote end. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public Guid
+            BridgeId
+        {
+            get;
+            set;
+        } // If this dialogue gets bridged by a higher level application server the id for the bridge can be stored here.                   
+
+        public int
+            CallDurationLimit
+        {
+            get;
+            set;
+        } // If non-zero indicates the dialogue established should only be permitted to stay up for this many seconds.
+
+        public string ProxySendFrom { get; set; } // If set this is the socket the upstream proxy received the call on.
+
+        public SIPDialogueTransferModesEnum
+            TransferMode { get; set; } // Specifies how the dialogue will handle REFER requests (transfers).
+
+        /// <summary>
+        /// Indicates whether the dialogue was created by a ingress or egress call.
+        /// </summary>
+        public SIPCallDirection Direction { get; set; }
+
+        public string CRMPersonName { get; set; }
+        public string CRMCompanyName { get; set; }
+        public string CRMPictureURL { get; set; }
+
+        public string DialogueName
+        {
+            get
+            {
+                string dialogueName = "L(??)";
+                if (LocalUserField != null && !LocalUserField.URI.User.IsNullOrBlank())
+                {
+                    dialogueName = "L(" + LocalUserField.URI.ToString() + ")";
+                }
+
+                dialogueName += "-";
+
+                if (RemoteUserField != null && !RemoteUserField.URI.User.IsNullOrBlank())
+                {
+                    dialogueName += "R(" + RemoteUserField.URI.ToString() + ")";
+                }
+                else
+                {
+                    dialogueName += "R(??)";
+                }
+
+                return dialogueName;
+            }
+        }
+
+        public DateTimeOffset Inserted
+        {
+            get { return m_inserted; }
+            set { m_inserted = value.ToUniversalTime(); }
         }
 
         /// <summary>

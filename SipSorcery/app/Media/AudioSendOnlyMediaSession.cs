@@ -18,8 +18,6 @@ namespace SIPSorcery.Media
     {
         private static ILogger logger = Log.Logger;
 
-        public AudioExtrasSource AudioExtrasSource { get; private set; }
-
         public AudioSendOnlyMediaSession(
             IPAddress bindAddress = null,
             int bindPort = 0)
@@ -36,12 +34,7 @@ namespace SIPSorcery.Media
             base.addTrack(audioTrack);
         }
 
-        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
-        {
-            var audioFormat = audoFormats.First();
-            logger.LogDebug($"Setting audio source format to {audioFormat.FormatID}:{audioFormat.Codec}.");
-            AudioExtrasSource.SetAudioSourceFormat(audioFormat);
-        }
+        public AudioExtrasSource AudioExtrasSource { get; private set; }
 
         public async override Task Start()
         {
@@ -61,6 +54,13 @@ namespace SIPSorcery.Media
                 AudioExtrasSource.OnAudioSourceEncodedSample -= SendAudio;
                 await AudioExtrasSource.CloseAudio().ConfigureAwait(false);
             }
+        }
+
+        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
+        {
+            var audioFormat = audoFormats.First();
+            logger.LogDebug($"Setting audio source format to {audioFormat.FormatID}:{audioFormat.Codec}.");
+            AudioExtrasSource.SetAudioSourceFormat(audioFormat);
         }
     }
 }

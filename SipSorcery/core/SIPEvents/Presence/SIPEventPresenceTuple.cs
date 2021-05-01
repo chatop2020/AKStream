@@ -21,12 +21,12 @@ namespace SIPSorcery.SIP
     public class SIPEventPresenceTuple
     {
         private static readonly string m_pidfXMLNS = SIPEventConsts.PIDF_XML_NAMESPACE_URN;
+        public string AvatarURL;
+        public decimal ContactPriority = Decimal.Zero;
+        public SIPURI ContactURI;
 
         public string ID;
         public SIPEventPresenceStateEnum Status;
-        public SIPURI ContactURI;
-        public decimal ContactPriority = Decimal.Zero;
-        public string AvatarURL;
 
         private SIPEventPresenceTuple()
         {

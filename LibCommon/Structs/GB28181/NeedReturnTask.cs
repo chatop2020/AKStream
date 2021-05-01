@@ -15,18 +15,29 @@ namespace LibCommon.Structs.GB28181
     /// </summary>
     public class NeedReturnTask : IDisposable
     {
-        private SIPRequest _sipRequest;
-        private string _callId;
-        private AutoResetEvent _autoResetEvent;
-        private int _timeout;
-        private Timer _timeoutCheckTimer;
-        private DateTime _createTime;
         private static ConcurrentDictionary<string, NeedReturnTask> _needResponseRequests = null;
+        private AutoResetEvent _autoResetEvent;
+        private AutoResetEvent? _autoResetEvent2; //锁二，用于特殊的数据同步，如获取sip录像列表
+        private string _callId;
+        private CommandType _commandType;
+        private DateTime _createTime;
+        private object? _obj; //额外的通用类
         private SipChannel _sipChannel;
         private SipDevice _sipDevice;
-        private CommandType _commandType;
-        private AutoResetEvent? _autoResetEvent2; //锁二，用于特殊的数据同步，如获取sip录像列表
-        private object? _obj; //额外的通用类
+        private SIPRequest _sipRequest;
+        private int _timeout;
+        private Timer _timeoutCheckTimer;
+
+        public NeedReturnTask(ConcurrentDictionary<string, NeedReturnTask> c)
+        {
+            _createTime = DateTime.Now;
+            _timeoutCheckTimer = new Timer(1000);
+            _timeoutCheckTimer.Enabled = true; //启动Elapsed事件触发
+            _timeoutCheckTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
+            _timeoutCheckTimer.AutoReset = true; //需要自动reset
+            _timeoutCheckTimer.Start(); //启动计时器
+            _needResponseRequests = c;
+        }
 
 
         /// <summary>
@@ -102,17 +113,6 @@ namespace LibCommon.Structs.GB28181
             set => _obj = value;
         }
 
-        public NeedReturnTask(ConcurrentDictionary<string, NeedReturnTask> c)
-        {
-            _createTime = DateTime.Now;
-            _timeoutCheckTimer = new Timer(1000);
-            _timeoutCheckTimer.Enabled = true; //启动Elapsed事件触发
-            _timeoutCheckTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
-            _timeoutCheckTimer.AutoReset = true; //需要自动reset
-            _timeoutCheckTimer.Start(); //启动计时器
-            _needResponseRequests = c;
-        }
-
         /// <summary>
         /// 命令类型 
         /// </summary>
@@ -121,15 +121,6 @@ namespace LibCommon.Structs.GB28181
         {
             get => _commandType;
             set => _commandType = value;
-        }
-
-        public void Dispose()
-        {
-            if (_timeoutCheckTimer != null)
-            {
-                _timeoutCheckTimer.Dispose();
-                _timeoutCheckTimer = null!;
-            }
         }
 
         /// <summary>
@@ -141,6 +132,15 @@ namespace LibCommon.Structs.GB28181
             set => _timeoutCheckTimer = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        public void Dispose()
+        {
+            if (_timeoutCheckTimer != null)
+            {
+                _timeoutCheckTimer.Dispose();
+                _timeoutCheckTimer = null!;
+            }
+        }
+
         ~NeedReturnTask()
         {
             Dispose(); //释放非托管资源
@@ -149,7 +149,7 @@ namespace LibCommon.Structs.GB28181
 
         private void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-            if ((DateTime.Now - _createTime).TotalMilliseconds > _timeout + 1000 && CommandType!=CommandType.Playback)
+            if ((DateTime.Now - _createTime).TotalMilliseconds > _timeout + 1000 && CommandType != CommandType.Playback)
             {
                 _needResponseRequests.TryRemove(_callId, out _);
                 Dispose();

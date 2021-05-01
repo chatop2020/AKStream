@@ -29,6 +29,38 @@ namespace SIPSorcery.Net.Sctp
 {
     public class SackChunk : Chunk
     {
+        private uint _arWin;
+        private uint _cumuTSNAck;
+        uint[] _duplicateTSNs;
+
+        GapBlock[] _gaps;
+
+        public SackChunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
+            : base(type, flags, length, pkt)
+        {
+            _cumuTSNAck = _body.GetUInt();
+            _arWin = _body.GetUInt();
+            int ngaps = _body.GetUShort();
+            int nDTSNs = _body.GetUShort();
+            _gaps = new GapBlock[ngaps];
+            _duplicateTSNs = new uint[nDTSNs];
+            for (int i = 0; i < ngaps; i++)
+            {
+                _gaps[i] = new GapBlock(_body);
+            }
+
+            for (int i = 0; i < nDTSNs; i++)
+            {
+                _duplicateTSNs[i] = _body.GetUInt();
+            }
+        }
+
+        public SackChunk() : base(ChunkType.SACK)
+        {
+            _gaps = new GapBlock[0];
+            _duplicateTSNs = new uint[0];
+        }
+
         /**
 		 * @return the cumuTSNAck
 		 */
@@ -60,100 +92,6 @@ namespace SIPSorcery.Net.Sctp
         {
             _arWin = arWin;
         }
-        /*
-    
-		 0                   1                   2                   3
-		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |   Type = 3    |Chunk  Flags   |      Chunk Length             |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                      Cumulative TSN Ack                       |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |          Advertised Receiver Window Credit (a_rwnd)           |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 | Number of Gap Ack Blocks = N  |  Number of Duplicate TSNs = X |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |  Gap Ack Block #1 Start       |   Gap Ack Block #1 End        |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 /                                                               /
-		 \                              ...                              \
-		 /                                                               /
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |   Gap Ack Block #N Start      |  Gap Ack Block #N End         |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                       Duplicate TSN 1                         |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 /                                                               /
-		 \                              ...                              \
-		 /                                                               /
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                       Duplicate TSN X                         |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 */
-
-
-        public class GapBlock
-        {
-            public ushort _start;
-            public ushort _end;
-
-            public GapBlock(ByteBuffer b)
-            {
-                _start = (ushort) b.GetUShort();
-                _end = (ushort) b.GetUShort();
-            }
-
-            public GapBlock(ushort start)
-            {
-                _start = start;
-            }
-
-            public void setEnd(ushort end)
-            {
-                _end = end;
-            }
-
-            public void put(ByteBuffer b)
-            {
-                b.Put(_start);
-                b.Put(_end);
-            }
-
-            public ushort getStart()
-            {
-                return _start;
-            }
-
-            public ushort getEnd()
-            {
-                return _end;
-            }
-        }
-
-        GapBlock[] _gaps;
-        uint[] _duplicateTSNs;
-        private uint _cumuTSNAck;
-        private uint _arWin;
-
-        public SackChunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
-            : base(type, flags, length, pkt)
-        {
-            _cumuTSNAck = _body.GetUInt();
-            _arWin = _body.GetUInt();
-            int ngaps = _body.GetUShort();
-            int nDTSNs = _body.GetUShort();
-            _gaps = new GapBlock[ngaps];
-            _duplicateTSNs = new uint[nDTSNs];
-            for (int i = 0; i < ngaps; i++)
-            {
-                _gaps[i] = new GapBlock(_body);
-            }
-
-            for (int i = 0; i < nDTSNs; i++)
-            {
-                _duplicateTSNs[i] = _body.GetUInt();
-            }
-        }
 
         public GapBlock[] getGaps()
         {
@@ -163,12 +101,6 @@ namespace SIPSorcery.Net.Sctp
         public uint[] getDupTSNs()
         {
             return _duplicateTSNs;
-        }
-
-        public SackChunk() : base(ChunkType.SACK)
-        {
-            _gaps = new GapBlock[0];
-            _duplicateTSNs = new uint[0];
         }
 
         public void setDuplicates(List<uint> dups)
@@ -255,6 +187,75 @@ namespace SIPSorcery.Net.Sctp
             }
 
             return ret.ToString();
+        }
+        /*
+    
+		 0                   1                   2                   3
+		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |   Type = 3    |Chunk  Flags   |      Chunk Length             |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |                      Cumulative TSN Ack                       |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |          Advertised Receiver Window Credit (a_rwnd)           |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 | Number of Gap Ack Blocks = N  |  Number of Duplicate TSNs = X |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |  Gap Ack Block #1 Start       |   Gap Ack Block #1 End        |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 /                                                               /
+		 \                              ...                              \
+		 /                                                               /
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |   Gap Ack Block #N Start      |  Gap Ack Block #N End         |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |                       Duplicate TSN 1                         |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 /                                                               /
+		 \                              ...                              \
+		 /                                                               /
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |                       Duplicate TSN X                         |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 */
+
+
+        public class GapBlock
+        {
+            public ushort _end;
+            public ushort _start;
+
+            public GapBlock(ByteBuffer b)
+            {
+                _start = (ushort) b.GetUShort();
+                _end = (ushort) b.GetUShort();
+            }
+
+            public GapBlock(ushort start)
+            {
+                _start = start;
+            }
+
+            public void setEnd(ushort end)
+            {
+                _end = end;
+            }
+
+            public void put(ByteBuffer b)
+            {
+                b.Put(_start);
+                b.Put(_end);
+            }
+
+            public ushort getStart()
+            {
+                return _start;
+            }
+
+            public ushort getEnd()
+            {
+                return _end;
+            }
         }
     }
 }

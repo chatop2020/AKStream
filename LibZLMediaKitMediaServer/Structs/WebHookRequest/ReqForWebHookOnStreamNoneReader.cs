@@ -5,8 +5,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
     [Serializable]
     public class ReqForWebHookOnStreamNoneReader
     {
-        private string? _mediaServerId;
         private string? _app;
+        private string? _mediaServerId;
         private string? _schema;
         private string? _stream;
         private string? _vhost;

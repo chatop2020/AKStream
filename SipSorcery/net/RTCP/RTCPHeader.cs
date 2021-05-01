@@ -74,25 +74,6 @@ namespace SIPSorcery.Net
         public const int MAX_RECEPTIONREPORT_COUNT = 32;
         public const int RTCP_VERSION = 2;
 
-        public int Version { get; private set; } = RTCP_VERSION; // 2 bits.
-        public int PaddingFlag { get; private set; } = 0; // 1 bit.
-        public int ReceptionReportCount { get; private set; } = 0; // 5 bits.
-        public RTCPReportTypesEnum PacketType { get; private set; } // 8 bits.
-        public UInt16 Length { get; private set; } // 16 bits.
-
-        /// <summary>
-        /// The Feedback Message Type is used for RFC4585 transport layer feedback reports.
-        /// When used this field gets set in place of the Reception Report Counter field.
-        /// </summary>
-        public RTCPFeedbackTypesEnum FeedbackMessageType { get; private set; } = RTCPFeedbackTypesEnum.unassigned;
-
-        /// <summary>
-        /// The Payload Feedback Message Type is used for RFC4585 payload layer feedback reports.
-        /// When used this field gets set in place of the Reception Report Counter field.
-        /// </summary>
-        public PSFBFeedbackTypesEnum PayloadFeedbackMessageType { get; private set; } =
-            PSFBFeedbackTypesEnum.unassigned;
-
         public RTCPHeader(RTCPFeedbackTypesEnum feedbackType)
         {
             PacketType = RTCPReportTypesEnum.RTPFB;
@@ -109,24 +90,6 @@ namespace SIPSorcery.Net
         {
             PacketType = packetType;
             ReceptionReportCount = reportCount;
-        }
-
-        /// <summary>
-        /// Identifies whether an RTCP header is for a standard RTCP packet or for an
-        /// RTCP feedback report.
-        /// </summary>
-        /// <returns>True if the header is for an RTCP feedback report or false if not.</returns>
-        public bool IsFeedbackReport()
-        {
-            if (PacketType == RTCPReportTypesEnum.RTPFB ||
-                PacketType == RTCPReportTypesEnum.PSFB)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
 
         /// <summary>
@@ -171,6 +134,43 @@ namespace SIPSorcery.Net
             else
             {
                 ReceptionReportCount = Convert.ToInt32((firstWord >> 8) & 0x1f);
+            }
+        }
+
+        public int Version { get; private set; } = RTCP_VERSION; // 2 bits.
+        public int PaddingFlag { get; private set; } = 0; // 1 bit.
+        public int ReceptionReportCount { get; private set; } = 0; // 5 bits.
+        public RTCPReportTypesEnum PacketType { get; private set; } // 8 bits.
+        public UInt16 Length { get; private set; } // 16 bits.
+
+        /// <summary>
+        /// The Feedback Message Type is used for RFC4585 transport layer feedback reports.
+        /// When used this field gets set in place of the Reception Report Counter field.
+        /// </summary>
+        public RTCPFeedbackTypesEnum FeedbackMessageType { get; private set; } = RTCPFeedbackTypesEnum.unassigned;
+
+        /// <summary>
+        /// The Payload Feedback Message Type is used for RFC4585 payload layer feedback reports.
+        /// When used this field gets set in place of the Reception Report Counter field.
+        /// </summary>
+        public PSFBFeedbackTypesEnum PayloadFeedbackMessageType { get; private set; } =
+            PSFBFeedbackTypesEnum.unassigned;
+
+        /// <summary>
+        /// Identifies whether an RTCP header is for a standard RTCP packet or for an
+        /// RTCP feedback report.
+        /// </summary>
+        /// <returns>True if the header is for an RTCP feedback report or false if not.</returns>
+        public bool IsFeedbackReport()
+        {
+            if (PacketType == RTCPReportTypesEnum.RTPFB ||
+                PacketType == RTCPReportTypesEnum.PSFB)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

@@ -106,8 +106,6 @@ namespace SIPSorcery.Net
     /// </remarks>
     public class RtpIceChannel : RTPChannel
     {
-        private static LookupClient _dnsLookupClient;
-
         private const int ICE_UFRAG_LENGTH = 4;
         private const int ICE_PASSWORD_LENGTH = 24;
 
@@ -131,6 +129,8 @@ namespace SIPSorcery.Net
         /// </remarks>
         private const int Ta = 50;
 
+        private static LookupClient _dnsLookupClient;
+
         private static readonly ILogger logger = Log.Logger;
 
         /// <summary>
@@ -142,56 +142,6 @@ namespace SIPSorcery.Net
         /// The period in seconds after which a connection will be flagged as failed.
         /// </summary>
         public static int FAILED_TIMEOUT_PERIOD = 16;
-
-        private IPAddress _bindAddress;
-        private List<RTCIceServer> _iceServers;
-        private RTCIceTransportPolicy _policy;
-
-        private DateTime _startedGatheringAt = DateTime.MinValue;
-        private DateTime _connectedAt = DateTime.MinValue;
-
-        internal ConcurrentDictionary<STUNUri, IceServer> _iceServerConnections;
-
-        private IceServer _activeIceServer;
-
-        public RTCIceComponent Component { get; private set; }
-
-        public RTCIceGatheringState IceGatheringState { get; private set; } = RTCIceGatheringState.@new;
-
-        public RTCIceConnectionState IceConnectionState { get; private set; } = RTCIceConnectionState.@new;
-
-        /// <summary>
-        /// True if we are the "controlling" ICE agent (we initiated the communications) or
-        /// false if we are the "controlled" agent.
-        /// </summary>
-        public bool IsController { get; internal set; }
-
-        /// <summary>
-        /// The list of host ICE candidates that have been gathered for this peer.
-        /// </summary>
-        public List<RTCIceCandidate> Candidates
-        {
-            get { return _candidates.ToList(); }
-        }
-
-        private ConcurrentBag<RTCIceCandidate> _candidates = new ConcurrentBag<RTCIceCandidate>();
-        internal List<RTCIceCandidate> _remoteCandidates = new List<RTCIceCandidate>();
-
-        /// <summary>
-        /// A queue of remote ICE candidates that have been added to the session and that
-        /// are waiting to be processed to determine if they will create a new checklist entry.
-        /// </summary>
-        private ConcurrentQueue<RTCIceCandidate> _pendingRemoteCandidates = new ConcurrentQueue<RTCIceCandidate>();
-
-        /// <summary>
-        /// The state of the checklist as the ICE checks are carried out.
-        /// </summary>
-        internal ChecklistState _checklistState = ChecklistState.Running;
-
-        /// <summary>
-        /// The checklist of local and remote candidate pairs
-        /// </summary>
-        internal List<ChecklistEntry> _checklist = new List<ChecklistEntry>();
 
         /// <summary>
         /// For local candidates this implementation takes a shortcut to reduce complexity. 
@@ -207,6 +157,44 @@ namespace SIPSorcery.Net
         /// </summary>
         internal readonly RTCIceCandidate _localChecklistCandidate;
 
+        public readonly string LocalIcePassword;
+
+        public readonly string LocalIceUser;
+
+        private IceServer _activeIceServer;
+
+        private IPAddress _bindAddress;
+
+        private ConcurrentBag<RTCIceCandidate> _candidates = new ConcurrentBag<RTCIceCandidate>();
+
+        /// <summary>
+        /// The checklist of local and remote candidate pairs
+        /// </summary>
+        internal List<ChecklistEntry> _checklist = new List<ChecklistEntry>();
+
+        /// <summary>
+        /// The state of the checklist as the ICE checks are carried out.
+        /// </summary>
+        internal ChecklistState _checklistState = ChecklistState.Running;
+
+        private DateTime _checlistStartedAt = DateTime.MinValue;
+
+        private bool _closed = false;
+        private DateTime _connectedAt = DateTime.MinValue;
+        private Timer _connectivityChecksTimer;
+
+        internal ConcurrentDictionary<STUNUri, IceServer> _iceServerConnections;
+        private List<RTCIceServer> _iceServers;
+
+        /// <summary>
+        /// A queue of remote ICE candidates that have been added to the session and that
+        /// are waiting to be processed to determine if they will create a new checklist entry.
+        /// </summary>
+        private ConcurrentQueue<RTCIceCandidate> _pendingRemoteCandidates = new ConcurrentQueue<RTCIceCandidate>();
+
+        private RTCIceTransportPolicy _policy;
+        private Timer _processIceServersTimer;
+
         /// <summary>
         /// If a TURN server is being used for this session and has received a successful
         /// response to the allocate request then this field will hold the candidate to
@@ -214,61 +202,9 @@ namespace SIPSorcery.Net
         /// </summary>
         internal RTCIceCandidate _relayChecklistCandidate;
 
-        /// <summary>
-        /// If the connectivity checks are successful this will hold the entry that was 
-        /// nominated by the connection check process.
-        /// </summary>
-        public ChecklistEntry NominatedEntry { get; private set; }
+        internal List<RTCIceCandidate> _remoteCandidates = new List<RTCIceCandidate>();
 
-        /// <summary>
-        /// Retransmission timer for STUN transactions, measured in milliseconds.
-        /// </summary>
-        /// <remarks>
-        /// As specified in https://tools.ietf.org/html/rfc8445#section-14.
-        /// </remarks>
-        internal int RTO
-        {
-            get
-            {
-                if (IceGatheringState == RTCIceGatheringState.gathering)
-                {
-                    return Math.Max(500,
-                        Ta * Candidates.Count(x =>
-                            x.type == RTCIceCandidateType.srflx || x.type == RTCIceCandidateType.relay));
-                }
-                else
-                {
-                    return Math.Max(500,
-                        Ta * (_checklist.Count(x => x.State == ChecklistEntryState.Waiting) +
-                              _checklist.Count(x => x.State == ChecklistEntryState.InProgress)));
-                }
-            }
-        }
-
-        public readonly string LocalIceUser;
-        public readonly string LocalIcePassword;
-        public string RemoteIceUser { get; private set; }
-        public string RemoteIcePassword { get; private set; }
-
-        private bool _closed = false;
-        private Timer _connectivityChecksTimer;
-        private Timer _processIceServersTimer;
-        private DateTime _checlistStartedAt = DateTime.MinValue;
-
-        public event Action<RTCIceCandidate> OnIceCandidate;
-        public event Action<RTCIceConnectionState> OnIceConnectionStateChange;
-        public event Action<RTCIceGatheringState> OnIceGatheringStateChange;
-        public event Action<RTCIceCandidate, string> OnIceCandidateError;
-
-        public static List<NameServer> DefaultNameServers { get; set; }
-
-        /// <summary>
-        /// This event gets fired when a STUN message is received by this channel.
-        /// The event is for diagnostic purposes only.
-        /// </summary>
-        public event Action<STUNMessage, IPEndPoint, bool> OnStunMessageReceived;
-
-        public new event Action<int, IPEndPoint, byte[]> OnRTPDataReceived;
+        private DateTime _startedGatheringAt = DateTime.MinValue;
 
         /// <summary>
         /// An optional callback function to resolve remote ICE candidates with MDNS hostnames.
@@ -347,6 +283,75 @@ namespace SIPSorcery.Net
                 }
             }
         }
+
+        public RTCIceComponent Component { get; private set; }
+
+        public RTCIceGatheringState IceGatheringState { get; private set; } = RTCIceGatheringState.@new;
+
+        public RTCIceConnectionState IceConnectionState { get; private set; } = RTCIceConnectionState.@new;
+
+        /// <summary>
+        /// True if we are the "controlling" ICE agent (we initiated the communications) or
+        /// false if we are the "controlled" agent.
+        /// </summary>
+        public bool IsController { get; internal set; }
+
+        /// <summary>
+        /// The list of host ICE candidates that have been gathered for this peer.
+        /// </summary>
+        public List<RTCIceCandidate> Candidates
+        {
+            get { return _candidates.ToList(); }
+        }
+
+        /// <summary>
+        /// If the connectivity checks are successful this will hold the entry that was 
+        /// nominated by the connection check process.
+        /// </summary>
+        public ChecklistEntry NominatedEntry { get; private set; }
+
+        /// <summary>
+        /// Retransmission timer for STUN transactions, measured in milliseconds.
+        /// </summary>
+        /// <remarks>
+        /// As specified in https://tools.ietf.org/html/rfc8445#section-14.
+        /// </remarks>
+        internal int RTO
+        {
+            get
+            {
+                if (IceGatheringState == RTCIceGatheringState.gathering)
+                {
+                    return Math.Max(500,
+                        Ta * Candidates.Count(x =>
+                            x.type == RTCIceCandidateType.srflx || x.type == RTCIceCandidateType.relay));
+                }
+                else
+                {
+                    return Math.Max(500,
+                        Ta * (_checklist.Count(x => x.State == ChecklistEntryState.Waiting) +
+                              _checklist.Count(x => x.State == ChecklistEntryState.InProgress)));
+                }
+            }
+        }
+
+        public string RemoteIceUser { get; private set; }
+        public string RemoteIcePassword { get; private set; }
+
+        public static List<NameServer> DefaultNameServers { get; set; }
+
+        public event Action<RTCIceCandidate> OnIceCandidate;
+        public event Action<RTCIceConnectionState> OnIceConnectionStateChange;
+        public event Action<RTCIceGatheringState> OnIceGatheringStateChange;
+        public event Action<RTCIceCandidate, string> OnIceCandidateError;
+
+        /// <summary>
+        /// This event gets fired when a STUN message is received by this channel.
+        /// The event is for diagnostic purposes only.
+        /// </summary>
+        public event Action<STUNMessage, IPEndPoint, bool> OnStunMessageReceived;
+
+        public new event Action<int, IPEndPoint, byte[]> OnRTPDataReceived;
 
         /// <summary>
         /// We've been given the green light to start the ICE candidate gathering process.

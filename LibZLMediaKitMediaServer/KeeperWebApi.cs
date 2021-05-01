@@ -8,11 +8,20 @@ namespace LibZLMediaKitMediaServer
 {
     public class KeeperWebApi
     {
-        private string _ipAddress;
-        private ushort _webApiPort;
         private string _accessKey;
         private string _baseUrl;
         private int _httpClientTimeout;
+        private string _ipAddress;
+        private ushort _webApiPort;
+
+        public KeeperWebApi(string ipAddress, ushort webApiPort, string accessKey, int httpClientTimeoutSec = 5)
+        {
+            _ipAddress = ipAddress;
+            _webApiPort = webApiPort;
+            _accessKey = accessKey;
+            _baseUrl = $"http://{_ipAddress}:{_webApiPort}";
+            _httpClientTimeout = httpClientTimeoutSec * 1000;
+        }
 
         public string IpAddress
         {
@@ -38,23 +47,13 @@ namespace LibZLMediaKitMediaServer
             set => _httpClientTimeout = value;
         }
 
-        public KeeperWebApi(string ipAddress, ushort webApiPort, string accessKey, int httpClientTimeoutSec = 5)
-        {
-            _ipAddress = ipAddress;
-            _webApiPort = webApiPort;
-            _accessKey = accessKey;
-            _baseUrl = $"http://{_ipAddress}:{_webApiPort}";
-            _httpClientTimeout = httpClientTimeoutSec * 1000;
-        }
 
-        
         /// <summary>
         /// 获取AKStreamKeeper的版本标识
         /// </summary>
         /// <param name="rs"></param>
         /// <returns></returns>
-        
-         public string GetAKStreamKeeperVersion(out ResponseStruct rs)
+        public string GetAKStreamKeeperVersion(out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -103,8 +102,7 @@ namespace LibZLMediaKitMediaServer
 
             return null;
         }
-         
-         
+
 
         /// <summary>
         /// 获取运行状态

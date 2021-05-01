@@ -11,9 +11,9 @@ namespace LibCommon.Structs.WebResponse
     [Serializable]
     public class ResGetWaitForActiveVideoChannelList
     {
-        private List<VideoChannel>? _videoChannelList;
         private ReqPaginationBase? _request;
         private long? _total;
+        private List<VideoChannel>? _videoChannelList;
 
         public List<VideoChannel>? VideoChannelList
         {

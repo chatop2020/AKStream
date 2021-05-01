@@ -7,13 +7,13 @@ namespace SystemInfoLibrary.Hardware.RAM
     {
         private readonly ManagementBaseObject _win32_OperatingSystem;
 
-        public override ulong Free => (UInt64) _win32_OperatingSystem.GetPropertyValue("FreePhysicalMemory");
-
-        public override ulong Total => (UInt64) _win32_OperatingSystem.GetPropertyValue("TotalVisibleMemorySize");
-
         public WindowsRAMInfo(ManagementBaseObject win32_OperatingSystem)
         {
             _win32_OperatingSystem = win32_OperatingSystem;
         }
+
+        public override ulong Free => (UInt64) _win32_OperatingSystem.GetPropertyValue("FreePhysicalMemory");
+
+        public override ulong Total => (UInt64) _win32_OperatingSystem.GetPropertyValue("TotalVisibleMemorySize");
     }
 }

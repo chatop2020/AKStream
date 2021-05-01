@@ -46,58 +46,41 @@ namespace SIPSorcery.SIP.App
 
         private static readonly string m_userAgent = SIPConstants.SIP_USERAGENT_STRING;
 
-        private SIPTransport m_sipTransport;
-        private SIPEndPoint m_outboundProxy;
-        private SIPURI m_sipAccountAOR;
+        public Func<SIPRequest, SIPRequest> AdjustRegister;
+        private int m_attempts;
         private string m_authUsername;
-        private string m_password;
-        private string m_realm;
-        private string m_registrarHost;
+        private string m_callID;
         private SIPURI m_contactURI;
+        private int m_cseq;
+        private string[] m_customHeaders;
+        private bool m_exit;
         private int m_expiry;
-        private int m_originalExpiry;
 
-        private int
-            m_registerFailureRetryInterval; // Number of seconds between consecutive register requests in the event of failures or timeouts.
-
-        private int m_maxRegistrationAttemptTimeout;
+        private bool m_isRegistered;
 
         private int
             m_maxRegisterAttempts; // The maximum number of registration attempts that will be made without a failure condition before incurring a temporary failure.
 
-        private bool m_isRegistered;
-        private int m_cseq;
-        private string m_callID;
-        private string[] m_customHeaders;
-        private bool m_exit;
-        private int m_attempts;
-        private ManualResetEvent m_waitForRegistrationMRE = new ManualResetEvent(false);
+        private int m_maxRegistrationAttemptTimeout;
+        private int m_originalExpiry;
+        private SIPEndPoint m_outboundProxy;
+        private string m_password;
+        private string m_realm;
+
+        private int
+            m_registerFailureRetryInterval; // Number of seconds between consecutive register requests in the event of failures or timeouts.
+
+        private string m_registrarHost;
         private Timer m_registrationTimer;
+        private SIPURI m_sipAccountAOR;
+
+        private SIPTransport m_sipTransport;
+        private ManualResetEvent m_waitForRegistrationMRE = new ManualResetEvent(false);
 
         public string
             UserAgent; // If not null this value will replace the default user agent value in the REGISTER request.
 
         public string UserDisplayName; //rj2: if not null, used in fromheader and contactheader
-
-        /// <summary>
-        /// True if the last registration attempt was successful or false if not.
-        /// </summary>
-        public bool IsRegistered
-        {
-            get { return m_isRegistered; }
-        }
-
-        /// <summary>
-        /// The last time at which an attempt was made to register this account.
-        /// </summary>
-        public DateTime LastRegisterAttemptAt { get; private set; }
-
-        public event Action<SIPURI, string> RegistrationFailed;
-        public event Action<SIPURI, string> RegistrationTemporaryFailure;
-        public event Action<SIPURI> RegistrationSuccessful;
-        public event Action<SIPURI> RegistrationRemoved;
-
-        public Func<SIPRequest, SIPRequest> AdjustRegister;
 
         /// <summary>
         /// Creates a new SIP registration agent that will attempt to register with a SIP Registrar server.
@@ -169,6 +152,24 @@ namespace SIPSorcery.SIP.App
             m_registerFailureRetryInterval = registerFailureRetryInterval;
             m_maxRegisterAttempts = maxRegisterAttempts;
         }
+
+        /// <summary>
+        /// True if the last registration attempt was successful or false if not.
+        /// </summary>
+        public bool IsRegistered
+        {
+            get { return m_isRegistered; }
+        }
+
+        /// <summary>
+        /// The last time at which an attempt was made to register this account.
+        /// </summary>
+        public DateTime LastRegisterAttemptAt { get; private set; }
+
+        public event Action<SIPURI, string> RegistrationFailed;
+        public event Action<SIPURI, string> RegistrationTemporaryFailure;
+        public event Action<SIPURI> RegistrationSuccessful;
+        public event Action<SIPURI> RegistrationRemoved;
 
         public void Start()
         {

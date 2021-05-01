@@ -10,8 +10,8 @@ namespace AKStreamWeb.WebRequest
     {
         private string? _deviceId;
         private string? _ipV4Address;
-        private int? _port;
         private bool? _isReday;
+        private int? _port;
 
         /// <summary>
         /// 设备id

@@ -13,6 +13,8 @@ namespace LibCommon.Structs.GB28181.XML
     {
         private static GroupInfo instance;
 
+        private List<GroupInfoItem> mGroupInfoItems = new List<GroupInfoItem>(500);
+
         /// <summary>
         /// 以单例模式访问
         /// </summary>
@@ -26,13 +28,164 @@ namespace LibCommon.Structs.GB28181.XML
             }
         }
 
-        private List<GroupInfoItem> mGroupInfoItems = new List<GroupInfoItem>(500);
-
         [XmlElement("GroupInfoItem")]
         public List<GroupInfoItem> Items
         {
             get { return this.mGroupInfoItems; }
         }
+
+        public void Dispose()
+        {
+            Items.Clear();
+            instance = null;
+        }
+
+        #region 子类
+
+        public class GroupInfoItem
+        {
+            public GroupInfoItem()
+            {
+            }
+
+            public GroupInfoItem(string groupCode, string name, string parentID, string groupType, string groupMark,
+                string groupIdentify, string subordinatePlatform)
+            {
+                GroupCode = groupCode;
+                Name = name;
+                ParentID = parentID;
+                GroupType = groupType;
+                GroupMark = groupMark;
+                GroupIdentify = groupIdentify;
+                SubordinatePlatform = subordinatePlatform;
+            }
+
+            /// <summary>
+            /// 索引
+            /// </summary>
+            [XmlAttribute("Guid")]
+            public ushort Guid { get; set; }
+
+            /// <summary>
+            /// 分组编码
+            /// </summary>
+            [XmlAttribute("GroupCode")]
+            public string GroupCode { get; set; }
+
+            /// <summary>
+            /// 分组名称
+            /// </summary>
+            [XmlAttribute("Name")]
+            public string Name { get; set; }
+
+            /// <summary>
+            /// 分组上级ID
+            /// </summary>
+            [XmlAttribute("ParentID")]
+            public string ParentID { get; set; }
+
+            /// <summary>
+            /// 虚拟分组ID
+            /// </summary>
+            [XmlAttribute("BusinessGroupID")]
+            public string BusinessGroupID { get; set; }
+
+            /// <summary>
+            /// 分组类型
+            /// </summary>
+            [XmlAttribute("GroupType")]
+            public string GroupType { get; set; }
+
+            /// <summary>
+            /// 分组备注名
+            /// </summary>
+            [XmlAttribute("GroupMark")]
+            public string GroupMark { get; set; }
+
+            /// <summary>
+            /// 分组识别码
+            /// 0，自建设备 
+            /// 1，国标
+            /// </summary>
+            [XmlAttribute("GroupIdentify")]
+            public string GroupIdentify { get; set; }
+
+            /// <summary>
+            /// 所属平台编码
+            /// </summary>
+            [XmlAttribute("SubordinatePlatform")]
+            public string SubordinatePlatform { get; set; }
+
+            /// <summary>
+            /// 设备/区域/系统IP地址
+            /// </summary>
+            [XmlAttribute("IPAddress")]
+            public string IPAddress { get; set; }
+
+            /// <summary>
+            /// 设备/区域/系统端口
+            /// </summary>
+            [XmlIgnore]
+            public ushort? Port { get; set; }
+
+            [XmlAttribute("Port")]
+            public string PortValue
+            {
+                get { return Port.HasValue ? Port.Value.ToString() : null; }
+                set
+                {
+                    ushort result;
+                    Port = ushort.TryParse(value, out result) ? result : (ushort?) null;
+                }
+            }
+
+            /// <summary>
+            /// 注册方式(必选)缺省为1；
+            /// 1:符合IETF FRC 3261标准的认证注册模式；
+            /// 2:基于口令的双向认证注册模式；
+            /// 3:基于数字证书的双向认证注册模式；
+            /// </summary>
+            [XmlIgnore]
+            public int? RegisterWay { get; set; }
+
+            [XmlAttribute("RegisterWay")]
+            public string RegisterWayValue
+            {
+                get { return RegisterWay.HasValue ? RegisterWay.Value.ToString() : null; }
+                set
+                {
+                    int result;
+                    RegisterWay = int.TryParse(value, out result) ? result : (int?) null;
+                }
+            }
+
+            /// <summary>
+            /// 保密属性(必选)
+            /// 0：不涉密
+            /// 1涉密
+            /// </summary>
+            [XmlIgnore]
+            public int? Secrecy { get; set; }
+
+            [XmlAttribute("Secrecy")]
+            public string SecrecyValue
+            {
+                get { return Secrecy.HasValue ? Secrecy.Value.ToString() : null; }
+                set
+                {
+                    int result;
+                    Secrecy = int.TryParse(value, out result) ? result : (int?) null;
+                }
+            }
+
+            /// <summary>
+            /// 设备状态(必选)
+            /// </summary>
+            [XmlAttribute("Status")]
+            public string Status { get; set; }
+        }
+
+        #endregion
 
         #region 方法
 
@@ -212,158 +365,5 @@ namespace LibCommon.Structs.GB28181.XML
         }
 
         #endregion
-
-        #region 子类
-
-        public class GroupInfoItem
-        {
-            public GroupInfoItem()
-            {
-            }
-
-            public GroupInfoItem(string groupCode, string name, string parentID, string groupType, string groupMark,
-                string groupIdentify, string subordinatePlatform)
-            {
-                GroupCode = groupCode;
-                Name = name;
-                ParentID = parentID;
-                GroupType = groupType;
-                GroupMark = groupMark;
-                GroupIdentify = groupIdentify;
-                SubordinatePlatform = subordinatePlatform;
-            }
-
-            /// <summary>
-            /// 索引
-            /// </summary>
-            [XmlAttribute("Guid")]
-            public ushort Guid { get; set; }
-
-            /// <summary>
-            /// 分组编码
-            /// </summary>
-            [XmlAttribute("GroupCode")]
-            public string GroupCode { get; set; }
-
-            /// <summary>
-            /// 分组名称
-            /// </summary>
-            [XmlAttribute("Name")]
-            public string Name { get; set; }
-
-            /// <summary>
-            /// 分组上级ID
-            /// </summary>
-            [XmlAttribute("ParentID")]
-            public string ParentID { get; set; }
-
-            /// <summary>
-            /// 虚拟分组ID
-            /// </summary>
-            [XmlAttribute("BusinessGroupID")]
-            public string BusinessGroupID { get; set; }
-
-            /// <summary>
-            /// 分组类型
-            /// </summary>
-            [XmlAttribute("GroupType")]
-            public string GroupType { get; set; }
-
-            /// <summary>
-            /// 分组备注名
-            /// </summary>
-            [XmlAttribute("GroupMark")]
-            public string GroupMark { get; set; }
-
-            /// <summary>
-            /// 分组识别码
-            /// 0，自建设备 
-            /// 1，国标
-            /// </summary>
-            [XmlAttribute("GroupIdentify")]
-            public string GroupIdentify { get; set; }
-
-            /// <summary>
-            /// 所属平台编码
-            /// </summary>
-            [XmlAttribute("SubordinatePlatform")]
-            public string SubordinatePlatform { get; set; }
-
-            /// <summary>
-            /// 设备/区域/系统IP地址
-            /// </summary>
-            [XmlAttribute("IPAddress")]
-            public string IPAddress { get; set; }
-
-            /// <summary>
-            /// 设备/区域/系统端口
-            /// </summary>
-            [XmlIgnore]
-            public ushort? Port { get; set; }
-
-            [XmlAttribute("Port")]
-            public string PortValue
-            {
-                get { return Port.HasValue ? Port.Value.ToString() : null; }
-                set
-                {
-                    ushort result;
-                    Port = ushort.TryParse(value, out result) ? result : (ushort?) null;
-                }
-            }
-
-            /// <summary>
-            /// 注册方式(必选)缺省为1；
-            /// 1:符合IETF FRC 3261标准的认证注册模式；
-            /// 2:基于口令的双向认证注册模式；
-            /// 3:基于数字证书的双向认证注册模式；
-            /// </summary>
-            [XmlIgnore]
-            public int? RegisterWay { get; set; }
-
-            [XmlAttribute("RegisterWay")]
-            public string RegisterWayValue
-            {
-                get { return RegisterWay.HasValue ? RegisterWay.Value.ToString() : null; }
-                set
-                {
-                    int result;
-                    RegisterWay = int.TryParse(value, out result) ? result : (int?) null;
-                }
-            }
-
-            /// <summary>
-            /// 保密属性(必选)
-            /// 0：不涉密
-            /// 1涉密
-            /// </summary>
-            [XmlIgnore]
-            public int? Secrecy { get; set; }
-
-            [XmlAttribute("Secrecy")]
-            public string SecrecyValue
-            {
-                get { return Secrecy.HasValue ? Secrecy.Value.ToString() : null; }
-                set
-                {
-                    int result;
-                    Secrecy = int.TryParse(value, out result) ? result : (int?) null;
-                }
-            }
-
-            /// <summary>
-            /// 设备状态(必选)
-            /// </summary>
-            [XmlAttribute("Status")]
-            public string Status { get; set; }
-        }
-
-        #endregion
-
-        public void Dispose()
-        {
-            Items.Clear();
-            instance = null;
-        }
     }
 }

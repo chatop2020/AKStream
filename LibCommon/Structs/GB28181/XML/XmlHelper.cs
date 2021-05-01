@@ -12,14 +12,13 @@ namespace LibCommon.Structs.GB28181.XML
     /// <typeparam name="T">泛型</typeparam>
     public abstract class XmlHelper<T> where T : class
     {
+        private static string m_dir = GCommon.ConfigPath;
         //private static ILog logger = AppState.logger;
 
         /// <summary>
         /// 文档路径
         /// </summary>
         private string m_xml_path;
-
-        private static string m_dir = GCommon.ConfigPath;
 
         /// <summary>
         /// 存储对象

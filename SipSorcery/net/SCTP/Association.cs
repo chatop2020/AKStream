@@ -35,10 +35,6 @@ namespace SIPSorcery.Net.Sctp
 {
     public abstract class Association
     {
-        private bool _even;
-
-        public abstract void associate();
-
         /**
 		 * <code>
 		 *                     -----          -------- (from any state)
@@ -89,8 +85,6 @@ namespace SIPSorcery.Net.Sctp
             SHUTDOWNACKSENT,
             CLOSED
         };
-
-        private byte[] _supportedExtensions = {(byte) ChunkType.RE_CONFIG};
         /*
 		 For what it is worth, here's the logic as to why we don't have any supported extensions.
 		 { 
@@ -107,6 +101,38 @@ namespace SIPSorcery.Net.Sctp
         public static int COOKIESIZE = 32;
 
         private static long VALIDCOOKIELIFE = 60000;
+        public static uint MAXBUFF = 20 * 1024;
+        private static int TICK = 1000; // loop time in rcv
+        static int __assocNo = 1;
+        private AssociationListener _al;
+
+        private List<CookieHolder> _cookies = new List<CookieHolder>();
+        private int _destPort;
+        private bool _even;
+        private uint _farTSN;
+        private Dictionary<uint, DataChunk> _holdingPen;
+        private int _maxInStreams;
+        private int _maxOutStreams;
+        protected int _myVerTag;
+        public uint _nearTSN;
+
+        /// <summary>
+        /// The next ID to use when creating a new stream. 
+        /// Note originally this value as generated randomly between 0 and 65535 but Chrome was rejecting
+        /// ID's that were greater than maximum number of streams set on the SCTP association. Hence
+        /// changed it to be sequential.
+        /// </summary>
+        private int _nextStreamID = 0;
+
+        private Dictionary<long, DataChunk> _outbound;
+        private int _peerVerTag;
+        private SecureRandom _random;
+        private Thread _rcv;
+        private int _srcPort;
+        protected State _state;
+        private Dictionary<int, SCTPStream> _streams;
+
+        private byte[] _supportedExtensions = {(byte) ChunkType.RE_CONFIG};
 
         /*
 		 RTO.Initial - 3 seconds
@@ -123,43 +149,9 @@ namespace SIPSorcery.Net.Sctp
 		 HB.Max.Burst - 1
 		 */
         protected DatagramTransport _transp;
-        private Thread _rcv;
-        private int _peerVerTag;
-        protected int _myVerTag;
-        private SecureRandom _random;
         private long _winCredit;
-        private uint _farTSN;
         private int MAXSTREAMS = 1000;
-        private int _maxOutStreams;
-        private int _maxInStreams;
-        public static uint MAXBUFF = 20 * 1024;
-        public uint _nearTSN;
-        private int _srcPort;
-        private int _destPort;
-        private Dictionary<int, SCTPStream> _streams;
-        private AssociationListener _al;
-        private Dictionary<long, DataChunk> _outbound;
-        protected State _state;
-        private Dictionary<uint, DataChunk> _holdingPen;
-        private static int TICK = 1000; // loop time in rcv
-        static int __assocNo = 1;
         private ReconfigState reconfigState;
-
-        /// <summary>
-        /// The next ID to use when creating a new stream. 
-        /// Note originally this value as generated randomly between 0 and 65535 but Chrome was rejecting
-        /// ID's that were greater than maximum number of streams set on the SCTP association. Hence
-        /// changed it to be sequential.
-        /// </summary>
-        private int _nextStreamID = 0;
-
-        class CookieHolder
-        {
-            public byte[] cookieData;
-            public long cookieTime;
-        };
-
-        private List<CookieHolder> _cookies = new List<CookieHolder>();
 
         // default is server
         public Association(DatagramTransport transport, AssociationListener al, int srcPort, int dstPort) : this(
@@ -202,6 +194,8 @@ namespace SIPSorcery.Net.Sctp
             _srcPort = srcPort;
             _destPort = dstPort;
         }
+
+        public abstract void associate();
 
         protected byte[] getSupportedExtensions()
         {
@@ -1159,5 +1153,11 @@ namespace SIPSorcery.Net.Sctp
         abstract internal SCTPMessage makeMessage(string s, BlockingSCTPStream aThis);
 
         abstract protected Chunk[] sackDeal(SackChunk sackChunk);
+
+        class CookieHolder
+        {
+            public byte[] cookieData;
+            public long cookieTime;
+        };
     }
 }

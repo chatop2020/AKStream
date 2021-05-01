@@ -32,28 +32,28 @@ namespace SIPSorcery.Net.Sctp
     public class Packet
     {
         /*
-		 SCTP Common Header Format
+         SCTP Common Header Format
 
-		 0                   1                   2                   3
-		 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |     Source Port Number        |     Destination Port Number   |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                      Verification Tag                         |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |                           Checksum                            |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 */
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |     Source Port Number        |     Destination Port Number   |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                      Verification Tag                         |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                           Checksum                            |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         */
 
         private static ILogger logger = Log.Logger;
 
         static int MTU = 1500;
-        ushort _srcPort;
-        ushort _destPort;
-        int _verTag;
+        private static int SUMOFFSET = 8;
         uint _chksum;
         List<Chunk> _chunks;
-        private static int SUMOFFSET = 8;
+        ushort _destPort;
+        ushort _srcPort;
+        int _verTag;
 
         /**
 		 * Constructor used to parse an incoming packet
@@ -165,25 +165,25 @@ namespace SIPSorcery.Net.Sctp
         }
 
         /*
-		 When an SCTP packet is received, the receiver MUST first check the
-		 CRC32c checksum as follows:
+         When an SCTP packet is received, the receiver MUST first check the
+         CRC32c checksum as follows:
 
-		 1)  Store the received CRC32c checksum value aside.
+         1)  Store the received CRC32c checksum value aside.
 
-		 2)  Replace the 32 bits of the checksum field in the received SCTP
-		 packet with all '0's and calculate a CRC32c checksum value of the
-		 whole received packet.
+         2)  Replace the 32 bits of the checksum field in the received SCTP
+         packet with all '0's and calculate a CRC32c checksum value of the
+         whole received packet.
 
-		 3)  Verify that the calculated CRC32c checksum is the same as the
-		 received CRC32c checksum.  If it is not, the receiver MUST treat
-		 the packet as an invalid SCTP packet.
+         3)  Verify that the calculated CRC32c checksum is the same as the
+         received CRC32c checksum.  If it is not, the receiver MUST treat
+         the packet as an invalid SCTP packet.
 
-		 The default procedure for handling invalid SCTP packets is to
-		 silently discard them.
+         The default procedure for handling invalid SCTP packets is to
+         silently discard them.
 
-		 Any hardware implementation SHOULD be done in a way that is
-		 verifiable by the software.
-		 */
+         Any hardware implementation SHOULD be done in a way that is
+         verifiable by the software.
+         */
         void setChecksum(ByteBuffer pkt)
         {
             pkt.Put(SUMOFFSET, 0);
@@ -206,90 +206,90 @@ namespace SIPSorcery.Net.Sctp
             }
         }
         /*
-		 8.5.  Verification Tag
+         8.5.  Verification Tag
 
-		 The Verification Tag rules defined in this section apply when sending
-		 or receiving SCTP packets that do not contain an INIT, SHUTDOWN
-		 COMPLETE, COOKIE ECHO (see Section 5.1), ABORT, or SHUTDOWN ACK
-		 chunk.  The rules for sending and receiving SCTP packets containing
-		 one of these chunk types are discussed separately in Section 8.5.1.
+         The Verification Tag rules defined in this section apply when sending
+         or receiving SCTP packets that do not contain an INIT, SHUTDOWN
+         COMPLETE, COOKIE ECHO (see Section 5.1), ABORT, or SHUTDOWN ACK
+         chunk.  The rules for sending and receiving SCTP packets containing
+         one of these chunk types are discussed separately in Section 8.5.1.
 
-		 When sending an SCTP packet, the endpoint MUST fill in the
-		 Verification Tag field of the outbound packet with the tag value in
-		 the Initiate Tag parameter of the INIT or INIT ACK received from its
-		 peer.
+         When sending an SCTP packet, the endpoint MUST fill in the
+         Verification Tag field of the outbound packet with the tag value in
+         the Initiate Tag parameter of the INIT or INIT ACK received from its
+         peer.
 
-		 When receiving an SCTP packet, the endpoint MUST ensure that the
-		 value in the Verification Tag field of the received SCTP packet
-		 matches its own tag.  If the received Verification Tag value does not
-		 match the receiver's own tag value, the receiver shall silently
-		 discard the packet and shall not process it any further except for
-		 those cases listed in Section 8.5.1 below.
+         When receiving an SCTP packet, the endpoint MUST ensure that the
+         value in the Verification Tag field of the received SCTP packet
+         matches its own tag.  If the received Verification Tag value does not
+         match the receiver's own tag value, the receiver shall silently
+         discard the packet and shall not process it any further except for
+         those cases listed in Section 8.5.1 below.
 
-		 8.5.1.  Exceptions in Verification Tag Rules
+         8.5.1.  Exceptions in Verification Tag Rules
 
-		 A) Rules for packet carrying INIT:
+         A) Rules for packet carrying INIT:
 
-		 -   The sender MUST set the Verification Tag of the packet to 0.
+         -   The sender MUST set the Verification Tag of the packet to 0.
 
-		 -   When an endpoint receives an SCTP packet with the Verification
-		 Tag set to 0, it should verify that the packet contains only an
-		 INIT chunk.  Otherwise, the receiver MUST silently discard the
-		 packet.
+         -   When an endpoint receives an SCTP packet with the Verification
+         Tag set to 0, it should verify that the packet contains only an
+         INIT chunk.  Otherwise, the receiver MUST silently discard the
+         packet.
 
-		 B) Rules for packet carrying ABORT:
+         B) Rules for packet carrying ABORT:
 
-		 -   The endpoint MUST always fill in the Verification Tag field of
-		 the outbound packet with the destination endpoint's tag value, if
-		 it is known.
+         -   The endpoint MUST always fill in the Verification Tag field of
+         the outbound packet with the destination endpoint's tag value, if
+         it is known.
 
-		 -   If the ABORT is sent in response to an OOTB packet, the endpoint
-		 MUST follow the procedure described in Section 8.4.
-
-
-
-		 Stewart                     Standards Track                   [Page 105]
-
-		 RFC 4960          Stream Control Transmission Protocol    September 2007
+         -   If the ABORT is sent in response to an OOTB packet, the endpoint
+         MUST follow the procedure described in Section 8.4.
 
 
-		 -   The receiver of an ABORT MUST accept the packet if the
-		 Verification Tag field of the packet matches its own tag and the
-		 T bit is not set OR if it is set to its peer's tag and the T bit
-		 is set in the Chunk Flags.  Otherwise, the receiver MUST silently
-		 discard the packet and take no further action.
 
-		 C) Rules for packet carrying SHUTDOWN COMPLETE:
+         Stewart                     Standards Track                   [Page 105]
+ 
+         RFC 4960          Stream Control Transmission Protocol    September 2007
 
-		 -   When sending a SHUTDOWN COMPLETE, if the receiver of the SHUTDOWN
-		 ACK has a TCB, then the destination endpoint's tag MUST be used,
-		 and the T bit MUST NOT be set.  Only where no TCB exists should
-		 the sender use the Verification Tag from the SHUTDOWN ACK, and
-		 MUST set the T bit.
 
-		 -   The receiver of a SHUTDOWN COMPLETE shall accept the packet if
-		 the Verification Tag field of the packet matches its own tag and
-		 the T bit is not set OR if it is set to its peer's tag and the T
-		 bit is set in the Chunk Flags.  Otherwise, the receiver MUST
-		 silently discard the packet and take no further action.  An
-		 endpoint MUST ignore the SHUTDOWN COMPLETE if it is not in the
-		 SHUTDOWN-ACK-SENT state.
+         -   The receiver of an ABORT MUST accept the packet if the
+         Verification Tag field of the packet matches its own tag and the
+         T bit is not set OR if it is set to its peer's tag and the T bit
+         is set in the Chunk Flags.  Otherwise, the receiver MUST silently
+         discard the packet and take no further action.
 
-		 D) Rules for packet carrying a COOKIE ECHO
+         C) Rules for packet carrying SHUTDOWN COMPLETE:
 
-		 -   When sending a COOKIE ECHO, the endpoint MUST use the value of
-		 the Initiate Tag received in the INIT ACK.
+         -   When sending a SHUTDOWN COMPLETE, if the receiver of the SHUTDOWN
+         ACK has a TCB, then the destination endpoint's tag MUST be used,
+         and the T bit MUST NOT be set.  Only where no TCB exists should
+         the sender use the Verification Tag from the SHUTDOWN ACK, and
+         MUST set the T bit.
 
-		 -   The receiver of a COOKIE ECHO follows the procedures in Section
-		 5.
+         -   The receiver of a SHUTDOWN COMPLETE shall accept the packet if
+         the Verification Tag field of the packet matches its own tag and
+         the T bit is not set OR if it is set to its peer's tag and the T
+         bit is set in the Chunk Flags.  Otherwise, the receiver MUST
+         silently discard the packet and take no further action.  An
+         endpoint MUST ignore the SHUTDOWN COMPLETE if it is not in the
+         SHUTDOWN-ACK-SENT state.
 
-		 E) Rules for packet carrying a SHUTDOWN ACK
+         D) Rules for packet carrying a COOKIE ECHO
 
-		 -   If the receiver is in COOKIE-ECHOED or COOKIE-WAIT state the
-		 procedures in Section 8.4 SHOULD be followed; in other words, it
-		 should be treated as an Out Of The Blue packet.
+         -   When sending a COOKIE ECHO, the endpoint MUST use the value of
+         the Initiate Tag received in the INIT ACK.
 
-		 */
+         -   The receiver of a COOKIE ECHO follows the procedures in Section
+         5.
+
+         E) Rules for packet carrying a SHUTDOWN ACK
+
+         -   If the receiver is in COOKIE-ECHOED or COOKIE-WAIT state the
+         procedures in Section 8.4 SHOULD be followed; in other words, it
+         should be treated as an Out Of The Blue packet.
+
+         */
 
         private void reflectedVerify(int cno, Association ass)
         {

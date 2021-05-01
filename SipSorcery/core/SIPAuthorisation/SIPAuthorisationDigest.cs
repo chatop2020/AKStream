@@ -37,6 +37,46 @@ namespace SIPSorcery.SIP
         private const int NONCE_DEFAULT_COUNT = 1;
 
         private static char[] m_headerFieldRemoveChars = new char[] {' ', '"', '\''};
+        public string Algorithhm;
+
+        public string Cnonce; // Client nonce (used with WWW-Authenticate and qop=auth).
+        public string DestinationURL;
+        public string Nonce;
+
+        private int NonceCount = 0; // Client nonce count.
+        public string Opaque;
+        public string Password;
+
+        public string
+            Qop; // Quality of Protection. Values permitted are auth (authentication) and auth-int (authentication with integrity protection).
+
+        public string Realm;
+        public string RequestType;
+        public string Response;
+        public string URI;
+        public string Username;
+
+        public SIPAuthorisationDigest()
+        {
+            AuthorisationType = SIPAuthorisationHeadersEnum.ProxyAuthorization;
+        }
+
+        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType)
+        {
+            AuthorisationType = authorisationType;
+        }
+
+        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType, string realm, string username,
+            string password, string uri, string nonce, string request)
+        {
+            AuthorisationType = authorisationType;
+            Realm = realm;
+            Username = username;
+            Password = password;
+            URI = uri;
+            Nonce = nonce;
+            RequestType = request;
+        }
 
         public SIPAuthorisationHeadersEnum
             AuthorisationType { get; private set; } // This is the type of authorisation request received.
@@ -47,24 +87,6 @@ namespace SIPSorcery.SIP
             get;
             private set;
         } // If this is set it's the type of authorisation response to use otherwise use the same as the request (God knows why you need a different response header?!?)
-
-        public string Realm;
-        public string Username;
-        public string Password;
-        public string DestinationURL;
-        public string URI;
-        public string Nonce;
-        public string RequestType;
-        public string Response;
-        public string Algorithhm;
-
-        public string Cnonce; // Client nonce (used with WWW-Authenticate and qop=auth).
-
-        public string
-            Qop; // Quality of Protection. Values permitted are auth (authentication) and auth-int (authentication with integrity protection).
-
-        private int NonceCount = 0; // Client nonce count.
-        public string Opaque;
 
         public string Digest
         {
@@ -114,16 +136,6 @@ namespace SIPSorcery.SIP
                     null,
                     null);
             }
-        }
-
-        public SIPAuthorisationDigest()
-        {
-            AuthorisationType = SIPAuthorisationHeadersEnum.ProxyAuthorization;
-        }
-
-        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType)
-        {
-            AuthorisationType = authorisationType;
         }
 
         public static SIPAuthorisationDigest ParseAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType,
@@ -200,18 +212,6 @@ namespace SIPSorcery.SIP
             }
 
             return authRequest;
-        }
-
-        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType, string realm, string username,
-            string password, string uri, string nonce, string request)
-        {
-            AuthorisationType = authorisationType;
-            Realm = realm;
-            Username = username;
-            Password = password;
-            URI = uri;
-            Nonce = nonce;
-            RequestType = request;
         }
 
         public void SetCredentials(string username, string password, string uri, string method)

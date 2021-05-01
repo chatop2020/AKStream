@@ -30,141 +30,27 @@ namespace SIPSorcery.SIP.App
     public class SIPServerUserAgent : ISIPServerUserAgent
     {
         private static ILogger logger = Log.Logger;
-
-        private SIPAuthenticateRequestDelegate SIPAuthenticateRequest_External;
         private GetSIPAccountDelegate GetSIPAccount_External;
-
-        private SIPTransport m_sipTransport;
-        private UASInviteTransaction m_uasTransaction;
-
-        private SIPEndPoint
-            m_outboundProxy; // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+        private string m_adminMemberId;
 
         private bool m_isAuthenticated;
         private bool m_isCancelled;
         private bool m_isHungup;
+
+        private SIPEndPoint
+            m_outboundProxy; // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+
         private string m_owner;
-        private string m_adminMemberId;
-        private string m_sipUsername;
-        private string m_sipDomain;
-        private SIPDialogueTransferModesEnum m_transferMode;
-
-        public bool IsB2B
-        {
-            get { return false; }
-        }
-
-        public bool IsInvite
-        {
-            get { return true; }
-        }
-
-        public string Owner
-        {
-            get { return m_owner; }
-        }
-
-        /// <summary>
-        /// Call direction for this user agent.
-        /// </summary>
-        public SIPCallDirection CallDirection { get; private set; } = SIPCallDirection.In;
-
-        /// <summary>
-        /// The SIP dialog that's created if we're able to successfully answer the call request.
-        /// </summary>
-        public SIPDialogue SIPDialogue { get; private set; }
 
         private SIPAccount m_sipAccount;
+        private string m_sipDomain;
 
-        public SIPAccount SIPAccount
-        {
-            get { return m_sipAccount; }
-            set { m_sipAccount = value; }
-        }
+        private SIPTransport m_sipTransport;
+        private string m_sipUsername;
+        private SIPDialogueTransferModesEnum m_transferMode;
+        private UASInviteTransaction m_uasTransaction;
 
-        public bool IsAuthenticated
-        {
-            get { return m_isAuthenticated; }
-            set { m_isAuthenticated = value; }
-        }
-
-        public bool IsCancelled
-        {
-            get { return m_isCancelled; }
-        }
-
-        public SIPRequest CallRequest
-        {
-            get { return m_uasTransaction.TransactionRequest; }
-        }
-
-        public string CallDestination
-        {
-            get { return m_uasTransaction.TransactionRequest.URI.User; }
-        }
-
-        public bool IsUASAnswered
-        {
-            get { return m_uasTransaction != null && m_uasTransaction.TransactionFinalResponse != null; }
-        }
-
-        public bool IsHungup
-        {
-            get { return m_isHungup; }
-        }
-
-        public UASInviteTransaction ClientTransaction
-        {
-            get { return m_uasTransaction; }
-        }
-
-        /// <summary>
-        /// The Session Description Protocol offer from the remote call party.
-        /// </summary>
-        public SDP OfferSDP
-        {
-            get
-            {
-                if (!String.IsNullOrEmpty(m_uasTransaction.TransactionRequest.Body))
-                {
-                    return SDP.ParseSDPDescription(m_uasTransaction.TransactionRequest.Body);
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        /// <summary>
-        /// The caller cancelled the call request.
-        /// </summary>
-        public event SIPUASDelegate CallCancelled;
-
-        /// <summary>
-        /// This end of the call timed out providing a ringing response. This situation can occur for SIP servers.
-        /// They will attempt to forward the call to a SIP account's contacts. If none reply then the will never
-        /// continue past the trying stage.
-        /// </summary>
-        public event SIPUASDelegate NoRingTimeout;
-
-        /// <summary>
-        /// The underlying invite transaction has reached the completed state.
-        /// </summary>
-        public event SIPUASDelegate TransactionComplete;
-
-        /// <summary>
-        /// The underlying invite transaction has changed state.
-        /// </summary>
-        public event SIPUASStateChangedDelegate UASStateChanged;
-
-        /// <summary>
-        /// Gets fired when the call successfully negotiates an SDP offer/answer and creates a new dialog.
-        /// Typically this can occur at the same time as the transaction final response is sent. But in cases
-        /// where the initial INVITE does not contain an SDP offer the dialog will not be created until the 
-        /// ACK is received.
-        /// </summary>
-        public event Action<SIPDialogue> OnDialogueCreated;
+        private SIPAuthenticateRequestDelegate SIPAuthenticateRequest_External;
 
         public SIPServerUserAgent(
             SIPTransport sipTransport,
@@ -190,10 +76,112 @@ namespace SIPSorcery.SIP.App
             m_uasTransaction.TransactionRemoved += new SIPTransactionRemovedDelegate(UASTransaction_TransactionRemoved);
         }
 
-        private void UASTransaction_TransactionRemoved(SIPTransaction sipTransaction)
+        public string Owner
         {
-            TransactionComplete?.Invoke(this);
+            get { return m_owner; }
         }
+
+        public bool IsCancelled
+        {
+            get { return m_isCancelled; }
+        }
+
+        public bool IsHungup
+        {
+            get { return m_isHungup; }
+        }
+
+        /// <summary>
+        /// The Session Description Protocol offer from the remote call party.
+        /// </summary>
+        public SDP OfferSDP
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(m_uasTransaction.TransactionRequest.Body))
+                {
+                    return SDP.ParseSDPDescription(m_uasTransaction.TransactionRequest.Body);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public bool IsB2B
+        {
+            get { return false; }
+        }
+
+        public bool IsInvite
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        /// Call direction for this user agent.
+        /// </summary>
+        public SIPCallDirection CallDirection { get; private set; } = SIPCallDirection.In;
+
+        /// <summary>
+        /// The SIP dialog that's created if we're able to successfully answer the call request.
+        /// </summary>
+        public SIPDialogue SIPDialogue { get; private set; }
+
+        public SIPAccount SIPAccount
+        {
+            get { return m_sipAccount; }
+            set { m_sipAccount = value; }
+        }
+
+        public bool IsAuthenticated
+        {
+            get { return m_isAuthenticated; }
+            set { m_isAuthenticated = value; }
+        }
+
+        public SIPRequest CallRequest
+        {
+            get { return m_uasTransaction.TransactionRequest; }
+        }
+
+        public string CallDestination
+        {
+            get { return m_uasTransaction.TransactionRequest.URI.User; }
+        }
+
+        public bool IsUASAnswered
+        {
+            get { return m_uasTransaction != null && m_uasTransaction.TransactionFinalResponse != null; }
+        }
+
+        public UASInviteTransaction ClientTransaction
+        {
+            get { return m_uasTransaction; }
+        }
+
+        /// <summary>
+        /// The caller cancelled the call request.
+        /// </summary>
+        public event SIPUASDelegate CallCancelled;
+
+        /// <summary>
+        /// This end of the call timed out providing a ringing response. This situation can occur for SIP servers.
+        /// They will attempt to forward the call to a SIP account's contacts. If none reply then the will never
+        /// continue past the trying stage.
+        /// </summary>
+        public event SIPUASDelegate NoRingTimeout;
+
+        /// <summary>
+        /// The underlying invite transaction has reached the completed state.
+        /// </summary>
+        public event SIPUASDelegate TransactionComplete;
+
+        /// <summary>
+        /// The underlying invite transaction has changed state.
+        /// </summary>
+        public event SIPUASStateChangedDelegate UASStateChanged;
 
         public bool LoadSIPAccountForIncomingCall()
         {
@@ -482,17 +470,6 @@ namespace SIPSorcery.SIP.App
             }
         }
 
-        private Task<SocketError> OnAckAnswerReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
-            SIPTransaction sipTransaction, SIPRequest sipRequest)
-        {
-            SIPDialogue = new SIPDialogue(m_uasTransaction);
-            SIPDialogue.TransferMode = m_transferMode;
-
-            OnDialogueCreated?.Invoke(SIPDialogue);
-
-            return Task.FromResult(SocketError.Success);
-        }
-
         public void AnswerNonInvite(SIPResponseStatusCodesEnum answerStatus, string reasonPhrase,
             string[] customHeaders, string contentType, string body)
         {
@@ -583,6 +560,53 @@ namespace SIPSorcery.SIP.App
         public void NoCDR()
         {
             m_uasTransaction.CDR = null;
+        }
+
+        public void SetOwner(string owner, string adminMemberId)
+        {
+            m_owner = owner;
+            m_adminMemberId = adminMemberId;
+
+            if (m_uasTransaction.CDR != null)
+            {
+                m_uasTransaction.CDR.Owner = owner;
+                m_uasTransaction.CDR.AdminMemberId = adminMemberId;
+
+                m_uasTransaction.CDR.Updated();
+            }
+        }
+
+        public void SetDialPlanContextID(Guid dialPlanContextID)
+        {
+            if (m_uasTransaction.CDR != null)
+            {
+                m_uasTransaction.CDR.DialPlanContextID = dialPlanContextID;
+                m_uasTransaction.CDR.Updated();
+            }
+        }
+
+        /// <summary>
+        /// Gets fired when the call successfully negotiates an SDP offer/answer and creates a new dialog.
+        /// Typically this can occur at the same time as the transaction final response is sent. But in cases
+        /// where the initial INVITE does not contain an SDP offer the dialog will not be created until the 
+        /// ACK is received.
+        /// </summary>
+        public event Action<SIPDialogue> OnDialogueCreated;
+
+        private void UASTransaction_TransactionRemoved(SIPTransaction sipTransaction)
+        {
+            TransactionComplete?.Invoke(this);
+        }
+
+        private Task<SocketError> OnAckAnswerReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
+            SIPTransaction sipTransaction, SIPRequest sipRequest)
+        {
+            SIPDialogue = new SIPDialogue(m_uasTransaction);
+            SIPDialogue.TransferMode = m_transferMode;
+
+            OnDialogueCreated?.Invoke(SIPDialogue);
+
+            return Task.FromResult(SocketError.Success);
         }
 
         /// <summary>
@@ -699,29 +723,6 @@ namespace SIPSorcery.SIP.App
             catch (Exception excp)
             {
                 logger.LogError("Exception ClientTimedOut. " + excp.Message);
-            }
-        }
-
-        public void SetOwner(string owner, string adminMemberId)
-        {
-            m_owner = owner;
-            m_adminMemberId = adminMemberId;
-
-            if (m_uasTransaction.CDR != null)
-            {
-                m_uasTransaction.CDR.Owner = owner;
-                m_uasTransaction.CDR.AdminMemberId = adminMemberId;
-
-                m_uasTransaction.CDR.Updated();
-            }
-        }
-
-        public void SetDialPlanContextID(Guid dialPlanContextID)
-        {
-            if (m_uasTransaction.CDR != null)
-            {
-                m_uasTransaction.CDR.DialPlanContextID = dialPlanContextID;
-                m_uasTransaction.CDR.Updated();
             }
         }
 

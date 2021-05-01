@@ -23,6 +23,32 @@ namespace LibSystemInfo
 
         public static NetWorkStat NetWorkStat = new NetWorkStat();
 
+
+        static NetWorkWinValue()
+        {
+            if (File.Exists(binPath))
+            {
+                //Windows下，父亲进程退出后，子进程没有被退出
+                Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(binPath));
+                if (processes.Length > 0)
+                {
+                    foreach (var process in processes)
+                    {
+                        if (process.HasExited == false)
+                        {
+                            process.Kill();
+                        }
+                    }
+                }
+
+                SystemInfoProcessHelper.RunProcess(binPath, "");
+            }
+            else
+            {
+                throw new FileNotFoundException(binPath + " not found.");
+            }
+        }
+
         private static void p_Process_Exited(object sender, EventArgs e)
         {
             SystemInfoProcessHelper.RunProcess(binPath, "");
@@ -32,7 +58,6 @@ namespace LibSystemInfo
         {
             if (e.Data != null)
             {
-             
                 ulong tmpSendBytes = 0;
                 ulong tmpRecvBytes = 0;
                 string[] tmpStrArr = e.Data.Trim().Split("]-[", StringSplitOptions.RemoveEmptyEntries);
@@ -96,32 +121,6 @@ namespace LibSystemInfo
                         }
                     }
                 }
-            }
-        }
-
-
-        static NetWorkWinValue()
-        {
-            if (File.Exists(binPath))
-            {
-                //Windows下，父亲进程退出后，子进程没有被退出
-                Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(binPath));
-                if (processes.Length > 0)
-                {
-                    foreach (var process in processes)
-                    {
-                        if (process.HasExited == false)
-                        {
-                            process.Kill();
-                        }
-                    }
-                }
-
-                SystemInfoProcessHelper.RunProcess(binPath, "");
-            }
-            else
-            {
-                throw new FileNotFoundException(binPath + " not found.");
             }
         }
 

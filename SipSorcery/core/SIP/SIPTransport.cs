@@ -56,62 +56,7 @@ namespace SIPSorcery.SIP
             BlackholeAddress =
                 IPAddress.Any; // (IPAddress.Any is 0.0.0.0) Any SIP messages with this IP address will be dropped.
 
-        /// <summary>
-        /// Set to true to prefer IPv6 lookups of hostnames. By default IPv4 lookups will be performed.
-        /// </summary>
-        public bool PreferIPv6NameResolution = false;
-
         private static ILogger logger = Log.Logger;
-
-        /// <summary>
-        /// Determines whether the transport later will queue incoming requests for processing on a separate thread of process
-        /// immediately on the same thread. Most SIP elements with the exception of Stateless Proxies will typically want to 
-        /// queue incoming SIP messages.
-        /// </summary>
-        private bool m_queueIncoming = true;
-
-        private bool m_transportThreadStarted = false;
-        private ConcurrentQueue<IncomingMessage> m_inMessageQueue = new ConcurrentQueue<IncomingMessage>();
-        private ManualResetEvent m_inMessageArrived = new ManualResetEvent(false);
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
-        private bool m_closed = false;
-
-        /// <summary>
-        /// If true allows this class to attempt to create a new SIP channel if a required protocol
-        /// is missing. Set to false to prevent new channels being created on demand.
-        /// Note that when listening SIP end points are required they will always need to be
-        /// created manually.
-        /// </summary>
-        public bool CanCreateMissingChannels { get; set; } = true;
-
-        /// <summary>
-        /// List of the SIP channels that have been opened and are under management by this instance.
-        /// The dictionary key is channel ID (previously was a serialised SIP end point).
-        /// </summary>
-        private Dictionary<string, SIPChannel> m_sipChannels = new Dictionary<string, SIPChannel>();
-
-        internal SIPTransactionEngine m_transactionEngine;
-
-        /// <summary>
-        /// Default call to do DNS lookups for SIP URI's. Can be replaced for custom scenarios
-        /// and unit testing.
-        /// </summary>
-        internal ResolveSIPUriDelegateAsync ResolveSIPUriInternalAsync;
-
-        internal ResolveSIPUriFromCacheDelegate ResolveSIPUriFromCacheInternal;
-
-        public event SIPTransportRequestAsyncDelegate SIPTransportRequestReceived;
-        public event SIPTransportResponseAsyncDelegate SIPTransportResponseReceived;
-        public event STUNRequestReceivedDelegate STUNRequestReceived;
-
-        public event SIPTransportRequestTraceDelegate SIPRequestInTraceEvent;
-        public event SIPTransportRequestTraceDelegate SIPRequestOutTraceEvent;
-        public event SIPTransportResponseTraceDelegate SIPResponseInTraceEvent;
-        public event SIPTransportResponseTraceDelegate SIPResponseOutTraceEvent;
-        public event SIPTransportSIPBadMessageDelegate SIPBadRequestInTraceEvent;
-        public event SIPTransportSIPBadMessageDelegate SIPBadResponseInTraceEvent;
-        public event SIPTransactionRequestRetransmitDelegate SIPRequestRetransmitTraceEvent;
-        public event SIPTransactionResponseRetransmitDelegate SIPResponseRetransmitTraceEvent;
 
         /// <summary>
         /// If set this host name (or IP address) will be set whenever the transport layer is asked to
@@ -133,6 +78,41 @@ namespace SIPSorcery.SIP
         /// </code>
         /// </summary>
         public string ContactHost;
+
+        private bool m_closed = false;
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
+        private ManualResetEvent m_inMessageArrived = new ManualResetEvent(false);
+        private ConcurrentQueue<IncomingMessage> m_inMessageQueue = new ConcurrentQueue<IncomingMessage>();
+
+        /// <summary>
+        /// Determines whether the transport later will queue incoming requests for processing on a separate thread of process
+        /// immediately on the same thread. Most SIP elements with the exception of Stateless Proxies will typically want to 
+        /// queue incoming SIP messages.
+        /// </summary>
+        private bool m_queueIncoming = true;
+
+        /// <summary>
+        /// List of the SIP channels that have been opened and are under management by this instance.
+        /// The dictionary key is channel ID (previously was a serialised SIP end point).
+        /// </summary>
+        private Dictionary<string, SIPChannel> m_sipChannels = new Dictionary<string, SIPChannel>();
+
+        internal SIPTransactionEngine m_transactionEngine;
+
+        private bool m_transportThreadStarted = false;
+
+        /// <summary>
+        /// Set to true to prefer IPv6 lookups of hostnames. By default IPv4 lookups will be performed.
+        /// </summary>
+        public bool PreferIPv6NameResolution = false;
+
+        internal ResolveSIPUriFromCacheDelegate ResolveSIPUriFromCacheInternal;
+
+        /// <summary>
+        /// Default call to do DNS lookups for SIP URI's. Can be replaced for custom scenarios
+        /// and unit testing.
+        /// </summary>
+        internal ResolveSIPUriDelegateAsync ResolveSIPUriInternalAsync;
 
         /// <summary>
         /// Creates a SIP transport class with default DNS resolver and SIP transaction engine.
@@ -177,6 +157,32 @@ namespace SIPSorcery.SIP
                     SIPResponseRetransmitTraceEvent?.Invoke(tx, resp, count);
             }
         }
+
+        /// <summary>
+        /// If true allows this class to attempt to create a new SIP channel if a required protocol
+        /// is missing. Set to false to prevent new channels being created on demand.
+        /// Note that when listening SIP end points are required they will always need to be
+        /// created manually.
+        /// </summary>
+        public bool CanCreateMissingChannels { get; set; } = true;
+
+        public void Dispose()
+        {
+            Shutdown();
+        }
+
+        public event SIPTransportRequestAsyncDelegate SIPTransportRequestReceived;
+        public event SIPTransportResponseAsyncDelegate SIPTransportResponseReceived;
+        public event STUNRequestReceivedDelegate STUNRequestReceived;
+
+        public event SIPTransportRequestTraceDelegate SIPRequestInTraceEvent;
+        public event SIPTransportRequestTraceDelegate SIPRequestOutTraceEvent;
+        public event SIPTransportResponseTraceDelegate SIPResponseInTraceEvent;
+        public event SIPTransportResponseTraceDelegate SIPResponseOutTraceEvent;
+        public event SIPTransportSIPBadMessageDelegate SIPBadRequestInTraceEvent;
+        public event SIPTransportSIPBadMessageDelegate SIPBadResponseInTraceEvent;
+        public event SIPTransactionRequestRetransmitDelegate SIPRequestRetransmitTraceEvent;
+        public event SIPTransactionResponseRetransmitDelegate SIPResponseRetransmitTraceEvent;
 
         /// <summary>
         /// Adds additional SIP Channels to the transport layer.
@@ -1325,11 +1331,6 @@ namespace SIPSorcery.SIP
         public Task<SIPEndPoint> ResolveSIPUriAsync(SIPURI uri)
         {
             return ResolveSIPUriInternalAsync(uri, PreferIPv6NameResolution, m_cts.Token);
-        }
-
-        public void Dispose()
-        {
-            Shutdown();
         }
     }
 }

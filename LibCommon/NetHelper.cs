@@ -15,6 +15,19 @@ namespace LibCommon
     /// </summary>
     public static class NetHelper
     {
+        /// <summary>
+        /// 不检查证书
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="errors"></param>
+        /// <returns></returns>
+        private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain,
+            SslPolicyErrors errors)
+        {
+            return true; //总是接受
+        }
         //todo:重写
         /*
             用HttpClientFactory重构。 参考:https://www.cnblogs.com/deepthought/p/11303015.html
@@ -550,20 +563,6 @@ namespace LibCommon
         }
 
         #endregion
-
-        /// <summary>
-        /// 不检查证书
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="certificate"></param>
-        /// <param name="chain"></param>
-        /// <param name="errors"></param>
-        /// <returns></returns>
-        private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain,
-            SslPolicyErrors errors)
-        {
-            return true; //总是接受
-        }
 
         #region 下载
 

@@ -8,9 +8,9 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ResZLMediaKitGetMediaList : ReqZLMediaKitRequestBase
     {
+        private string? _app;
         private string? _schema;
         private string? _vhost;
-        private string? _app;
 
         /// <summary>
         /// 协议类型

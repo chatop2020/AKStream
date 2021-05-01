@@ -12,9 +12,8 @@ namespace LibCommon.Structs.GB28181.XML
     [XmlRoot("sipaccounts")]
     public class SipServer : XmlHelper<SipServer>
     {
-        private string _xml = AppDomain.CurrentDomain.BaseDirectory + "Config\\gb28181.xml";
-
         private static SipServer _instance;
+        private string _xml = AppDomain.CurrentDomain.BaseDirectory + "Config\\gb28181.xml";
 
         public static SipServer Instance
         {
@@ -30,20 +29,6 @@ namespace LibCommon.Structs.GB28181.XML
         }
 
         [XmlElement("sipaccount")] public List<Account> Accounts { get; set; }
-
-        /// <summary>
-        /// 账户信息
-        /// </summary>
-        public class Account
-        {
-            [XmlElement("id")] public Guid id { get; set; }
-            [XmlElement("sipusername")] public string sipusername { get; set; }
-            [XmlElement("sippassword")] public string sippassword { get; set; }
-            [XmlElement("sipdomain")] public string sipdomain { get; set; }
-            [XmlElement("owner")] public string owner { get; set; }
-            [XmlElement("localID")] public string localID { get; set; }
-            [XmlElement("localSocket")] public string localSocket { get; set; }
-        }
 
         public new void Save<T>(T t)
         {
@@ -63,6 +48,20 @@ namespace LibCommon.Structs.GB28181.XML
                 writer.Close();
                 writer.Dispose();
             }
+        }
+
+        /// <summary>
+        /// 账户信息
+        /// </summary>
+        public class Account
+        {
+            [XmlElement("id")] public Guid id { get; set; }
+            [XmlElement("sipusername")] public string sipusername { get; set; }
+            [XmlElement("sippassword")] public string sippassword { get; set; }
+            [XmlElement("sipdomain")] public string sipdomain { get; set; }
+            [XmlElement("owner")] public string owner { get; set; }
+            [XmlElement("localID")] public string localID { get; set; }
+            [XmlElement("localSocket")] public string localSocket { get; set; }
         }
     }
 }

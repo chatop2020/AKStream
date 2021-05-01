@@ -5,14 +5,14 @@ namespace LibCommon.Structs
     [Serializable]
     public class CutMergeStruct
     {
-        private long? _dbId;
-        private string? _filePath;
-        private DateTime? _startTime;
-        private DateTime? _endTime;
-        private long? _fileSize;
-        private long? _duration;
-        private string? _cutStartPos;
         private string? _cutEndPos;
+        private string? _cutStartPos;
+        private long? _dbId;
+        private long? _duration;
+        private DateTime? _endTime;
+        private string? _filePath;
+        private long? _fileSize;
+        private DateTime? _startTime;
 
         public long? DbId
         {

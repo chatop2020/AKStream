@@ -53,29 +53,17 @@ namespace SIPSorcery.Media
             new VideoFormat(VideoCodecsEnum.VP8, VP8_SUGGESTED_FORMAT_ID, VIDEO_SAMPLING_RATE)
         };
 
+        private MediaFormatManager<VideoFormat> _formatManager;
+        private int _frameCount;
+
         private int _frameSpacing;
-        private byte[] _testI420Buffer;
-        private Timer _sendTestPatternTimer;
-        private bool _isStarted;
-        private bool _isPaused;
         private bool _isClosed;
         private bool _isMaxFrameRate;
-        private int _frameCount;
+        private bool _isPaused;
+        private bool _isStarted;
+        private Timer _sendTestPatternTimer;
+        private byte[] _testI420Buffer;
         private IVideoEncoder _videoEncoder;
-        private MediaFormatManager<VideoFormat> _formatManager;
-
-        /// <summary>
-        /// Unencoded test pattern samples.
-        /// </summary>
-        public event RawVideoSampleDelegate OnVideoSourceRawSample;
-
-        /// <summary>
-        /// If a video encoder has been set then this event contains the encoded video
-        /// samples.
-        /// </summary>
-        public event EncodedSampleDelegate OnVideoSourceEncodedSample;
-
-        public event SourceErrorDelegate OnVideoSourceError;
 
         public VideoTestPatternSource(IVideoEncoder encoder = null)
         {
@@ -103,11 +91,29 @@ namespace SIPSorcery.Media
             }
         }
 
+        public void Dispose()
+        {
+            _isClosed = true;
+            _sendTestPatternTimer?.Dispose();
+            _videoEncoder?.Dispose();
+        }
+
+        /// <summary>
+        /// Unencoded test pattern samples.
+        /// </summary>
+        public event RawVideoSampleDelegate OnVideoSourceRawSample;
+
+        /// <summary>
+        /// If a video encoder has been set then this event contains the encoded video
+        /// samples.
+        /// </summary>
+        public event EncodedSampleDelegate OnVideoSourceEncodedSample;
+
+        public event SourceErrorDelegate OnVideoSourceError;
+
         public void RestrictFormats(Func<VideoFormat, bool> filter) => _formatManager.RestrictFormats(filter);
         public List<VideoFormat> GetVideoSourceFormats() => _formatManager.GetSourceFormats();
         public void SetVideoSourceFormat(VideoFormat videoFormat) => _formatManager.SetSelectedFormat(videoFormat);
-        public List<VideoFormat> GetVideoSinkFormats() => _formatManager.GetSourceFormats();
-        public void SetVideoSinkFormat(VideoFormat videoFormat) => _formatManager.SetSelectedFormat(videoFormat);
 
         public void ForceKeyFrame() => _videoEncoder?.ForceKeyFrame();
         public bool HasEncodedVideoSubscribers() => OnVideoSourceEncodedSample != null;
@@ -117,10 +123,59 @@ namespace SIPSorcery.Media
             throw new NotImplementedException(
                 "The test pattern video source does not offer any encoding services for external sources.");
 
+        public bool IsVideoSourcePaused() => _isPaused;
+
+        public Task PauseVideo()
+        {
+            _isPaused = true;
+            _sendTestPatternTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            return Task.CompletedTask;
+        }
+
+        public Task ResumeVideo()
+        {
+            _isPaused = false;
+            _sendTestPatternTimer.Change(0, _frameSpacing);
+            return Task.CompletedTask;
+        }
+
+        public Task StartVideo()
+        {
+            if (!_isStarted)
+            {
+                _isStarted = true;
+                if (_isMaxFrameRate)
+                {
+                    GenerateMaxFrames();
+                }
+                else
+                {
+                    _sendTestPatternTimer.Change(0, _frameSpacing);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task CloseVideo()
+        {
+            if (!_isClosed)
+            {
+                _isClosed = true;
+
+                ManualResetEventSlim mre = new ManualResetEventSlim();
+                _sendTestPatternTimer?.Dispose(mre.WaitHandle);
+                return Task.Run(() => mre.Wait(TIMER_DISPOSE_WAIT_MILLISECONDS));
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public List<VideoFormat> GetVideoSinkFormats() => _formatManager.GetSourceFormats();
+        public void SetVideoSinkFormat(VideoFormat videoFormat) => _formatManager.SetSelectedFormat(videoFormat);
+
         public Task<bool> InitialiseVideoSourceDevice() =>
             throw new NotImplementedException("The test pattern video source does not use a device.");
-
-        public bool IsVideoSourcePaused() => _isPaused;
 
         //public void SetEmbeddedTestPatternPath(string path)
         //{
@@ -204,52 +259,6 @@ namespace SIPSorcery.Media
                     }
                 }
             }
-        }
-
-        public Task PauseVideo()
-        {
-            _isPaused = true;
-            _sendTestPatternTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            return Task.CompletedTask;
-        }
-
-        public Task ResumeVideo()
-        {
-            _isPaused = false;
-            _sendTestPatternTimer.Change(0, _frameSpacing);
-            return Task.CompletedTask;
-        }
-
-        public Task StartVideo()
-        {
-            if (!_isStarted)
-            {
-                _isStarted = true;
-                if (_isMaxFrameRate)
-                {
-                    GenerateMaxFrames();
-                }
-                else
-                {
-                    _sendTestPatternTimer.Change(0, _frameSpacing);
-                }
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public Task CloseVideo()
-        {
-            if (!_isClosed)
-            {
-                _isClosed = true;
-
-                ManualResetEventSlim mre = new ManualResetEventSlim();
-                _sendTestPatternTimer?.Dispose(mre.WaitHandle);
-                return Task.Run(() => mre.Wait(TIMER_DISPOSE_WAIT_MILLISECONDS));
-            }
-
-            return Task.CompletedTask;
         }
 
         //private void LoadI420Buffer(Bitmap bitmap)
@@ -422,13 +431,6 @@ namespace SIPSorcery.Media
                     i420Buffer[y * width + x] = (byte) (frameNumber % 255);
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _isClosed = true;
-            _sendTestPatternTimer?.Dispose();
-            _videoEncoder?.Dispose();
         }
     }
 }

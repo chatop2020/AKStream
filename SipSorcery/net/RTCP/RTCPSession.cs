@@ -68,6 +68,30 @@ namespace SIPSorcery.Net
         private static DateTime UtcEpoch2036 = new DateTime(2036, 2, 7, 6, 28, 16, DateTimeKind.Utc);
         private static DateTime UtcEpoch1900 = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+        private uint
+            m_previousPacketsSentCount =
+                0; // Used to track whether we have sent any packets since the last report was sent.
+
+        private ReceptionReport m_receptionReport;
+
+        /// <summary>
+        /// Time to schedule the delivery of RTCP reports.
+        /// </summary>
+        private Timer m_rtcpReportTimer;
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="mediaType">The media type this reporting session will be measuring.</param>
+        /// <param name="ssrc">The SSRC of the RTP stream being sent.</param>
+        public RTCPSession(SDPMediaTypesEnum mediaType, uint ssrc)
+        {
+            MediaType = mediaType;
+            Ssrc = ssrc;
+            CreatedAt = DateTime.Now;
+            Cname = Guid.NewGuid().ToString();
+        }
+
         /// <summary>
         /// The media type this report session is measuring.
         /// </summary>
@@ -153,17 +177,6 @@ namespace SIPSorcery.Net
         public bool IsClosed { get; private set; } = false;
 
         /// <summary>
-        /// Time to schedule the delivery of RTCP reports.
-        /// </summary>
-        private Timer m_rtcpReportTimer;
-
-        private ReceptionReport m_receptionReport;
-
-        private uint
-            m_previousPacketsSentCount =
-                0; // Used to track whether we have sent any packets since the last report was sent.
-
-        /// <summary>
         /// Event handler for sending RTCP reports.
         /// </summary>
         internal event Action<SDPMediaTypesEnum, RTCPCompoundPacket> OnReportReadyToSend;
@@ -173,19 +186,6 @@ namespace SIPSorcery.Net
         /// receiving any RTP or RTCP packets within the given period.
         /// </summary>
         internal event Action<SDPMediaTypesEnum> OnTimeout;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="mediaType">The media type this reporting session will be measuring.</param>
-        /// <param name="ssrc">The SSRC of the RTP stream being sent.</param>
-        public RTCPSession(SDPMediaTypesEnum mediaType, uint ssrc)
-        {
-            MediaType = mediaType;
-            Ssrc = ssrc;
-            CreatedAt = DateTime.Now;
-            Cname = Guid.NewGuid().ToString();
-        }
 
         public void Start()
         {

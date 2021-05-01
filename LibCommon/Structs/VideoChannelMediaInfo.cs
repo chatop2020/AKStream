@@ -24,7 +24,7 @@ namespace LibCommon.Structs
         /// <summary>
         /// 流来源类型
         /// </summary>
-       [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(StringEnumConverter))]
         public StreamSourceType? StreamSourceType
         {
             get => _streamSourceType;

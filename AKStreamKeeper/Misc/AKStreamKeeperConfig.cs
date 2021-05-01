@@ -9,23 +9,23 @@ namespace AKStreamKeeper.Misc
     [Serializable]
     public class AKStreamKeeperConfig
     {
+        private string _accessKey;
+        private string _akStreamWebRegisterUrl;
+        private List<string> _customRecordPathList;
+        private string? _cutMergeFilePath;
+        private bool _disableShell;
+        private string _ffmpegPath;
+        private int _httpClientTimeoutSec;
         private string _ipV4Address;
         private string _ipV6Address;
-        private ushort _webApiPort;
-        private string _mediaServerPath;
-        private string _akStreamWebRegisterUrl;
-        private string? _cutMergeFilePath;
-        private List<string> _customRecordPathList;
-        private bool _useSSL = false;
-        private ushort _minRtpPort = 10001;
         private ushort _maxRtpPort = 30000;
+        private string _mediaServerPath;
+        private ushort _minRtpPort = 10001;
         private bool _randomPort = false;
         private int? _recordSec = 120;
-        private string _ffmpegPath;
-        private string _accessKey;
         private int _rtpPortCDTime;
-        private int _httpClientTimeoutSec;
-        private bool _disableShell;
+        private bool _useSSL = false;
+        private ushort _webApiPort;
 
 
         /// <summary>

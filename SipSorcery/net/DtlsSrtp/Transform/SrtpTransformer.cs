@@ -45,15 +45,14 @@ namespace SIPSorcery.Net
 {
     public class SrtpTransformer : IPacketTransformer
     {
-        private RawPacket rawPacket;
-
-        private SrtpTransformEngine forwardEngine;
-        private SrtpTransformEngine reverseEngine;
-
         /**
 	     * All the known SSRC's corresponding SRTPCryptoContexts
 	     */
         private Dictionary<long, SrtpCryptoContext> contexts;
+
+        private SrtpTransformEngine forwardEngine;
+        private RawPacket rawPacket;
+        private SrtpTransformEngine reverseEngine;
 
         public SrtpTransformer(SrtpTransformEngine engine) : this(engine, engine)
         {

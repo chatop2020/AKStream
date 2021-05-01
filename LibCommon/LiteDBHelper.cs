@@ -13,18 +13,6 @@ namespace LibCommon
         /// </summary>
         private LiteDatabase _liteDb;
 
-      //  private LiteDatabase _liteDBForRecord;
-
-        /// <summary>
-        /// 所有的VideoChannelMediaInfo列表。
-        /// </summary>
-        public LiteCollection<VideoChannelMediaInfo> VideoOnlineInfo { get; set; }
-
-       // public LiteCollection<VideoChannelRecordInfo> VideoChannelRecordInfo { get; set; }
-
-        
-      
-
         /// <summary>
         /// 创建一个LiteDB对象，有一个参数表明对应的文件路径。
         /// </summary>
@@ -32,14 +20,8 @@ namespace LibCommon
         public LiteDBHelper(string dbpath = "AKStream.ldb")
         {
             _liteDb = new LiteDatabase(dbpath);
-          //  string dbpathForRecord = "AKStreamRecord.ldb";
-          //  _liteDBForRecord = new LiteDatabase(dbpathForRecord);
             VideoOnlineInfo =
                 (LiteCollection<VideoChannelMediaInfo>) _liteDb.GetCollection<VideoChannelMediaInfo>("VideoOnlineInfo");
-            
-            /*VideoChannelRecordInfo =
-                (LiteCollection<VideoChannelRecordInfo>) _liteDBForRecord.GetCollection<VideoChannelRecordInfo>(
-                    "VideoRecordInfo");*/
             BsonMapper.Global.RegisterType<IPAddress>
             (
                 serialize: (ip) => ip.ToString(),
@@ -51,5 +33,10 @@ namespace LibCommon
                 deserialize: (bson) => (StreamSourceType) Enum.Parse(typeof(StreamSourceType), bson)
             );
         }
+
+        /// <summary>
+        /// 所有的VideoChannelMediaInfo列表。
+        /// </summary>
+        public LiteCollection<VideoChannelMediaInfo> VideoOnlineInfo { get; set; }
     }
 }

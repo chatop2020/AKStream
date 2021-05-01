@@ -5,14 +5,14 @@ namespace AKStreamWeb.Misc
     [Serializable]
     public class AKStreamWebConfig
     {
+        private string _accessKey;
+        private string _dbType;
+        private int _httpClientTimeoutSec;
         private bool _mediaServerFirstToRestart = true;
         private string _ormConnStr;
-        private string _dbType;
-        private ushort _webApiPort = 5800;
-        private string _accessKey;
-        private int _httpClientTimeoutSec;
         private int _waitEventTimeOutMSec = 10000;
         private int _waitSipRequestTimeOutMSec = 5000;
+        private ushort _webApiPort = 5800;
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver

@@ -11,9 +11,9 @@ namespace LibCommon
     public class ResponseStruct
     {
         private ErrorNumber _code;
-        private string _message = null!;
         private string? _exceptMessage = null!;
         private string? _exceptStackTrace = null!;
+        private string _message = null!;
 
 
         /// <summary>

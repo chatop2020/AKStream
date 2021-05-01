@@ -41,17 +41,17 @@ namespace SIPSorcery.SIP
                 SIPConstants.CRLF + SIPConstants.CRLF; // The delimiting character sequence for messages in a stream.
 
         private static ILogger logger = Log.Logger;
-
-        public string RawMessage;
-        public SIPMessageTypesEnum SIPMessageType = SIPMessageTypesEnum.Unknown;
-        public string FirstLine;
-        public string[] SIPHeaders;
         public string Body;
-        public byte[] RawBuffer;
 
         public DateTime Created = DateTime.Now;
-        public SIPEndPoint RemoteSIPEndPoint; // The remote IP socket the message was received from or sent to.
+        public string FirstLine;
         public SIPEndPoint LocalSIPEndPoint; // The local SIP socket the message was received on or sent from.
+        public byte[] RawBuffer;
+
+        public string RawMessage;
+        public SIPEndPoint RemoteSIPEndPoint; // The remote IP socket the message was received from or sent to.
+        public string[] SIPHeaders;
+        public SIPMessageTypesEnum SIPMessageType = SIPMessageTypesEnum.Unknown;
 
         /// <summary>
         /// byte数组转string
@@ -95,7 +95,7 @@ namespace SIPSorcery.SIP
                 }
                 else
                 {
-                    message = ByteToStr(buffer,Encoding.GetEncoding("utf-8"));
+                    message = ByteToStr(buffer, Encoding.GetEncoding("utf-8"));
                     if (message.ToUpper().Contains("ENCODING=\"GBK\"")
                         || message.ToUpper().Contains("ENCODING=\"GB2312\""))
                     {

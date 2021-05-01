@@ -9,30 +9,30 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqMediaServerKeepAlive
     {
+        private string _accessKey;
+        private bool _firstPost = false;
         private string _ipV4Address;
         private string _ipV6Address;
         private ushort _keeperWebApiPort;
-        private string _secret;
         private string _mediaServerId;
+        private bool _mediaServerIsRunning = false;
         private int _mediaServerPid;
+        private PerformanceInfo? _performanceInfo;
+        private bool _randomPort;
         private List<KeyValuePair<double, string>> _recordPathList;
-        private ushort _rtpPortMin;
         private ushort _rtpPortMax; //仅使用min-max中的偶数类端口
+        private ushort _rtpPortMin;
+        private string _secret;
+        private DateTime _serverDateTime; //流媒体服务器当前时间
+        private bool _useSsl;
+        private string _version;
         private ushort _zlmHttpPort;
         private ushort _zlmHttpsPort;
-        private bool _randomPort;
-        private ushort _zlmRtspPort;
-        private ushort _zlmRtmpPort;
-        private ushort _zlmRtspsPort;
-        private ushort _zlmRtmpsPort;
         private uint _zlmRecordFileSec;
-        private bool _useSsl;
-        private DateTime _serverDateTime; //流媒体服务器当前时间
-        private PerformanceInfo? _performanceInfo;
-        private bool _firstPost = false;
-        private string _accessKey;
-        private bool _mediaServerIsRunning = false;
-        private string _version;
+        private ushort _zlmRtmpPort;
+        private ushort _zlmRtmpsPort;
+        private ushort _zlmRtspPort;
+        private ushort _zlmRtspsPort;
 
 
         /// <summary>

@@ -51,10 +51,18 @@ namespace SIPSorcery.Net
         private static ILogger logger = Log.Logger;
 
         private readonly Socket m_udpSocket;
-        private byte[] m_recvBuffer;
+        private AddressFamily m_addressFamily;
         private bool m_isClosed;
         private IPEndPoint m_localEndPoint;
-        private AddressFamily m_addressFamily;
+        private byte[] m_recvBuffer;
+
+        public UdpReceiver(Socket udpSocket)
+        {
+            m_udpSocket = udpSocket;
+            m_localEndPoint = m_udpSocket.LocalEndPoint as IPEndPoint;
+            m_recvBuffer = new byte[RECEIVE_BUFFER_SIZE];
+            m_addressFamily = m_udpSocket.LocalEndPoint.AddressFamily;
+        }
 
         /// <summary>
         /// Fires when a new packet has been received on the UDP socket.
@@ -65,14 +73,6 @@ namespace SIPSorcery.Net
         /// Fires when there is an error attempting to receive on the UDP socket.
         /// </summary>
         public event Action<string> OnClosed;
-
-        public UdpReceiver(Socket udpSocket)
-        {
-            m_udpSocket = udpSocket;
-            m_localEndPoint = m_udpSocket.LocalEndPoint as IPEndPoint;
-            m_recvBuffer = new byte[RECEIVE_BUFFER_SIZE];
-            m_addressFamily = m_udpSocket.LocalEndPoint.AddressFamily;
-        }
 
         /// <summary>
         /// Starts the receive. This method returns immediately. An event will be fired in the corresponding "End" event to
@@ -200,11 +200,42 @@ namespace SIPSorcery.Net
     public class RTPChannel : IDisposable
     {
         private static ILogger logger = Log.Logger;
-        protected UdpReceiver m_rtpReceiver;
-        private Socket m_controlSocket;
         protected UdpReceiver m_controlReceiver;
-        private bool m_started = false;
+        private Socket m_controlSocket;
         private bool m_isClosed;
+        protected UdpReceiver m_rtpReceiver;
+        private bool m_started = false;
+
+        /// <summary>
+        /// Creates a new RTP channel. The RTP and optionally RTCP sockets will be bound in the constructor.
+        /// They do not start receiving until the Start method is called.
+        /// </summary>
+        /// <param name="createControlSocket">Set to true if a separate RTCP control socket should be created. If RTP and
+        /// RTCP are being multiplexed (as they are for WebRTC) there's no need to a separate control socket.</param>
+        /// <param name="bindAddress">Optional. An IP address belonging to a local interface that will be used to bind
+        /// the RTP and control sockets to. If left empty then the IPv6 any address will be used if IPv6 is supported
+        /// and fallback to the IPv4 any address.</param>
+        /// <param name="bindPort">Optional. The specific port to attempt to bind the RTP port on.</param>
+        public RTPChannel(bool createControlSocket, IPAddress bindAddress, int bindPort = 0)
+        {
+            NetServices.CreateRtpSocket(createControlSocket, bindAddress, bindPort, out var rtpSocket,
+                out m_controlSocket);
+
+            if (rtpSocket == null)
+            {
+                throw new ApplicationException("The RTP channel was not able to create an RTP socket.");
+            }
+            else if (createControlSocket && m_controlSocket == null)
+            {
+                throw new ApplicationException("The RTP channel was not able to create a Control socket.");
+            }
+
+            RtpSocket = rtpSocket;
+            RTPLocalEndPoint = RtpSocket.LocalEndPoint as IPEndPoint;
+            RTPPort = RTPLocalEndPoint.Port;
+            ControlLocalEndPoint = (m_controlSocket != null) ? m_controlSocket.LocalEndPoint as IPEndPoint : null;
+            ControlPort = (m_controlSocket != null) ? ControlLocalEndPoint.Port : 0;
+        }
 
         public Socket RtpSocket { get; private set; }
 
@@ -264,40 +295,14 @@ namespace SIPSorcery.Net
             get { return m_isClosed; }
         }
 
+        public void Dispose()
+        {
+            Close(null);
+        }
+
         public event Action<int, IPEndPoint, byte[]> OnRTPDataReceived;
         public event Action<int, IPEndPoint, byte[]> OnControlDataReceived;
         public event Action<string> OnClosed;
-
-        /// <summary>
-        /// Creates a new RTP channel. The RTP and optionally RTCP sockets will be bound in the constructor.
-        /// They do not start receiving until the Start method is called.
-        /// </summary>
-        /// <param name="createControlSocket">Set to true if a separate RTCP control socket should be created. If RTP and
-        /// RTCP are being multiplexed (as they are for WebRTC) there's no need to a separate control socket.</param>
-        /// <param name="bindAddress">Optional. An IP address belonging to a local interface that will be used to bind
-        /// the RTP and control sockets to. If left empty then the IPv6 any address will be used if IPv6 is supported
-        /// and fallback to the IPv4 any address.</param>
-        /// <param name="bindPort">Optional. The specific port to attempt to bind the RTP port on.</param>
-        public RTPChannel(bool createControlSocket, IPAddress bindAddress, int bindPort = 0)
-        {
-            NetServices.CreateRtpSocket(createControlSocket, bindAddress, bindPort, out var rtpSocket,
-                out m_controlSocket);
-
-            if (rtpSocket == null)
-            {
-                throw new ApplicationException("The RTP channel was not able to create an RTP socket.");
-            }
-            else if (createControlSocket && m_controlSocket == null)
-            {
-                throw new ApplicationException("The RTP channel was not able to create a Control socket.");
-            }
-
-            RtpSocket = rtpSocket;
-            RTPLocalEndPoint = RtpSocket.LocalEndPoint as IPEndPoint;
-            RTPPort = RTPLocalEndPoint.Port;
-            ControlLocalEndPoint = (m_controlSocket != null) ? m_controlSocket.LocalEndPoint as IPEndPoint : null;
-            ControlPort = (m_controlSocket != null) ? ControlLocalEndPoint.Port : 0;
-        }
 
         /// <summary>
         /// Starts listening on the RTP and control ports.
@@ -490,11 +495,6 @@ namespace SIPSorcery.Net
         }
 
         protected virtual void Dispose(bool disposing)
-        {
-            Close(null);
-        }
-
-        public void Dispose()
         {
             Close(null);
         }

@@ -17,7 +17,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static string GetVersion(string mediaServerId, out ResponseStruct rs)
         {
-             rs = new ResponseStruct()
+            rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
@@ -76,6 +76,7 @@ namespace AKStreamWeb.Services
 
             return ret;
         }
+
         /// <summary>
         /// 添加一个裁剪合并任务
         /// </summary>

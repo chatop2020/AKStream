@@ -8,8 +8,8 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqGetRecordPlan
     {
-        private string? _mediaServerId;
         private string? _mainId;
+        private string? _mediaServerId;
 
         /// <summary>
         /// 流媒体服务器ID

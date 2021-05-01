@@ -33,18 +33,13 @@ namespace SIPSorcery.Net
         private static ILogger logger = Log.Logger;
 
         /// <summary>
-        /// For parsed STUN messages this indicates whether a valid fingerprint
-        /// as attached to the message.
-        /// </summary>
-        public bool isFingerprintValid { get; private set; } = false;
-
-        /// <summary>
         /// For received STUN messages this is the raw buffer.
         /// </summary>
         private byte[] _receivedBuffer;
 
-        public STUNHeader Header = new STUNHeader();
         public List<STUNAttribute> Attributes = new List<STUNAttribute>();
+
+        public STUNHeader Header = new STUNHeader();
 
         public STUNMessage()
         {
@@ -54,6 +49,12 @@ namespace SIPSorcery.Net
         {
             Header = new STUNHeader(stunMessageType);
         }
+
+        /// <summary>
+        /// For parsed STUN messages this indicates whether a valid fingerprint
+        /// as attached to the message.
+        /// </summary>
+        public bool isFingerprintValid { get; private set; } = false;
 
         public void AddUsernameAttribute(string username)
         {

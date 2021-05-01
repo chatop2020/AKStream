@@ -45,16 +45,16 @@ namespace SIPSorcery.SIP
             EXPIRED_FAILED_PERIOD_SECONDS =
                 5; // Period at which to check the failed send list and remove expired items.
 
-        private readonly Socket m_udpSocket;
-        private byte[] m_recvBuffer;
-        private CancellationTokenSource m_cts;
-
         /// <summary>
         /// Keep a list of transient send failures to remote end points. With UDP a failure is detected if an ICMP packet is received 
         /// on a receive.
         /// </summary>
         private static ConcurrentDictionary<IPEndPoint, DateTime> m_sendFailures =
             new ConcurrentDictionary<IPEndPoint, DateTime>();
+
+        private readonly Socket m_udpSocket;
+        private CancellationTokenSource m_cts;
+        private byte[] m_recvBuffer;
 
         /// <summary>
         /// Creates a SIP channel to listen for and send SIP messages over UDP.

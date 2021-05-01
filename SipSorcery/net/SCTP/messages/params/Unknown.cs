@@ -28,8 +28,8 @@ namespace SIPSorcery.Net.Sctp
     public class Unknown : VariableParam
     {
         protected byte[] _data;
-        protected int _type;
         protected string _name;
+        protected int _type;
 
         public Unknown(int t, string n)
         {

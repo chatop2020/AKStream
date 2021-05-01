@@ -82,8 +82,6 @@ namespace SIPSorcery.Net.Sctp
     /// </remarks>
     public class DataChunk : Chunk, IComparer<DataChunk>, IComparable<DataChunk>
     {
-        private static ILogger logger = Log.Logger;
-
         public const int WEBRTCCONTROL = 50;
         public const int WEBRTCstring = 51;
         public const int WEBRTCBINARY = 53;
@@ -95,21 +93,22 @@ namespace SIPSorcery.Net.Sctp
         public const int ENDFLAG = 1;
         public const int SINGLEFLAG = 3;
         public const int UNORDERED = 4;
-
-        private uint _tsn;
-        private int _streamId;
-        private int _sSeqNo;
-        private int _ppid;
+        private static ILogger logger = Log.Logger;
         private byte[] _data;
-        private int _dataOffset;
         private int _dataLength;
+        private int _dataOffset;
+        private bool _gapAck;
+        private InvalidDataChunkException _invalid;
 
         private DataChannelOpen _open;
-        private InvalidDataChunkException _invalid;
-        private bool _gapAck;
-        private long _retryTime;
+        private int _ppid;
         private int _retryCount;
+        private long _retryTime;
         private long _sentTime;
+        private int _sSeqNo;
+        private int _streamId;
+
+        private uint _tsn;
 
         public DataChunk(byte flags, int length, ByteBuffer pkt) : base(ChunkType.DATA, flags, length, pkt)
         {
@@ -169,6 +168,21 @@ namespace SIPSorcery.Net.Sctp
             }
         }
 
+        public DataChunk() : base(ChunkType.DATA)
+        {
+            setFlags(0); // default assumption.
+        }
+
+        public int CompareTo(DataChunk o)
+        {
+            return Compare(this, o);
+        }
+
+        public int Compare(DataChunk o1, DataChunk o2)
+        {
+            return (int) (o1._tsn - o2._tsn);
+        }
+
         public string getDataAsString()
         {
             string ret;
@@ -205,11 +219,6 @@ namespace SIPSorcery.Net.Sctp
             {
                 throw _invalid;
             }
-        }
-
-        public DataChunk() : base(ChunkType.DATA)
-        {
-            setFlags(0); // default assumption.
         }
 
         public uint getTsn()
@@ -392,16 +401,6 @@ namespace SIPSorcery.Net.Sctp
         public long getRetryTime()
         {
             return _retryTime;
-        }
-
-        public int CompareTo(DataChunk o)
-        {
-            return Compare(this, o);
-        }
-
-        public int Compare(DataChunk o1, DataChunk o2)
-        {
-            return (int) (o1._tsn - o2._tsn);
         }
 
         public long getSentTime()

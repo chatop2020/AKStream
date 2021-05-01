@@ -12,7 +12,6 @@ namespace LibCommon
 {
     public static class GCommon
     {
-
         private static LiteDBHelper _ldb = new LiteDBHelper();
         private static List<VideoChannelRecordInfo> _videoChannelRecordInfo = new List<VideoChannelRecordInfo>();
         public static string BaseStartPath = Environment.CurrentDirectory; //程序启动的目录
@@ -25,6 +24,25 @@ namespace LibCommon
         public static string? CommandLine = Environment.CommandLine; //程序启动命令
         public static string ConfigPath = BaseStartPath + "/Config/";
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
+
+
+        static GCommon()
+        {
+            //使用CodePagesEncodingProvider去注册扩展编码,以支持utf-x以外的字符集
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            if (!Directory.Exists(ConfigPath)) //如果配置文件目录不存在，则创建目录
+            {
+                Directory.CreateDirectory(ConfigPath);
+            }
+
+            if (!Directory.Exists(TmpPicsPath))
+            {
+                Directory.CreateDirectory(TmpPicsPath);
+            }
+
+            //初始化错误代码
+            ErrorMessage.Init();
+        }
 
         public static LiteDBHelper Ldb
         {
@@ -111,24 +129,5 @@ namespace LibCommon
         public delegate string DeviceAuthentication(string sipDeviceId);
 
         #endregion
-
-
-        static GCommon()
-        {
-            //使用CodePagesEncodingProvider去注册扩展编码,以支持utf-x以外的字符集
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            if (!Directory.Exists(ConfigPath)) //如果配置文件目录不存在，则创建目录
-            {
-                Directory.CreateDirectory(ConfigPath);
-            }
-
-            if (!Directory.Exists(TmpPicsPath))
-            {
-                Directory.CreateDirectory(TmpPicsPath);
-            }
-
-            //初始化错误代码
-            ErrorMessage.Init();
-        }
     }
 }

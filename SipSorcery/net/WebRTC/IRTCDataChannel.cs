@@ -129,6 +129,8 @@ namespace SIPSorcery.Net
         /// </summary>
         ulong bufferedAmountLowThreshold { get; set; }
 
+        string binaryType { get; set; }
+
         /// <summary>
         /// The RTCDataChannel object's underlying data transport has been established (or re-established).
         /// </summary>
@@ -146,8 +148,6 @@ namespace SIPSorcery.Net
         /// A message was successfully received.
         /// </summary>
         event Action<string> onmessage;
-
-        string binaryType { get; set; }
 
         void send(string data);
 

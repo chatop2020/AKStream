@@ -49,17 +49,17 @@ namespace SIPSorcery.Net.Sctp
 		 */
 
         private static ILogger logger = Log.Logger;
-
-        long _initiateTag;
         uint _adRecWinCredit;
-        int _numOutStreams;
-        int _numInStreams;
-        uint _initialTSN;
-        byte[] _farSupportedExtensions;
-        byte[] _farRandom;
+        byte[] _farChunks;
         bool _farForwardTSNsupported;
         byte[] _farHmacs;
-        byte[] _farChunks;
+        byte[] _farRandom;
+        byte[] _farSupportedExtensions;
+        uint _initialTSN;
+
+        long _initiateTag;
+        int _numInStreams;
+        int _numOutStreams;
         public int _outStreams;
 
         public InitChunk() : base(ChunkType.INIT)

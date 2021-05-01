@@ -5,8 +5,8 @@ namespace LibCommon.Structs
     [Serializable]
     public class PortInfo
     {
-        private ushort _port;
         private DateTime _dateTime;
+        private ushort _port;
         private bool _useed;
 
         public ushort Port

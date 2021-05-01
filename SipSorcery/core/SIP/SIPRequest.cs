@@ -24,31 +24,17 @@ namespace SIPSorcery.SIP
     /// </summary>
     public class SIPRequest : SIPMessageBase
     {
-        private delegate bool IsLocalSIPSocketDelegate(string socket, SIPProtocolsEnum protocol);
+        public SIPMethodsEnum Method;
+
+        public SIPRoute ReceivedRoute;
 
         public string SIPVersion = m_sipFullVersion;
-        public SIPMethodsEnum Method;
         public string UnknownMethod = null;
 
         /// <summary>
         /// The SIP request's URI.
         /// </summary>
-      
         public SIPURI URI;
-
-        public SIPRoute ReceivedRoute;
-
-        /// <summary>
-        /// The first line of the SIP request.
-        /// </summary>
-        public string StatusLine
-        {
-            get
-            {
-                string methodStr = (Method != SIPMethodsEnum.UNKNOWN) ? Method.ToString() : UnknownMethod;
-                return methodStr + " " + URI.ToString() + " " + SIPVersion;
-            }
-        }
 
         private SIPRequest()
         {
@@ -66,6 +52,18 @@ namespace SIPSorcery.SIP
             Method = method;
             URI = uri;
             SIPVersion = m_sipFullVersion;
+        }
+
+        /// <summary>
+        /// The first line of the SIP request.
+        /// </summary>
+        public string StatusLine
+        {
+            get
+            {
+                string methodStr = (Method != SIPMethodsEnum.UNKNOWN) ? Method.ToString() : UnknownMethod;
+                return methodStr + " " + URI.ToString() + " " + SIPVersion;
+            }
         }
 
         public static SIPRequest ParseSIPRequest(SIPMessageBuffer sipMessage)
@@ -312,5 +310,7 @@ namespace SIPSorcery.SIP
 
             return request;
         }
+
+        private delegate bool IsLocalSIPSocketDelegate(string socket, SIPProtocolsEnum protocol);
     }
 }

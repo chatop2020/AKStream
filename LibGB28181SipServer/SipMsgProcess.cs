@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,113 +22,6 @@ namespace LibGB28181SipServer
     /// </summary>
     public static class SipMsgProcess
     {
-        #region 各类事件
-
-        /// <summary>
-        /// sip服务状态
-        /// </summary>
-        public static event Action<string, ServiceStatus> OnServiceChanged = null!;
-
-        /// <summary>
-        /// 录像文件接收
-        /// </summary>
-        public static event Action<RecordInfo> OnRecordInfoReceived = null!;
-
-        /// <summary>
-        /// 设备目录接收
-        /// </summary>
-        public static event GCommon.CatalogReceived OnCatalogReceived = null!;
-
-        /// <summary>
-        /// 设备目录通知
-        /// </summary>
-        public static event Action<NotifyCatalog> OnNotifyCatalogReceived = null!;
-
-        /// <summary>
-        /// 语音广播通知
-        /// </summary>
-        public static event Action<VoiceBroadcastNotify> OnVoiceBroadcaseReceived = null!;
-
-        /// <summary>
-        /// 报警通知
-        /// </summary>
-        public static event Action<Alarm> OnAlarmReceived = null!;
-
-        /// <summary>
-        /// 平台之间心跳接收
-        /// </summary>
-        public static event GCommon.KeepaliveReceived OnKeepaliveReceived = null!;
-
-
-        /// <summary>
-        /// 设备就绪通知，当设备准备好的时候触发
-        /// </summary>
-        public static event GCommon.SipDeviceReadyReceived OnDeviceReadyReceived = null;
-
-        /// <summary>
-        /// 设备状态查询接收
-        /// </summary>
-        public static event GCommon.DeviceStatusReceived OnDeviceStatusReceived = null;
-
-        /// <summary>
-        /// 点播完成或结束事件
-        /// </summary>
-        public static event GCommon.InviteHistroyVideoFinished OnInviteHistoryVideoFinished = null;
-
-        /// <summary>
-        /// 设备信息查询接收
-        /// </summary>
-        public static event GCommon.DeviceInfoReceived OnDeviceInfoReceived = null;
-
-
-        /// <summary>
-        /// 设备配置查询接收
-        /// </summary>
-        public static event Action<SIPEndPoint, DeviceConfigDownload> OnDeviceConfigDownloadReceived = null!;
-
-        /// <summary>
-        /// 历史媒体发送结束接收
-        /// </summary>
-        public static event Action<SIPEndPoint, MediaStatus> OnMediaStatusReceived = null!;
-
-        /// <summary>
-        /// 响应状态码接收
-        /// </summary>
-        public static event Action<SIPResponse, string, SIPEndPoint> OnResponseCodeReceived = null!;
-
-        /// <summary>
-        /// 响应状态码接收
-        /// </summary>
-        public static event Action<SIPResponse, SIPRequest, string, SIPEndPoint> OnResponseNeedResponeReceived = null!;
-
-        /// <summary>
-        /// 预置位查询接收
-        /// </summary>,
-        public static event Action<SIPEndPoint, PresetInfo> OnPresetQueryReceived = null!;
-
-        /// <summary>
-        /// 设备注册时
-        /// </summary>
-        public static event GCommon.RegisterDelegate OnRegisterReceived = null!;
-
-        /// <summary>
-        /// 设备注销时
-        /// </summary>
-        public static event GCommon.UnRegisterDelegate OnUnRegisterReceived = null!;
-
-        /// <summary>
-        /// 设备有警告时
-        /// </summary>
-        public static event GCommon.DeviceAlarmSubscribeDelegate OnDeviceAlarmSubscribe = null!;
-
-        /// <summary>
-        /// 当设备发生注册鉴权时，需要返回值为此设备的鉴权密钥
-        /// </summary>
-        public static event GCommon.DeviceAuthentication OnDeviceAuthentication = null!;
-
-        #endregion
-
-
         /// <summary>
         /// 普通消息回复状态OK
         /// </summary>
@@ -1026,7 +918,7 @@ namespace LibGB28181SipServer
                     }
                 }
             }
-            
+
 
             SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.ACK, sipResponse.Header.To.ToURI,
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
@@ -1205,5 +1097,111 @@ namespace LibGB28181SipServer
                     break;
             }
         }
+
+        #region 各类事件
+
+        /// <summary>
+        /// sip服务状态
+        /// </summary>
+        public static event Action<string, ServiceStatus> OnServiceChanged = null!;
+
+        /// <summary>
+        /// 录像文件接收
+        /// </summary>
+        public static event Action<RecordInfo> OnRecordInfoReceived = null!;
+
+        /// <summary>
+        /// 设备目录接收
+        /// </summary>
+        public static event GCommon.CatalogReceived OnCatalogReceived = null!;
+
+        /// <summary>
+        /// 设备目录通知
+        /// </summary>
+        public static event Action<NotifyCatalog> OnNotifyCatalogReceived = null!;
+
+        /// <summary>
+        /// 语音广播通知
+        /// </summary>
+        public static event Action<VoiceBroadcastNotify> OnVoiceBroadcaseReceived = null!;
+
+        /// <summary>
+        /// 报警通知
+        /// </summary>
+        public static event Action<Alarm> OnAlarmReceived = null!;
+
+        /// <summary>
+        /// 平台之间心跳接收
+        /// </summary>
+        public static event GCommon.KeepaliveReceived OnKeepaliveReceived = null!;
+
+
+        /// <summary>
+        /// 设备就绪通知，当设备准备好的时候触发
+        /// </summary>
+        public static event GCommon.SipDeviceReadyReceived OnDeviceReadyReceived = null;
+
+        /// <summary>
+        /// 设备状态查询接收
+        /// </summary>
+        public static event GCommon.DeviceStatusReceived OnDeviceStatusReceived = null;
+
+        /// <summary>
+        /// 点播完成或结束事件
+        /// </summary>
+        public static event GCommon.InviteHistroyVideoFinished OnInviteHistoryVideoFinished = null;
+
+        /// <summary>
+        /// 设备信息查询接收
+        /// </summary>
+        public static event GCommon.DeviceInfoReceived OnDeviceInfoReceived = null;
+
+
+        /// <summary>
+        /// 设备配置查询接收
+        /// </summary>
+        public static event Action<SIPEndPoint, DeviceConfigDownload> OnDeviceConfigDownloadReceived = null!;
+
+        /// <summary>
+        /// 历史媒体发送结束接收
+        /// </summary>
+        public static event Action<SIPEndPoint, MediaStatus> OnMediaStatusReceived = null!;
+
+        /// <summary>
+        /// 响应状态码接收
+        /// </summary>
+        public static event Action<SIPResponse, string, SIPEndPoint> OnResponseCodeReceived = null!;
+
+        /// <summary>
+        /// 响应状态码接收
+        /// </summary>
+        public static event Action<SIPResponse, SIPRequest, string, SIPEndPoint> OnResponseNeedResponeReceived = null!;
+
+        /// <summary>
+        /// 预置位查询接收
+        /// </summary>,
+        public static event Action<SIPEndPoint, PresetInfo> OnPresetQueryReceived = null!;
+
+        /// <summary>
+        /// 设备注册时
+        /// </summary>
+        public static event GCommon.RegisterDelegate OnRegisterReceived = null!;
+
+        /// <summary>
+        /// 设备注销时
+        /// </summary>
+        public static event GCommon.UnRegisterDelegate OnUnRegisterReceived = null!;
+
+        /// <summary>
+        /// 设备有警告时
+        /// </summary>
+        public static event GCommon.DeviceAlarmSubscribeDelegate OnDeviceAlarmSubscribe = null!;
+
+        /// <summary>
+        /// 当设备发生注册鉴权时，需要返回值为此设备的鉴权密钥
+        /// </summary>
+        public static event GCommon.DeviceAuthentication OnDeviceAuthentication = null!;
+
+        #endregion
     }
 }

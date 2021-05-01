@@ -51,10 +51,10 @@ namespace SIPSorcery.Net
         private static string m_rtspTransport = RTSPConstants.RTSP_RELIABLE_TRANSPORTID;
 
         private static ILogger logger = Log.Logger;
-
-        public string URLTransport = m_rtspTransport;
         public string Host;
         public string Path;
+
+        public string URLTransport = m_rtspTransport;
 
         private RTSPURL()
         {

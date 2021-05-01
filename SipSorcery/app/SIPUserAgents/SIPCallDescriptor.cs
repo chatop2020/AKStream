@@ -39,11 +39,11 @@ namespace SIPSorcery.SIP.App
 
     public class CRMHeaders
     {
-        public string PersonName;
-        public string CompanyName;
         public string AvatarURL;
-        public bool Pending = true;
+        public string CompanyName;
         public string LookupError;
+        public bool Pending = true;
+        public string PersonName;
 
         public CRMHeaders()
         {
@@ -126,73 +126,12 @@ namespace SIPSorcery.SIP.App
 
         private static ILogger logger = Log.Logger;
 
+        // Real-time call control variables.
         public string
-            Username; // The username that will be used in the From header and to authenticate the call unless overridden by AuthUsername.
+            AccountCode; // If set indicates this is a billable call and this is the account code to bill the call against.
 
         public string
             AuthUsername; // The username that will be used from authentication. Optional setting only needed if the From header user needs to be different from the digest username.
-
-        public string Password; // The password that will be used to authenticate the call if required.
-        public string Uri; // A string representing the URI the call will be forwarded with.
-        public string From; // A string representing the From header to be set for the call.
-        public string To; // A string representing the To header to be set for the call.  
-
-        public string
-            RouteSet; // A route set for the forwarded call request. If there is only a single route or IP socket it will be treated like an Outbound Proxy (i.e. no Route header will be added).
-
-        public string
-            ProxySendFrom; // Used to set the Proxy-SendFrom header which informs an upstream proxy which socket the request should try and go out on.
-
-        public List<string>
-            CustomHeaders; // An optional list of custom SIP headers that will be added to the INVITE request.
-
-        public SIPCallDirection
-            CallDirection; // Indicates whether the call is incoming out outgoing relative to this server. An outgoing call is one that is placed by a user the server authenticates.
-
-        public string ContentType;
-        public string Content;
-
-        public int
-            DelaySeconds; // An amount in seconds to delay the initiation of this call when used as part of a dial string.
-
-        public SIPCallRedirectModesEnum RedirectMode; // Determines how the call will handle 3xx redirect responses.
-
-        public int
-            CallDurationLimit; // If non-zero sets a limit on the duration of any call created with this descriptor.
-
-        public bool
-            MangleResponseSDP =
-                true; // If false indicates the response SDP should be left alone if it contains a private IP address.
-
-        public IPAddress
-            MangleIPAddress; // If mangling is required on this call this address needs to be set as the one to mangle to.
-
-        public string FromDisplayName;
-        public string FromURIUsername;
-        public string FromURIHost;
-
-        public SIPDialogueTransferModesEnum
-            TransferMode =
-                SIPDialogueTransferModesEnum
-                    .Default; // Determines how the call (dialogues) created by this descriptor will handle transfers (REFER requests).
-
-        public bool
-            RequestCallerDetails; // If true indicates the client agent would like to pass on any caller details if/when available.
-
-        public Guid DialPlanContextID;
-
-        public int
-            ReinviteDelay =
-                -1; // If >= 0 a SIP re-INVITE request will be sent to the remote caller after this many seconds. This is an attempt to work around a bug with one way audio and early media on a particular SIP server.
-
-        //rj2
-        /// <summary>
-        /// A string representing the Call Identifier
-        /// defaults to <see cref="CallProperties.CreateNewCallId()"/> if not set
-        /// 
-        /// CallId MUST be unique between different calls
-        /// </summary>
-        public string CallId;
 
         /// <summary>
         /// A string representing the Branch part of the SIP-VIA header to identify Call-Requests and Call-Responses
@@ -208,25 +147,90 @@ namespace SIPSorcery.SIP.App
         /// </remarks>
         public string BranchId;
 
-        // Real-time call control variables.
-        public string
-            AccountCode; // If set indicates this is a billable call and this is the account code to bill the call against.
-
-        public string
-            RateCode; // If set indicates and the call is billable indicates the rate code that should be used to determine the rate for the call.
-
-        public CRMHeaders CRMHeaders;
-
-        // Properties needed for Google Voice calls.
-        public bool IsGoogleVoiceCall;
         public string CallbackNumber;
         public string CallbackPattern;
         public int CallbackPhoneType;
 
+        public SIPCallDirection
+            CallDirection; // Indicates whether the call is incoming out outgoing relative to this server. An outgoing call is one that is placed by a user the server authenticates.
+
+        public int
+            CallDurationLimit; // If non-zero sets a limit on the duration of any call created with this descriptor.
+
+        //rj2
+        /// <summary>
+        /// A string representing the Call Identifier
+        /// defaults to <see cref="CallProperties.CreateNewCallId()"/> if not set
+        /// 
+        /// CallId MUST be unique between different calls
+        /// </summary>
+        public string CallId;
+
+        public string Content;
+
+        public string ContentType;
+
+        public CRMHeaders CRMHeaders;
+
+        public List<string>
+            CustomHeaders; // An optional list of custom SIP headers that will be added to the INVITE request.
+
+        public ManualResetEvent DelayMRE; // If the call needs to be delayed DelaySeconds this MRE will be used.
+
+        public int
+            DelaySeconds; // An amount in seconds to delay the initiation of this call when used as part of a dial string.
+
+        public Guid DialPlanContextID;
+        public string From; // A string representing the From header to be set for the call.
+
+        public string FromDisplayName;
+        public string FromURIHost;
+        public string FromURIUsername;
+
+        // Properties needed for Google Voice calls.
+        public bool IsGoogleVoiceCall;
+
+        public IPAddress
+            MangleIPAddress; // If mangling is required on this call this address needs to be set as the one to mangle to.
+
+        public bool
+            MangleResponseSDP =
+                true; // If false indicates the response SDP should be left alone if it contains a private IP address.
+
+        public string Password; // The password that will be used to authenticate the call if required.
+
+        public string
+            ProxySendFrom; // Used to set the Proxy-SendFrom header which informs an upstream proxy which socket the request should try and go out on.
+
+        public string
+            RateCode; // If set indicates and the call is billable indicates the rate code that should be used to determine the rate for the call.
+
+        public SIPCallRedirectModesEnum RedirectMode; // Determines how the call will handle 3xx redirect responses.
+
+        public int
+            ReinviteDelay =
+                -1; // If >= 0 a SIP re-INVITE request will be sent to the remote caller after this many seconds. This is an attempt to work around a bug with one way audio and early media on a particular SIP server.
+
+        public bool
+            RequestCallerDetails; // If true indicates the client agent would like to pass on any caller details if/when available.
+
+        public string
+            RouteSet; // A route set for the forwarded call request. If there is only a single route or IP socket it will be treated like an Outbound Proxy (i.e. no Route header will be added).
+
+        public string To; // A string representing the To header to be set for the call.  
+
         public SIPAccount
             ToSIPAccount; // If non-null indicates the call is for a SIP Account on the same server. An example of using this it to call from one user into another user's dialplan.
 
-        public ManualResetEvent DelayMRE; // If the call needs to be delayed DelaySeconds this MRE will be used.
+        public SIPDialogueTransferModesEnum
+            TransferMode =
+                SIPDialogueTransferModesEnum
+                    .Default; // Determines how the call (dialogues) created by this descriptor will handle transfers (REFER requests).
+
+        public string Uri; // A string representing the URI the call will be forwarded with.
+
+        public string
+            Username; // The username that will be used in the From header and to authenticate the call unless overridden by AuthUsername.
 
         /// <summary>
         /// 

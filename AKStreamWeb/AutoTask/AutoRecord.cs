@@ -13,6 +13,20 @@ namespace AKStreamWeb.AutoTask
 {
     public class AutoRecord
     {
+        public AutoRecord()
+        {
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    KeepRecord();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
+
         /// <summary>
         /// 获取记录日期列表
         /// </summary>
@@ -386,21 +400,6 @@ namespace AKStreamWeb.AutoTask
 
                 Thread.Sleep(10000);
             }
-        }
-
-
-        public AutoRecord()
-        {
-            new Thread(new ThreadStart(delegate
-            {
-                try
-                {
-                    KeepRecord();
-                }
-                catch
-                {
-                }
-            })).Start();
         }
     }
 }

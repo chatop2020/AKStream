@@ -86,18 +86,18 @@ namespace SIPSorcery.Net
 
     public class RTCPFeedback
     {
-        public int SENDER_PAYLOAD_SIZE = 20;
-        public int MIN_PACKET_SIZE = 0;
+        public ushort BLP; // bitmask of following lost packets (BLP): 16 bits
+        public uint FCI; // Feedback Control Information (FCI)  
 
         public RTCPHeader Header;
-        public uint SenderSSRC; // Packet Sender
         public uint MediaSSRC;
+        public int MIN_PACKET_SIZE = 0;
 
         public ushort
             PID; // Packet ID (PID): 16 bits to specify a lost packet, the RTP sequence number of the lost packet.
 
-        public ushort BLP; // bitmask of following lost packets (BLP): 16 bits
-        public uint FCI; // Feedback Control Information (FCI)  
+        public int SENDER_PAYLOAD_SIZE = 20;
+        public uint SenderSSRC; // Packet Sender
 
         public RTCPFeedback(uint ssrc, RTCPFeedbackTypesEnum feedbackMessageType, ushort sequenceNo, ushort bitMask)
         {

@@ -30,15 +30,14 @@ namespace SIPSorcery.Net.Sctp
 {
     internal class SCTPMessage
     {
-        private SCTPStream _stream;
+        private static ILogger logger = Log.Logger;
         private byte[] _data;
+        private bool _delivered;
+        private SCTPStreamListener _li;
+        private int _mseq; // note do we need these ?
         private int _offset = 0;
         private int _pPid = 0;
-        private int _mseq; // note do we need these ?
-        private SCTPStreamListener _li;
-        private bool _delivered;
-
-        private static ILogger logger = Log.Logger;
+        private SCTPStream _stream;
 
         /**
 		 * Outbound message - note that we assume no one will mess with data between

@@ -3,9 +3,7 @@ using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs;
-using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
-using LibCommon.Structs.GB28181.XML;
 using LibCommon.Structs.WebRequest;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -19,7 +17,6 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
-        
         /// <summary>
         /// 终止回放流
         /// </summary>
@@ -30,10 +27,10 @@ namespace AKStreamWeb.Controllers
         [Route("HistroyStopVideo")]
         [HttpGet]
         public bool HistroyStopVideo(
-            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId, string ssrcId)
         {
             ResponseStruct rs;
-            var ret = SipServerService.StopLiveVideo(taskId,ssrcId, out rs);
+            var ret = SipServerService.StopLiveVideo(taskId, ssrcId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);
@@ -42,7 +39,7 @@ namespace AKStreamWeb.Controllers
             return ret;
         }
 
-        
+
         /// <summary>
         /// 请求回放流
         /// </summary>
@@ -53,10 +50,10 @@ namespace AKStreamWeb.Controllers
         [Route("HistroyVideo")]
         [HttpGet]
         public MediaServerStreamInfo HistroyVideo(
-            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId,string ssrcId)
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId, string ssrcId)
         {
             ResponseStruct rs;
-            var ret = SipServerService.LiveVideo(taskId,ssrcId, out rs);
+            var ret = SipServerService.LiveVideo(taskId, ssrcId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);
@@ -65,7 +62,7 @@ namespace AKStreamWeb.Controllers
             return ret;
         }
 
-       
+
         /// <summary>
         /// 获取回放文件列表状态
         /// </summary>
@@ -87,8 +84,8 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
-        
+
+
         /// <summary>
         /// 获取历史录像列表
         /// </summary>
@@ -272,7 +269,5 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
-        
     }
 }

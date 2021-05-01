@@ -98,13 +98,13 @@ namespace LibCommon.Structs.GB28181.XML
 
         public class PresetValue
         {
+            private List<Item> _presetItem = new List<Item>();
+
             /// <summary>
             /// 列表项个数，当未配置预置位时取值为0
             /// </summary>
             [XmlAttribute("Num")]
             public int Num { get; set; }
-
-            private List<Item> _presetItem = new List<Item>();
 
             /// <summary>
             /// 当前配置的预置位记录，当未配置预置位时不填写
@@ -121,13 +121,13 @@ namespace LibCommon.Structs.GB28181.XML
         /// </summary>
         public class Item
         {
+            private string _presetName;
+
             /// <summary>
             /// 预置位编码
             /// </summary>
             [XmlElement("PresetID")]
             public string PresetID { get; set; }
-
-            private string _presetName;
 
             /// <summary>
             /// 预置位名称

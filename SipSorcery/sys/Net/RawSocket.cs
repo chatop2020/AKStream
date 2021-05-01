@@ -41,21 +41,21 @@ namespace SIPSorcery.Sys
     {
         public const int MIN_HEADER_LEN = 5; // Minimum length if header in 32 bit words.
         public const int IP_VERSION = 4;
-
-        public int Version = IP_VERSION;
-        public int HeaderLength = MIN_HEADER_LEN; // Length of header in 32 bit words.
-        public int TypeOfService;
-        public int Length = MIN_HEADER_LEN; // Total length of the IP packet in octets.
-        public int Id;
-        public int TTL = 255;
-        public ProtocolType Protocol; // 1 = ICMP, 6 = TCP, 17 = UDP.
-        public IPAddress SourceAddress;
         public IPAddress DestinationAddress;
 
         // Fragmentation flags. Bit 0=0, Bit 1=DF, Bit 2=MF
         public int DF = 1; // 0 = May fragment, 1 = Don't fragment.
-        public int MF = 0; // 0 = Last fragment, 1 = More fragments.
         public int FragmentOffset; // Indicates where in the datagram the fragment belongs.
+        public int HeaderLength = MIN_HEADER_LEN; // Length of header in 32 bit words.
+        public int Id;
+        public int Length = MIN_HEADER_LEN; // Total length of the IP packet in octets.
+        public int MF = 0; // 0 = Last fragment, 1 = More fragments.
+        public ProtocolType Protocol; // 1 = ICMP, 6 = TCP, 17 = UDP.
+        public IPAddress SourceAddress;
+        public int TTL = 255;
+        public int TypeOfService;
+
+        public int Version = IP_VERSION;
 
         public IPv4Header(ProtocolType protocol, int id, IPAddress sourceAddress, IPAddress dstAddress)
         {
@@ -120,9 +120,9 @@ namespace SIPSorcery.Sys
     /// </summary>
     public class UDPPacket
     {
-        public int SourcePort;
         public int DestinationPort;
         public byte[] Payload;
+        public int SourcePort;
 
         public UDPPacket(int sourcePort, int destinationPort, byte[] payload)
         {

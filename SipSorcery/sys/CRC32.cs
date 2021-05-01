@@ -9,11 +9,11 @@ namespace SIPSorcery.Sys
     {
         public const UInt32 DefaultPolynomial = 0xedb88320;
         public const UInt32 DefaultSeed = 0xffffffff;
+        private static UInt32[] defaultTable;
 
         private UInt32 hash;
         private UInt32 seed;
         private UInt32[] table;
-        private static UInt32[] defaultTable;
 
         public Crc32()
         {
@@ -27,6 +27,11 @@ namespace SIPSorcery.Sys
             table = InitializeTable(polynomial);
             this.seed = seed;
             Initialize();
+        }
+
+        public override int HashSize
+        {
+            get { return 32; }
         }
 
         public override void Initialize()
@@ -44,11 +49,6 @@ namespace SIPSorcery.Sys
             byte[] hashBuffer = UInt32ToBigEndianBytes(~hash);
             this.HashValue = hashBuffer;
             return hashBuffer;
-        }
-
-        public override int HashSize
-        {
-            get { return 32; }
         }
 
         public static UInt32 Compute(byte[] buffer)

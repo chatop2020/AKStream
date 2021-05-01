@@ -29,21 +29,12 @@ namespace SystemInfoLibrary.Hardware
     {
         private string _cpuInfo;
 
-        private string CPU_Info => string.IsNullOrEmpty(_cpuInfo)
-            ? (_cpuInfo = Utils.GetCommandExecutionOutput("cat", "/proc/cpuinfo"))
-            : _cpuInfo;
-
 
         private IList<CPUInfo> _CPUs;
-        public override IList<CPUInfo> CPUs => _CPUs;
 
         private IList<GPUInfo> _GPUs;
 
-        public override IList<GPUInfo> GPUs =>
-            _GPUs ?? (_GPUs = new List<GPUInfo> {new LinuxGPUInfo()}); // No idea how to detect multiple GPUs
-
         private RAMInfo _RAM;
-        public override RAMInfo RAM => _RAM ?? (_RAM = new LinuxRAMInfo());
 
 
         public LinuxHardwareInfo()
@@ -83,5 +74,16 @@ namespace SystemInfoLibrary.Hardware
 
             // -- CPU
         }
+
+        private string CPU_Info => string.IsNullOrEmpty(_cpuInfo)
+            ? (_cpuInfo = Utils.GetCommandExecutionOutput("cat", "/proc/cpuinfo"))
+            : _cpuInfo;
+
+        public override IList<CPUInfo> CPUs => _CPUs;
+
+        public override IList<GPUInfo> GPUs =>
+            _GPUs ?? (_GPUs = new List<GPUInfo> {new LinuxGPUInfo()}); // No idea how to detect multiple GPUs
+
+        public override RAMInfo RAM => _RAM ?? (_RAM = new LinuxRAMInfo());
     }
 }

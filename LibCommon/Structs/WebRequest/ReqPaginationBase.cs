@@ -9,9 +9,9 @@ namespace LibCommon.Structs.WebRequest
     [Serializable]
     public class ReqPaginationBase
     {
+        private List<OrderByStruct>? _orderBy;
         private int? _pageIndex = 1;
         private int? _pageSize = 10;
-        private List<OrderByStruct>? _orderBy;
 
         /// <summary>
         /// 页码（从1开始）

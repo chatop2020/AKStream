@@ -53,17 +53,17 @@ namespace SIPSorcery.Net
         private const string DEFAULT_BROADCAST_TYPE = "unicast";
 
         private static ILogger logger = Log.Logger;
+        public string BroadcastType; // Unicast or multicast.
+        public string ClientRTPPortRange; // e.g. client_port=3456-3457.
+        public string Destination;
+        public string Mode;
+        public string MulticastRTPPortRange; // e.g. port=3456-3457.
 
         public string RawHeader;
+        public string ServerRTPPortRange; // e.g. server_port=3456-3457.
+        public string Source;
 
         public string TransportSpecifier; // RTP/AVP{/[TCP/UDP]}, default is UDP.
-        public string BroadcastType; // Unicast or multicast.
-        public string Destination;
-        public string Source;
-        public string MulticastRTPPortRange; // e.g. port=3456-3457.
-        public string ClientRTPPortRange; // e.g. client_port=3456-3457.
-        public string ServerRTPPortRange; // e.g. server_port=3456-3457.
-        public string Mode;
 
         public RTSPTransportHeader()
         {
@@ -244,17 +244,17 @@ namespace SIPSorcery.Net
         private static char[] delimiterChars = new char[] {':'};
 
         public string Accept;
-        public string ContentType;
         public int ContentLength;
+        public string ContentType;
         public int CSeq = -1;
+
+        public RTSPHeaderParserError CSeqParserError = RTSPHeaderParserError.None;
+
+        public string RawCSeq;
         public string Session;
         public RTSPTransportHeader Transport;
 
         public List<string> UnknownHeaders = new List<string>(); // Holds any unrecognised headers.
-
-        public string RawCSeq;
-
-        public RTSPHeaderParserError CSeqParserError = RTSPHeaderParserError.None;
 
         private RTSPHeader()
         {

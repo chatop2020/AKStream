@@ -23,16 +23,10 @@ namespace SIPSorcery.SIP
 {
     public class SIPMessageBase
     {
-        protected static ILogger logger = Log.Logger;
-
         protected const string m_CRLF = SIPConstants.CRLF;
         protected const string m_sipFullVersion = SIPConstants.SIP_FULLVERSION_STRING;
         protected const string m_allowedSIPMethods = SIPConstants.ALLOWED_SIP_METHODS;
-
-        /// <summary>
-        /// The SIP request/response's headers collection.
-        /// </summary>
-        public SIPHeader Header;
+        protected static ILogger logger = Log.Logger;
 
         /// <summary>
         /// The optional body or payload for the SIP request/response.
@@ -45,14 +39,9 @@ namespace SIPSorcery.SIP
         public DateTime Created = DateTime.Now;
 
         /// <summary>
-        /// The remote SIP socket the request/response was received from.
+        /// The SIP request/response's headers collection.
         /// </summary>
-        public SIPEndPoint RemoteSIPEndPoint { get; protected set; }
-
-        /// <summary>
-        /// The local SIP socket the request/response was received on.
-        /// </summary>
-        public SIPEndPoint LocalSIPEndPoint { get; protected set; }
+        public SIPHeader Header;
 
         /// <summary>
         /// When the SIP transport layer has multiple channels it will use this ID hint to choose amongst them when 
@@ -65,5 +54,15 @@ namespace SIPSorcery.SIP
         /// when sending this request/response.
         /// </summary>
         public string SendFromHintConnectionID;
+
+        /// <summary>
+        /// The remote SIP socket the request/response was received from.
+        /// </summary>
+        public SIPEndPoint RemoteSIPEndPoint { get; protected set; }
+
+        /// <summary>
+        /// The local SIP socket the request/response was received on.
+        /// </summary>
+        public SIPEndPoint LocalSIPEndPoint { get; protected set; }
     }
 }

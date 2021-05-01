@@ -28,6 +28,18 @@ namespace LibGB28181SipServer
         public static object SipDevicesLock = new object();
 
         /// <summary>
+        /// sip服务实例
+        /// </summary>
+        public static SipServer SipServer = null!;
+
+        private static ConcurrentDictionary<string, NeedReturnTask> _needResponseRequests =
+            new ConcurrentDictionary<string, NeedReturnTask>();
+
+        static Common()
+        {
+        }
+
+        /// <summary>
         /// sip设备列表
         /// </summary>
         public static List<SipDevice> SipDevices
@@ -35,11 +47,6 @@ namespace LibGB28181SipServer
             get => _sipDevices;
             set => _sipDevices = value;
         }
-
-        /// <summary>
-        /// sip服务实例
-        /// </summary>
-        public static SipServer SipServer = null!;
 
         /// <summary>
         /// Sip网关配置实例
@@ -68,9 +75,6 @@ namespace LibGB28181SipServer
             get => _loggerHead;
             set => _loggerHead = value;
         }
-
-        private static ConcurrentDictionary<string, NeedReturnTask> _needResponseRequests =
-            new ConcurrentDictionary<string, NeedReturnTask>();
 
         /// <summary>
         /// 需要信息回复的消息列表
@@ -318,10 +322,6 @@ namespace LibGB28181SipServer
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
             };
             return 1;
-        }
-
-        static Common()
-        {
         }
     }
 }

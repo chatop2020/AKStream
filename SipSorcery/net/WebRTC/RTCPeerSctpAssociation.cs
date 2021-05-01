@@ -29,17 +29,12 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
+        private bool _isClient;
+
         /// <summary>
         /// The underlying SCTP association.
         /// </summary>
         private ThreadedAssociation _sctpAssociation;
-
-        private bool _isClient;
-
-        /// <summary>
-        /// Indicates whether the SCTP association is ready for communications.
-        /// </summary>
-        public bool IsAssociated { get; private set; } = false;
 
         /// <summary>
         /// Event to indicate the SCTP association is ready.
@@ -74,39 +69,9 @@ namespace SIPSorcery.Net
         }
 
         /// <summary>
-        /// Initiates the association with the remote peer.
+        /// Indicates whether the SCTP association is ready for communications.
         /// </summary>
-        public void Associate()
-        {
-            _sctpAssociation.associate();
-        }
-
-        /// <summary>
-        /// Closes all the streams for this SCTP association.
-        /// </summary>
-        public void Close()
-        {
-            if (_sctpAssociation != null)
-            {
-                logger.LogDebug($"SCTP closing all streams for association.");
-
-                foreach (int streamID in _sctpAssociation.allStreams())
-                {
-                    _sctpAssociation.getStream(streamID)?.close();
-                    _sctpAssociation.delStream(streamID);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Creates a new SCTP stream to act as a WebRTC data channel.
-        /// </summary>
-        /// <param name="label">Optional. The label to attach to the stream.</param>
-        public Task<SCTPStream> CreateStream(string label)
-        {
-            logger.LogDebug($"SCTP creating stream for label {label}.");
-            return Task.FromResult(_sctpAssociation.mkStream(label));
-        }
+        public bool IsAssociated { get; private set; } = false;
 
         /// <summary>
         /// Event handler for the SCTP association successfully initialising.
@@ -144,6 +109,41 @@ namespace SIPSorcery.Net
         public void onRawStream(SCTPStream s)
         {
             // Do nothing.
+        }
+
+        /// <summary>
+        /// Initiates the association with the remote peer.
+        /// </summary>
+        public void Associate()
+        {
+            _sctpAssociation.associate();
+        }
+
+        /// <summary>
+        /// Closes all the streams for this SCTP association.
+        /// </summary>
+        public void Close()
+        {
+            if (_sctpAssociation != null)
+            {
+                logger.LogDebug($"SCTP closing all streams for association.");
+
+                foreach (int streamID in _sctpAssociation.allStreams())
+                {
+                    _sctpAssociation.getStream(streamID)?.close();
+                    _sctpAssociation.delStream(streamID);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a new SCTP stream to act as a WebRTC data channel.
+        /// </summary>
+        /// <param name="label">Optional. The label to attach to the stream.</param>
+        public Task<SCTPStream> CreateStream(string label)
+        {
+            logger.LogDebug($"SCTP creating stream for label {label}.");
+            return Task.FromResult(_sctpAssociation.mkStream(label));
         }
     }
 }

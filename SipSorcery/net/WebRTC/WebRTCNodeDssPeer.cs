@@ -45,16 +45,16 @@ namespace SIPSorcery.Net
             CONNECTION_RETRY_PERIOD =
                 5000; // Period in milliseconds to retry if the initial node-dss connection attempt fails.
 
-        private ILogger logger = Log.Logger;
+        private Func<Task<RTCPeerConnection>> _createPeerConnection;
+        private bool _isReceiving;
 
         private Uri _nodeDssServerUri;
         private string _ourID;
-        private string _theirID;
-        private bool _isReceiving;
-        private Func<Task<RTCPeerConnection>> _createPeerConnection;
 
         private RTCPeerConnection _pc;
-        public RTCPeerConnection RTCPeerConnection => _pc;
+        private string _theirID;
+
+        private ILogger logger = Log.Logger;
 
         /// <summary>
         /// Default constructor.
@@ -89,6 +89,8 @@ namespace SIPSorcery.Net
             _theirID = theirID;
             _createPeerConnection = createPeerConnection;
         }
+
+        public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
         /// Creates a new WebRTC peer connection and then starts polling the node DSS server.

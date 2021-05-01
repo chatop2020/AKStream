@@ -12,6 +12,15 @@ namespace LibSystemInfo
         private static ProcessHelper SystemInfoProcessHelper =
             new ProcessHelper(p_StdOutputDataReceived, null!, p_Process_Exited!);
 
+
+        static CPUMacOSLoadValue()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                SystemInfoProcessHelper.RunProcess("/usr/bin/top", "-n0");
+            }
+        }
+
         private static void p_Process_Exited(object sender, EventArgs e)
         {
             SystemInfoProcessHelper.RunProcess("/usr/bin/top", "-n0");
@@ -43,15 +52,6 @@ namespace LibSystemInfo
                         }
                     }
                 }
-            }
-        }
-
-
-        static CPUMacOSLoadValue()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                SystemInfoProcessHelper.RunProcess("/usr/bin/top", "-n0");
             }
         }
     }

@@ -5,18 +5,12 @@ namespace SystemInfoLibrary.Hardware.CPU
 {
     internal class WindowsCPUInfo : CPUInfo
     {
-        protected enum CPUArchitectureType : UInt16
-        {
-            x86 = 0,
-            MIPS = 1,
-            Alpha = 2,
-            PowerPC = 3,
-            ARM = 5,
-            ia64 = 6,
-            x64 = 9
-        };
-
         private readonly ManagementBaseObject _win32_processor;
+
+        public WindowsCPUInfo(ManagementBaseObject win32_processor)
+        {
+            _win32_processor = win32_processor;
+        }
 
         public override string Name => (String) _win32_processor.GetPropertyValue("Name");
 
@@ -32,9 +26,15 @@ namespace SystemInfoLibrary.Hardware.CPU
 
         public override double Frequency => (Double) (UInt32) _win32_processor.GetPropertyValue("CurrentClockSpeed");
 
-        public WindowsCPUInfo(ManagementBaseObject win32_processor)
+        protected enum CPUArchitectureType : UInt16
         {
-            _win32_processor = win32_processor;
-        }
+            x86 = 0,
+            MIPS = 1,
+            Alpha = 2,
+            PowerPC = 3,
+            ARM = 5,
+            ia64 = 6,
+            x64 = 9
+        };
     }
 }

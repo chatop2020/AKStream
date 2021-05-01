@@ -137,6 +137,27 @@ namespace SIPSorcery.Net.Sctp
         public const byte TBIT = 1;
 
         private static ILogger logger = Log.Logger;
+        protected ByteBuffer _body;
+        public byte _flags;
+        int _length;
+
+        public ChunkType _type;
+        public List<VariableParam> _varList = new List<VariableParam>();
+
+        protected Chunk(ChunkType type)
+        {
+            _type = type;
+        }
+
+        protected Chunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
+        {
+            _type = type;
+            _flags = flags;
+            _length = length;
+            _body = pkt.slice();
+            _body.Limit = length - 4;
+            pkt.Position += (length - 4);
+        }
 
         public static Chunk mkChunk(ByteBuffer pkt)
         {
@@ -201,27 +222,6 @@ namespace SIPSorcery.Net.Sctp
             }
 
             return ret;
-        }
-
-        public ChunkType _type;
-        public byte _flags;
-        int _length;
-        protected ByteBuffer _body;
-        public List<VariableParam> _varList = new List<VariableParam>();
-
-        protected Chunk(ChunkType type)
-        {
-            _type = type;
-        }
-
-        protected Chunk(ChunkType type, byte flags, int length, ByteBuffer pkt)
-        {
-            _type = type;
-            _flags = flags;
-            _length = length;
-            _body = pkt.slice();
-            _body.Limit = length - 4;
-            pkt.Position += (length - 4);
         }
 
         public void write(ByteBuffer ret)

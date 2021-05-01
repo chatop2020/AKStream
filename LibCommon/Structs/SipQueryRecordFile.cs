@@ -10,9 +10,9 @@ namespace LibCommon.Structs
     [Serializable]
     public class SipQueryRecordFile
     {
+        private DateTime _endTime;
         private SipRecordFileQueryType _sipRecordFileQueryType;
         private DateTime _startTime;
-        private DateTime _endTime;
         private int? _taskId;
 
         /// <summary>

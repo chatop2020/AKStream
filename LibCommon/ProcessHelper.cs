@@ -6,9 +6,9 @@ namespace LibCommon
 {
     public class ProcessHelper
     {
-        private DataReceivedEventHandler _std = null!;
         private DataReceivedEventHandler _err = null!;
         private EventHandler _exitEventHandle = null!;
+        private DataReceivedEventHandler _std = null!;
 
 
         public ProcessHelper(DataReceivedEventHandler std = null!, DataReceivedEventHandler err = null!,

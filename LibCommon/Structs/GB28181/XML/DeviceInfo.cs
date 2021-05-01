@@ -15,6 +15,8 @@ namespace LibCommon.Structs.GB28181.XML
     {
         private static DeviceInfo instance;
 
+        private string _devName;
+
         /// <summary>
         /// 以单例模式访问
         /// </summary>
@@ -46,8 +48,6 @@ namespace LibCommon.Structs.GB28181.XML
         /// </summary>
         [XmlElement("DeviceID")]
         public string DeviceID { get; set; }
-
-        private string _devName;
 
         /// <summary>
         /// 目标设备/区域/系统的名称(可选)

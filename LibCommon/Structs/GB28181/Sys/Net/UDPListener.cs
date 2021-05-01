@@ -10,10 +10,10 @@ namespace LibCommon.Structs.GB28181.Sys.Net
     public class UDPListener
     {
         private const string THREAD_NAME = "udplistener-";
+        private bool m_closed;
         private IPEndPoint m_localEndPoint;
         private Guid m_socketId = Guid.NewGuid();
         private UdpClient m_udpClient;
-        private bool m_closed;
 
         public Action<UDPListener, IPEndPoint, IPEndPoint, byte[]> PacketReceived;
 

@@ -37,16 +37,15 @@ namespace SIPSorcery.Media
     /// </remarks>
     public class SignalGenerator //: ISampleProvider
     {
+        // Const Math
+        private const double TwoPi = 2 * Math.PI;
+
+        private readonly double[] pinkNoiseBuffer = new double[7];
         // Wave format
         //private readonly WaveFormat waveFormat;
 
         // Random Number for the White Noise & Pink Noise Generator
         private readonly Random random = new Random();
-
-        private readonly double[] pinkNoiseBuffer = new double[7];
-
-        // Const Math
-        private const double TwoPi = 2 * Math.PI;
 
         // Generator variable
         private int nSample;

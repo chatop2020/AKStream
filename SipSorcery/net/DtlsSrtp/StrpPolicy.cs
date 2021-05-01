@@ -50,13 +50,40 @@ namespace SIPSorcery.Net
         public const int NULL_AUTHENTICATION = 0;
         public const int HMACSHA1_AUTHENTICATION = 1;
         public const int SKEIN_AUTHENTICATION = 2;
-
-        private int encType;
-        private int encKeyLength;
-        private int authType;
         private int authKeyLength;
         private int authTagLength;
+        private int authType;
+        private int encKeyLength;
+
+        private int encType;
         private int saltKeyLength;
+
+        /**
+         * Construct a SRTPPolicy object based on given parameters.
+         * This class acts as a storage class, so all the parameters are passed in
+         * through this constructor.
+         *
+         * @param encType SRTP encryption type
+         * @param encKeyLength SRTP encryption key length
+         * @param authType SRTP authentication type
+         * @param authKeyLength SRTP authentication key length
+         * @param authTagLength SRTP authentication tag length
+         * @param saltKeyLength SRTP salt key length
+         */
+        public SrtpPolicy(int encType,
+            int encKeyLength,
+            int authType,
+            int authKeyLength,
+            int authTagLength,
+            int saltKeyLength)
+        {
+            this.encType = encType;
+            this.encKeyLength = encKeyLength;
+            this.authType = authType;
+            this.authKeyLength = authKeyLength;
+            this.authTagLength = authTagLength;
+            this.saltKeyLength = saltKeyLength;
+        }
 
         public int AuthKeyLength
         {
@@ -92,33 +119,6 @@ namespace SIPSorcery.Net
         {
             get => saltKeyLength;
             set => saltKeyLength = value;
-        }
-
-        /**
-         * Construct a SRTPPolicy object based on given parameters.
-         * This class acts as a storage class, so all the parameters are passed in
-         * through this constructor.
-         *
-         * @param encType SRTP encryption type
-         * @param encKeyLength SRTP encryption key length
-         * @param authType SRTP authentication type
-         * @param authKeyLength SRTP authentication key length
-         * @param authTagLength SRTP authentication tag length
-         * @param saltKeyLength SRTP salt key length
-         */
-        public SrtpPolicy(int encType,
-            int encKeyLength,
-            int authType,
-            int authKeyLength,
-            int authTagLength,
-            int saltKeyLength)
-        {
-            this.encType = encType;
-            this.encKeyLength = encKeyLength;
-            this.authType = authType;
-            this.authKeyLength = authKeyLength;
-            this.authTagLength = authTagLength;
-            this.saltKeyLength = saltKeyLength;
         }
     }
 }

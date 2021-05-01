@@ -43,8 +43,6 @@ namespace SIPSorcery.Net
         public const int MIN_PACKET_SIZE = RTCPHeader.HEADER_BYTES_LENGTH + SSRC_SIZE;
 
         public RTCPHeader Header;
-        public uint SSRC { get; private set; }
-        public string Reason { get; private set; }
 
         /// <summary>
         /// Creates a new RTCP Bye payload.
@@ -102,6 +100,9 @@ namespace SIPSorcery.Net
                 }
             }
         }
+
+        public uint SSRC { get; private set; }
+        public string Reason { get; private set; }
 
         /// <summary>
         /// Gets the raw bytes for the Goodbye packet.

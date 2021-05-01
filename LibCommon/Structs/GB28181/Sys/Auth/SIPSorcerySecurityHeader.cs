@@ -10,10 +10,16 @@ namespace LibCommon.Structs.GB28181.Sys.Auth
         private const string SECURITY_PREFIX = "sssec";
         private const string AUTHID_ELEMENT_NAME = "AuthID";
         private const string APIKEY_ELEMENT_NAME = "apikey";
+        public string APIKey;
 
 
         public string AuthID;
-        public string APIKey;
+
+        public SIPSorcerySecurityHeader(string authID, string apiKey)
+        {
+            AuthID = authID;
+            APIKey = apiKey;
+        }
 
         public bool MustUnderstand
         {
@@ -28,12 +34,6 @@ namespace LibCommon.Structs.GB28181.Sys.Auth
         public string Namespace
         {
             get { return SECURITY_NAMESPACE; }
-        }
-
-        public SIPSorcerySecurityHeader(string authID, string apiKey)
-        {
-            AuthID = authID;
-            APIKey = apiKey;
         }
 
         protected void OnWriteHeaderContents(XmlDictionaryWriter writer, string messageVersion)

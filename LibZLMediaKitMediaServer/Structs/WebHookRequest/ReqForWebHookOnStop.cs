@@ -7,16 +7,16 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
     {
         private string? _app;
         private long? _duration;
+        private string? _id;
+        private string? _ip;
+        private string? _mediaServerId;
         private string? _params;
         private bool? _player; //true是播放器，false是推流器
+        private ushort? _port;
         private string? _schema;
         private string? _stream;
         private ulong? _totalBytes;
         private string? _vhost;
-        private string? _ip;
-        private ushort? _port;
-        private string? _id;
-        private string? _mediaServerId;
 
         public string? MediaServerId
         {

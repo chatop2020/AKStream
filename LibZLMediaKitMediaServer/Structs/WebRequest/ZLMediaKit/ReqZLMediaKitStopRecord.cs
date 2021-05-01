@@ -6,10 +6,10 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitStopRecord : ReqZLMediaKitRequestBase
     {
-        private int? _type;
-        private string? _vhost;
         private string? _app;
         private string? _stream;
+        private int? _type;
+        private string? _vhost;
 
 
         [JsonIgnore]

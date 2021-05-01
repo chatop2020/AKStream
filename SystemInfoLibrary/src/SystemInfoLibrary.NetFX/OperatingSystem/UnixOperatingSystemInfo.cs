@@ -24,19 +24,18 @@ namespace SystemInfoLibrary.OperatingSystem
 {
     internal class UnixOperatingSystemInfo : OperatingSystemInfo
     {
+        private string _java;
         private string _unameM;
+
+        private string _unameRS;
 
         private string UnameM => string.IsNullOrEmpty(_unameM)
             ? (_unameM = Utils.GetCommandExecutionOutput("uname", "-m"))
             : _unameM;
 
-        private string _unameRS;
-
         private string UnameRS => string.IsNullOrEmpty(_unameRS)
             ? (_unameRS = Utils.GetCommandExecutionOutput("uname", "-rs"))
             : _unameRS;
-
-        private string _java;
 
         private string Java => string.IsNullOrEmpty(_java)
             ? (_java = Utils.GetCommandExecutionOutput("java", "-version"))

@@ -45,24 +45,19 @@ namespace SIPSorcery.Net
         public const int PAYLOAD_SIZE = 24;
 
         /// <summary>
-        /// Data source being reported.
+        /// Delay since last SR packet.
         /// </summary>
-        public uint SSRC;
-
-        /// <summary>
-        /// Fraction lost since last SR/RR.
-        /// </summary>
-        public byte FractionLost;
-
-        /// <summary>
-        /// Cumulative number of packets lost (signed!).
-        /// </summary>
-        public int PacketsLost;
+        public uint DelaySinceLastSenderReport;
 
         /// <summary>
         /// Extended last sequence number received.
         /// </summary>
         public uint ExtendedHighestSequenceNumber;
+
+        /// <summary>
+        /// Fraction lost since last SR/RR.
+        /// </summary>
+        public byte FractionLost;
 
         /// <summary>
         /// Interarrival jitter.
@@ -75,9 +70,14 @@ namespace SIPSorcery.Net
         public uint LastSenderReportTimestamp;
 
         /// <summary>
-        /// Delay since last SR packet.
+        /// Cumulative number of packets lost (signed!).
         /// </summary>
-        public uint DelaySinceLastSenderReport;
+        public int PacketsLost;
+
+        /// <summary>
+        /// Data source being reported.
+        /// </summary>
+        public uint SSRC;
 
         /// <summary>
         /// Creates a new Reception Report object.
@@ -184,19 +184,9 @@ namespace SIPSorcery.Net
         private const int RTP_SEQ_MOD = 1 << 16;
 
         /// <summary>
-        /// Data source being reported.
+        /// last 'bad' seq number + 1.
         /// </summary>
-        public uint SSRC;
-
-        /// <summary>
-        /// highest seq. number seen
-        /// </summary>
-        private ushort m_max_seq;
-
-        /// <summary>
-        /// shifted count of seq. number cycles.
-        /// </summary>
-        private uint m_cycles;
+        private uint m_bad_seq;
 
         /// <summary>
         /// base seq number
@@ -204,9 +194,34 @@ namespace SIPSorcery.Net
         private uint m_base_seq;
 
         /// <summary>
-        /// last 'bad' seq number + 1.
+        /// shifted count of seq. number cycles.
         /// </summary>
-        private uint m_bad_seq;
+        private uint m_cycles;
+
+        /// <summary>
+        /// packet expected at last interval.
+        /// </summary>
+        private uint m_expected_prior;
+
+        /// <summary>
+        /// Estimated jitter.
+        /// </summary>
+        private uint m_jitter;
+
+        /// <summary>
+        /// Datetime the last sender report was received at.
+        /// </summary>
+        private DateTime m_lastSenderReportReceivedAt = DateTime.MinValue;
+
+        /// <summary>
+        /// Last SR packet from this source.
+        /// </summary>
+        private uint m_lastSenderReportTimestamp;
+
+        /// <summary>
+        /// highest seq. number seen
+        /// </summary>
+        private ushort m_max_seq;
 
         /// <summary>
         /// sequ. packets till source is valid.
@@ -219,11 +234,6 @@ namespace SIPSorcery.Net
         private uint m_received;
 
         /// <summary>
-        /// packet expected at last interval.
-        /// </summary>
-        private uint m_expected_prior;
-
-        /// <summary>
         /// packet received at last interval.
         /// </summary>
         private uint m_received_prior;
@@ -234,19 +244,9 @@ namespace SIPSorcery.Net
         private uint m_transit;
 
         /// <summary>
-        /// Estimated jitter.
+        /// Data source being reported.
         /// </summary>
-        private uint m_jitter;
-
-        /// <summary>
-        /// Last SR packet from this source.
-        /// </summary>
-        private uint m_lastSenderReportTimestamp;
-
-        /// <summary>
-        /// Datetime the last sender report was received at.
-        /// </summary>
-        private DateTime m_lastSenderReportReceivedAt = DateTime.MinValue;
+        public uint SSRC;
 
         /// <summary>
         /// Creates a new Reception Report object.

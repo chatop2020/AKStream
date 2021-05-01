@@ -9,20 +9,20 @@ namespace LibCommon.Structs.GB28181
     /// </summary>
     public class SipServerConfig
     {
-        private string _sipIpAddress = null!;
-        private string? _sipIpV6Address;
-        private string _serverSipDeviceId = null!;
-        private ushort _sipPort;
-        private string _realm;
-        private string _gbVersion = null!;
         private bool _authentication;
-        private string? _sipUsername;
-        private string? _sipPassword;
-        private string _msgProtocol = null!;
+        private string _gbVersion = null!;
+        private bool _ipV6Enable = false;
         private int _keepAliveInterval;
         private int _keepAliveLostNumber;
-        private bool _ipV6Enable = false;
+        private string _msgProtocol = null!;
         private List<NoAuthenticationRequired>? _noAuthenticationRequireds = new List<NoAuthenticationRequired>();
+        private string _realm;
+        private string _serverSipDeviceId = null!;
+        private string _sipIpAddress = null!;
+        private string? _sipIpV6Address;
+        private string? _sipPassword;
+        private ushort _sipPort;
+        private string? _sipUsername;
 
 
         /// <summary>

@@ -7,12 +7,12 @@ namespace LibZLMediaKitMediaServer
 {
     public class WebApiHelper
     {
-        private string _ipAddress;
-        private ushort _webApiPort;
-        private string _secret;
         private string _baseUri = "/index/api/";
-        private bool _useSSL = false;
         private int _httpClientTimeout;
+        private string _ipAddress;
+        private string _secret;
+        private bool _useSSL = false;
+        private ushort _webApiPort;
 
 
         public WebApiHelper(string ipAddress, ushort webApiPort, string secret, int httpClientTimeoutSec = 5,

@@ -1382,7 +1382,7 @@ namespace AKStreamWeb.Services
                     req.Enable_Hls = 1;
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
-                    req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec; 
+                    req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec;
                 }
             }
             else
@@ -1391,7 +1391,7 @@ namespace AKStreamWeb.Services
                 req.Enable_Hls = 1;
                 req.Enable_Mp4 = 0;
                 req.Src_Url = videoChannel.VideoSrcUrl;
-                req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec; 
+                req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec;
             }
 
             var ret = mediaServer.WebApiHelper.AddFFmpegSource(req, out rs);

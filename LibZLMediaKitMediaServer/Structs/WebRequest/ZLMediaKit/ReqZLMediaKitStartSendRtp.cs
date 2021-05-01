@@ -8,14 +8,14 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     [Serializable]
     public class ReqZLMediaKitStartSendRtp : ReqZLMediaKitRequestBase
     {
-        private string _vhost;
         private string _app;
-        private string _stream;
-        private string _ssrc;
-        private string _dst_url;
         private string _dst_port;
+        private string _dst_url;
         private string _is_udp;
         private ushort _src_port;
+        private string _ssrc;
+        private string _stream;
+        private string _vhost;
 
 
         /// <summary>

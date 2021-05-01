@@ -61,6 +61,20 @@ namespace SIPSorcery.Sys
         /// </summary>
         private static bool? _supportsDualModeIPv4PacketInfo = null;
 
+        /// <summary>
+        /// A lookup collection to cache the local IP address for a destination address. The collection will cache results of
+        /// asking the Operating System which local address to use for a destination address. The cache saves a relatively 
+        /// expensive call to create a socket and ask the OS for a route lookup.
+        /// 
+        /// TODO:  Clear this cache if the state of the local network interfaces change.
+        /// </summary>
+        private static ConcurrentDictionary<IPAddress, Tuple<IPAddress, DateTime>> m_localAddressTable =
+            new ConcurrentDictionary<IPAddress, Tuple<IPAddress, DateTime>>();
+
+        private static List<IPAddress> _localIPAddresses = null;
+
+        private static IPAddress _internetDefaultAddress = null;
+
         public static bool SupportsDualModeIPv4PacketInfo
         {
             get
@@ -80,16 +94,6 @@ namespace SIPSorcery.Sys
                 return _supportsDualModeIPv4PacketInfo.Value;
             }
         }
-
-        /// <summary>
-        /// A lookup collection to cache the local IP address for a destination address. The collection will cache results of
-        /// asking the Operating System which local address to use for a destination address. The cache saves a relatively 
-        /// expensive call to create a socket and ask the OS for a route lookup.
-        /// 
-        /// TODO:  Clear this cache if the state of the local network interfaces change.
-        /// </summary>
-        private static ConcurrentDictionary<IPAddress, Tuple<IPAddress, DateTime>> m_localAddressTable =
-            new ConcurrentDictionary<IPAddress, Tuple<IPAddress, DateTime>>();
 
         /// <summary>
         /// The list of IP addresses that this machine can use.
@@ -113,8 +117,6 @@ namespace SIPSorcery.Sys
             }
         }
 
-        private static List<IPAddress> _localIPAddresses = null;
-
         /// <summary>
         /// The local IP address this machine uses to communicate with the Internet.
         /// </summary>
@@ -131,8 +133,6 @@ namespace SIPSorcery.Sys
                 return _internetDefaultAddress;
             }
         }
-
-        private static IPAddress _internetDefaultAddress = null;
 
         /// <summary>
         /// Checks whether an IP address can be used on the underlying System.

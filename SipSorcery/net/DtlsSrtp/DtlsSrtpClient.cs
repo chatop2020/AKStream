@@ -69,41 +69,23 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
+        private UseSrtpData clientSrtpData;
+        private byte[] masterSecret = null;
+
         internal Certificate mCertificateChain = null;
         internal AsymmetricKeyParameter mPrivateKey = null;
 
-        internal TlsClientContext TlsContext
-        {
-            get { return mContext; }
-        }
-
         protected internal TlsSession mSession;
-
-        //Received from server
-        public Certificate ServerCertificate { get; internal set; }
-
-        public RTCDtlsFingerprint Fingerprint { get; private set; }
-
-        private UseSrtpData clientSrtpData;
+        private SrtpPolicy srtcpPolicy;
 
         // Asymmetric shared keys derived from the DTLS handshake and used for the SRTP encryption/
         private byte[] srtpMasterClientKey;
-        private byte[] srtpMasterServerKey;
         private byte[] srtpMasterClientSalt;
+        private byte[] srtpMasterServerKey;
         private byte[] srtpMasterServerSalt;
-        private byte[] masterSecret = null;
 
         // Policies
         private SrtpPolicy srtpPolicy;
-        private SrtpPolicy srtcpPolicy;
-
-        /// <summary>
-        /// Parameters:
-        ///  - alert level,
-        ///  - alert type,
-        ///  - alert description.
-        /// </summary>
-        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
 
         public DtlsSrtpClient() :
             this(null, null, null)
@@ -164,6 +146,74 @@ namespace SIPSorcery.Net
         {
         }
 
+        internal TlsClientContext TlsContext
+        {
+            get { return mContext; }
+        }
+
+        //Received from server
+        public Certificate ServerCertificate { get; internal set; }
+
+        public RTCDtlsFingerprint Fingerprint { get; private set; }
+
+        public override ProtocolVersion ClientVersion
+        {
+            get { return ProtocolVersion.DTLSv12; }
+        }
+
+        public override ProtocolVersion MinimumVersion
+        {
+            get { return ProtocolVersion.DTLSv10; }
+        }
+
+        /// <summary>
+        /// Parameters:
+        ///  - alert level,
+        ///  - alert type,
+        ///  - alert description.
+        /// </summary>
+        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
+
+        public virtual SrtpPolicy GetSrtpPolicy()
+        {
+            return srtpPolicy;
+        }
+
+        public virtual SrtpPolicy GetSrtcpPolicy()
+        {
+            return srtcpPolicy;
+        }
+
+        public virtual byte[] GetSrtpMasterServerKey()
+        {
+            return srtpMasterServerKey;
+        }
+
+        public virtual byte[] GetSrtpMasterServerSalt()
+        {
+            return srtpMasterServerSalt;
+        }
+
+        public virtual byte[] GetSrtpMasterClientKey()
+        {
+            return srtpMasterClientKey;
+        }
+
+        public virtual byte[] GetSrtpMasterClientSalt()
+        {
+            return srtpMasterClientSalt;
+        }
+
+        public bool IsClient()
+        {
+            return true;
+        }
+
+        public Certificate GetRemoteCertificate()
+        {
+            return ServerCertificate;
+        }
+
         public override IDictionary GetClientExtensions()
         {
             var clientExtensions = base.GetClientExtensions();
@@ -209,36 +259,6 @@ namespace SIPSorcery.Net
             clientSrtpData = new UseSrtpData(protectionProfiles, clientSrtpData.Mki);
         }
 
-        public virtual SrtpPolicy GetSrtpPolicy()
-        {
-            return srtpPolicy;
-        }
-
-        public virtual SrtpPolicy GetSrtcpPolicy()
-        {
-            return srtcpPolicy;
-        }
-
-        public virtual byte[] GetSrtpMasterServerKey()
-        {
-            return srtpMasterServerKey;
-        }
-
-        public virtual byte[] GetSrtpMasterServerSalt()
-        {
-            return srtpMasterServerSalt;
-        }
-
-        public virtual byte[] GetSrtpMasterClientKey()
-        {
-            return srtpMasterClientKey;
-        }
-
-        public virtual byte[] GetSrtpMasterClientSalt()
-        {
-            return srtpMasterClientSalt;
-        }
-
         public override TlsAuthentication GetAuthentication()
         {
             return new DtlsSrtpTlsAuthentication(this);
@@ -256,11 +276,6 @@ namespace SIPSorcery.Net
 
             //Prepare Srtp Keys (we must to it here because master key will be cleared after that)
             PrepareSrtpSharedSecret();
-        }
-
-        public bool IsClient()
-        {
-            return true;
         }
 
         protected byte[] GetKeyingMaterial(int length)
@@ -323,16 +338,6 @@ namespace SIPSorcery.Net
             Buffer.BlockCopy(sharedSecret, (2 * keyLen + saltLen), srtpMasterServerSalt, 0, saltLen);
         }
 
-        public override ProtocolVersion ClientVersion
-        {
-            get { return ProtocolVersion.DTLSv12; }
-        }
-
-        public override ProtocolVersion MinimumVersion
-        {
-            get { return ProtocolVersion.DTLSv10; }
-        }
-
         public override TlsSession GetSessionToResume()
         {
             return this.mSession;
@@ -366,11 +371,6 @@ namespace SIPSorcery.Net
         public override void NotifyServerVersion(ProtocolVersion serverVersion)
         {
             base.NotifyServerVersion(serverVersion);
-        }
-
-        public Certificate GetRemoteCertificate()
-        {
-            return ServerCertificate;
         }
 
         public override void NotifyAlertReceived(byte alertLevel, byte alertDescription)
