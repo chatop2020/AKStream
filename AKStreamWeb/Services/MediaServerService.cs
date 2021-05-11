@@ -2017,7 +2017,7 @@ namespace AKStreamWeb.Services
 
                 reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
                 {
-                    Enable_Tcp = true,
+                    Enable_Tcp = 1,
                     Port = rtpPortGuess,
                     Stream_Id = stream,
                 };
@@ -2026,7 +2026,7 @@ namespace AKStreamWeb.Services
             {
                 reqZlMediaKitOpenRtpPort = new ReqZLMediaKitOpenRtpPort()
                 {
-                    Enable_Tcp = true,
+                    Enable_Tcp = 1,
                     Port = 0,
                     Stream_Id = stream,
                 };
