@@ -82,9 +82,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private ushort? _rtmp_port;
         private ushort? _rtmp_sslport;
         private int? _rtp_audioMtuSize;
-        private int? _rtp_clearCount;
         private ulong? _rtp_cycleMS;
-        private int? _rtp_maxRtpCount;
         private bool? _rtp_Proxy_checkSource;
         private string? _rtp_Proxy_dumpDir;
         private ushort? _rtp_Proxy_port;
@@ -636,13 +634,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _rtp_audioMtuSize = value;
         }
 
-        [JsonProperty("rtp.clearCount")]
-        public int? Rtp_ClearCount
-        {
-            get => _rtp_clearCount;
-            set => _rtp_clearCount = value;
-        }
-
+       
         [JsonProperty("rtp.cycleMS")]
         public ulong? Rtp_CycleMs
         {
@@ -650,13 +642,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _rtp_cycleMS = value;
         }
 
-        [JsonProperty("rtp.maxRtpCount")]
-        public int? Rtp_MaxRtpCount
-        {
-            get => _rtp_maxRtpCount;
-            set => _rtp_maxRtpCount = value;
-        }
-
+      
         [JsonProperty("rtp.videoMtuSize")]
         public int? Rtp_VideoMtuSize
         {
