@@ -1955,6 +1955,10 @@ namespace AKStreamWeb.Services
 
                 reqZLMediaKitStartRecord.Customized_Path = mediaServer.RecordPathList[0].Value;
             }
+            else if (mediaServer.RecordPathList != null && mediaServer.RecordPathList.Count == 1)
+            {
+                reqZLMediaKitStartRecord.Customized_Path = mediaServer.RecordPathList[0].Value;
+            }
 
             var ret = mediaServer.WebApiHelper.StartRecord(reqZLMediaKitStartRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
