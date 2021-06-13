@@ -1,8 +1,9 @@
 # AKStream介绍 
 ## 技术交流QQ群：870526956
 -------
-* AKStream是StreamNode(全名StreamNode-GB28181)的升级重构版本，AKStream继承了StreamNode的设计结构，但90%以上的代码全部重写，AKStream在代码设计，结构，思想等层面要远优于StreamNode。
-* AKStream与StreamNode一样，还是使用全国最棒的ZLMediaKit作为其流媒体服务器，AKStream支持对ZLMediaKit的集群管理（通过AKStreamKeeper-流媒体治理组件），可以将分布在不同服务器的多个ZLMediaKit集群起来，统一管理，统一调度。
+* AKStream是一套全功能的软NVR接口平台，软NVR指的是软件定义的NVR（Network Video Recoder），AKStream经过长达一年半的开发，测试与调优，已经具备了一定的使用价值，在可靠性，实用性方面都有着较为不错的表现，同时因为AKStream是一套完全开源的软件产品，在众多网友的一起加持下，AKStream的安全性也得到了验证。
+
+* AKStream集成了ZLMediaKit作为其流媒体服务器，AKStream支持对ZLMediaKit的集群管理（通过AKStreamKeeper-流媒体治理组件），可以将分布在不同服务器的多个ZLMediaKit集群起来，统一管理，统一调度。
 * 得益于ZLMediaKit流媒体服务器的强大，AKStream全面支持H265/H264/AAC/G711/OPUS等音视频编码格式，支持GB28181的Rtp推流、GB28181-PTZ控制、内置流代理器的http、rtps、rtmp拉流（支持H264,H265/ACC/G711）和ffmpeg流代理器的几乎所有形式的拉流（支持几乎所有格式及转码），将推拉流转换成RTSP/RTMP/HLS/HTTP-FLV/WebSocket-FLV/GB28181/HTTP-TS/WebSocket-TS/HTTP-fMP4/WebSocket-fMP4/MP4等几乎全协议的互相转换以供第三方（APP,WEB,客户端等）调用播放。
 * AKStream支持linux、macos、Windows,系统可运行在可基于x86_64,ARM CPU架构下。
 * 支持画面秒开、极低延时(500毫秒内，最低可达100毫秒)。
