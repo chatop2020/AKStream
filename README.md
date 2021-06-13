@@ -1,5 +1,5 @@
 # AKStream介绍 
-
+## 技术交流QQ群：870526956
 -------
 * AKStream是StreamNode(全名StreamNode-GB28181)的升级重构版本，AKStream继承了StreamNode的设计结构，但90%以上的代码全部重写，AKStream在代码设计，结构，思想等层面要远优于StreamNode。
 * AKStream与StreamNode一样，还是使用全国最棒的ZLMediaKit作为其流媒体服务器，AKStream支持对ZLMediaKit的集群管理（通过AKStreamKeeper-流媒体治理组件），可以将分布在不同服务器的多个ZLMediaKit集群起来，统一管理，统一调度。
