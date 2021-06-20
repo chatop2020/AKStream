@@ -4,11 +4,13 @@ using AKStreamKeeper.Services;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
+using log4net.Core;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamKeeper.Controllers
 {
+    
     [Log]
     [AuthVerify]
     [ApiController]
@@ -16,6 +18,48 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
+
+        /// <summary>
+        /// 获取日志级别
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetLoggerLevel")]
+        [HttpGet]
+        public string GetLoggerLevel([FromHeader(Name = "AccessKey")] string AccessKey)
+        {
+            ResponseStruct rs;
+            var ret = ApiService.GetLoggerLevel(out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;  
+        }
+
+        /// <summary>
+        /// 动态设置日志级别
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("SetLoggerLevel")]
+        [HttpGet]
+        public bool SetLoggerLevel([FromHeader(Name = "AccessKey")] string AccessKey, Level level)
+        {
+            ResponseStruct rs;
+            var ret = ApiService.SetLoggerLevel(level,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;   
+        }
+        
         /// <summary>
         /// 获取AKStreamKeeper版本标识
         /// </summary>

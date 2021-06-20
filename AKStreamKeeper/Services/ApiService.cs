@@ -9,12 +9,49 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibLogger;
+using log4net.Core;
 using Newtonsoft.Json;
 
 namespace AKStreamKeeper.Services
 {
     public static class ApiService
     {
+        
+        /// <summary>
+        /// 设置日志级别
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool SetLoggerLevel(Level level,out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            
+            Logger.SetLogLevel(level);
+            return true;
+        }
+        
+        /// <summary>
+        /// 获取日志级别
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static string GetLoggerLevel(out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            return Logger.GetLogLevel();
+        }
+        
         /// <summary>
         /// 释放已经使用过的rtp端口
         /// </summary>
