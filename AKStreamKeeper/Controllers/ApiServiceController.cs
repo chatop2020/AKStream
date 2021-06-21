@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AKStreamKeeper.Attributes;
 using AKStreamKeeper.Services;
@@ -39,26 +40,7 @@ namespace AKStreamKeeper.Controllers
             return ret;  
         }
 
-        /// <summary>
-        /// 动态设置日志级别
-        /// </summary>
-        /// <param name="AccessKey"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        /// <exception cref="AkStreamException"></exception>
-        [Route("SetLoggerLevel")]
-        [HttpGet]
-        public bool SetLoggerLevel([FromHeader(Name = "AccessKey")] string AccessKey, Level level)
-        {
-            ResponseStruct rs;
-            var ret = ApiService.SetLoggerLevel(level,out rs);
-            if (!rs.Code.Equals(ErrorNumber.None))
-            {
-                throw new AkStreamException(rs);
-            }
-
-            return ret;   
-        }
+      
         
         /// <summary>
         /// 获取AKStreamKeeper版本标识

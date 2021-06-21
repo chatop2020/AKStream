@@ -50,15 +50,7 @@ namespace LibLogger
             _instance.Fatal(msg);
         }
 
-        /// <summary>
-        /// 动态设置日志级别
-        /// </summary>
-        /// <param name="level"></param>
-        public static void SetLogLevel(Level level)
-        {
-            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).Root.Level =level;
-            ((log4net.Repository.Hierarchy.Hierarchy)LogManager.GetRepository()).RaiseConfigurationChanged(EventArgs.Empty);
-        }
+       
 
         /// <summary>
         /// 获取日志级别
