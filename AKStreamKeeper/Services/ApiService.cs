@@ -17,24 +17,7 @@ namespace AKStreamKeeper.Services
     public static class ApiService
     {
         
-        /// <summary>
-        /// 设置日志级别
-        /// </summary>
-        /// <param name="level"></param>
-        /// <param name="rs"></param>
-        /// <returns></returns>
-        public static bool SetLoggerLevel(Level level,out ResponseStruct rs)
-        {
-            rs = new ResponseStruct()
-            {
-                Code = ErrorNumber.None,
-                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
-            };
-            
-            Logger.SetLogLevel(level);
-            return true;
-        }
-        
+       
         /// <summary>
         /// 获取日志级别
         /// </summary>

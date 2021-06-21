@@ -1,3 +1,4 @@
+using System;
 using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
@@ -17,7 +18,6 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("系统相关API")]
     public class SystemServiceController : ControllerBase
     {
-        
         /// <summary>
         /// 获取日志级别
         /// </summary>
@@ -29,37 +29,17 @@ namespace AKStreamWeb.Controllers
         public string GetLoggerLevel([FromHeader(Name = "AccessKey")] string AccessKey)
         {
             ResponseStruct rs;
-            var ret =SystemService.GetLoggerLevel(out rs);
+            var ret = SystemService.GetLoggerLevel(out rs);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);
             }
 
-            return ret;  
+            return ret;
         }
 
-        /// <summary>
-        /// 动态设置日志级别
-        /// </summary>
-        /// <param name="AccessKey"></param>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        /// <exception cref="AkStreamException"></exception>
-        [Route("SetLoggerLevel")]
-        [HttpGet]
-        public bool SetLoggerLevel([FromHeader(Name = "AccessKey")] string AccessKey, Level level)
-        {
-            ResponseStruct rs;
-            var ret = SystemService.SetLoggerLevel(level,out rs);
-            if (!rs.Code.Equals(ErrorNumber.None))
-            {
-                throw new AkStreamException(rs);
-            }
 
-            return ret;   
-        }
 
-        
         /// <summary>
         /// 获取AKStreamWeb版本标识
         /// </summary>
