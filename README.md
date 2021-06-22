@@ -14,7 +14,6 @@
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 * 2020-2-5增加国内gitee同步仓库，方便国内下载
 * 请多多支持，多多Star,谢谢
-# 使用AKStream实现的Web管理平台（开源）
 
 
 * AKStream is a full-featured soft NVR interface platform. Soft NVR refers to the software-defined NVR (Network Video Recoder). After a year and a half of development, testing and tuning, AKStream has already possessed a certain value in use. It has a relatively good performance in terms of reliability and practicability. At the same time, because AKStream is a completely open source software product, with the support of many netizens, the safety of AKStream has also been verified.
@@ -40,6 +39,8 @@ AKStream's GB28181(China GOV Video Rtp Stream Protocol Standard) Sip signaling g
 * 2020-2-5 Increase the domestic gitee synchronization warehouse to facilitate domestic downloads
 
 * Please support a lot, star a lot, thank you
+
+# 使用AKStream实现的Web管理平台（开源）
 -------
 ![流媒体服务管理列表](https://i.loli.net/2021/01/19/YjCUMHVdFzSuBXe.png)
 ![在线设备列表](https://i.loli.net/2021/01/19/oUpFMBk5NELdYaT.png)
