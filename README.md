@@ -13,8 +13,33 @@
 * 数据库部分使用开源项目freeSql数据库类库，支持数据库类型众多，如sqlite、mssql等，建议使用Mysql 5.7以及以上版本。
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 * 2020-2-5增加国内gitee同步仓库，方便国内下载
-* 请多多支持，多多Start,谢谢
+* 请多多支持，多多Star,谢谢
 # 使用AKStream实现的Web管理平台（开源）
+
+
+* AKStream is a full-featured soft NVR interface platform. Soft NVR refers to the software-defined NVR (Network Video Recoder). After a year and a half of development, testing and tuning, AKStream has already possessed a certain value in use. It has a relatively good performance in terms of reliability and practicability. At the same time, because AKStream is a completely open source software product, with the support of many netizens, the safety of AKStream has also been verified.
+
+* AKStream integrates ZLMediaKit as its streaming media server. AKStream supports cluster management of ZLMediaKit (through the AKStreamKeeper-streaming media management component), which can cluster multiple ZLMediaKits distributed on different servers for unified management and unified scheduling.
+
+* Thanks to the power of the ZLMediaKit streaming media server, AKStream fully supports H265/H264/AAC/G711/OPUS and other audio and video encoding formats, supports GB28181 Rtp streaming, GB28181-PTZ control, built-in streaming proxy http, rtps, rtmp Pull stream (support H264, H265/ACC/G711) and almost all forms of pull stream of ffmpeg streaming agent (support almost all formats and transcoding), convert push-pull stream into RTSP/RTMP/HLS/HTTP-FLV/WebSocket -FLV/GB28181/HTTP-TS/WebSocket-TS/HTTP-fMP4/WebSocket-fMP4/MP4 and other almost full protocol mutual conversion for the third party (APP, WEB, client, etc.) to call and play.
+
+* AKStream supports Linux, macos, Windows, and the system can run on x86_64, ARM CPU architecture.
+
+* Support the screen to open in seconds, very low delay (within 500 milliseconds, the lowest can reach 100 milliseconds).
+
+* Provide a complete standard Restful WebApi interface for other languages to call.
+
+AKStream's GB28181(China GOV Video Rtp Stream Protocol Standard) Sip signaling gateway is rewritten, and the Sip gateway in the StreamNode solution is no longer used, and the gateway is more stable and reliable. Currently it only supports the GB28181-2016 standard (because there is no equipment with other versions of the protocol, no detailed testing has been done), but due to the high scalability of the new SIP gateway, it can be expanded according to your needs.
+
+* AKStream uses the .net core 3.1 framework (after the subsequent .Net 5 matures, it will switch to the .Net 5 framework) and is written in C# language.
+
+* The database part uses the open source project freeSql database library, which supports many types of databases, such as sqlite, mssql, etc. It is recommended to use Mysql 5.7 and above.
+
+* AKStream has done centralized processing and optimization of many previous feedbacks of StreamNode to make it more adaptable and usable; it has a more complete system and higher code quality than StreamNode.
+
+* 2020-2-5 Increase the domestic gitee synchronization warehouse to facilitate domestic downloads
+
+* Please support a lot, star a lot, thank you
 -------
 ![流媒体服务管理列表](https://i.loli.net/2021/01/19/YjCUMHVdFzSuBXe.png)
 ![在线设备列表](https://i.loli.net/2021/01/19/oUpFMBk5NELdYaT.png)
