@@ -28,7 +28,7 @@
 
 * Provide a complete standard Restful WebApi interface for other languages to call.
 
-AKStream's GB28181(China GOV Video Rtp Stream Protocol Standard) Sip signaling gateway is rewritten, and the Sip gateway in the StreamNode solution is no longer used, and the gateway is more stable and reliable. Currently it only supports the GB28181-2016 standard (because there is no equipment with other versions of the protocol, no detailed testing has been done), but due to the high scalability of the new SIP gateway, it can be expanded according to your needs.
+* AKStream's GB28181(China GOV Video Rtp Stream Protocol Standard) Sip signaling gateway is rewritten, and the Sip gateway in the StreamNode solution is no longer used, and the gateway is more stable and reliable. Currently it only supports the GB28181-2016 standard (because there is no equipment with other versions of the protocol, no detailed testing has been done), but due to the high scalability of the new SIP gateway, it can be expanded according to your needs.
 
 * AKStream uses the .net core 3.1 framework (after the subsequent .Net 5 matures, it will switch to the .Net 5 framework) and is written in C# language.
 
