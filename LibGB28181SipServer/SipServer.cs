@@ -267,6 +267,99 @@ namespace LibGB28181SipServer
             }
         }
 
+        
+        private async Task SendRequestForRecordSeekPosition(SipDevice sipDevice, SipChannel sipChannel, SIPMethodsEnum method,
+          string contentType,
+          string xmlBody, string subject, CommandType commandType, bool needResponse, AutoResetEvent evnt,
+          AutoResetEvent evnt2, object obj,
+          int timeout)
+        {
+            try
+            {
+                IPAddress sipDeviceIpAddr = sipDevice.RemoteEndPoint.Address;
+                int sipDevicePort = sipDevice.RemoteEndPoint.Port;
+                SIPProtocolsEnum protocols = sipDevice.RemoteEndPoint.Protocol;
+                var toSipUri = new SIPURI(SIPSchemesEnum.sip,
+                    new SIPEndPoint(protocols, new IPEndPoint(sipDeviceIpAddr, sipDevicePort)));
+                toSipUri.User = sipChannel.DeviceId;
+                SIPToHeader to = new SIPToHeader(null, toSipUri, null);
+                IPAddress sipServerIpAddress = IPAddress.Parse(Common.SipServerConfig.SipIpAddress);
+                var fromSipUri = new SIPURI(SIPSchemesEnum.sip, sipServerIpAddress, Common.SipServerConfig.SipPort);
+                fromSipUri.User = Common.SipServerConfig.ServerSipDeviceId;
+
+                SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
+
+                bool isIpV6 = (sipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
+                               AddressFamily.InterNetworkV6)
+                    ? true
+                    : false;
+                SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
+                    from,
+                    new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
+                        new IPEndPoint(
+                            isIpV6
+                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
+                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
+                            sipDevice.SipChannelLayout.Port)));
+
+                req.Header.Allow = null;
+
+                req.Header.Contact = new List<SIPContactHeader>()
+                {
+                    new SIPContactHeader(null, fromSipUri)
+                };
+                req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
+                req.Header.ContentType = contentType;
+                req.Header.Subject = string.IsNullOrEmpty(subject) ? null : subject;
+                req.Header.CallId = ((RecordInfo.RecItem)obj).CallId;
+                req.Header.CSeq = ((RecordInfo.RecItem)obj).CSeq;
+                req.Body = xmlBody;
+                if (needResponse)
+                {
+                    var nrt = new NeedReturnTask(Common.NeedResponseRequests)
+                    {
+                        AutoResetEvent = evnt,
+                        CallId = req.Header.CallId,
+                        SipRequest = req,
+                        Timeout = timeout,
+                        SipDevice = sipDevice,
+                        SipChannel = sipChannel,
+                        AutoResetEvent2 = evnt2 == null ? null : evnt2,
+                        CommandType = commandType,
+                        Obj = obj == null ? null : obj, //额外的通用类
+                    };
+                    Common.NeedResponseRequests.TryAdd(req.Header.CallId, nrt);
+                }
+
+                if (commandType == CommandType.Playback && obj != null)
+                {
+                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem)obj).CallId = ((RecordInfo.RecItem)obj).CallId;
+                    ((RecordInfo.RecItem)obj).CSeq = ((RecordInfo.RecItem)obj).CSeq;
+                    ((RecordInfo.RecItem)obj).ToTag = ((RecordInfo.RecItem)obj).ToTag;
+                    ((RecordInfo.RecItem)obj).FromTag = ((RecordInfo.RecItem)obj).FromTag;
+                }
+                else if (commandType == CommandType.Play)
+                {
+                    sipChannel.InviteSipRequest = req;
+                }
+
+                sipChannel.LastSipRequest = req;
+                Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
+                await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
+            }
+            catch (Exception ex)
+            {
+                ResponseStruct rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_SendMessageExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SendMessageExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                throw new AkStreamException(rs);
+            }
+        }
 
         /// <summary>
         /// 检测请求实时视频流参数是否正确
@@ -1064,6 +1157,97 @@ namespace LibGB28181SipServer
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
+        }
+
+
+        private string createRecordSeekPositionSdp(RecordInfo.RecItem record, long time)
+        {
+            string recordSdp =
+                "PLAY MANSRTSP/1.0\r\n" +
+                "CSeq: " + record.CSeq + "\r\n" +
+                "Range: npt=" + time + "-\r\n";
+            return recordSdp;
+        }
+        
+        /// <summary>
+        /// 回放视频时的seek position操作
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="pushMediaInfo"></param>
+        /// <param name="time"></param>
+        /// <param name="evnt"></param>
+        /// <param name="rs"></param>
+        /// <param name="timeout"></param>
+        public void InviteRecordPosition(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, long time, AutoResetEvent evnt,
+          out ResponseStruct rs, int timeout = 5000)
+        {
+            try
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.None,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+                };
+
+               
+                string recordSdp =  createRecordSeekPositionSdp(record, time);
+
+                if (!string.IsNullOrEmpty(recordSdp))
+                {
+                    SIPMethodsEnum method = SIPMethodsEnum.INFO;
+                    var subject = record.InviteSipRequest.Header.Subject;
+                    try
+                    {
+                        Func<SipDevice, SipChannel, SIPMethodsEnum, string, string, string, CommandType, bool, AutoResetEvent, AutoResetEvent, object, int, Task> request = SendRequestForRecordSeekPosition ;
+
+                        request(record.SipDevice, record.SipChannel, method, ConstString.Application_SDP, recordSdp, subject, CommandType.Playback, false, evnt, null, record, timeout);
+                    }
+                    catch (AkStreamException ex)
+                    {
+                        rs = ex.ResponseStruct;
+                        try
+                        {
+                            evnt.Set();
+                        }
+                        catch (Exception exex)
+                        {
+                            ResponseStruct exrs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_AutoResetEventExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                                ExceptMessage = exex.Message,
+                                ExceptStackTrace = exex.StackTrace
+                            };
+                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                try
+                {
+                    evnt.Set();
+                }
+                catch (Exception exex)
+                {
+                    ResponseStruct exrs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_AutoResetEventExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AutoResetEventExcept],
+                        ExceptMessage = exex.Message,
+                        ExceptStackTrace = exex.StackTrace
+                    };
+                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                }
+            }
         }
 
         public void InviteRecord(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, AutoResetEvent evnt,
