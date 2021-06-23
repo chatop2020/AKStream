@@ -1478,5 +1478,102 @@ namespace AKStreamWeb.Services
                 $"[{Common.LoggerHead}]->获取Sip设备列表成功->{JsonHelper.ToJson(LibGB28181SipServer.Common.SipDevices.Count)}");
             return LibGB28181SipServer.Common.SipDevices;
         }
+        
+        /// <summary>
+        /// 用于回放录像时的拖动
+        /// </summary>
+        /// <param name="taskId"></param>
+        /// <param name="ssrcId"></param>
+        /// <param name="time"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool RecordVideoSeekPosition(int taskId, uint ssrcId, long time, out ResponseStruct rs)
+        {
+            ServerInstance mediaServer;
+            VideoChannel videoChannel;
+            SipDevice sipDevice;
+            SipChannel sipChannel;
+            RecordInfo.RecItem record = null;
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
+            if (row != null && row.RecItems != null && row.RecItems.Count > 0)
+            {
+                record = row.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId.ToString()));
+            }
+
+            if (record == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DB_RecordNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
+                };
+                return false;
+            }
+
+            var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
+                out videoChannel, out sipChannel,
+                out sipDevice);
+            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->拖拽Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
+
+                return false;
+            }
+
+            var vBack = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MediaServerStreamInfo.Ssrc == ssrcId);
+
+            ResMediaServerOpenRtpPort openRtpPort;
+            openRtpPort = new ResMediaServerOpenRtpPort()
+            {
+                Port = (ushort)vBack.MediaServerStreamInfo.StreamPort,
+                Stream = record.Stream,
+            };
+
+            PushMediaInfo pushMediaInfo = new PushMediaInfo();
+            pushMediaInfo.StreamPort = openRtpPort.Port;
+            pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            pushMediaInfo.PushStreamSocketType =
+                videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
+            try
+            {
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                var liveVideoRet = sipMethodProxy.InviteRecordPosition(record, pushMediaInfo, time, out rs);
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            var taskWait = new WebHookNeedReturnTask(Common.WebHookNeedReturnTask);
+            AutoResetEvent myWait = new AutoResetEvent(false);
+            taskWait.AutoResetEvent = myWait;
+            Common.WebHookNeedReturnTask.TryAdd($"WAITONPUBLISH_{record.Stream}",
+                taskWait);
+
+            var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
+
+            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish)taskWait.OtherObj;
+            Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
+                out WebHookNeedReturnTask task);
+            if (task != null)
+            {
+                task.Dispose();
+            }
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->拖拽Sip回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+
+            return true;
+
+
+        }
     }
 }

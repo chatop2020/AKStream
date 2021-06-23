@@ -348,5 +348,44 @@ namespace LibGB28181SipServer
                 Dispose();
             }
         }
+        
+        /// <summary>
+        /// 控制回放随机拖拽（GB28181）
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="pushMediaInfo"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public bool InviteRecordPosition(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, long time, out ResponseStruct rs)
+        {
+            try
+            {
+                _commandType = CommandType.Playback;
+                Common.SipServer.InviteRecordPosition(record, pushMediaInfo, time, _autoResetEvent, out rs, _timeout);
+                var isTimeout = _autoResetEvent.WaitOne(_timeout);
+                if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
+                {
+                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败(历史视频随机拖拽)->{JsonHelper.ToJson(rs)}");
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sip_InviteExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_InviteExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
+                return false;
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
     }
 }

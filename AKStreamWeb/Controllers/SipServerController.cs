@@ -62,6 +62,29 @@ namespace AKStreamWeb.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 回放录像时拖动（seek position）
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="taskId"></param>
+        /// <param name="ssrcId"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("HistroyVideoPosition")]
+        [HttpGet]
+        public bool HistroyVideoPosition(
+            [FromHeader(Name = "AccessKey")] string AccessKey, int taskId, uint ssrcId, long time)
+        {
+            ResponseStruct rs;
+            var ret = SipServerService.RecordVideoSeekPosition(taskId, ssrcId, time, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
 
         /// <summary>
         /// 获取回放文件列表状态
