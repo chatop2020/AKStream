@@ -75,7 +75,7 @@ namespace LibSystemInfo
                                         if (string.IsNullOrEmpty(NetWorkStat.Mac) || NetWorkStat.Mac=="00-00-00-00-00-00")
                                         {
                                             NetWorkStat.Mac = nif.GetPhysicalAddress().ToString();
-                                            NetWorkStat.Mac = InsertFormat(NetWorkStat.Mac, 2, ":").TrimEnd('-').ToUpper();
+                                            NetWorkStat.Mac = InsertFormat(NetWorkStat.Mac, 2, "-").TrimEnd('-').ToUpper();
                                         }
                                     }
                                 }
