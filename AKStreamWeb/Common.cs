@@ -172,7 +172,7 @@ namespace AKStreamWeb
                     Environment.Exit(0); //退出程序 
                 }
             }
-            catch (Exception ex)
+            catch (AkStreamException ex)
             {
                 Logger.Error(
                     $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
