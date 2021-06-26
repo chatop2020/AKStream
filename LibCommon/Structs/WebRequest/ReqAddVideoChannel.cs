@@ -36,6 +36,7 @@ namespace LibCommon.Structs.WebRequest
         private string _vhost;
         private VideoDeviceType _videoDeviceType;
         private string? _videoSrcUrl;
+        private string? _fFmpegTemplate;
 
         public string MediaServerId
         {
@@ -191,6 +192,12 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _noPlayerBreak;
             set => _noPlayerBreak = value;
+        }
+
+        public string? FFmpegTemplate
+        {
+            get => _fFmpegTemplate;
+            set => _fFmpegTemplate = value;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace LibCommon.Structs.WebRequest
         private string? _mediaServerId;
         private MethodByGetStream? _methodByGetStream;
         private string? _videoSrcUrl;
+     
 
 
         /// <summary>
@@ -77,5 +78,7 @@ namespace LibCommon.Structs.WebRequest
             get => _channelId;
             set => _channelId = value;
         }
+
+       
     }
 }
