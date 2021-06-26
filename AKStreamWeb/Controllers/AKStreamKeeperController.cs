@@ -15,6 +15,109 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体服务器治理的相关接口")]
     public class AKStreamKeeperController : ControllerBase
     {
+        
+        /// <summary>
+        /// 获取ffmpeg模板列表
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId">流媒体服务器id</param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetFFmpegTemplateList")]
+        [HttpGet]
+        public List<KeyValuePair<string, string>> GetFFmpegTemplateList([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId)
+        {
+            ResponseStruct rs;
+            var ret = AKStreamKeeperService.GetFFmpegTemplateList(mediaServerId,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;  
+        }
+        
+        /// <summary>
+        /// 删除ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId">流媒体服务器id</param>
+        /// <param name="templateName">模板名称</param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("DelFFmpegTemplate")]
+        [HttpGet]
+        public bool DelFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId,
+            string templateName)
+        {
+            ResponseStruct rs;
+            var ret = AKStreamKeeperService.DelFFmpegTemplate(mediaServerId,templateName,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;  
+        }
+        
+        
+        /// <summary>
+        /// 修改ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId">流媒体服务器id</param>
+        /// <param name="templateName">模板名称</param>
+        /// <param name="templateValue">模板命令（ffmpeg命令）</param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("ModifyFFmpegTemplate")]
+        [HttpGet]
+        public bool ModifyFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId,
+            string templateName,
+            string templateValue)
+        {
+            ResponseStruct rs;
+            var ret = AKStreamKeeperService.ModifyFFmpegTemplate(mediaServerId,templateName, templateValue,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;  
+        }
+        
+        /// <summary>
+        /// 添加ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId">流媒体服务器id</param>
+        /// <param name="templateName">模板名称</param>
+        /// <param name="templateValue">模板命令（ffmpeg命令）</param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("AddFFmpegTemplate")]
+        [HttpGet]
+        public bool AddFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId,
+            string templateName,
+            string templateValue)
+        {
+            ResponseStruct rs;
+            var ret = AKStreamKeeperService.AddFFmpegTemplate(mediaServerId,templateName, templateValue,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;  
+        }
+        
+        /// <summary>
+        /// 获取Keeper程序版本
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
         [Route("GetVersion")]
         [HttpGet]
         public string GetVersion(

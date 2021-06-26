@@ -10,7 +10,293 @@ namespace AKStreamWeb.Services
 {
     public static class AKStreamKeeperService
     {
-        
+        /// <summary>
+        /// 获取ffmpeg模板列表
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static List<KeyValuePair<string, string>> GetFFmpegTemplateList(string mediaServerId,
+            out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->" +
+                    $"获取ffmpeg模板列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取ffmpeg模板列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取ffmpeg模板列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            var ret = mediaServer.KeeperWebApi.GetFFmpegTemplateList(
+                out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取ffmpeg模板列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            Logger.Debug($"[{Common.LoggerHead}]->获取ffmpeg模板列表成功->{mediaServerId}");
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 修改ffmpeg模板
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="templateName"></param>
+        /// <param name="templateValue"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool ModifyFFmpegTemplate(string mediaServerId, string templateName,
+            string templateValue, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->修改ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->修改ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->修改ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.ModifyFFmpegTemplate(
+                new KeyValuePair<string, string>(templateName, templateValue), out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->修改ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            Logger.Debug($"[{Common.LoggerHead}]->修改ffmpeg模板成功->{mediaServerId}");
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 删除ffmpeg模板
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="templateName"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool DelFFmpegTemplate(string mediaServerId, string templateName, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.DelFFmpegTemplate(
+                templateName, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            Logger.Debug($"[{Common.LoggerHead}]->删除ffmpeg模板成功->{mediaServerId}");
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 添加ffmpeg模板
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="templateName"></param>
+        /// <param name="templateValue"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool AddFFmpegTemplate(string mediaServerId, string templateName,
+            string templateValue, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->添加ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->添加ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->添加ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.AddFFmpegTemplate(
+                new KeyValuePair<string, string>(templateName, templateValue), out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->添加ffmpeg模板失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            Logger.Debug($"[{Common.LoggerHead}]->添加ffmpeg模板成功->{mediaServerId}");
+
+            return ret;
+        }
+
         /// <summary>
         /// 获取AKStreamKeeper的版本标识
         /// </summary>

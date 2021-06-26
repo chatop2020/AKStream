@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -7,6 +8,7 @@ using IniParser;
 using IniParser.Model;
 using LibCommon;
 using LibLogger;
+using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
 
 namespace AKStreamKeeper
 {
@@ -218,6 +220,288 @@ namespace AKStreamKeeper
         }
 
         public static event Common.MediaServerKilled OnMediaKilled = null!;
+        
+        
+        /// <summary>
+        /// 修改一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplate"></param>
+        /// <returns></returns>
+        public  bool ModifyFFmpegTemplate(KeyValuePair<string, string> tmplate,out ResponseStruct rs)
+        {
+               rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+           
+            if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
+            {
+                var parser = new FileIniDataParser();
+                try
+                {
+                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+                    var ffmpeg_temp = data["ffmpeg_templete"]; //获取ffmpeg模板列表
+                    bool found = false;
+                    if (ffmpeg_temp != null)
+                    {
+                        foreach (var temp in ffmpeg_temp)
+                        {
+                            if (temp.KeyName.Trim().ToLower().Equals(tmplate.Key.Trim().ToLower()))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                        {
+                            data["ffmpeg_templete"][tmplate.Key] =
+                               tmplate.Value;
+                            parser.WriteFile(_configPath, data);
+                            return true;
+
+                        }
+
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_ObjectNotExists,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ObjectNotExists],
+                         
+                        };
+                        return false;
+
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_ObjectNotExists,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ObjectNotExists],
+                         
+                    };
+                    return false;
+
+                }
+                catch(Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_ReadIniFileExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    throw new AkStreamException(rs);
+                }
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.MediaServer_ConfigNotFound,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
+                 
+            };
+            throw new AkStreamException(rs);
+        }
+        /// <summary>
+        /// 删除一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplateName"></param>
+        /// <returns></returns>
+        public  bool DelFFmpegTemplate(string tmplateName,out ResponseStruct rs)
+        {
+             rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+           
+            if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
+            {
+                var parser = new FileIniDataParser();
+                try
+                {
+                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+                    var ffmpeg_temp = data["ffmpeg_templete"]; //获取ffmpeg模板列表
+                    bool found = false;
+                    if (ffmpeg_temp != null)
+                    {
+                        foreach (var temp in ffmpeg_temp)
+                        {
+                            if (temp.KeyName.Trim().ToLower().Equals(tmplateName.ToLower()))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                        {
+                            ffmpeg_temp.RemoveKey(tmplateName);
+                            parser.WriteFile(_configPath, data);
+                        }
+                    }
+                    return true;
+
+                }
+                catch(Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_ReadIniFileExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    throw new AkStreamException(rs);
+                }
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.MediaServer_ConfigNotFound,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
+                 
+            };
+            throw new AkStreamException(rs);
+        }
+
+        /// <summary>
+        /// 添加一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplate"></param>
+        /// <returns></returns>
+        public  bool AddFFmpegTemplate(KeyValuePair<string, string> tmplate,out ResponseStruct rs)
+        {
+           
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+           
+            if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
+            {
+                var parser = new FileIniDataParser();
+                try
+                {
+                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+                    var ffmpeg_temp = data["ffmpeg_templete"]; //获取ffmpeg模板列表
+                    bool found = false;
+                    if (ffmpeg_temp != null)
+                    {
+                        foreach (var temp in ffmpeg_temp)
+                        {
+                            if (temp.KeyName.Trim().ToLower().Equals(tmplate.Key.Trim().ToLower()))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.MediaServer_InputObjectAlredayExists,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InputObjectAlredayExists],
+                            };
+                            return false;
+                        }
+                        SectionData ff = new SectionData("ffmpeg_templete");
+                        KeyData ffkey = new KeyData(tmplate.Key);
+                        ffkey.Value = tmplate.Value;
+                        ff.Keys.AddKey(ffkey);
+                        data.Sections.Add(ff);
+                        parser.WriteFile(_configPath, data);
+                        return true;
+                    }
+                    else
+                    {
+                        SectionData ff = new SectionData("ffmpeg_templete");
+                        KeyData ffkey = new KeyData(tmplate.Key);
+                        ffkey.Value = tmplate.Value;
+                        ff.Keys.AddKey(ffkey);
+                        data.Sections.Add(ff);
+                        parser.WriteFile(_configPath, data);
+                        return true;
+                    }
+                   
+                }
+                catch(Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_ReadIniFileExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    throw new AkStreamException(rs);
+                }
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.MediaServer_ConfigNotFound,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
+                 
+            };
+            throw new AkStreamException(rs);
+        }
+
+        /// <summary>
+        /// 获取ffmpeg模板列表
+        /// </summary>
+        /// <returns></returns>
+        public  List<KeyValuePair<string, string>> GetFFmpegTempleteList(out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
+            if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
+            {
+                var parser = new FileIniDataParser();
+                try
+                {
+                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+                    var ffmpeg_temp = data["ffmpeg_templete"]; //获取ffmpeg模板列表
+                    if (ffmpeg_temp != null && ffmpeg_temp.Count > 0)
+                    {
+                        foreach (var temp in ffmpeg_temp)
+                        {
+                            if (temp != null)
+                            {
+                                result.Add(new KeyValuePair<string, string>(temp.KeyName,temp.Value));
+                            }
+                        }
+                    }
+                    return result;
+                }
+                catch(Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_ReadIniFileExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    throw new AkStreamException(rs);
+                }
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.MediaServer_ConfigNotFound,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
+                 
+            };
+            throw new AkStreamException(rs);
+        }
 
 
         public bool SetConfig(out ResponseStruct rs)

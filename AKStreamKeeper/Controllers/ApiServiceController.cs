@@ -1,17 +1,14 @@
-using System;
 using System.Collections.Generic;
 using AKStreamKeeper.Attributes;
 using AKStreamKeeper.Services;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
-using log4net.Core;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamKeeper.Controllers
 {
-    
     [Log]
     [AuthVerify]
     [ApiController]
@@ -19,6 +16,99 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
+        /// <summary>
+        /// 删除ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="templateName"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("DelFFmpegTemplate")]
+        [HttpGet]
+        public bool DelFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string templateName)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.DelFFmpegTemplate(templateName, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 修改ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="templateName"></param>
+        /// <param name="templateValue"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("ModifyFFmpegTemplate")]
+        [HttpGet]
+        public bool ModifyFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string templateName,
+            string templateValue)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.ModifyFFmpegTemplate(
+                new KeyValuePair<string, string>(templateName, templateValue), out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 获取ffmpeg模板列表
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="templateName"></param>
+        /// <param name="templateValue"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetFFmpegTemplateList")]
+        [HttpGet]
+        public List<KeyValuePair<string, string>> GetFFmpegTemplateList(
+            [FromHeader(Name = "AccessKey")] string AccessKey)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.GetFFmpegTempleteList(out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 添加一个ffmpeg模板
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="templateName"></param>
+        /// <param name="templateValue"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("AddFFmpegTemplate")]
+        [HttpGet]
+        public bool AddFFmpegTemplate([FromHeader(Name = "AccessKey")] string AccessKey, string templateName,
+            string templateValue)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.AddFFmpegTemplate(
+                new KeyValuePair<string, string>(templateName, templateValue), out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
 
         /// <summary>
         /// 获取日志级别
@@ -37,11 +127,10 @@ namespace AKStreamKeeper.Controllers
                 throw new AkStreamException(rs);
             }
 
-            return ret;  
+            return ret;
         }
 
-      
-        
+
         /// <summary>
         /// 获取AKStreamKeeper版本标识
         /// </summary>
