@@ -28,6 +28,7 @@ namespace LibCommon.Structs.WebRequest
         private bool? _rtpWithTcp;
         private string? _vhost;
         private VideoDeviceType? _videoDeviceType;
+        private string? _fFmpegTemplate;
 
         /// <summary>
         /// 流媒体服务器id
@@ -214,6 +215,15 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _noPlayerBreak;
             set => _noPlayerBreak = value;
+        }
+
+        /// <summary>
+        /// ffmpeg模板名称
+        /// </summary>
+        public string? FFmpegTemplate
+        {
+            get => _fFmpegTemplate;
+            set => _fFmpegTemplate = value;
         }
     }
 }
