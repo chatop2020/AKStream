@@ -75,6 +75,8 @@ namespace LibCommon
         MediaServer_StreamTypeExcept = -3013, //流类型不正确
         MediaServer_GetStreamTypeExcept = -3014, //指定拉流方法不正确
         MediaServer_VideoSrcExcept = -3015, //源流地址异常
+        MediaServer_InputObjectAlredayExists=-3016,//传入对象已经存在
+        MediaServer_ObjectNotExists=-3017,//对象不存在
 
         Other = -6000 //其他异常
     }
@@ -156,7 +158,8 @@ namespace LibCommon
             ErrorDic[ErrorNumber.MediaServer_StreamTypeExcept] = "流类型不正确，GB28181Rtp流不能使用此功能拉流";
             ErrorDic[ErrorNumber.MediaServer_GetStreamTypeExcept] = "指定拉流方法不正确，请指定SelfMethod后再试";
             ErrorDic[ErrorNumber.MediaServer_VideoSrcExcept] = "源流地址异常，请检查数据库中VideoSrcUrl字段是否正确";
-
+            ErrorDic[ErrorNumber.MediaServer_InputObjectAlredayExists] = "传入对象已经存在";
+            ErrorDic[ErrorNumber.MediaServer_ObjectNotExists] = "指定对象不存在";
             ErrorDic[ErrorNumber.Other] = "未知错误";
         }
     }

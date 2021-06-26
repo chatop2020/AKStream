@@ -11,12 +11,51 @@ using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibLogger;
 using log4net.Core;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Math.EC;
 
 namespace AKStreamKeeper.Services
 {
     public static class ApiService
     {
-        
+
+
+        /*/// <summary>
+        /// 修改一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplate"></param>
+        /// <returns></returns>
+        public static bool ModifyFFmpegTemplate(KeyValuePair<string, string> tmplate)
+        {
+            
+        }
+        /// <summary>
+        /// 删除一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplateName"></param>
+        /// <returns></returns>
+        public static bool DelFFmpegTemplate(string tmplateName)
+        {
+            
+        }
+
+        /// <summary>
+        /// 添加一个ffmpeg模板
+        /// </summary>
+        /// <param name="tmplate"></param>
+        /// <returns></returns>
+        public static bool AddFFmpegTemplate(KeyValuePair<string, string> tmplate)
+        {
+            
+        }
+
+        /// <summary>
+        /// 获取ffmpeg模板列表
+        /// </summary>
+        /// <returns></returns>
+        public static List<KeyValuePair<string, string>> GetFFmpegTempleteList()
+        {
+            Common.ConfigPath
+        }*/
        
         /// <summary>
         /// 获取日志级别
