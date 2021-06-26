@@ -259,6 +259,7 @@ namespace AKStreamKeeper
                             data["ffmpeg_templete"][tmplate.Key] =
                                tmplate.Value;
                             parser.WriteFile(_configPath, data);
+                            Reload();
                             return true;
 
                         }
@@ -339,6 +340,7 @@ namespace AKStreamKeeper
                         {
                             ffmpeg_temp.RemoveKey(tmplateName);
                             parser.WriteFile(_configPath, data);
+                            Reload();
                         }
                     }
                     return true;
@@ -414,6 +416,7 @@ namespace AKStreamKeeper
                         ff.Keys.AddKey(ffkey);
                         data.Sections.Add(ff);
                         parser.WriteFile(_configPath, data);
+                        Reload();
                         return true;
                     }
                     else
@@ -424,6 +427,7 @@ namespace AKStreamKeeper
                         ff.Keys.AddKey(ffkey);
                         data.Sections.Add(ff);
                         parser.WriteFile(_configPath, data);
+                        Reload();
                         return true;
                     }
                    
