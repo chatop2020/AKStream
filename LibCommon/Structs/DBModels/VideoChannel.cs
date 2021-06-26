@@ -50,6 +50,7 @@ namespace LibCommon.Structs.DBModels
         private string? _vhost;
         private VideoDeviceType _videoDeviceType;
         private string? _videoSrcUrl;
+        private string? _ffmpegTemplate;
 
 
         /// <summary>
@@ -347,6 +348,16 @@ namespace LibCommon.Structs.DBModels
         {
             get => _noPlayerBreak;
             set => _noPlayerBreak = value;
+        }
+
+        /// <summary>
+        /// ffmpeg的模板名称，可指定这个流使用哪个ffmpeg模板进行拉流
+        /// 留空时，采用默认配置进行拉流
+        /// </summary>
+        public string? FFmpegTemplate
+        {
+            get => _ffmpegTemplate;
+            set => _ffmpegTemplate = value;
         }
     }
 }
