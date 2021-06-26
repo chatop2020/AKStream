@@ -1383,6 +1383,10 @@ namespace AKStreamWeb.Services
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
                     req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec;
+                    if (!string.IsNullOrEmpty(videoChannel.FFmpegTemplate))
+                    {
+                        req.Ffmpeg_Cmd_Key = videoChannel.FFmpegTemplate;
+                    }
                 }
             }
             else
@@ -1392,6 +1396,10 @@ namespace AKStreamWeb.Services
                 req.Enable_Mp4 = 0;
                 req.Src_Url = videoChannel.VideoSrcUrl;
                 req.Timeout_Ms = Common.AkStreamWebConfig.WaitEventTimeOutMSec;
+                if (!string.IsNullOrEmpty(videoChannel.FFmpegTemplate))
+                {
+                    req.Ffmpeg_Cmd_Key = videoChannel.FFmpegTemplate;
+                }
             }
 
             var ret = mediaServer.WebApiHelper.AddFFmpegSource(req, out rs);
