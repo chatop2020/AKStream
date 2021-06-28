@@ -1515,7 +1515,8 @@ namespace LibGB28181SipServer
                 req.Header.Contact[0].ContactName = null;
                 req.Header.Allow = null;
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
-                req.Header.CSeq = record.CSeq + 1;
+                record.CSeq++;
+                req.Header.CSeq = record.CSeq ;
                 var nrt = new NeedReturnTask(Common.NeedResponseRequests)
                 {
                     AutoResetEvent = evnt,
@@ -1655,7 +1656,9 @@ namespace LibGB28181SipServer
                 req.Header.Contact[0].ContactName = null;
                 req.Header.Allow = null;
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
-                req.Header.CSeq = sipChannel.InviteSipResponse.Header.CSeq + 1;
+                sipChannel.InviteSipResponse.Header.CSeq++;
+                req.Header.CSeq = sipChannel.InviteSipResponse.Header.CSeq;
+                
 
                 var nrt = new NeedReturnTask(Common.NeedResponseRequests)
                 {
