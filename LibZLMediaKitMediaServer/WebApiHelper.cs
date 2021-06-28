@@ -888,7 +888,7 @@ namespace LibZLMediaKitMediaServer
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            string url = _useSSL ? "https://" : "http://" + $"{_ipAddress}:{_webApiPort}{_baseUri}delStreamProxy";
+            string url = _useSSL ? "https://" : "http://" + $"{_ipAddress}:{_webApiPort}{_baseUri}delFFmpegSource";
             try
             {
                 req.Secret = this._secret;
