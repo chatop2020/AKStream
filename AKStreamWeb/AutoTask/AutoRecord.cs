@@ -353,7 +353,7 @@ namespace AKStreamWeb.AutoTask
                                         }
                                         else
                                         {
-                                            if (obj.MediaServerStreamInfo.IsRecorded == false && inRange)
+                                            if (obj.MediaServerStreamInfo.IsRecorded == false && inRange && stopIt==false)
                                             {
                                                 Logger.Info(
                                                     $"[{Common.LoggerHead}]->自动启动录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}" +
