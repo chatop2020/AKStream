@@ -1160,7 +1160,7 @@ namespace LibGB28181SipServer
         }
 
 
-        private string createRecordSeekPositionSdp(RecordInfo.RecItem record, long time)
+        private string CreateRecordSeekPositionSdp(RecordInfo.RecItem record, long time)
         {
             string recordSdp =
                 "PLAY MANSRTSP/1.0\r\n" +
@@ -1190,7 +1190,7 @@ namespace LibGB28181SipServer
                 };
 
                
-                string recordSdp =  createRecordSeekPositionSdp(record, time);
+                string recordSdp =  CreateRecordSeekPositionSdp(record, time);
 
                 if (!string.IsNullOrEmpty(recordSdp))
                 {
