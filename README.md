@@ -40,6 +40,11 @@
 
 * Please support a lot, star a lot, thank you
 
+# 推荐为AKStream量身定制的开源Web管理平台（新作）
+- 基于.net 5和vue2
+- https://github.com/langmansh/AKStreamUI
+- https://gitee.com/sscboshi/AKStreamUI
+
 # 使用AKStream实现的Web管理平台（开源）
 -------
 ![流媒体服务管理列表](https://i.loli.net/2021/01/19/YjCUMHVdFzSuBXe.png)
