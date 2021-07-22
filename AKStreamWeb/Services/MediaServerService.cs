@@ -90,7 +90,7 @@ namespace AKStreamWeb.Services
                     var endInDb = DateTime.Parse(((DateTime) videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
                     if (startPos < 0)
                     {
-                        if (_start >= startInDb && _start <= endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
+                        if (_start >= startInDb && _start < endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
                         {
                             startPos = i;
                         }

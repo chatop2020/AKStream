@@ -221,28 +221,23 @@ namespace LibGB28181SipServer
             {
                 return SipChannelType.Unknow;
             }
-
             int extId = int.Parse(sipChannelId.Substring(10, 3));
             if (extId == 131 || extId == 132 || extId == 137 || extId == 138 || extId == 139)
             {
                 return SipChannelType.VideoChannel;
             }
-
             if (extId == 135 || extId == 205)
             {
                 return SipChannelType.AlarmChannel;
             }
-
             if (extId == 137)
             {
                 return SipChannelType.AudioChannel;
             }
-
             if (extId >= 140 && extId <= 199)
             {
                 return SipChannelType.VideoChannel;
             }
-
             return SipChannelType.OtherChannel;
         }
 
