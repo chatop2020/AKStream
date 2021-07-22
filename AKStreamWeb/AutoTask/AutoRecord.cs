@@ -21,8 +21,10 @@ namespace AKStreamWeb.AutoTask
                 {
                     KeepRecord();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Logger.Error(
+                        $"[{Common.LoggerHead}]->启动自动录制线程异常：{ex.Message}\r\n{ex.StackTrace}");
                 }
             })).Start();
         }
@@ -282,6 +284,7 @@ namespace AKStreamWeb.AutoTask
                                             stopIt = true;
                                         }
 
+
                                         if (stopIt && obj.MediaServerStreamInfo.IsRecorded == true)
                                         {
                                             switch (recordPlan.OverStepPlan)
@@ -353,7 +356,8 @@ namespace AKStreamWeb.AutoTask
                                         }
                                         else
                                         {
-                                            if (obj.MediaServerStreamInfo.IsRecorded == false && inRange && stopIt==false)
+                                            if (obj.MediaServerStreamInfo.IsRecorded == false && inRange &&
+                                                stopIt == false)
                                             {
                                                 Logger.Info(
                                                     $"[{Common.LoggerHead}]->自动启动录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}" +
@@ -362,6 +366,57 @@ namespace AKStreamWeb.AutoTask
 
                                                 MediaServerService.StartRecord(videoChannel.MediaServerId,
                                                     videoChannel.MainId, out rs);
+                                            }
+                                            else if (stopIt && obj.MediaServerStreamInfo.IsRecorded == false)
+                                            {
+                                                //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
+                                                if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
+                                                {
+                                                    if (recordPlan.LimitDays < fileDateList.Count)
+                                                    {
+                                                        string info2 =
+                                                            $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                        info2 += (recordPlan.LimitDays < fileDateList.Count)
+                                                            ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                            : "";
+                                                        info2 +=
+                                                            $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                        Logger.Info(
+                                                            $"[{Common.LoggerHead}]->{info2}");
+                                                        bool p = false;
+                                                        if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                        {
+                                                            int? loopCount = fileDateList.Count - recordPlan.LimitDays;
+
+                                                            List<string> willDeleteDays = new List<string>();
+                                                            for (int i = 0; i < loopCount; i++)
+                                                            {
+                                                                willDeleteDays.Add(fileDateList[i]!);
+                                                            }
+
+                                                            DeleteFileByDay(willDeleteDays, obj.MediaServerStreamInfo);
+                                                            p = true;
+                                                        }
+
+                                                        if (p)
+                                                        {
+                                                            fileSize = getRecordFileSize(videoChannel
+                                                                .MainId); //删除完一天以后再取一下文件总长度
+                                                        }
+
+                                                        if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                        {
+                                                            deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                recordPlan);
+                                                        }
+                                                    }
+                                                    else if (recordPlan.LimitSpace < fileSize)
+                                                    {
+                                                        //如果文件天数不足，则删除一个文件
+                                                        deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                            recordPlan);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
