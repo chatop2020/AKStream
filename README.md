@@ -1,7 +1,7 @@
 # AKStream介绍 
 ## 技术交流QQ群：870526956
 -------
-* ![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
+![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
 * AKStream是一套全功能的软NVR接口平台，软NVR指的是软件定义的NVR（Network Video Recoder），AKStream经过长达一年半的开发，测试与调优，已经具备了一定的使用价值，在可靠性，实用性方面都有着较为不错的表现，同时因为AKStream是一套完全开源的软件产品，在众多网友的一起加持下，AKStream的安全性也得到了验证。
 
 * AKStream集成了ZLMediaKit作为其流媒体服务器，AKStream支持对ZLMediaKit的集群管理（通过AKStreamKeeper-流媒体治理组件），可以将分布在不同服务器的多个ZLMediaKit集群起来，统一管理，统一调度。
@@ -41,7 +41,7 @@
 
 * Please support a lot, star a lot, thank you
 
-# 推荐为AKStream生态圈中又一个开源Web管理平台(新作-基于React纯前端框架)
+# 强烈推荐AKStream生态圈中又一个开源Web管理平台(新作-基于React纯前端框架)
 - 基于React的纯前端AKStream Web UI
 - 非常简单的部署方式，非常简单的运行方式
 - https://gitee.com/sscboshi/AKStreamNVR
