@@ -41,6 +41,12 @@
 
 * Please support a lot, star a lot, thank you
 
+# 推荐为AKStream生态圈中又一个开源Web管理平台(新作-基于React纯前端框架)
+- 基于React的纯前端AKStream Web UI
+- 非常简单的部署方式，非常简单的运行方式
+- https://gitee.com/sscboshi/AKStreamNVR
+- https://github.com/langmansh/AKStreamNVR
+
 # 推荐为AKStream量身定制的开源Web管理平台（新作）
 - 基于.net 5和vue2
 - https://github.com/langmansh/AKStreamUI
