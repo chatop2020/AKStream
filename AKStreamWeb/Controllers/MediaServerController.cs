@@ -9,6 +9,7 @@ using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibZLMediaKitMediaServer;
+using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -506,6 +507,30 @@ namespace AKStreamWeb.Controllers
         }
 
 
+        /// <summary>
+        /// 获取一帧视频帧
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId"></param>
+        /// <param name="req"></param>
+        /// <returns>图片的base64</returns>
+        /// <exception cref="AkStreamException"></exception>
+        [AuthVerify]
+        [Route("GetStreamSnap")]
+        [HttpPost]
+        public string GetStreamSnap([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId,
+            ReqZLMediaKitGetSnap req)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.GetStreamSnap(mediaServerId, req, out rs);
+            if (rs.Code != ErrorNumber.None)
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
         /// <summary>
         /// 激活音视频通道实例
         /// </summary>

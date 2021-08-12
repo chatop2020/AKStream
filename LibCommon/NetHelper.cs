@@ -639,14 +639,17 @@ namespace LibCommon
                 try
                 {
                     base64out = FileToBase64(tmpFilePath);
+                    Console.WriteLine(base64out);
+                    File.Delete(tmpFilePath);
                     return true;
                 }
                 catch (Exception ex)
                 {
+                   
                     throw ex;
                 }
             }
-
+          
             return false;
         }
 

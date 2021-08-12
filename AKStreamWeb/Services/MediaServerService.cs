@@ -1280,6 +1280,43 @@ namespace AKStreamWeb.Services
             return null;
         }
 
+
+      
+        /// <summary>
+        /// 获取流当前一帧图
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static string GetStreamSnap(string mediaServerId,ReqZLMediaKitGetSnap req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var mediaServer = CheckMediaServer(mediaServerId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->请求获取视频帧失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+          var tmpBase64=  mediaServer.WebApiHelper.GetSnap(req, out rs);
+          if (!rs.Code.Equals(ErrorNumber.None))
+          {
+              Logger.Warn(
+                  $"[{Common.LoggerHead}]->请求获取视频帧失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+              return null;
+          }
+
+          return tmpBase64;
+        }
+        
         /// <summary>
         /// 添加一个FFmpeg代理流
         /// </summary>
