@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using AKStreamKeeper.Misc;
 using IniParser;
 using IniParser.Model;
 using LibCommon;
@@ -21,6 +22,7 @@ namespace AKStreamKeeper
         private static int _pid;
         private static bool _isSelfClose = false;
 
+        private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static ProcessHelper _mediaServerProcessHelper =
             new ProcessHelper(p_StdOutputDataReceived, p_ErrOutputDataReceived, p_Process_Exited!);
 
@@ -45,8 +47,9 @@ namespace AKStreamKeeper
         /// </summary>
         /// <param name="binPath"></param>
         /// <param name="configPath"></param>
-        public MediaServerInstance(string binPath, string configPath = "")
+        public MediaServerInstance(string binPath, AKStreamKeeperConfig keeperConfig, string configPath = "")
         {
+            _akStreamKeeperConfig = keeperConfig;
             _binPath = binPath;
             if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
             {
@@ -1049,11 +1052,28 @@ namespace AKStreamKeeper
             Process ret;
             if (binDir.Trim().Equals(configDir.Trim()))
             {
-                ret = _mediaServerProcessHelper.RunProcess(_binPath, "");
+                if (_akStreamKeeperConfig != null && _akStreamKeeperConfig.UseSsl &&
+                    !string.IsNullOrEmpty(_akStreamKeeperConfig.ZLMediakitSSLFilePath))
+                {
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
+                }
+                else
+                {
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath, "");
+                }
             }
             else
             {
-                ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-c {_configPath}");
+                if (_akStreamKeeperConfig != null && _akStreamKeeperConfig.UseSsl &&
+                    !string.IsNullOrEmpty(_akStreamKeeperConfig.ZLMediakitSSLFilePath))
+                {
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-c {_configPath} -s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
+                }
+                else
+                {
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-c {_configPath}");
+                }
+               
             }
 
             if (ret != null && !ret.HasExited)
