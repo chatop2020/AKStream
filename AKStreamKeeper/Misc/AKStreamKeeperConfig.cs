@@ -26,6 +26,7 @@ namespace AKStreamKeeper.Misc
         private int _rtpPortCDTime;
         private bool _useSSL = false;
         private ushort _webApiPort;
+        private string? _zLMediakitSSLFilePath;
 
 
         /// <summary>
@@ -180,6 +181,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _disableShell;
             set => _disableShell = value;
+        }
+
+        /// <summary>
+        /// zlm的证书路径
+        /// </summary>
+        public string? ZLMediakitSSLFilePath
+        {
+            get => _zLMediakitSSLFilePath;
+            set => _zLMediakitSSLFilePath = value;
         }
     }
 }

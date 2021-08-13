@@ -112,7 +112,7 @@ namespace AKStreamKeeper
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath);
             if (MediaServerInstance == null)
             {
-                MediaServerInstance = new MediaServerInstance(_akStreamKeeperConfig.MediaServerPath);
+                MediaServerInstance = new MediaServerInstance(_akStreamKeeperConfig.MediaServerPath,AkStreamKeeperConfig);
             }
 
             return MediaServerInstance.Startup();
@@ -308,6 +308,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.IpV6Address = ipInfo.IpV6;
                 _akStreamKeeperConfig.WebApiPort = 6880;
                 _akStreamKeeperConfig.UseSsl = false;
+                _akStreamKeeperConfig.ZLMediakitSSLFilePath = "";
                 _akStreamKeeperConfig.MaxRtpPort = 20000;
                 _akStreamKeeperConfig.MinRtpPort = 10001;
                 _akStreamKeeperConfig.RandomPort = false;
