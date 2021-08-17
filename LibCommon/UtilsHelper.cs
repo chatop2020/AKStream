@@ -52,6 +52,7 @@ namespace LibCommon
                     "an error occurred while sending the request. unable to read data from the transport connection: connection reset by peer.")
                 || tmp.Contains("operation timed out")
                 || tmp.Contains("network is down")
+                || tmp.Contains("no route")
             )
             {
                 return true;
