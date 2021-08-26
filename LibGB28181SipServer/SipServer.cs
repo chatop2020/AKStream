@@ -682,20 +682,20 @@ namespace LibGB28181SipServer
                 case PTZCommandType.SetPreset: //设置预置位
                     cmdList.Add(0x81);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);
+                    cmdList.Add(dwSpeed);//当id使用
                     cmdList.Add(00);
                     break;
                 case PTZCommandType.GetPreset: //调用预置位
                     cmdList.Add(0x82);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);
-                    cmdList.Add(00);
+                    cmdList.Add(dwSpeed);//当id使用
+                    cmdList.Add(0x80);//默认速度128
                     break;
                 case PTZCommandType.RemovePreset: //删除预置位
                     cmdList.Add(0x83);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);
-                    cmdList.Add(00);
+                    cmdList.Add(dwSpeed);//当id使用
+                    cmdList.Add(00); 
                     break;
                 default:
                     break;
