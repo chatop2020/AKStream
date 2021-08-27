@@ -28,6 +28,7 @@ namespace AKStreamWeb.AutoTask
             {
                 try
                 {
+                    
                     var dbRet = ORMHelper.Db.Select<VideoChannel>().ToList();
                     if (dbRet != null && dbRet.Count > 0)
                     {
