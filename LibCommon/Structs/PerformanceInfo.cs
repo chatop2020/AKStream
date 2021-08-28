@@ -16,6 +16,7 @@ namespace LibCommon.Structs
         private string _osName = null!;
         private string _systemType = null!;
         private DateTime _updateTime;
+        private double? _upTimeSec;
 
 
         public string SystemType
@@ -76,6 +77,15 @@ namespace LibCommon.Structs
         {
             get => _updateTime;
             set => _updateTime = value;
+        }
+
+        /// <summary>
+        /// 运行时长（秒）
+        /// </summary>
+        public double? UpTimeSec
+        {
+            get => _upTimeSec;
+            set => _upTimeSec = value;
         }
     }
 
@@ -220,5 +230,6 @@ namespace LibCommon.Structs
             get => _updateTime;
             set => _updateTime = value;
         }
+        
     }
 }

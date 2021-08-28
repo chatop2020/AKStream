@@ -35,7 +35,7 @@ namespace AKStreamWeb
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
-
+        public static DateTime StartupDateTime;
 
         /// <summary>
         /// 流媒体服务器列表
@@ -59,6 +59,7 @@ namespace AKStreamWeb
 
         static Common()
         {
+            StartupDateTime = DateTime.Now;
             string supportDataBaseList = "MySql\r\n" +
                                          "SqlServer\r\n" +
                                          "PostgreSQL\r\n" +
