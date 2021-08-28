@@ -50,6 +50,7 @@ namespace LibZLMediaKitMediaServer
         private WebApiHelper _webApiHelper;
         private int _zlmediakitPid;
         private uint _zlmRecordFileSec;
+      
 
         public ServerInstance()
         {
@@ -81,6 +82,7 @@ namespace LibZLMediaKitMediaServer
             set => _keeperPort = value;
         }
 
+       
         public string Secret
         {
             get => _secret;
@@ -259,7 +261,8 @@ namespace LibZLMediaKitMediaServer
             set => _mediaServerPlayerList = value;
         }
 
-
+        
+  
         public void Dispose()
         {
             if (_keepAliveCheckTimer != null)
@@ -338,6 +341,8 @@ namespace LibZLMediaKitMediaServer
                 _keepAliveCheckTimer.Start(); //启动计时器
             }
         }
+
+      
 
         ~ServerInstance()
         {

@@ -33,6 +33,7 @@ namespace LibCommon.Structs.WebRequest
         private ushort _zlmRtmpsPort;
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
+        private double? _upTimeSec; //运行时长（毫秒）
 
 
         /// <summary>
@@ -216,10 +217,22 @@ namespace LibCommon.Structs.WebRequest
             set => _mediaServerIsRunning = value;
         }
 
+        /// <summary>
+        /// 版本号
+        /// </summary>
         public string Version
         {
             get => _version;
             set => _version = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>
+        /// 运行时长(秒)
+        /// </summary>
+        public double? UpTimeSec
+        {
+            get => _upTimeSec;
+            set => _upTimeSec = value;
         }
     }
 }

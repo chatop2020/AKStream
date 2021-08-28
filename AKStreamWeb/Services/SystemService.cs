@@ -1,3 +1,4 @@
+using System;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
@@ -40,6 +41,8 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
+            TimeSpan ts = DateTime.Now.Subtract(Common.StartupDateTime);
+            Common.WebPerformanceInfo.UpTimeSec = ts.TotalSeconds;
             Logger.Info($"[{Common.LoggerHead}]->获取系统性能信息成功->{JsonHelper.ToJson(Common.WebPerformanceInfo)}");
 
             return Common.WebPerformanceInfo;

@@ -760,6 +760,7 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.ServerDateTime = req.ServerDateTime;
                     tmpMediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     tmpMediaServer.AccessKey = req.AccessKey;
+                 
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {

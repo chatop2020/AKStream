@@ -39,6 +39,7 @@ namespace AKStreamKeeper
         private static bool _firstPost = true;
         public static string CutOrMergePath = GCommon.BaseStartPath + "/CutMergeFile/";
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
+        public static DateTime StartupDateTime;
 
 
         /// <summary>
@@ -61,6 +62,7 @@ namespace AKStreamKeeper
             IsDebug = true;
 #endif
 
+            StartupDateTime=DateTime.Now;
             CutMergeService.start = true;
             MediaServerInstance.OnMediaKilled += OnMediaServerKilled;
         }
@@ -580,9 +582,12 @@ namespace AKStreamKeeper
 
         private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
+            TimeSpan ts = DateTime.Now.Subtract(StartupDateTime);
+          
             lock (_performanceInfoLock)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
+                KeeperPerformanceInfo.UpTimeSec = ts.TotalSeconds;
             }
 
             _counter1++;
@@ -602,6 +607,7 @@ namespace AKStreamKeeper
             if (_counter1 % 5 == 0 && MediaServerInstance != null) //发心跳给服务器
             {
                 ReqMediaServerKeepAlive tmpKeepAlive = new ReqMediaServerKeepAlive();
+
                 if (_firstPost)
                 {
                     tmpKeepAlive.FirstPost = true;
