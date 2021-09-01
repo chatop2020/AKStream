@@ -66,18 +66,21 @@ namespace AKStreamWeb.Services
                     if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
                     {
                         videoList[i] = null;
+                        continue;
                     }
 
                     if (!DateTime.TryParse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
                         out _))
                     {
                         videoList[i] = null;
+                        continue;
                     }
 
                     if (!DateTime.TryParse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
                         out _))
                     {
                         videoList[i] = null;
+                      
                     }
                 }
 
