@@ -475,8 +475,8 @@ namespace LibCommon
                              + "[a-zA-Z]{2,6})" // first level domain- .com or .museum
                              + "(:[0-9]{1,4})?" // 端口- :80
                              + "((/?)|" // a slash isn't required if there is no file name
-                             + "(/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+/?)$";
-                // string Url = @"^rtsp(s)?://([\w-]+\.)+[\w-]+(:\d*)?(/[\w- ./?%&=]*)?$";
+                             + "(/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+/?)"
+                             + ".{0,}";
                 return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
