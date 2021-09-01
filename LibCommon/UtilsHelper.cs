@@ -476,7 +476,7 @@ namespace LibCommon
                              + "(:[0-9]{1,4})?" // 端口- :80
                              + "((/?)|" // a slash isn't required if there is no file name
                              + "(/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+/?)"
-                             + ".{0,}";
+                             + "[A-Za-z0-9_!~*'().;?:@&=+$,%#-]{4,40}$";
                 return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
