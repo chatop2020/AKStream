@@ -20,13 +20,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Utilities;
 using SIPSorcery.Sys;
-using CertificateRequest = Org.BouncyCastle.Crypto.Tls.CertificateRequest;
 
 namespace SIPSorcery.Net
 {
@@ -75,7 +73,7 @@ namespace SIPSorcery.Net
     public interface IDtlsSrtpPeer
     {
         event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
-
+        bool ForceUseExtendedMasterSecret { get; set; }
         SrtpPolicy GetSrtpPolicy();
         SrtpPolicy GetSrtcpPolicy();
         byte[] GetSrtpMasterServerKey();
@@ -90,38 +88,51 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
-        private int[] cipherSuites;
-        byte[] masterSecret = null;
-
         Certificate mCertificateChain = null;
+        AsymmetricKeyParameter mPrivateKey = null;
 
         private RTCDtlsFingerprint mFingerPrint;
-        AsymmetricKeyParameter mPrivateKey = null;
+
+        //private AlgorithmCertificate algorithmCertificate;
+
+        public bool ForceUseExtendedMasterSecret { get; set; } = true;
+
+        public Certificate ClientCertificate { get; private set; }
 
         // the server response to the client handshake request
         // http://tools.ietf.org/html/rfc5764#section-4.1.1
         private UseSrtpData serverSrtpData;
-        private SrtpPolicy srtcpPolicy;
 
         // Asymmetric shared keys derived from the DTLS handshake and used for the SRTP encryption/
         private byte[] srtpMasterClientKey;
-        private byte[] srtpMasterClientSalt;
         private byte[] srtpMasterServerKey;
+        private byte[] srtpMasterClientSalt;
         private byte[] srtpMasterServerSalt;
+        byte[] masterSecret = null;
 
         // Policies
         private SrtpPolicy srtpPolicy;
+        private SrtpPolicy srtcpPolicy;
 
-        public DtlsSrtpServer() : this((Certificate) null, null)
+        private int[] cipherSuites;
+
+        /// <summary>
+        /// Parameters:
+        ///  - alert level,
+        ///  - alert type,
+        ///  - alert description.
+        /// </summary>
+        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
+
+        public DtlsSrtpServer() : this((Certificate)null, null)
         {
         }
 
-        public DtlsSrtpServer(X509Certificate2 certificate) : this(DtlsUtils.LoadCertificateChain(certificate),
-            DtlsUtils.LoadPrivateKeyResource(certificate))
+        public DtlsSrtpServer(System.Security.Cryptography.X509Certificates.X509Certificate2 certificate) : this(DtlsUtils.LoadCertificateChain(certificate), DtlsUtils.LoadPrivateKeyResource(certificate))
         {
         }
 
-        public DtlsSrtpServer(string certificatePath, string keyPath) : this(new string[] {certificatePath}, keyPath)
+        public DtlsSrtpServer(string certificatePath, string keyPath) : this(new string[] { certificatePath }, keyPath)
         {
         }
 
@@ -148,42 +159,145 @@ namespace SIPSorcery.Net
             this.mFingerPrint = certificate != null ? DtlsUtils.Fingerprint(certificate) : null;
         }
 
-        //private AlgorithmCertificate algorithmCertificate;
-
-        public Certificate ClientCertificate { get; private set; }
-
         public RTCDtlsFingerprint Fingerprint
         {
-            get { return mFingerPrint; }
+            get
+            {
+                return mFingerPrint;
+            }
         }
 
         public AsymmetricKeyParameter PrivateKey
         {
-            get { return mPrivateKey; }
+            get
+            {
+                return mPrivateKey;
+            }
         }
 
         public Certificate CertificateChain
         {
-            get { return mCertificateChain; }
+            get
+            {
+                return mCertificateChain;
+            }
         }
 
         protected override ProtocolVersion MaximumVersion
         {
-            get { return ProtocolVersion.DTLSv12; }
+            get
+            {
+                return ProtocolVersion.DTLSv12;
+            }
         }
 
         protected override ProtocolVersion MinimumVersion
         {
-            get { return ProtocolVersion.DTLSv10; }
+            get
+            {
+                return ProtocolVersion.DTLSv10;
+            }
         }
 
-        /// <summary>
-        /// Parameters:
-        ///  - alert level,
-        ///  - alert type,
-        ///  - alert description.
-        /// </summary>
-        public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
+        public override int GetSelectedCipherSuite()
+        {
+            /*
+             * TODO RFC 5246 7.4.3. In order to negotiate correctly, the server MUST check any candidate cipher suites against the
+             * "signature_algorithms" extension before selecting them. This is somewhat inelegant but is a compromise designed to
+             * minimize changes to the original cipher suite design.
+             */
+
+            /*
+             * RFC 4429 5.1. A server that receives a ClientHello containing one or both of these extensions MUST use the client's
+             * enumerated capabilities to guide its selection of an appropriate cipher suite. One of the proposed ECC cipher suites
+             * must be negotiated only if the server can successfully complete the handshake while using the curves and point
+             * formats supported by the client [...].
+             */
+            bool eccCipherSuitesEnabled = SupportsClientEccCapabilities(this.mNamedCurves, this.mClientECPointFormats);
+
+            int[] cipherSuites = GetCipherSuites();
+            for (int i = 0; i < cipherSuites.Length; ++i)
+            {
+                int cipherSuite = cipherSuites[i];
+
+                if (Arrays.Contains(this.mOfferedCipherSuites, cipherSuite)
+                        && (eccCipherSuitesEnabled || !TlsEccUtilities.IsEccCipherSuite(cipherSuite))
+                        && TlsUtilities.IsValidCipherSuiteForVersion(cipherSuite, mServerVersion))
+                {
+                    return this.mSelectedCipherSuite = cipherSuite;
+                }
+            }
+            throw new TlsFatalAlert(AlertDescription.handshake_failure);
+        }
+
+        public override CertificateRequest GetCertificateRequest()
+        {
+            List<SignatureAndHashAlgorithm> serverSigAlgs = new List<SignatureAndHashAlgorithm>();
+
+            if (TlsUtilities.IsSignatureAlgorithmsExtensionAllowed(mServerVersion))
+            {
+                byte[] hashAlgorithms = new byte[] { HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224, HashAlgorithm.sha1 };
+                byte[] signatureAlgorithms = new byte[] { SignatureAlgorithm.rsa, SignatureAlgorithm.ecdsa };
+
+                serverSigAlgs = new List<SignatureAndHashAlgorithm>();
+                for (int i = 0; i < hashAlgorithms.Length; ++i)
+                {
+                    for (int j = 0; j < signatureAlgorithms.Length; ++j)
+                    {
+                        serverSigAlgs.Add(new SignatureAndHashAlgorithm(hashAlgorithms[i], signatureAlgorithms[j]));
+                    }
+                }
+            }
+            return new CertificateRequest(new byte[] { ClientCertificateType.rsa_sign }, serverSigAlgs, null);
+        }
+
+        public override void NotifyClientCertificate(Certificate clientCertificate)
+        {
+            ClientCertificate = clientCertificate;
+        }
+
+        public override IDictionary GetServerExtensions()
+        {
+            Hashtable serverExtensions = (Hashtable)base.GetServerExtensions();
+            if (TlsSRTPUtils.GetUseSrtpExtension(serverExtensions) == null)
+            {
+                if (serverExtensions == null)
+                {
+                    serverExtensions = new Hashtable();
+                }
+                TlsSRTPUtils.AddUseSrtpExtension(serverExtensions, serverSrtpData);
+            }
+            return serverExtensions;
+        }
+
+        public override void ProcessClientExtensions(IDictionary clientExtensions)
+        {
+            base.ProcessClientExtensions(clientExtensions);
+
+            // set to some reasonable default value
+            int chosenProfile = SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80;
+            UseSrtpData clientSrtpData = TlsSRTPUtils.GetUseSrtpExtension(clientExtensions);
+
+            foreach (int profile in clientSrtpData.ProtectionProfiles)
+            {
+                switch (profile)
+                {
+                    case SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32:
+                    case SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80:
+                    case SrtpProtectionProfile.SRTP_NULL_HMAC_SHA1_32:
+                    case SrtpProtectionProfile.SRTP_NULL_HMAC_SHA1_80:
+                        chosenProfile = profile;
+                        break;
+                }
+            }
+
+            // server chooses a mutually supported SRTP protection profile
+            // http://tools.ietf.org/html/draft-ietf-avt-dtls-srtp-07#section-4.1.2
+            int[] protectionProfiles = { chosenProfile };
+
+            // server agrees to use the MKI offered by the client
+            serverSrtpData = new UseSrtpData(protectionProfiles, clientSrtpData.Mki);
+        }
 
         public SrtpPolicy GetSrtpPolicy()
         {
@@ -215,140 +329,24 @@ namespace SIPSorcery.Net
             return srtpMasterClientSalt;
         }
 
-        public bool IsClient()
-        {
-            return false;
-        }
-
-        public Certificate GetRemoteCertificate()
-        {
-            return ClientCertificate;
-        }
-
-        public override int GetSelectedCipherSuite()
-        {
-            /*
-             * TODO RFC 5246 7.4.3. In order to negotiate correctly, the server MUST check any candidate cipher suites against the
-             * "signature_algorithms" extension before selecting them. This is somewhat inelegant but is a compromise designed to
-             * minimize changes to the original cipher suite design.
-             */
-
-            /*
-             * RFC 4429 5.1. A server that receives a ClientHello containing one or both of these extensions MUST use the client's
-             * enumerated capabilities to guide its selection of an appropriate cipher suite. One of the proposed ECC cipher suites
-             * must be negotiated only if the server can successfully complete the handshake while using the curves and point
-             * formats supported by the client [...].
-             */
-            bool eccCipherSuitesEnabled = SupportsClientEccCapabilities(this.mNamedCurves, this.mClientECPointFormats);
-
-            int[] cipherSuites = GetCipherSuites();
-            for (int i = 0; i < cipherSuites.Length; ++i)
-            {
-                int cipherSuite = cipherSuites[i];
-
-                if (Arrays.Contains(this.mOfferedCipherSuites, cipherSuite)
-                    && (eccCipherSuitesEnabled || !TlsEccUtilities.IsEccCipherSuite(cipherSuite))
-                    && TlsUtilities.IsValidCipherSuiteForVersion(cipherSuite, mServerVersion))
-                {
-                    return this.mSelectedCipherSuite = cipherSuite;
-                }
-            }
-
-            throw new TlsFatalAlert(AlertDescription.handshake_failure);
-        }
-
-        public override CertificateRequest GetCertificateRequest()
-        {
-            List<SignatureAndHashAlgorithm> serverSigAlgs = new List<SignatureAndHashAlgorithm>();
-
-            if (TlsUtilities.IsSignatureAlgorithmsExtensionAllowed(mServerVersion))
-            {
-                byte[] hashAlgorithms = new byte[]
-                {
-                    HashAlgorithm.sha512, HashAlgorithm.sha384, HashAlgorithm.sha256, HashAlgorithm.sha224,
-                    HashAlgorithm.sha1
-                };
-                byte[] signatureAlgorithms = new byte[] {SignatureAlgorithm.rsa, SignatureAlgorithm.ecdsa};
-
-                serverSigAlgs = new List<SignatureAndHashAlgorithm>();
-                for (int i = 0; i < hashAlgorithms.Length; ++i)
-                {
-                    for (int j = 0; j < signatureAlgorithms.Length; ++j)
-                    {
-                        serverSigAlgs.Add(new SignatureAndHashAlgorithm(hashAlgorithms[i], signatureAlgorithms[j]));
-                    }
-                }
-            }
-
-            return new CertificateRequest(new byte[] {ClientCertificateType.rsa_sign}, serverSigAlgs, null);
-        }
-
-        public override void NotifyClientCertificate(Certificate clientCertificate)
-        {
-            ClientCertificate = clientCertificate;
-        }
-
-        public override IDictionary GetServerExtensions()
-        {
-            Hashtable serverExtensions = (Hashtable) base.GetServerExtensions();
-            if (TlsSRTPUtils.GetUseSrtpExtension(serverExtensions) == null)
-            {
-                if (serverExtensions == null)
-                {
-                    serverExtensions = new Hashtable();
-                }
-
-                TlsSRTPUtils.AddUseSrtpExtension(serverExtensions, serverSrtpData);
-            }
-
-            return serverExtensions;
-        }
-
-        public override void ProcessClientExtensions(IDictionary clientExtensions)
-        {
-            base.ProcessClientExtensions(clientExtensions);
-
-            // set to some reasonable default value
-            int chosenProfile = SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80;
-            UseSrtpData clientSrtpData = TlsSRTPUtils.GetUseSrtpExtension(clientExtensions);
-
-            foreach (int profile in clientSrtpData.ProtectionProfiles)
-            {
-                switch (profile)
-                {
-                    case SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_32:
-                    case SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80:
-                    case SrtpProtectionProfile.SRTP_NULL_HMAC_SHA1_32:
-                    case SrtpProtectionProfile.SRTP_NULL_HMAC_SHA1_80:
-                        chosenProfile = profile;
-                        break;
-                }
-            }
-
-            // server chooses a mutually supported SRTP protection profile
-            // http://tools.ietf.org/html/draft-ietf-avt-dtls-srtp-07#section-4.1.2
-            int[] protectionProfiles = {chosenProfile};
-
-            // server agrees to use the MKI offered by the client
-            serverSrtpData = new UseSrtpData(protectionProfiles, clientSrtpData.Mki);
-        }
-
         public override void NotifyHandshakeComplete()
         {
             //Copy master Secret (will be inaccessible after this call)
-            masterSecret = new byte[mContext.SecurityParameters.MasterSecret != null
-                ? mContext.SecurityParameters.MasterSecret.Length
-                : 0];
+            masterSecret = new byte[mContext.SecurityParameters.MasterSecret != null ? mContext.SecurityParameters.MasterSecret.Length : 0];
             Buffer.BlockCopy(mContext.SecurityParameters.MasterSecret, 0, masterSecret, 0, masterSecret.Length);
 
             //Prepare Srtp Keys (we must to it here because master key will be cleared after that)
             PrepareSrtpSharedSecret();
         }
 
+        public bool IsClient()
+        {
+            return false;
+        }
+
         protected override TlsSignerCredentials GetECDsaSignerCredentials()
         {
-            return DtlsUtils.LoadSignerCredentials(mContext, mCertificateChain, mPrivateKey,
-                new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
+            return DtlsUtils.LoadSignerCredentials(mContext, mCertificateChain, mPrivateKey, new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
         }
 
         protected override TlsEncryptionCredentials GetRsaEncryptionCredentials()
@@ -381,7 +379,6 @@ namespace SIPSorcery.Net
                     return null;
                 }
             }
-
             return DtlsUtils.LoadSignerCredentials(mContext, mCertificateChain, mPrivateKey, signatureAndHashAlgorithm);
         }
 
@@ -390,8 +387,7 @@ namespace SIPSorcery.Net
             //Set master secret back to security parameters (only works in old bouncy castle versions)
             //mContext.SecurityParameters.masterSecret = masterSecret;
 
-            SrtpParameters srtpParams =
-                SrtpParameters.GetSrtpParametersForProfile(serverSrtpData.ProtectionProfiles[0]);
+            SrtpParameters srtpParams = SrtpParameters.GetSrtpParametersForProfile(serverSrtpData.ProtectionProfiles[0]);
             int keyLen = srtpParams.GetCipherKeyLength();
             int saltLen = srtpParams.GetCipherSaltLength();
 
@@ -442,7 +438,62 @@ namespace SIPSorcery.Net
 
         protected byte[] GetKeyingMaterial(int length)
         {
-            return mContext.ExportKeyingMaterial(ExporterLabel.dtls_srtp, null, length);
+            return GetKeyingMaterial(ExporterLabel.dtls_srtp, null, length);
+        }
+
+        protected virtual byte[] GetKeyingMaterial(string asciiLabel, byte[] context_value, int length)
+        {
+            if (context_value != null && !TlsUtilities.IsValidUint16(context_value.Length))
+            {
+                throw new ArgumentException("must have length less than 2^16 (or be null)", "context_value");
+            }
+
+            SecurityParameters sp = mContext.SecurityParameters;
+            if (!sp.IsExtendedMasterSecret && RequiresExtendedMasterSecret())
+            {
+                /*
+                 * RFC 7627 5.4. If a client or server chooses to continue with a full handshake without
+                 * the extended master secret extension, [..] the client or server MUST NOT export any
+                 * key material based on the new master secret for any subsequent application-level
+                 * authentication. In particular, it MUST disable [RFC5705] [..].
+                 */
+                throw new InvalidOperationException("cannot export keying material without extended_master_secret");
+            }
+
+            byte[] cr = sp.ClientRandom, sr = sp.ServerRandom;
+
+            int seedLength = cr.Length + sr.Length;
+            if (context_value != null)
+            {
+                seedLength += (2 + context_value.Length);
+            }
+
+            byte[] seed = new byte[seedLength];
+            int seedPos = 0;
+
+            Array.Copy(cr, 0, seed, seedPos, cr.Length);
+            seedPos += cr.Length;
+            Array.Copy(sr, 0, seed, seedPos, sr.Length);
+            seedPos += sr.Length;
+            if (context_value != null)
+            {
+                TlsUtilities.WriteUint16(context_value.Length, seed, seedPos);
+                seedPos += 2;
+                Array.Copy(context_value, 0, seed, seedPos, context_value.Length);
+                seedPos += context_value.Length;
+            }
+
+            if (seedPos != seedLength)
+            {
+                throw new InvalidOperationException("error in calculation of seed for export");
+            }
+
+            return TlsUtilities.PRF(mContext, sp.MasterSecret, asciiLabel, seed, length);
+        }
+
+        public override bool RequiresExtendedMasterSecret()
+        {
+            return ForceUseExtendedMasterSecret;
         }
 
         protected override int[] GetCipherSuites()
@@ -452,8 +503,12 @@ namespace SIPSorcery.Net
             {
                 cipherSuites[i] = this.cipherSuites[i];
             }
-
             return cipherSuites;
+        }
+
+        public Certificate GetRemoteCertificate()
+        {
+            return ClientCertificate;
         }
 
         public override void NotifyAlertRaised(byte alertLevel, byte alertDescription, string message, Exception cause)
@@ -463,21 +518,21 @@ namespace SIPSorcery.Net
             {
                 description += message;
             }
-
             if (cause != null)
             {
                 description += cause;
             }
 
+            string alertMsg = $"{AlertLevel.GetText(alertLevel)}, {AlertDescription.GetText(alertDescription)}";
+            alertMsg += (!string.IsNullOrEmpty(description)) ? $", {description}." : ".";
+
             if (alertDescription == AlertTypesEnum.close_notify.GetHashCode())
             {
-                logger.LogDebug(
-                    $"DTLS server raised close notify: {AlertLevel.GetText(alertLevel)}, {AlertDescription.GetText(alertDescription)}, {description}.");
+                logger.LogDebug($"DTLS server raised close notify: {alertMsg}");
             }
             else
             {
-                logger.LogWarning(
-                    $"DTLS server raised unexpected alert: {AlertLevel.GetText(alertLevel)}, {AlertDescription.GetText(alertDescription)}, {description}.");
+                logger.LogWarning($"DTLS server raised unexpected alert: {alertMsg}");
             }
         }
 
@@ -490,23 +545,24 @@ namespace SIPSorcery.Net
 
             if (Enum.IsDefined(typeof(AlertLevelsEnum), alertLevel))
             {
-                level = (AlertLevelsEnum) alertLevel;
+                level = (AlertLevelsEnum)alertLevel;
             }
 
             if (Enum.IsDefined(typeof(AlertTypesEnum), alertDescription))
             {
-                alertType = (AlertTypesEnum) alertDescription;
+                alertType = (AlertTypesEnum)alertDescription;
             }
+
+            string alertMsg = $"{AlertLevel.GetText(alertLevel)}";
+            alertMsg += (!string.IsNullOrEmpty(description)) ? $", {description}." : ".";
 
             if (alertType == AlertTypesEnum.close_notify)
             {
-                logger.LogDebug(
-                    $"DTLS server received close notification: {AlertLevel.GetText(alertLevel)}, {description}.");
+                logger.LogDebug($"DTLS server received close notification: {alertMsg}");
             }
             else
             {
-                logger.LogWarning(
-                    $"DTLS server received unexpected alert: {AlertLevel.GetText(alertLevel)}, {description}.");
+                logger.LogWarning($"DTLS server received unexpected alert: {alertMsg}");
             }
 
             OnAlert?.Invoke(level, alertType, description);

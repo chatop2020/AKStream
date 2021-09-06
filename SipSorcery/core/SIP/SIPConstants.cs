@@ -20,7 +20,7 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.SIP
 {
-    public class SIPConstants
+    public static class SIPConstants
     {
         public const string CRLF = "\r\n";
 
@@ -29,7 +29,7 @@ namespace SIPSorcery.SIP
         public const int SIP_MINOR_VERSION = 0;
         public const string SIP_FULLVERSION_STRING = "SIP/2.0";
 
-        public const int NONCE_TIMEOUT_MINUTES = 5; // Length of time an issued nonce is valid for.
+        public const int NONCE_TIMEOUT_MINUTES = 5;                         // Length of time an issued nonce is valid for.
 
         /// <summary>
         /// The maximum size supported for an incoming SIP message.
@@ -42,46 +42,33 @@ namespace SIPSorcery.SIP
         /// </remarks>
         public const int SIP_MAXIMUM_RECEIVE_LENGTH = 65535;
 
-        public const string
-            SIP_REQUEST_REGEX = @"^\w+ .* SIP/.*"; // bnf:	Request-Line = Method SP Request-URI SP SIP-Version CRLF
-
-        public const string
-            SIP_RESPONSE_REGEX =
-                @"^SIP/.* \d{3}"; // bnf: Status-Line = SIP-Version SP Status-Code SP Reason-Phrase CRLF
-
+        public const string SIP_REQUEST_REGEX = @"^\w+ .* SIP/.*";          // bnf:	Request-Line = Method SP Request-URI SP SIP-Version CRLF
+        public const string SIP_RESPONSE_REGEX = @"^SIP/.* \d{3}";          // bnf: Status-Line = SIP-Version SP Status-Code SP Reason-Phrase CRLF
         public const string SIP_BRANCH_MAGICCOOKIE = "z9hG4bK";
         public const string SIP_DEFAULT_USERNAME = "Anonymous";
         public const string SIP_DEFAULT_FROMURI = "sip:thisis@anonymous.invalid";
-
-        public const string
-            SIP_REGISTER_REMOVEALL =
-                "*"; // The value in a REGISTER request id a UA wishes to remove all REGISTER bindings.
-
+        public const string SIP_REGISTER_REMOVEALL = "*";                   // The value in a REGISTER request id a UA wishes to remove all REGISTER bindings.
         public const string SIP_LOOSEROUTER_PARAMETER = "lr";
         public const string SIP_REMOTEHANGUP_CAUSE = "remote end hungup";
         public const char HEADER_DELIMITER_CHAR = ':';
 
         public const int DEFAULT_MAX_FORWARDS = 70;
         public const int DEFAULT_REGISTEREXPIRY_SECONDS = 600;
-        public const int DEFAULT_SIP_PORT = 5060;
-        public const int DEFAULT_SIP_TLS_PORT = 5061;
-        public const int DEFAULT_SIP_WEBSOCKET_PORT = 80;
-        public const int DEFAULT_SIPS_WEBSOCKET_PORT = 443;
+        public const ushort DEFAULT_SIP_PORT = 5060;
+        public const ushort DEFAULT_SIP_TLS_PORT = 5061;
+        public const ushort DEFAULT_SIP_WEBSOCKET_PORT = 80;
+        public const ushort DEFAULT_SIPS_WEBSOCKET_PORT = 443;
 
-        public const string NAT_SENDKEEPALIVES_VALUE = "y";
-
-        public const string ALLOWED_SIP_METHODS =
-            "ACK, BYE, CANCEL, INFO, INVITE, NOTIFY, OPTIONS, PRACK, REFER, REGISTER, SUBSCRIBE";
+        public const string ALLOWED_SIP_METHODS = "ACK, BYE, CANCEL, INFO, INVITE, NOTIFY, OPTIONS, PRACK, REFER, REGISTER, SUBSCRIBE";
 
         private static string _userAgentVersion;
-
         public static string SIP_USERAGENT_STRING
         {
             get
             {
                 if (_userAgentVersion == null)
                 {
-                    _userAgentVersion = $"sipsorcery_v{Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
+                    _userAgentVersion = $"sipsorcery_v{Assembly.GetExecutingAssembly().GetName().Version}";
                 }
 
                 return _userAgentVersion;
@@ -98,15 +85,15 @@ namespace SIPSorcery.SIP
             switch (protocol)
             {
                 case SIPProtocolsEnum.udp:
-                    return DEFAULT_SIP_PORT;
+                    return SIPConstants.DEFAULT_SIP_PORT;
                 case SIPProtocolsEnum.tcp:
-                    return DEFAULT_SIP_PORT;
+                    return SIPConstants.DEFAULT_SIP_PORT;
                 case SIPProtocolsEnum.tls:
-                    return DEFAULT_SIP_TLS_PORT;
+                    return SIPConstants.DEFAULT_SIP_TLS_PORT;
                 case SIPProtocolsEnum.ws:
-                    return DEFAULT_SIP_WEBSOCKET_PORT;
+                    return SIPConstants.DEFAULT_SIP_WEBSOCKET_PORT;
                 case SIPProtocolsEnum.wss:
-                    return DEFAULT_SIPS_WEBSOCKET_PORT;
+                    return SIPConstants.DEFAULT_SIPS_WEBSOCKET_PORT;
                 default:
                     throw new ApplicationException($"Protocol {protocol} was not recognised in GetDefaultPort.");
             }
@@ -120,7 +107,7 @@ namespace SIPSorcery.SIP
         Response = 2,
     }
 
-    public class SIPTimings
+    public static class SIPTimings
     {
         /// <summary>
         /// Value of the SIP defined timer T1 in milliseconds and is the time for the first retransmit.
@@ -154,11 +141,11 @@ namespace SIPSorcery.SIP
         tel = 3,
     }
 
-    public class SIPSchemesType
+    public static class SIPSchemesType
     {
         public static SIPSchemesEnum GetSchemeType(string schemeType)
         {
-            return (SIPSchemesEnum) Enum.Parse(typeof(SIPSchemesEnum), schemeType, true);
+            return (SIPSchemesEnum)Enum.Parse(typeof(SIPSchemesEnum), schemeType, true);
         }
 
         public static bool IsAllowedScheme(string schemeType)
@@ -177,7 +164,7 @@ namespace SIPSorcery.SIP
 
     /// <summary>
     /// A list of the transport layer protocols that are supported (the network layers
-    /// supported are IPv4 mad IPv6).
+    /// supported are IPv4 and IPv6).
     /// </summary>
     public enum SIPProtocolsEnum
     {
@@ -185,38 +172,34 @@ namespace SIPSorcery.SIP
         /// User Datagram Protocol.
         /// </summary>
         udp = 1,
-
         /// <summary>.
         /// Transmission Control Protocol
         /// </summary>
         tcp = 2,
-
         /// <summary>
         /// Transport Layer Security.
         /// </summary>
         tls = 3,
-
         /// <summary>
         /// Web Socket.
         /// </summary>
         ws = 4,
-
         /// <summary>
         /// Web Socket over TLS.
         /// </summary>
         wss = 5,
     }
 
-    public class SIPProtocolsType
+    public static class SIPProtocolsType
     {
         public static SIPProtocolsEnum GetProtocolType(string protocolType)
         {
-            return (SIPProtocolsEnum) Enum.Parse(typeof(SIPProtocolsEnum), protocolType, true);
+            return (SIPProtocolsEnum)Enum.Parse(typeof(SIPProtocolsEnum), protocolType, true);
         }
 
         public static SIPProtocolsEnum GetProtocolTypeFromId(int protocolTypeId)
         {
-            return (SIPProtocolsEnum) Enum.Parse(typeof(SIPProtocolsEnum), protocolTypeId.ToString(), true);
+            return (SIPProtocolsEnum)Enum.Parse(typeof(SIPProtocolsEnum), protocolTypeId.ToString(), true);
         }
 
         public static bool IsAllowedProtocol(string protocol)
@@ -231,9 +214,27 @@ namespace SIPSorcery.SIP
                 return false;
             }
         }
+
+        /// <summary>
+        /// Returns true for connectionless transport protocols, such as UDP, and false for
+        /// connection oriented protocols.
+        /// </summary>
+        /// <param name="protocol">The protocol to check.</param>
+        /// <returns>True if the protocol is connectionless.</returns>
+        public static bool IsConnectionless(SIPProtocolsEnum protocol)
+        {
+            if(protocol == SIPProtocolsEnum.udp)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
-    public class SIPHeaders
+    public static class SIPHeaders
     {
         // SIP Header Keys.
         public const string SIP_HEADER_ACCEPT = "Accept";
@@ -241,7 +242,7 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_ACCEPTLANGUAGE = "Accept-Language";
         public const string SIP_HEADER_ALERTINFO = "Alert-Info";
         public const string SIP_HEADER_ALLOW = "Allow";
-        public const string SIP_HEADER_ALLOW_EVENTS = "Allow-Events"; // RC3265 (SIP Events).
+        public const string SIP_HEADER_ALLOW_EVENTS = "Allow-Events";               // RC3265 (SIP Events).
         public const string SIP_HEADER_AUTHENTICATIONINFO = "Authentication-Info";
         public const string SIP_HEADER_AUTHORIZATION = "Authorization";
         public const string SIP_HEADER_CALLID = "Call-ID";
@@ -255,8 +256,8 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_CSEQ = "CSeq";
         public const string SIP_HEADER_DATE = "Date";
         public const string SIP_HEADER_ERROR_INFO = "Error-Info";
-        public const string SIP_HEADER_EVENT = "Event"; // RC3265 (SIP Events).
-        public const string SIP_HEADER_ETAG = "SIP-ETag"; // RFC3903
+        public const string SIP_HEADER_EVENT = "Event";                             // RC3265 (SIP Events).
+        public const string SIP_HEADER_ETAG = "SIP-ETag";                           // RFC3903
         public const string SIP_HEADER_EXPIRES = "Expires";
         public const string SIP_HEADER_FROM = "From";
         public const string SIP_HEADER_IN_REPLY_TO = "In-Reply-To";
@@ -268,37 +269,21 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_PROXYAUTHENTICATION = "Proxy-Authenticate";
         public const string SIP_HEADER_PROXYAUTHORIZATION = "Proxy-Authorization";
         public const string SIP_HEADER_PROXY_REQUIRE = "Proxy-Require";
-
-        public const string
-            SIP_HEADER_RELIABLE_ACK =
-                "RAck"; // RFC 3262 "The RAck header is sent in a PRACK request to support reliability of provisional responses."
-
+        public const string SIP_HEADER_RELIABLE_ACK = "RAck";                       // RFC 3262 "The RAck header is sent in a PRACK request to support reliability of provisional responses."
         public const string SIP_HEADER_REASON = "Reason";
         public const string SIP_HEADER_RECORDROUTE = "Record-Route";
-
-        public const string
-            SIP_HEADER_REFERREDBY = "Referred-By"; // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
-
-        public const string
-            SIP_HEADER_REFERSUB =
-                "Refer-Sub"; // RFC 4488 Used to stop the implicit SIP event subscription on a REFER request.
-
-        public const string
-            SIP_HEADER_REFERTO = "Refer-To"; // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
-
+        public const string SIP_HEADER_REFERREDBY = "Referred-By";                  // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
+        public const string SIP_HEADER_REFERSUB = "Refer-Sub";                      // RFC 4488 Used to stop the implicit SIP event subscription on a REFER request.
+        public const string SIP_HEADER_REFERTO = "Refer-To";                        // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
         public const string SIP_HEADER_REPLY_TO = "Reply-To";
         public const string SIP_HEADER_REPLACES = "Replaces";
         public const string SIP_HEADER_REQUIRE = "Require";
         public const string SIP_HEADER_RETRY_AFTER = "Retry-After";
-
-        public const string
-            SIP_HEADER_RELIABLE_SEQ =
-                "RSeq"; // RFC 3262 "The RSeq header is used in provisional responses in order to transmit them reliably."
-
+        public const string SIP_HEADER_RELIABLE_SEQ = "RSeq";                     // RFC 3262 "The RSeq header is used in provisional responses in order to transmit them reliably."
         public const string SIP_HEADER_ROUTE = "Route";
         public const string SIP_HEADER_SERVER = "Server";
         public const string SIP_HEADER_SUBJECT = "Subject";
-        public const string SIP_HEADER_SUBSCRIPTION_STATE = "Subscription-State"; // RC3265 (SIP Events).
+        public const string SIP_HEADER_SUBSCRIPTION_STATE = "Subscription-State";       // RC3265 (SIP Events).
         public const string SIP_HEADER_SUPPORTED = "Supported";
         public const string SIP_HEADER_TIMESTAMP = "Timestamp";
         public const string SIP_HEADER_TO = "To";
@@ -309,17 +294,14 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_WWWAUTHENTICATE = "WWW-Authenticate";
 
         // SIP Compact Header Keys.
-        public const string SIP_COMPACTHEADER_ALLOWEVENTS = "u"; // RC3265 (SIP Events).
+        public const string SIP_COMPACTHEADER_ALLOWEVENTS = "u";        // RC3265 (SIP Events).
         public const string SIP_COMPACTHEADER_CALLID = "i";
         public const string SIP_COMPACTHEADER_CONTACT = "m";
         public const string SIP_COMPACTHEADER_CONTENTLENGTH = "l";
         public const string SIP_COMPACTHEADER_CONTENTTYPE = "c";
-        public const string SIP_COMPACTHEADER_EVENT = "o"; // RC3265 (SIP Events).
+        public const string SIP_COMPACTHEADER_EVENT = "o";              // RC3265 (SIP Events).
         public const string SIP_COMPACTHEADER_FROM = "f";
-
-        public const string
-            SIP_COMPACTHEADER_REFERTO = "r"; // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
-
+        public const string SIP_COMPACTHEADER_REFERTO = "r";            // RFC 3515 "The Session Initiation Protocol (SIP) Refer Method".
         public const string SIP_COMPACTHEADER_SUBJECT = "s";
         public const string SIP_COMPACTHEADER_SUPPORTED = "k";
         public const string SIP_COMPACTHEADER_TO = "t";
@@ -329,14 +311,9 @@ namespace SIPSorcery.SIP
         public const string SIP_HEADER_PROXY_RECEIVEDON = "Proxy-ReceivedOn";
         public const string SIP_HEADER_PROXY_RECEIVEDFROM = "Proxy-ReceivedFrom";
         public const string SIP_HEADER_PROXY_SENDFROM = "Proxy-SendFrom";
-
-        // Custom SIP headers for CRM integration.
-        public const string SIP_HEADER_CRM_PERSON_NAME = "CRM-PersonName";
-        public const string SIP_HEADER_CRM_COMPANY_NAME = "CRM-CompanyName";
-        public const string SIP_HEADER_CRM_PICTURE_URL = "CRM-PictureURL";
     }
 
-    public class SIPHeaderAncillary
+    public static class SIPHeaderAncillary
     {
         // Header parameters used in the core SIP protocol.
         public const string SIP_HEADERANC_TAG = "tag";
@@ -356,7 +333,7 @@ namespace SIPSorcery.SIP
     /// <summary>
     /// Authorization Headers
     /// </summary>
-    public class AuthHeaders
+    public static class AuthHeaders
     {
         public const string AUTH_DIGEST_KEY = "Digest";
         public const string AUTH_REALM_KEY = "realm";
@@ -387,18 +364,18 @@ namespace SIPSorcery.SIP
         CANCEL = 6,
         OPTIONS = 7,
 
-        INFO = 8, // RFC2976.
-        NOTIFY = 9, // RFC3265.
-        SUBSCRIBE = 10, // RFC3265.
-        PUBLISH = 11, // RFC3903.
+        INFO = 8,           // RFC2976.
+        NOTIFY = 9,         // RFC3265.
+        SUBSCRIBE = 10,     // RFC3265.
+        PUBLISH = 11,       // RFC3903.
         PING = 13,
-        REFER = 14, // RFC3515 "The Session Initiation Protocol (SIP) Refer Method"
-        MESSAGE = 15, // RFC3428.
-        PRACK = 16, // RFC3262.
-        UPDATE = 17, // RFC3311.
+        REFER = 14,         // RFC3515 "The Session Initiation Protocol (SIP) Refer Method"
+        MESSAGE = 15,       // RFC3428.
+        PRACK = 16,         // RFC3262.
+        UPDATE = 17,        // RFC3311.
     }
 
-    public class SIPMethods
+    public static class SIPMethods
     {
         public static SIPMethodsEnum GetMethod(string method)
         {
@@ -406,11 +383,9 @@ namespace SIPSorcery.SIP
 
             try
             {
-                sipMethod = (SIPMethodsEnum) Enum.Parse(typeof(SIPMethodsEnum), method, true);
+                sipMethod = (SIPMethodsEnum)Enum.Parse(typeof(SIPMethodsEnum), method, true);
             }
-            catch
-            {
-            }
+            catch { }
 
             return sipMethod;
         }
@@ -429,20 +404,20 @@ namespace SIPSorcery.SIP
 
         // Success
         Ok = 200,
-        Accepted = 202, // RC3265 (SIP Events).
+        Accepted = 202,                         // RC3265 (SIP Events).
         NoNotification = 204,
 
         // Redirection
         MultipleChoices = 300,
         MovedPermanently = 301,
         MovedTemporarily = 302,
-        UseProxy = 303,
         AlternativeService = 304,
+        UseProxy = 305,
 
         // Client-Error
         BadRequest = 400,
-        Unauthorized = 401,
         Unauthorised = 401,
+        Unauthorized = 401,
         PaymentRequired = 402,
         Forbidden = 403,
         NotFound = 404,
@@ -480,10 +455,9 @@ namespace SIPSorcery.SIP
         BusyHere = 486,
         RequestTerminated = 487,
         NotAcceptableHere = 488,
-        BadEvent = 489, // RC3265 (SIP Events).
+        BadEvent = 489,                         // RC3265 (SIP Events).
         RequestPending = 491,
         Undecipherable = 493,
-        SecurityAgreementRequired = 580,
 
         // Server Failure.
         InternalServerError = 500,
@@ -502,31 +476,28 @@ namespace SIPSorcery.SIP
         NotAcceptableAnywhere = 606,
     }
 
-    public class SIPResponseStatusCodes
+    public static class SIPResponseStatusCodes
     {
         public static SIPResponseStatusCodesEnum GetStatusTypeForCode(int statusCode)
         {
-            return (SIPResponseStatusCodesEnum) Enum.Parse(typeof(SIPResponseStatusCodesEnum), statusCode.ToString(),
-                true);
+            return (SIPResponseStatusCodesEnum)Enum.Parse(typeof(SIPResponseStatusCodesEnum), statusCode.ToString(), true);
         }
     }
 
     public enum SIPUserAgentRoles
     {
         Unknown = 0,
-        Client = 1, // UAC.
-        Server = 2, // UAS.
+        Client = 1,     // UAC.
+        Server = 2,     // UAS.
     }
 
-    public class SIPMIMETypes
+    public static class SIPMIMETypes
     {
-        public const string
-            DIALOG_INFO_CONTENT_TYPE = "application/dialog-info+xml"; // RFC4235 INVITE dialog event package.
-
-        public const string MWI_CONTENT_TYPE = "application/simple-message-summary"; // RFC3842 MWI event package.
-        public const string REFER_CONTENT_TYPE = "message/sipfrag"; // RFC3515 REFER event package.
+        public const string DIALOG_INFO_CONTENT_TYPE = "application/dialog-info+xml";   // RFC4235 INVITE dialog event package.
+        public const string MWI_CONTENT_TYPE = "application/simple-message-summary";    // RFC3842 MWI event package.
+        public const string REFER_CONTENT_TYPE = "message/sipfrag";                     // RFC3515 REFER event package.
         public const string MWI_TEXT_TYPE = "text/text";
-        public const string PRESENCE_NOTIFY_CONTENT_TYPE = "application/pidf+xml"; // RFC3856 presence event package.
+        public const string PRESENCE_NOTIFY_CONTENT_TYPE = "application/pidf+xml";      // RFC3856 presence event package.
     }
 
     /// <summary>
@@ -560,7 +531,6 @@ namespace SIPSorcery.SIP
                 result = result.Replace("@", "%40");
                 result = result.Replace(" ", "%20");
             }
-
             return result;
         }
 
@@ -573,7 +543,6 @@ namespace SIPSorcery.SIP
                 result = result.Replace("%3a", ":");
                 result = result.Replace("%20", " ");
             }
-
             return result;
         }
 
@@ -589,7 +558,6 @@ namespace SIPSorcery.SIP
                 result = result.Replace(",", "%2C");
                 result = result.Replace(" ", "%20");
             }
-
             return result;
         }
 
@@ -617,7 +585,6 @@ namespace SIPSorcery.SIP
                 result = result.Replace("%2c", ",");
                 result = result.Replace("%20", " ");
             }
-
             return result;
         }
     }
@@ -628,20 +595,22 @@ namespace SIPSorcery.SIP
     public enum SIPExtensions
     {
         None = 0,
-        Prack = 1, // Reliable provisional responses as per RFC3262.
-        NoReferSub = 2, // No subscription for REFERs as per RFC4488.
+        Prack = 1,          // Reliable provisional responses as per RFC3262.
+        NoReferSub = 2,     // No subscription for REFERs as per RFC4488.
         Replaces = 3,
+        SipRec = 4,
     }
 
     /// <summary>
     /// Constants that can be placed in the SIP Supported or Required headers to indicate support or mandate for
     /// a particular SIP extension.
     /// </summary>
-    public class SIPExtensionHeaders
+    public static class SIPExtensionHeaders
     {
         public const string PRACK = "100rel";
         public const string NO_REFER_SUB = "norefersub";
         public const string REPLACES = "replaces";
+        public const string SIPREC = "siprec";
 
         /// <summary>
         /// Parses a string containing a list of SIP extensions into a list of extensions that this library
@@ -675,10 +644,13 @@ namespace SIPSorcery.SIP
                         {
                             knownExtensions.Add(SIPExtensions.Replaces);
                         }
+                        else if (extension.Trim().ToLower() == SIPREC)
+                        {
+                            knownExtensions.Add(SIPExtensions.SipRec);
+                        }
                         else
                         {
-                            unknownExtensions +=
-                                (unknownExtensions != null) ? $",{extension.Trim()}" : extension.Trim();
+                            unknownExtensions += (unknownExtensions != null) ? $",{extension.Trim()}" : extension.Trim();
                         }
                     }
                 }

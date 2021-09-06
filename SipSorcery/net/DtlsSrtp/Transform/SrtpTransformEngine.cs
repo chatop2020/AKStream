@@ -56,6 +56,26 @@ namespace SIPSorcery.Net
         }
 
         /**
+         * Close the transformer engine.
+         * 
+         * The close functions closes all stored default crypto contexts. This
+         * deletes key data and forces a cleanup of the crypto contexts.
+         */
+        public void Close()
+        {
+            if (defaultContext != null)
+            {
+                defaultContext.Close();
+                defaultContext = null;
+            }
+            if (defaultContextControl != null)
+            {
+                defaultContextControl.Close();
+                defaultContextControl = null;
+            }
+        }
+
+        /**
          * Gets the <tt>PacketTransformer</tt> for RTCP packets.
          * 
          * @return the <tt>PacketTransformer</tt> for RTCP packets
@@ -74,27 +94,6 @@ namespace SIPSorcery.Net
         public IPacketTransformer GetRTPTransformer()
         {
             return new SrtpTransformer(this);
-        }
-
-        /**
-         * Close the transformer engine.
-         * 
-         * The close functions closes all stored default crypto contexts. This
-         * deletes key data and forces a cleanup of the crypto contexts.
-         */
-        public void Close()
-        {
-            if (defaultContext != null)
-            {
-                defaultContext.Close();
-                defaultContext = null;
-            }
-
-            if (defaultContextControl != null)
-            {
-                defaultContextControl.Close();
-                defaultContextControl = null;
-            }
         }
 
         /**

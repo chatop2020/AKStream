@@ -34,6 +34,11 @@ namespace SIPSorcery.Net
     {
         private static ILogger logger = Log.Logger;
 
+        public RTCPSenderReport SenderReport { get; private set; }
+        public RTCPReceiverReport ReceiverReport { get; private set; }
+        public RTCPSDesReport SDesReport { get; private set; }
+        public RTCPBye Bye { get; set; }
+
         public RTCPCompoundPacket(RTCPSenderReport senderReport, RTCPSDesReport sdesReport)
         {
             SenderReport = senderReport;
@@ -68,32 +73,32 @@ namespace SIPSorcery.Net
                     byte packetTypeID = buffer[1];
                     switch (packetTypeID)
                     {
-                        case (byte) RTCPReportTypesEnum.SR:
+                        case (byte)RTCPReportTypesEnum.SR:
                             SenderReport = new RTCPSenderReport(buffer);
                             int srLength = (SenderReport != null) ? SenderReport.GetBytes().Length : Int32.MaxValue;
                             offset += srLength;
                             break;
-                        case (byte) RTCPReportTypesEnum.RR:
+                        case (byte)RTCPReportTypesEnum.RR:
                             ReceiverReport = new RTCPReceiverReport(buffer);
                             int rrLength = (ReceiverReport != null) ? ReceiverReport.GetBytes().Length : Int32.MaxValue;
                             offset += rrLength;
                             break;
-                        case (byte) RTCPReportTypesEnum.SDES:
+                        case (byte)RTCPReportTypesEnum.SDES:
                             SDesReport = new RTCPSDesReport(buffer);
                             int sdesLength = (SDesReport != null) ? SDesReport.GetBytes().Length : Int32.MaxValue;
                             offset += sdesLength;
                             break;
-                        case (byte) RTCPReportTypesEnum.BYE:
+                        case (byte)RTCPReportTypesEnum.BYE:
                             Bye = new RTCPBye(buffer);
                             int byeLength = (Bye != null) ? Bye.GetBytes().Length : Int32.MaxValue;
                             offset += byeLength;
                             break;
-                        case (byte) RTCPReportTypesEnum.RTPFB:
+                        case (byte)RTCPReportTypesEnum.RTPFB:
                             // TODO: Interpret Generic RTP feedback reports.
                             var rtpfbHeader = new RTCPHeader(buffer);
                             offset += rtpfbHeader.Length * 4 + 4;
                             break;
-                        case (byte) RTCPReportTypesEnum.PSFB:
+                        case (byte)RTCPReportTypesEnum.PSFB:
                             // TODO: Interpret Payload specific feedback reports.
                             var psfbHeader = new RTCPHeader(buffer);
                             offset += psfbHeader.Length * 4 + 4;
@@ -108,11 +113,6 @@ namespace SIPSorcery.Net
             }
         }
 
-        public RTCPSenderReport SenderReport { get; private set; }
-        public RTCPReceiverReport ReceiverReport { get; private set; }
-        public RTCPSDesReport SDesReport { get; private set; }
-        public RTCPBye Bye { get; set; }
-
         /// <summary>
         /// Serialises a compound RTCP packet to a byte array ready for transmission.
         /// </summary>
@@ -121,8 +121,7 @@ namespace SIPSorcery.Net
         {
             if (SenderReport == null && ReceiverReport == null)
             {
-                throw new ApplicationException(
-                    "An RTCP compound packet must have either a Sender or Receiver report set.");
+                throw new ApplicationException("An RTCP compound packet must have either a Sender or Receiver report set.");
             }
             else if (SDesReport == null)
             {

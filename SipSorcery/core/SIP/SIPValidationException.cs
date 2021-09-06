@@ -45,8 +45,7 @@ namespace SIPSorcery.SIP
             SIPResponseErrorCode = SIPResponseStatusCodesEnum.BadRequest;
         }
 
-        public SIPValidationException(SIPValidationFieldsEnum sipErrorField,
-            SIPResponseStatusCodesEnum responseErrorCode, string message)
+        public SIPValidationException(SIPValidationFieldsEnum sipErrorField, SIPResponseStatusCodesEnum responseErrorCode, string message)
             : base(message)
         {
             SIPErrorField = sipErrorField;

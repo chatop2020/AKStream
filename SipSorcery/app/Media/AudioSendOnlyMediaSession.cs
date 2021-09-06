@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Net;
 using SIPSorcery.SIP.App;
-using SIPSorcery.Sys;
-using SIPSorceryMedia.Abstractions.V1;
+using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
 {
@@ -16,7 +15,9 @@ namespace SIPSorcery.Media
     /// </summary>
     public class AudioSendOnlyMediaSession : RTPSession, IMediaSession
     {
-        private static ILogger logger = Log.Logger;
+        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+
+        public AudioExtrasSource AudioExtrasSource { get; private set; }
 
         public AudioSendOnlyMediaSession(
             IPAddress bindAddress = null,
@@ -24,8 +25,7 @@ namespace SIPSorcery.Media
             : base(false, false, false, bindAddress, bindPort)
         {
             // The audio extras source is used for on-hold music.
-            AudioExtrasSource = new AudioExtrasSource(new AudioEncoder(),
-                new AudioSourceOptions {AudioSource = AudioSourcesEnum.Music});
+            AudioExtrasSource = new AudioExtrasSource(new AudioEncoder(), new AudioSourceOptions { AudioSource = AudioSourcesEnum.Music });
             AudioExtrasSource.OnAudioSourceEncodedSample += SendAudio;
 
             base.OnAudioFormatsNegotiated += AudioFormatsNegotiated;
@@ -34,7 +34,12 @@ namespace SIPSorcery.Media
             base.addTrack(audioTrack);
         }
 
-        public AudioExtrasSource AudioExtrasSource { get; private set; }
+        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
+        {
+            var audioFormat = audoFormats.First();
+            logger.LogDebug($"Setting audio source format to {audioFormat.FormatID}:{audioFormat.Codec}.");
+            AudioExtrasSource.SetAudioSourceFormat(audioFormat);
+        }
 
         public async override Task Start()
         {
@@ -54,13 +59,6 @@ namespace SIPSorcery.Media
                 AudioExtrasSource.OnAudioSourceEncodedSample -= SendAudio;
                 await AudioExtrasSource.CloseAudio().ConfigureAwait(false);
             }
-        }
-
-        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
-        {
-            var audioFormat = audoFormats.First();
-            logger.LogDebug($"Setting audio source format to {audioFormat.FormatID}:{audioFormat.Codec}.");
-            AudioExtrasSource.SetAudioSourceFormat(audioFormat);
         }
     }
 }

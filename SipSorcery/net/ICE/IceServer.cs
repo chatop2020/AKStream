@@ -32,6 +32,8 @@ namespace SIPSorcery.Net
     /// </summary>
     public class IceServer
     {
+        private static readonly ILogger logger = Log.Logger;
+
         /// <summary>
         /// A magic cookie to use as the prefix for STUN requests generated for ICE servers.
         /// Allows quick matching of responses for ICE servers compared to responses for
@@ -87,35 +89,14 @@ namespace SIPSorcery.Net
         /// </summary>
         internal const int STUN_UNAUTHORISED_ERROR_CODE = 401;
 
-        private static readonly ILogger logger = Log.Logger;
-        internal int _id; // An incrementing number that needs to be unique for each server in the session.
-        internal string _password;
-
         internal STUNUri _uri;
         internal string _username;
+        internal string _password;
 
         /// <summary>
-        /// Count of the number of error responses received without a success response.
+        /// An incrementing number that needs to be unique for each server in the session.
         /// </summary>
-        internal int ErrorResponseCount = 0;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        /// <param name="uri">The STUN or TURN server URI the connection is being attempted to.</param>
-        /// <param name="id">Needs to be set uniquely for each ICE server used in this session. Gets added to the
-        /// transaction ID to facilitate quick matching of STUN requests and responses. Needs to be between
-        /// 0 and 9.</param>
-        /// <param name="username">Optional. If authentication is required the username to use.</param>
-        /// <param name="password">Optional. If authentication is required the password to use.</param>
-        internal IceServer(STUNUri uri, int id, string username, string password)
-        {
-            _uri = uri;
-            _id = id;
-            _username = username;
-            _password = password;
-            GenerateNewTransactionID();
-        }
+        internal int _id;
 
         /// <summary>
         /// The end point for this STUN or TURN server. Will be set asynchronously once
@@ -182,6 +163,29 @@ namespace SIPSorcery.Net
         internal byte[] Realm { get; set; }
 
         /// <summary>
+        /// Count of the number of error responses received without a success response.
+        /// </summary>
+        internal int ErrorResponseCount = 0;
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        /// <param name="uri">The STUN or TURN server URI the connection is being attempted to.</param>
+        /// <param name="id">Needs to be set uniquely for each ICE server used in this session. Gets added to the
+        /// transaction ID to facilitate quick matching of STUN requests and responses. Needs to be between
+        /// 0 and 9.</param>
+        /// <param name="username">Optional. If authentication is required the username to use.</param>
+        /// <param name="password">Optional. If authentication is required the password to use.</param>
+        internal IceServer(STUNUri uri, int id, string username, string password)
+        {
+            _uri = uri;
+            _id = id;
+            _username = username;
+            _password = password;
+            GenerateNewTransactionID();
+        }
+
+        /// <summary>
         /// Gets an ICE candidate for this ICE server once the required server responses have been received.
         /// Note the related address and port are deliberately not set to avoid leaking information about
         /// internal network configuration.
@@ -195,16 +199,15 @@ namespace SIPSorcery.Net
 
             if (type == RTCIceCandidateType.srflx && ServerReflexiveEndPoint != null)
             {
-                candidate.SetAddressProperties(RTCIceProtocol.udp, ServerReflexiveEndPoint.Address,
-                    (ushort) ServerReflexiveEndPoint.Port,
-                    type, null, 0);
+                candidate.SetAddressProperties(RTCIceProtocol.udp, ServerReflexiveEndPoint.Address, (ushort)ServerReflexiveEndPoint.Port,
+                                type, null, 0);
                 candidate.IceServer = this;
 
                 return candidate;
             }
             else if (type == RTCIceCandidateType.relay && RelayEndPoint != null)
             {
-                candidate.SetAddressProperties(RTCIceProtocol.udp, RelayEndPoint.Address, (ushort) RelayEndPoint.Port,
+                candidate.SetAddressProperties(RTCIceProtocol.udp, RelayEndPoint.Address, (ushort)RelayEndPoint.Port,
                     type, null, 0);
                 candidate.IceServer = this;
 
@@ -223,8 +226,7 @@ namespace SIPSorcery.Net
         internal void GenerateNewTransactionID()
         {
             TransactionID = ICE_SERVER_TXID_PREFIX + _id.ToString()
-                                                   + Crypto.GetRandomString(STUNHeader.TRANSACTION_ID_LENGTH -
-                                                                            ICE_SERVER_TXID_PREFIX_LENGTH);
+                + Crypto.GetRandomString(STUNHeader.TRANSACTION_ID_LENGTH - ICE_SERVER_TXID_PREFIX_LENGTH);
         }
 
         /// <summary>
@@ -270,16 +272,14 @@ namespace SIPSorcery.Net
                     {
                         logger.LogDebug($"TURN allocate success response received for ICE server check to {_uri}.");
 
-                        var mappedAddrAttr = stunResponse.Attributes
-                            .Where(x => x.AttributeType == STUNAttributeTypesEnum.XORMappedAddress).FirstOrDefault();
+                        var mappedAddrAttr = stunResponse.Attributes.Where(x => x.AttributeType == STUNAttributeTypesEnum.XORMappedAddress).FirstOrDefault();
 
                         if (mappedAddrAttr != null)
                         {
                             ServerReflexiveEndPoint = (mappedAddrAttr as STUNXORAddressAttribute).GetIPEndPoint();
                         }
 
-                        var mappedRelayAddrAttr = stunResponse.Attributes
-                            .Where(x => x.AttributeType == STUNAttributeTypesEnum.XORRelayedAddress).FirstOrDefault();
+                        var mappedRelayAddrAttr = stunResponse.Attributes.Where(x => x.AttributeType == STUNAttributeTypesEnum.XORRelayedAddress).FirstOrDefault();
 
                         if (mappedRelayAddrAttr != null)
                         {
@@ -295,9 +295,7 @@ namespace SIPSorcery.Net
 
                     if (stunResponse.Attributes.Any(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode))
                     {
-                        var errCodeAttribute =
-                            stunResponse.Attributes.First(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode) as
-                                STUNErrorCodeAttribute;
+                        var errCodeAttribute = stunResponse.Attributes.First(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode) as STUNErrorCodeAttribute;
 
                         if (errCodeAttribute.ErrorCode == STUN_UNAUTHORISED_ERROR_CODE)
                         {
@@ -309,8 +307,7 @@ namespace SIPSorcery.Net
                         }
                         else
                         {
-                            logger.LogWarning(
-                                $"ICE session received an error response for an Allocate request to {_uri}, error {errCodeAttribute.ErrorCode} {errCodeAttribute.ReasonPhrase}.");
+                            logger.LogWarning($"ICE session received an error response for an Allocate request to {_uri}, error {errCodeAttribute.ErrorCode} {errCodeAttribute.ReasonPhrase}.");
                         }
                     }
                 }
@@ -323,8 +320,7 @@ namespace SIPSorcery.Net
                     {
                         logger.LogDebug($"STUN binding success response received for ICE server check to {_uri}.");
 
-                        var mappedAddrAttr = stunResponse.Attributes
-                            .Where(x => x.AttributeType == STUNAttributeTypesEnum.XORMappedAddress).FirstOrDefault();
+                        var mappedAddrAttr = stunResponse.Attributes.Where(x => x.AttributeType == STUNAttributeTypesEnum.XORMappedAddress).FirstOrDefault();
 
                         if (mappedAddrAttr != null)
                         {
@@ -339,9 +335,7 @@ namespace SIPSorcery.Net
 
                     if (stunResponse.Attributes.Any(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode))
                     {
-                        var errCodeAttribute =
-                            stunResponse.Attributes.First(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode) as
-                                STUNErrorCodeAttribute;
+                        var errCodeAttribute = stunResponse.Attributes.First(x => x.AttributeType == STUNAttributeTypesEnum.ErrorCode) as STUNErrorCodeAttribute;
 
                         if (errCodeAttribute.ErrorCode == STUN_UNAUTHORISED_ERROR_CODE)
                         {
@@ -352,8 +346,7 @@ namespace SIPSorcery.Net
                         }
                         else
                         {
-                            logger.LogWarning(
-                                $"ICE session received an error response for a Binding request to {_uri}, error {errCodeAttribute.ErrorCode} {errCodeAttribute.ReasonPhrase}.");
+                            logger.LogWarning($"ICE session received an error response for a Binding request to {_uri}, error {errCodeAttribute.ErrorCode} {errCodeAttribute.ReasonPhrase}.");
                         }
                     }
                     else
@@ -365,8 +358,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    logger.LogWarning(
-                        $"An unrecognised STUN {stunResponse.Header.MessageType} response for an ICE server check was received from {remoteEndPoint}.");
+                    logger.LogWarning($"An unrecognised STUN {stunResponse.Header.MessageType} response for an ICE server check was received from {remoteEndPoint}.");
                     ErrorResponseCount++;
                 }
             }
@@ -381,12 +373,10 @@ namespace SIPSorcery.Net
         internal void SetAuthenticationFields(STUNMessage stunResponse)
         {
             // Set the authentication properties authenticate.
-            var nonceAttribute =
-                stunResponse.Attributes.FirstOrDefault(x => x.AttributeType == STUNAttributeTypesEnum.Nonce);
+            var nonceAttribute = stunResponse.Attributes.FirstOrDefault(x => x.AttributeType == STUNAttributeTypesEnum.Nonce);
             Nonce = nonceAttribute?.Value;
 
-            var realmAttribute =
-                stunResponse.Attributes.FirstOrDefault(x => x.AttributeType == STUNAttributeTypesEnum.Realm);
+            var realmAttribute = stunResponse.Attributes.FirstOrDefault(x => x.AttributeType == STUNAttributeTypesEnum.Realm);
             Realm = realmAttribute?.Value;
         }
     }

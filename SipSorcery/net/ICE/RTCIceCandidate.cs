@@ -32,44 +32,13 @@ namespace SIPSorcery.Net
         public const string REMOTE_PORT_KEY = "rport";
         public const string CANDIDATE_PREFIX = "candidate";
 
-        private RTCIceCandidate()
-        {
-        }
-
-        public RTCIceCandidate(RTCIceCandidateInit init)
-        {
-            sdpMid = init.sdpMid;
-            sdpMLineIndex = init.sdpMLineIndex;
-            usernameFragment = init.usernameFragment;
-
-            if (!String.IsNullOrEmpty(init.candidate))
-            {
-                var iceCandidate = Parse(init.candidate);
-                foundation = iceCandidate.foundation;
-                priority = iceCandidate.priority;
-                component = iceCandidate.component;
-                address = iceCandidate.address;
-                port = iceCandidate.port;
-                type = iceCandidate.type;
-                relatedAddress = iceCandidate.relatedAddress;
-                relatedPort = iceCandidate.relatedPort;
-            }
-        }
-
         /// <summary>
         /// The ICE server (STUN or TURN) the candidate was generated from.
         /// Will be null for non-ICE server candidates.
         /// </summary>
         public IceServer IceServer { get; internal set; }
 
-        /// <summary>
-        /// This is the end point to use for a remote candidate. The address supplied for an ICE
-        /// candidate could be a hostname or IP address. This field will be set before the candidate
-        /// is used.
-        /// </summary>
-        public IPEndPoint DestinationEndPoint { get; private set; }
-
-        public string candidate { get; set; }
+        public string candidate => ToString();
 
         public string sdpMid { get; set; }
 
@@ -120,7 +89,7 @@ namespace SIPSorcery.Net
         public ushort port { get; set; }
 
         /// <summary>
-        /// The typ of ICE candidate, host, srflx etc.
+        /// The type of ICE candidate, host, srflx etc.
         /// </summary>
         public RTCIceCandidateType type { get; set; }
 
@@ -135,17 +104,47 @@ namespace SIPSorcery.Net
 
         public string usernameFragment { get; set; }
 
-        public string toJSON()
-        {
-            var rtcCandInit = new RTCIceCandidateInit
-            {
-                sdpMid = sdpMid ?? sdpMLineIndex.ToString(),
-                sdpMLineIndex = sdpMLineIndex,
-                usernameFragment = usernameFragment,
-                candidate = CANDIDATE_PREFIX + ":" + this.ToString()
-            };
+        /// <summary>
+        /// This is the end point to use for a remote candidate. The address supplied for an ICE
+        /// candidate could be a hostname or IP address. This field will be set before the candidate
+        /// is used.
+        /// </summary>
+        public IPEndPoint DestinationEndPoint { get; private set; }
 
-            return rtcCandInit.toJSON();
+        private RTCIceCandidate()
+        { }
+
+        public RTCIceCandidate(RTCIceCandidateInit init)
+        {
+            sdpMid = init.sdpMid;
+            sdpMLineIndex = init.sdpMLineIndex;
+            usernameFragment = init.usernameFragment;
+
+            if (!String.IsNullOrEmpty(init.candidate))
+            {
+                var iceCandidate = Parse(init.candidate);
+                foundation = iceCandidate.foundation;
+                priority = iceCandidate.priority;
+                component = iceCandidate.component;
+                address = iceCandidate.address;
+                port = iceCandidate.port;
+                type = iceCandidate.type;
+                relatedAddress = iceCandidate.relatedAddress;
+                relatedPort = iceCandidate.relatedPort;
+            }
+        }
+
+        /// <summary>
+        /// Convenience constructor for cases when the application wants
+        /// to create an ICE candidate,
+        /// </summary>
+        public RTCIceCandidate(
+             RTCIceProtocol cProtocol,
+            IPAddress cAddress,
+            ushort cPort,
+            RTCIceCandidateType cType)
+        {
+            SetAddressProperties(cProtocol, cAddress, cPort, cType, null, 0);
         }
 
         public void SetAddressProperties(
@@ -235,12 +234,12 @@ namespace SIPSorcery.Net
             if (type == RTCIceCandidateType.host || type == RTCIceCandidateType.prflx)
             {
                 string candidateStr = String.Format("{0} {1} udp {2} {3} {4} typ {5} generation 0",
-                    foundation,
-                    component.GetHashCode(),
-                    priority,
-                    address,
-                    port,
-                    type);
+                foundation,
+                component.GetHashCode(),
+                priority,
+                address,
+                port,
+                type);
 
                 return candidateStr;
             }
@@ -254,14 +253,14 @@ namespace SIPSorcery.Net
                 }
 
                 string candidateStr = String.Format("{0} {1} udp {2} {3} {4} typ {5} raddr {6} rport {7} generation 0",
-                    foundation,
-                    component.GetHashCode(),
-                    priority,
-                    address,
-                    port,
-                    type,
-                    relAddr,
-                    relatedPort);
+                     foundation,
+                     component.GetHashCode(),
+                     priority,
+                     address,
+                     port,
+                     type,
+                     relAddr,
+                     relatedPort);
 
                 return candidateStr;
             }
@@ -278,19 +277,30 @@ namespace SIPSorcery.Net
 
         private string GetFoundation()
         {
-            int addressVal = !String.IsNullOrEmpty(address) ? Crypto.GetSHAHash(address).Sum(x => (byte) x) : 0;
-            int svrVal = (type == RTCIceCandidateType.relay || type == RTCIceCandidateType.srflx)
-                ? Crypto.GetSHAHash(IceServer != null ? IceServer._uri.ToString() : "").Sum(x => (byte) x)
-                : 0;
+            int addressVal = !String.IsNullOrEmpty(address) ? Crypto.GetSHAHash(address).Sum(x => (byte)x) : 0;
+            int svrVal = (type == RTCIceCandidateType.relay || type == RTCIceCandidateType.srflx) ?
+                Crypto.GetSHAHash(IceServer != null ? IceServer._uri.ToString() : "").Sum(x => (byte)x) : 0;
             return (type.GetHashCode() + addressVal + svrVal + protocol.GetHashCode()).ToString();
         }
 
         private uint GetPriority()
         {
-            return (uint) ((2 ^ 24) * (126 - type.GetHashCode()) +
-                           (2 ^ 8) *
-                           (65535) + // TODO: Add some kind of priority to different local IP addresses if needed.
-                           (2 ^ 0) * (256 - component.GetHashCode()));
+            return (uint)((2 ^ 24) * (126 - type.GetHashCode()) +
+                      (2 ^ 8) * (65535) + // TODO: Add some kind of priority to different local IP addresses if needed.
+                      (2 ^ 0) * (256 - component.GetHashCode()));
+        }
+
+        public string toJSON()
+        {
+            var rtcCandInit = new RTCIceCandidateInit
+            {
+                sdpMid = sdpMid ?? sdpMLineIndex.ToString(),
+                sdpMLineIndex = sdpMLineIndex,
+                usernameFragment = usernameFragment,
+                candidate = CANDIDATE_PREFIX + ":" + this.ToString()
+            };
+
+            return rtcCandInit.toJSON();
         }
 
         /// <summary>
@@ -304,7 +314,7 @@ namespace SIPSorcery.Net
         public bool IsEquivalentEndPoint(RTCIceProtocol epPotocol, IPEndPoint ep)
         {
             if (protocol == epPotocol && DestinationEndPoint != null &&
-                ep.Address.Equals(DestinationEndPoint.Address) && DestinationEndPoint.Port == ep.Port)
+               ep.Address.Equals(DestinationEndPoint.Address) && DestinationEndPoint.Port == ep.Port)
             {
                 return true;
             }

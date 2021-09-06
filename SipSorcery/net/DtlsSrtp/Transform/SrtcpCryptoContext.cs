@@ -55,7 +55,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
-using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -71,25 +70,20 @@ namespace SIPSorcery.Net
         /** The replay check windows size */
         private const long REPLAY_WINDOW_SIZE = 64;
 
-        /** Derived session authentication key */
-        private byte[] authKey;
+        /** RTCP SSRC of this cryptographic context */
+        private long ssrcCtx;
 
-        // The symmetric cipher engines we need here
-        private IBlockCipher cipher = null;
+        /** Master key identifier */
+        private byte[] mki;
 
-        // implements the counter cipher mode for RTP according to RFC 3711
-        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
-        private IBlockCipher cipherF8 = null; // used inside F8 mode only
+        /** Index received so far */
+        private int receivedIndex = 0;
 
-        /** Derived session encryption key */
-        private byte[] encKey;
+        /** Index sent so far */
+        private int sentIndex = 0;
 
-        private byte[] ivStore = new byte[16];
-
-        /**
-         * The HMAC object we used to do packet authentication
-         */
-        private IMac mac; // used for various HMAC computations
+        /** Bit mask for replay check */
+        private long replayWindow;
 
         /** Master encryption key */
         private byte[] masterKey;
@@ -97,35 +91,36 @@ namespace SIPSorcery.Net
         /** Master salting key */
         private byte[] masterSalt;
 
-        /** Master key identifier */
-        private byte[] mki;
+        /** Derived session encryption key */
+        private byte[] encKey;
 
-        /** Encryption / Authentication policy for this session */
-        private SrtpPolicy policy;
-
-        private byte[] rbStore = new byte[4];
-
-        /** Index received so far */
-        private int receivedIndex = 0;
-
-        /** Bit mask for replay check */
-        private long replayWindow;
+        /** Derived session authentication key */
+        private byte[] authKey;
 
         /** Derived session salting key */
         private byte[] saltKey;
 
-        /** Index sent so far */
-        private int sentIndex = 0;
+        /** Encryption / Authentication policy for this session */
+        private SrtpPolicy policy;
 
-        /** RTCP SSRC of this cryptographic context */
-        private long ssrcCtx;
+        /**
+         * The HMAC object we used to do packet authentication
+         */
+        private IMac mac;             // used for various HMAC computations
+
+        // The symmetric cipher engines we need here
+        private IBlockCipher cipher = null;
+        private IBlockCipher cipherF8 = null; // used inside F8 mode only
+
+        // implements the counter cipher mode for RTP according to RFC 3711
+        private SrtpCipherCTR cipherCtr = new SrtpCipherCTR();
 
         // Here some fields that a allocated here or in constructor. The methods
         // use these fields to avoid too many new operations
 
         private byte[] tagStore;
-
-        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
+        private byte[] ivStore = new byte[16];
+        private byte[] rbStore = new byte[4];
 
         // this is some working store, used by some methods to avoid new operations
         // the methods must use this only to store some results for immediate processing
@@ -174,9 +169,9 @@ namespace SIPSorcery.Net
             mki = null;
             policy = policyIn;
             masterKey = new byte[policy.EncKeyLength];
-            Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
+            System.Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
             masterSalt = new byte[policy.SaltKeyLength];
-            Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
+            System.Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
 
             switch (policy.EncType)
             {
@@ -249,8 +244,8 @@ namespace SIPSorcery.Net
          */
         public void Close()
         {
-            Arrays.Fill(masterKey, (byte) 0);
-            Arrays.Fill(masterSalt, (byte) 0);
+            Arrays.Fill(masterKey, (byte)0);
+            Arrays.Fill(masterSalt, (byte)0);
         }
 
         /**
@@ -274,7 +269,6 @@ namespace SIPSorcery.Net
             {
                 return mki.Length;
             }
-
             return 0;
         }
 
@@ -325,7 +319,7 @@ namespace SIPSorcery.Net
             int index = 0;
             if (encrypt)
             {
-                index = (int) (sentIndex | 0x80000000);
+                index = (int)(sentIndex | 0x80000000);
             }
 
             // Authenticate the packet
@@ -337,9 +331,8 @@ namespace SIPSorcery.Net
                 pkt.Append(rbStore, 4);
                 pkt.Append(tagStore, policy.AuthTagLength);
             }
-
             sentIndex++;
-            sentIndex &= (int) (~0x80000000); // clear possible overflow
+            sentIndex &= (int)(~0x80000000);       // clear possible overflow
         }
 
         /**
@@ -371,7 +364,7 @@ namespace SIPSorcery.Net
                 decrypt = true;
             }
 
-            int index = (int) (indexEflag & ~0x80000000);
+            int index = (int)(indexEflag & ~0x80000000);
 
             /* Replay control */
             if (!CheckReplay(index))
@@ -412,14 +405,13 @@ namespace SIPSorcery.Net
                 {
                     ProcessPacketAESCM(pkt, index);
                 }
+
                 /* Decrypt the packet using F8 Mode encryption */
-                else if (policy.EncType == SrtpPolicy.AESF8_ENCRYPTION ||
-                         policy.EncType == SrtpPolicy.TWOFISHF8_ENCRYPTION)
+                else if (policy.EncType == SrtpPolicy.AESF8_ENCRYPTION || policy.EncType == SrtpPolicy.TWOFISHF8_ENCRYPTION)
                 {
                     ProcessPacketAESF8(pkt, index);
                 }
             }
-
             Update(index);
             return true;
         }
@@ -447,18 +439,18 @@ namespace SIPSorcery.Net
             ivStore[3] = saltKey[3];
 
             // The shifts transform the ssrc and index into network order
-            ivStore[4] = (byte) (((ssrc >> 24) & 0xff) ^ this.saltKey[4]);
-            ivStore[5] = (byte) (((ssrc >> 16) & 0xff) ^ this.saltKey[5]);
-            ivStore[6] = (byte) (((ssrc >> 8) & 0xff) ^ this.saltKey[6]);
-            ivStore[7] = (byte) ((ssrc & 0xff) ^ this.saltKey[7]);
+            ivStore[4] = (byte)(((ssrc >> 24) & 0xff) ^ this.saltKey[4]);
+            ivStore[5] = (byte)(((ssrc >> 16) & 0xff) ^ this.saltKey[5]);
+            ivStore[6] = (byte)(((ssrc >> 8) & 0xff) ^ this.saltKey[6]);
+            ivStore[7] = (byte)((ssrc & 0xff) ^ this.saltKey[7]);
 
             ivStore[8] = saltKey[8];
             ivStore[9] = saltKey[9];
 
-            ivStore[10] = (byte) (((index >> 24) & 0xff) ^ this.saltKey[10]);
-            ivStore[11] = (byte) (((index >> 16) & 0xff) ^ this.saltKey[11]);
-            ivStore[12] = (byte) (((index >> 8) & 0xff) ^ this.saltKey[12]);
-            ivStore[13] = (byte) ((index & 0xff) ^ this.saltKey[13]);
+            ivStore[10] = (byte)(((index >> 24) & 0xff) ^ this.saltKey[10]);
+            ivStore[11] = (byte)(((index >> 16) & 0xff) ^ this.saltKey[11]);
+            ivStore[12] = (byte)(((index >> 8) & 0xff) ^ this.saltKey[12]);
+            ivStore[13] = (byte)((index & 0xff) ^ this.saltKey[13]);
 
             ivStore[14] = ivStore[15] = 0;
 
@@ -485,13 +477,13 @@ namespace SIPSorcery.Net
             ivStore[3] = 0;
 
             // Need the encryption flag
-            index = (int) (index | 0x80000000);
+            index = (int)(index | 0x80000000);
 
             // set the index and the encrypt flag in network order into IV
-            ivStore[4] = (byte) (index >> 24);
-            ivStore[5] = (byte) (index >> 16);
-            ivStore[6] = (byte) (index >> 8);
-            ivStore[7] = (byte) index;
+            ivStore[4] = (byte)(index >> 24);
+            ivStore[5] = (byte)(index >> 16);
+            ivStore[6] = (byte)(index >> 8);
+            ivStore[7] = (byte)index;
 
             // The fixed header follows and fills the rest of the IV
             MemoryStream buf = pkt.GetBuffer();
@@ -504,6 +496,8 @@ namespace SIPSorcery.Net
             int payloadLength = pkt.GetLength() - (4 + policy.AuthTagLength);
             SrtpCipherF8.Process(cipher, pkt.GetBuffer(), payloadOffset, payloadLength, ivStore, cipherF8);
         }
+
+        byte[] tempBuffer = new byte[RawPacket.RTP_PACKET_MAX_SIZE];
 
         /**
          * Authenticate a packet.
@@ -520,10 +514,10 @@ namespace SIPSorcery.Net
             buf.Read(tempBuffer, 0, len);
 
             mac.BlockUpdate(tempBuffer, 0, len);
-            rbStore[0] = (byte) (index >> 24);
-            rbStore[1] = (byte) (index >> 16);
-            rbStore[2] = (byte) (index >> 8);
-            rbStore[3] = (byte) index;
+            rbStore[0] = (byte)(index >> 24);
+            rbStore[1] = (byte)(index >> 16);
+            rbStore[2] = (byte)(index >> 8);
+            rbStore[3] = (byte)index;
             mac.BlockUpdate(rbStore, 0, rbStore.Length);
             mac.DoFinal(tagStore, 0);
         }
@@ -561,7 +555,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    if (((this.replayWindow >> ((int) -delta)) & 0x1) != 0)
+                    if (((this.replayWindow >> ((int)-delta)) & 0x1) != 0)
                     {
                         /* Packet already received ! */
                         return false;
@@ -587,7 +581,6 @@ namespace SIPSorcery.Net
             {
                 ivStore[i] = masterSalt[i];
             }
-
             ivStore[7] ^= label;
             ivStore[14] = ivStore[15] = 0;
         }
@@ -604,7 +597,7 @@ namespace SIPSorcery.Net
 
             KeyParameter encryptionKey = new KeyParameter(masterKey);
             cipher.Init(true, encryptionKey);
-            Arrays.Fill(masterKey, (byte) 0);
+            Arrays.Fill(masterKey, (byte)0);
 
             cipherCtr.GetCipherStream(cipher, encKey, policy.EncKeyLength, ivStore);
 
@@ -625,24 +618,22 @@ namespace SIPSorcery.Net
                         break;
                 }
             }
-
-            Arrays.Fill(authKey, (byte) 0);
+            Arrays.Fill(authKey, (byte)0);
 
             // compute the session salt
             label = 5;
             ComputeIv(label);
             cipherCtr.GetCipherStream(cipher, saltKey, policy.SaltKeyLength, ivStore);
-            Arrays.Fill(masterSalt, (byte) 0);
+            Arrays.Fill(masterSalt, (byte)0);
 
             // As last step: initialize cipher with derived encryption key.
             if (cipherF8 != null)
             {
                 SrtpCipherF8.DeriveForIV(cipherF8, encKey, saltKey);
             }
-
             encryptionKey = new KeyParameter(encKey);
             cipher.Init(true, encryptionKey);
-            Arrays.Fill(encKey, (byte) 0);
+            Arrays.Fill(encKey, (byte)0);
         }
 
 
@@ -693,7 +684,7 @@ namespace SIPSorcery.Net
         {
             SrtcpCryptoContext pcc = null;
             pcc = new SrtcpCryptoContext(ssrc, masterKey,
-                masterSalt, policy);
+                    masterSalt, policy);
             return pcc;
         }
     }

@@ -8,7 +8,8 @@
 // 
 // History:
 // 14 Feb 2006	Aaron Clauson	Created, Dublin, Ireland.
-// 30 Oct 2019  Aaron Clauson   Added support for reliable provisional responses as per RFC3262.
+// 30 Oct 2019  Aaron Clauson   Added support for reliable provisional responses 
+//                              as per RFC3262.
 //
 // License: 
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
@@ -31,15 +32,30 @@ namespace SIPSorcery.SIP
         Terminated = 5,
         Trying = 6,
 
-        Cancelled =
-            7, // This state is not in the SIP RFC but is deemed the most practical way to record that an INVITE has been cancelled. Other states will have ramifications for the transaction lifetime.
+        /// <summary>
+        /// This state is not in the SIP RFC but is deemed the most practical 
+        /// way to record that an INVITE has been cancelled. Other states 
+        /// will have ramifications for the transaction lifetime.
+        /// </summary>
+        Cancelled = 7
     }
 
     public enum SIPTransactionTypesEnum
     {
-        InviteServer = 1, // User agent server transaction.
+        /// <summary>
+        /// User agent server transaction.
+        /// </summary>
+        InviteServer = 1,
+
+        /// <summary>
+        /// All non-INVITE transaction types.
+        /// </summary>
         NonInvite = 2,
-        InviteClient = 3, // User agent client transaction.
+
+        /// <summary>
+        /// User agent client transaction.
+        /// </summary>
+        InviteClient = 3,
     }
 
     /// <summary>
@@ -76,41 +92,31 @@ namespace SIPSorcery.SIP
     {
         protected static ILogger logger = Log.Logger;
 
-        protected static readonly int
-            m_maxRingTime =
-                SIPTimings.MAX_RING_TIME; // Max time an INVITE will be left ringing for (typically 10 mins).    
-
-        public int AckRetransmits = 0;
-
-        public SIPCDR CDR;
-
         /// <summary>
-        /// For INVITEs this is the time they received the final response and is used to calculate the time 
-        /// they expire as T6 after this.
+        /// Maximum time an INVITE will be left ringing for (typically 10 minutes).
         /// </summary>
-        public DateTime CompletedAt = DateTime.Now;
+        protected static readonly int m_maxRingTime = SIPTimings.MAX_RING_TIME;
 
-        public DateTime Created = DateTime.Now;
+        public int Retransmits = 0;
+        public int AckRetransmits = 0;
+        public int PrackRetransmits = 0;
+        public DateTime InitialTransmit = DateTime.MinValue;
+        public DateTime LastTransmit = DateTime.MinValue;
+        public bool DeliveryPending = true;
 
         /// <summary>
-        /// If the transport layer does not receive a response to the request in the alloted 
-        /// time the request will be marked as failed.
+        /// If the transport layer does not receive a response to the request in the 
+        /// allotted time the request will be marked as failed.
         /// </summary>
         public bool DeliveryFailed = false;
 
-        public bool DeliveryPending = true;
-        public DateTime InitialTransmit = DateTime.MinValue;
-        public DateTime LastTransmit = DateTime.MinValue;
-        internal SIPEndPoint m_ackRequestIPEndPoint; // Socket the ACK request was sent to.
+        public bool HasTimedOut { get; set; }
 
-        protected string m_branchId;
-
-        protected string m_callId;
-        internal bool m_gotPrack; // Records whether a PRACK request was received.
-        protected string m_localTag;
-
-        internal SIPEndPoint m_prackRequestIPEndPoint; // Socket the PRACK request was sent to.
-        protected string m_remoteTag;
+        private string m_transactionId;
+        public string TransactionId
+        {
+            get { return m_transactionId; }
+        }
 
         /// <summary>
         ///  The contact address from the top Via header that created the transaction. 
@@ -118,123 +124,57 @@ namespace SIPSorcery.SIP
         /// </summary>
         private string m_sentBy;
 
-        protected SIPTransport m_sipTransport;
-
-        protected SIPResponse m_transactionFinalResponse;
-
-        private string m_transactionId;
-
-        protected SIPRequest
-            m_transactionRequest; // This is the request which started the transaction and on which it is based.
-
-        private SIPTransactionStatesEnum m_transactionState = SIPTransactionStatesEnum.Calling;
+        public SIPTransactionTypesEnum TransactionType = SIPTransactionTypesEnum.NonInvite;
+        public DateTime Created = DateTime.Now;
 
         /// <summary>
-        /// If not null this value is where ALL transaction requests should be sent to.
+        /// For INVITEs this is the time they received the final response and is used to 
+        /// calculate the time they expire as T6 after this.
         /// </summary>
-        public SIPEndPoint OutboundProxy;
-
-        public int PrackRetransmits = 0;
-
-        /// <summary>
-        /// If am INVITE transaction client indicates RFC3262 support in the Require or Supported header we'll deliver reliable 
-        /// provisional responses.
-        /// </summary> 
-        protected bool PrackSupported = false;
-
-        public int Retransmits = 0;
+        public DateTime CompletedAt = DateTime.Now;
 
         /// <summary>
         /// If the transaction times out this holds the value it timed out at.
         /// </summary>
         public DateTime TimedOutAt;
 
-        public SIPTransactionTypesEnum TransactionType = SIPTransactionTypesEnum.NonInvite;
-
-        /// <summary>
-        /// Creates a new SIP transaction and adds it to the list of in progress transactions.
-        /// </summary>
-        /// <param name="sipTransport">The SIP Transport layer that is to be used with the transaction.</param>
-        /// <param name="transactionRequest">The SIP Request on which the transaction is based.</param>
-        protected SIPTransaction(
-            SIPTransport sipTransport,
-            SIPRequest transactionRequest,
-            SIPEndPoint outboundProxy)
-        {
-            try
-            {
-                if (sipTransport == null)
-                {
-                    throw new ArgumentNullException(
-                        "A SIPTransport object is required when creating a SIPTransaction.");
-                }
-                else if (transactionRequest == null)
-                {
-                    throw new ArgumentNullException(
-                        "A SIPRequest object must be supplied when creating a SIPTransaction.");
-                }
-                else if (transactionRequest.Header.Vias.TopViaHeader == null)
-                {
-                    throw new ArgumentNullException(
-                        "The SIP request must have a Via header when creating a SIPTransaction.");
-                }
-
-                m_sipTransport = sipTransport;
-                m_transactionId = GetRequestTransactionId(transactionRequest.Header.Vias.TopViaHeader.Branch,
-                    transactionRequest.Header.CSeqMethod);
-                HasTimedOut = false;
-
-                m_transactionRequest = transactionRequest;
-                m_branchId = transactionRequest.Header.Vias.TopViaHeader.Branch;
-                m_callId = transactionRequest.Header.CallId;
-                m_sentBy = transactionRequest.Header.Vias.TopViaHeader.ContactAddress;
-                OutboundProxy = outboundProxy;
-
-                if (transactionRequest.Header.RequiredExtensions.Contains(SIPExtensions.Prack) ||
-                    transactionRequest.Header.SupportedExtensions.Contains(SIPExtensions.Prack))
-                {
-                    PrackSupported = true;
-                }
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception SIPTransaction (ctor). " + excp.Message);
-                throw;
-            }
-        }
-
-        public bool HasTimedOut { get; set; }
-
-        public string TransactionId
-        {
-            get { return m_transactionId; }
-        }
-
+        protected string m_branchId;
         public string BranchId
         {
             get { return m_branchId; }
         }
 
-        public SIPRequest AckRequest { get; protected set; } // ACK request for INVITE transactions.
-
-        public SIPRequest
-            PRackRequest { get; protected set; } // PRACK request for provisional INVITE transaction responses.
+        protected string m_callId;
+        protected string m_localTag;
+        protected string m_remoteTag;
+        public SIPRequest AckRequest { get; protected set; }        // ACK request for INVITE transactions.
+        internal SIPEndPoint m_ackRequestIPEndPoint;                // Socket the ACK request was sent to.
+        public SIPRequest PRackRequest { get; protected set; }      // PRACK request for provisional INVITE transaction responses.
+        internal SIPEndPoint m_prackRequestIPEndPoint;              // Socket the PRACK request was sent to.
+        internal bool m_gotPrack;                                   // Records whether a PRACK request was received.
 
         public SIPURI TransactionRequestURI
         {
             get { return m_transactionRequest.URI; }
         }
-
         public SIPUserField TransactionRequestFrom
         {
             get { return m_transactionRequest.Header.From.FromUserField; }
         }
 
+        /// <summary>
+        /// If not null this value is where ALL transaction requests should be sent to.
+        /// </summary>
+        public SIPEndPoint OutboundProxy;
+        public SIPCDR CDR;
+
+        private SIPTransactionStatesEnum m_transactionState = SIPTransactionStatesEnum.Calling;
         public SIPTransactionStatesEnum TransactionState
         {
             get { return m_transactionState; }
         }
 
+        protected SIPRequest m_transactionRequest;          // This is the request which started the transaction and on which it is based.
         public SIPRequest TransactionRequest
         {
             get { return m_transactionRequest; }
@@ -253,6 +193,8 @@ namespace SIPSorcery.SIP
 
         public int RSeq { get; private set; } = 0;
 
+        protected SIPResponse m_transactionFinalResponse;
+
         /// <summary>
         /// This is the final response being sent by a UAS transaction or the one received by a UAC one.
         /// </summary>
@@ -261,11 +203,16 @@ namespace SIPSorcery.SIP
             get { return m_transactionFinalResponse; }
         }
 
+        /// <summary>
+        /// If am INVITE transaction client indicates RFC3262 support in the Require or Supported header we'll deliver reliable 
+        /// provisional responses.
+        /// </summary> 
+        protected bool PrackSupported = false;
+
         // These are the events that will normally be required by upper level transaction users such as registration or call agents.
-        protected event SIPTransactionRequestReceivedDelegate TransactionRequestReceived;
         protected event SIPTransactionResponseReceivedDelegate TransactionInformationResponseReceived;
         protected event SIPTransactionResponseReceivedDelegate TransactionFinalResponseReceived;
-        protected event SIPTransactionTimedOutDelegate TransactionTimedOut;
+        protected event SIPTransactionFailedDelegate TransactionFailed;
 
         /// <summary>
         /// The UAS transaction needs the ACK request if the original INVITE did not have an SDP offer.
@@ -281,29 +228,66 @@ namespace SIPSorcery.SIP
         public event SIPTransactionStateChangeDelegate TransactionStateChanged;
         public event SIPTransactionTraceMessageDelegate TransactionTraceMessage;
 
-        public event SIPTransactionRemovedDelegate
-            TransactionRemoved; // This is called just before the SIPTransaction is expired and is to let consumer classes know to remove their event handlers to prevent memory leaks.
+        protected SIPTransport m_sipTransport;
+
+        /// <summary>
+        /// Creates a new SIP transaction and adds it to the list of in progress transactions.
+        /// </summary>
+        /// <param name="sipTransport">The SIP Transport layer that is to be used with the transaction.</param>
+        /// <param name="transactionRequest">The SIP Request on which the transaction is based.</param>
+        protected SIPTransaction(
+            SIPTransport sipTransport,
+            SIPRequest transactionRequest,
+            SIPEndPoint outboundProxy)
+        {
+            try
+            {
+                if (sipTransport == null)
+                {
+                    throw new ArgumentNullException("A SIPTransport object is required when creating a SIPTransaction.");
+                }
+                else if (transactionRequest == null)
+                {
+                    throw new ArgumentNullException("A SIPRequest object must be supplied when creating a SIPTransaction.");
+                }
+                else if (transactionRequest.Header.Vias.TopViaHeader == null)
+                {
+                    throw new ArgumentNullException("The SIP request must have a Via header when creating a SIPTransaction.");
+                }
+
+                m_sipTransport = sipTransport;
+                m_transactionId = GetRequestTransactionId(transactionRequest.Header.Vias.TopViaHeader.Branch, transactionRequest.Header.CSeqMethod);
+                HasTimedOut = false;
+
+                m_transactionRequest = transactionRequest;
+                m_branchId = transactionRequest.Header.Vias.TopViaHeader.Branch;
+                m_callId = transactionRequest.Header.CallId;
+                m_sentBy = transactionRequest.Header.Vias.TopViaHeader.ContactAddress;
+                OutboundProxy = outboundProxy;
+
+                if (transactionRequest.Header.RequiredExtensions.Contains(SIPExtensions.Prack) ||
+                    transactionRequest.Header.SupportedExtensions.Contains(SIPExtensions.Prack))
+                {
+                    PrackSupported = true;
+                }
+            }
+            catch (Exception excp)
+            {
+                logger.LogError($"Exception SIPTransaction.{excp}");
+                throw;
+            }
+        }
 
         public static string GetRequestTransactionId(string branchId, SIPMethodsEnum method)
         {
             return Crypto.GetSHAHashAsString(branchId + method.ToString());
         }
 
-        public void GotRequest(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest)
+        public Task<SocketError> GotResponse(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPResponse sipResponse)
         {
-            FireTransactionTraceMessage(
-                $"Transaction received Request {localSIPEndPoint.ToString()}<-{remoteEndPoint.ToString()}: {sipRequest.StatusLine}");
-            TransactionRequestReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipRequest);
-        }
-
-        public Task<SocketError> GotResponse(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
-            SIPResponse sipResponse)
-        {
-            if (TransactionState == SIPTransactionStatesEnum.Completed ||
-                TransactionState == SIPTransactionStatesEnum.Confirmed)
+            if (TransactionState == SIPTransactionStatesEnum.Completed || TransactionState == SIPTransactionStatesEnum.Confirmed)
             {
-                FireTransactionTraceMessage(
-                    $"Transaction received duplicate response {localSIPEndPoint.ToString()}<-{remoteEndPoint}: {sipResponse.ShortDescription}");
+                TransactionTraceMessage?.Invoke(this, $"Transaction received duplicate response {localSIPEndPoint}<-{remoteEndPoint}: {sipResponse.ShortDescription}");
                 TransactionDuplicateResponse?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipResponse);
 
                 if (sipResponse.Header.CSeqMethod == SIPMethodsEnum.INVITE)
@@ -324,8 +308,7 @@ namespace SIPSorcery.SIP
             }
             else
             {
-                FireTransactionTraceMessage(
-                    $"Transaction received Response {localSIPEndPoint.ToString()}<-{remoteEndPoint}: {sipResponse.ShortDescription}");
+                TransactionTraceMessage?.Invoke(this, $"Transaction received Response {localSIPEndPoint}<-{remoteEndPoint}: {sipResponse.ShortDescription}");
 
                 if (sipResponse.StatusCode >= 100 && sipResponse.StatusCode <= 199)
                 {
@@ -366,10 +349,8 @@ namespace SIPSorcery.SIP
                 CompletedAt = DateTime.Now;
             }
 
-            if (TransactionStateChanged != null)
-            {
-                FireTransactionStateChangedEvent();
-            }
+            TransactionStateChanged?.Invoke(this);
+            TransactionTraceMessage?.Invoke(this, $"Transaction state changed to {this.TransactionState}.");
         }
 
         protected virtual void SendFinalResponse(SIPResponse finalResponse)
@@ -388,15 +369,14 @@ namespace SIPSorcery.SIP
             DeliveryFailed = false;
             HasTimedOut = false;
 
-            FireTransactionTraceMessage($"Transaction send final response {finalResponse.ShortDescription}");
+            TransactionTraceMessage?.Invoke(this, $"Transaction send final response {finalResponse.ShortDescription}");
 
-            m_sipTransport.SendTransaction(this);
+            m_sipTransport.AddTransaction(this);
         }
 
         protected virtual Task<SocketError> SendProvisionalResponse(SIPResponse sipResponse)
         {
-            FireTransactionTraceMessage(
-                $"Transaction send info response (is reliable {PrackSupported}) {sipResponse.ShortDescription}");
+            TransactionTraceMessage?.Invoke(this, $"Transaction send info response (is reliable {PrackSupported}) {sipResponse.ShortDescription}");
 
             if (sipResponse.StatusCode == 100)
             {
@@ -420,18 +400,16 @@ namespace SIPSorcery.SIP
                     }
 
                     sipResponse.Header.RSeq = RSeq;
-                    sipResponse.Header.Require += SIPExtensionHeaders.REPLACES + ", " +
-                                                  SIPExtensionHeaders.NO_REFER_SUB + ", " + SIPExtensionHeaders.PRACK;
+                    sipResponse.Header.Require += SIPExtensionHeaders.REPLACES + ", " + SIPExtensionHeaders.NO_REFER_SUB + ", " + SIPExtensionHeaders.PRACK;
 
                     // If reliable provisional responses are supported then need to send this response reliably.
                     if (ReliableProvisionalResponse != null)
                     {
-                        logger.LogWarning(
-                            "A new reliable provisional response is being sent but the previous one was not yet acknowledged.");
+                        logger.LogWarning("A new reliable provisional response is being sent but the previous one was not yet acknowledged.");
                     }
 
                     ReliableProvisionalResponse = sipResponse;
-                    m_sipTransport.SendTransaction(this);
+                    m_sipTransport.AddTransaction(this);
                     return Task.FromResult(SocketError.Success);
                 }
                 else
@@ -442,22 +420,20 @@ namespace SIPSorcery.SIP
             }
             else
             {
-                throw new ApplicationException(
-                    "SIPTransaction.SendProvisionalResponse was passed a non-provisional response type.");
+                throw new ApplicationException("SIPTransaction.SendProvisionalResponse was passed a non-provisional response type.");
             }
         }
 
         protected void SendReliableRequest()
         {
-            FireTransactionTraceMessage($"Transaction send request reliable {TransactionRequest.StatusLine}");
+            TransactionTraceMessage?.Invoke(this, $"Transaction send request reliable {TransactionRequest.StatusLine}");
 
-            if (TransactionType == SIPTransactionTypesEnum.InviteClient &&
-                this.TransactionRequest.Method == SIPMethodsEnum.INVITE)
+            if (TransactionType == SIPTransactionTypesEnum.InviteClient && this.TransactionRequest.Method == SIPMethodsEnum.INVITE)
             {
                 UpdateTransactionState(SIPTransactionStatesEnum.Calling);
             }
 
-            m_sipTransport.SendTransaction(this);
+            m_sipTransport.AddTransaction(this);
         }
 
         protected SIPResponse GetInfoResponse(SIPRequest sipRequest, SIPResponseStatusCodesEnum sipResponseCode)
@@ -468,8 +444,7 @@ namespace SIPSorcery.SIP
                 informationalResponse.SetSendFromHints(sipRequest.LocalSIPEndPoint);
 
                 SIPHeader requestHeader = sipRequest.Header;
-                informationalResponse.Header = new SIPHeader(requestHeader.From, requestHeader.To, requestHeader.CSeq,
-                    requestHeader.CallId);
+                informationalResponse.Header = new SIPHeader(requestHeader.From, requestHeader.To, requestHeader.CSeq, requestHeader.CallId);
                 informationalResponse.Header.CSeqMethod = requestHeader.CSeqMethod;
                 informationalResponse.Header.Vias = requestHeader.Vias;
                 informationalResponse.Header.MaxForwards = Int32.MinValue;
@@ -482,20 +457,6 @@ namespace SIPSorcery.SIP
                 logger.LogError("Exception GetInformationalResponse. " + excp.Message);
                 throw;
             }
-        }
-
-        internal void RemoveEventHandlers()
-        {
-            // Remove all event handlers.
-            TransactionRequestReceived = null;
-            TransactionInformationResponseReceived = null;
-            TransactionFinalResponseReceived = null;
-            TransactionTimedOut = null;
-            TransactionDuplicateResponse = null;
-            TransactionRequestRetransmit = null;
-            TransactionStateChanged = null;
-            TransactionTraceMessage = null;
-            TransactionRemoved = null;
         }
 
         public void ACKReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest)
@@ -520,8 +481,7 @@ namespace SIPSorcery.SIP
 
             if (m_transactionState == SIPTransactionStatesEnum.Proceeding && RSeq == sipRequest.Header.RAckRSeq)
             {
-                logger.LogDebug(
-                    "PRACK request matched the current outstanding provisional response, setting as delivered.");
+                logger.LogDebug("PRACK request matched the current outstanding provisional response, setting as delivered.");
                 DeliveryPending = false;
             }
 
@@ -579,10 +539,8 @@ namespace SIPSorcery.SIP
 
         internal void RequestRetransmit()
         {
-            TransactionRequestRetransmit?.Invoke(this, this.TransactionRequest, this.Retransmits);
-            ;
-            FireTransactionTraceMessage(
-                $"Transaction send request retransmit {Retransmits} {this.TransactionRequest.StatusLine}");
+            TransactionRequestRetransmit?.Invoke(this, this.TransactionRequest, this.Retransmits); ;
+            TransactionTraceMessage?.Invoke(this, $"Transaction send request retransmit {Retransmits} {this.TransactionRequest.StatusLine}");
         }
 
         /// <summary>
@@ -593,12 +551,12 @@ namespace SIPSorcery.SIP
         internal bool HasDeliveryExpired(int maxLifetimeMilliseconds)
         {
             return DeliveryPending &&
-                   InitialTransmit != DateTime.MinValue &&
-                   DateTime.Now.Subtract(InitialTransmit).TotalMilliseconds >= maxLifetimeMilliseconds;
+                InitialTransmit != DateTime.MinValue &&
+                DateTime.Now.Subtract(InitialTransmit).TotalMilliseconds >= maxLifetimeMilliseconds;
         }
 
         /// <summary>
-        /// Marks a transaction as expired and prevents anymore delivery attempts of outstanding 
+        /// Marks a transaction as expired and prevents any more delivery attempts of outstanding 
         /// requests of responses.
         /// </summary>
         internal void Expire(DateTime now)
@@ -607,8 +565,18 @@ namespace SIPSorcery.SIP
             DeliveryFailed = true;
             TimedOutAt = now;
             HasTimedOut = true;
+            TransactionTraceMessage?.Invoke(this, $"Transaction failed due to a timeout {this.TransactionFinalResponse.ShortDescription}");
+            TransactionFailed?.Invoke(this, SocketError.TimedOut);
             UpdateTransactionState(SIPTransactionStatesEnum.Terminated);
-            FireTransactionTimedOut();
+        }
+
+        internal void Failed(SocketError failureReason)
+        {
+            DeliveryPending = false;
+            DeliveryFailed = true;
+            TransactionTraceMessage?.Invoke(this, $"Transaction failed {failureReason} {this.TransactionFinalResponse.ShortDescription}");
+            TransactionFailed?.Invoke(this, failureReason);
+            UpdateTransactionState(SIPTransactionStatesEnum.Terminated);
         }
 
         /// <summary>
@@ -622,8 +590,7 @@ namespace SIPSorcery.SIP
             double nextTransmitMilliseconds = Math.Pow(2, Retransmits - 1) * t1;
             nextTransmitMilliseconds = (nextTransmitMilliseconds > t2) ? t2 : nextTransmitMilliseconds;
 
-            return InitialTransmit == DateTime.MinValue ||
-                   DateTime.Now.Subtract(LastTransmit).TotalMilliseconds >= nextTransmitMilliseconds;
+            return InitialTransmit == DateTime.MinValue || DateTime.Now.Subtract(LastTransmit).TotalMilliseconds >= nextTransmitMilliseconds;
         }
 
         /// <summary>
@@ -648,72 +615,17 @@ namespace SIPSorcery.SIP
 
         public void OnRetransmitFinalResponse()
         {
-            FireTransactionTraceMessage(
-                $"Transaction send response retransmit {Retransmits} {this.TransactionFinalResponse.ShortDescription}");
+            TransactionTraceMessage?.Invoke(this, $"Transaction send response retransmit {Retransmits} {this.TransactionFinalResponse.ShortDescription}");
         }
 
         public void OnRetransmitProvisionalResponse()
         {
-            FireTransactionTraceMessage(
-                $"Transaction send provisional response retransmit {Retransmits} {this.ReliableProvisionalResponse.ShortDescription}");
+            TransactionTraceMessage?.Invoke(this, $"Transaction send provisional response retransmit {Retransmits} {this.ReliableProvisionalResponse.ShortDescription}");
         }
 
         public void OnTimedOutProvisionalResponse()
         {
-            FireTransactionTraceMessage(
-                $"Transaction provisional response delivery timed out {this.ReliableProvisionalResponse?.ShortDescription}");
-        }
-
-        public void FireTransactionTimedOut()
-        {
-            try
-            {
-                TransactionTimedOut?.Invoke(this);
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception FireTransactionTimedOut (" + TransactionId + " " +
-                                TransactionRequest.URI.ToString() + ", callid=" + TransactionRequest.Header.CallId +
-                                ", " + this.GetType().ToString() + "). " + excp.Message);
-            }
-        }
-
-        public void FireTransactionRemoved()
-        {
-            try
-            {
-                TransactionRemoved?.Invoke(this);
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception FireTransactionRemoved. " + excp.Message);
-            }
-        }
-
-        private void FireTransactionStateChangedEvent()
-        {
-            FireTransactionTraceMessage($"Transaction state changed to {this.TransactionState}.");
-
-            try
-            {
-                TransactionStateChanged?.Invoke(this);
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception FireTransactionStateChangedEvent. " + excp.Message);
-            }
-        }
-
-        private void FireTransactionTraceMessage(string message)
-        {
-            try
-            {
-                TransactionTraceMessage?.Invoke(this, message);
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception FireTransactionTraceMessage. " + excp.Message);
-            }
+            TransactionTraceMessage?.Invoke(this, $"Transaction provisional response delivery timed out {this.ReliableProvisionalResponse?.ShortDescription}");
         }
 
         #endregion

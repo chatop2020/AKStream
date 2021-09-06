@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
 // Filename: SIPTCPChannel.cs
 //
-// Description: SIP transport for TCP. Not this is also the base class for the
+// Description: SIP transport for TCP. Note this is also the base class for the
 // SIPTLSChannel. For the TLS channel the TCP base class will accept or connect and
 // then switch to the TLS class to upgrade to an SSL stream.
 //
@@ -13,6 +13,7 @@
 // 16 Oct 2019  Aaron Clauson   Added IPv6 support.
 // 24 Oct 2019  Aaron Clauson   Major refactor to avoid TIME_WAIT state on connection close.
 // 19 Nov 2019  Aaron Clauson   Enhanced to deal with listening on IPAddress.Any.
+// 02 Feb 2021  Aaron Clauson   Added socket dual mode support.
 //
 // Notes:
 // See https://stackoverflow.com/questions/58506815/how-to-apply-linger-option-with-winsock2/58511052#58511052 for
@@ -55,25 +56,22 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.SIP
 {
+    /// <summary>
+    /// SIP transport for TCP. Note this is also the base class for the SIPTLSChannel.
+    /// For the TLS channel the TCP base class will accept or connect and then switch 
+    /// to the TLS class to upgrade to an SSL stream.
+    /// </summary>
     public class SIPTCPChannel : SIPChannel
     {
-        private const int MAX_TCP_CONNECTIONS = 1000; // Maximum number of connections for the TCP listener.
-        private const int PRUNE_CONNECTIONS_INTERVAL = 60000; // The period at which to prune the connections.
-
-        private const int
-            PRUNE_NOTRANSMISSION_MINUTES =
-                70; // The number of minutes after which if no transmissions are sent or received a connection will be pruned.
+        private const int MAX_TCP_CONNECTIONS = 1000;          // Maximum number of connections for the TCP listener.
+        private const int PRUNE_CONNECTIONS_INTERVAL = 60000;  // The period at which to prune the connections.
+        private const int PRUNE_NOTRANSMISSION_MINUTES = 70;   // The number of minutes after which if no transmissions are sent or received a connection will be pruned.
+        private const int TCP_ATTEMPT_CONNECT_TIMEOUT = 5000;
 
         /// <summary>
-        /// Keeps a list of TCP sockets this process is listening on to prevent it establishing TCP connections to itself.
+        /// This is the main object managed by this class. It is the socket listening for incoming connections.
         /// </summary>
-        private static List<string> m_localTCPSockets = new List<string>();
-
-        /// <summary>
-        /// Can be set to allow TCP channels hosted in the same process to send to each other. Useful for testing.
-        /// By default sends between TCP channels in the same process are disabled to prevent resource exhaustion.
-        /// </summary>
-        public bool DisableLocalTCPSocketsCheck;
+        protected Socket m_channelSocket;
 
         /// <summary>
         /// List of sockets that are in the process of being connected to. 
@@ -82,127 +80,105 @@ namespace SIPSorcery.SIP
         protected List<string> m_connectingSockets = new List<string>();
 
         /// <summary>
-        /// Maintains a list of all current TCP connections currently connected to/from this channel. This allows the SIP transport
-        /// layer to quickly find a channel where the same connection must be re-used.
-        /// </summary>
-        private ConcurrentDictionary<string, SIPStreamConnection> m_connections =
-            new ConcurrentDictionary<string, SIPStreamConnection>();
-
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
-
-        /// <summary>
-        /// This is the main object managed by this class. It is the socket listening for incoming connections.
-        /// </summary>
-        protected TcpListener m_tcpServerListener;
-
-        /// <summary>
-        /// Creates a SIP channel to listen for and send SIP messages over TCP.
-        /// </summary>
-        /// <param name="endPoint">The IP end point to listen on and send from.</param>
-        /// <param name="protocol">Whether the channel is being used with TCP or TLS (TLS channels get upgraded once connected).</param>
-        /// <param name="canListen">Indicates whether the channel is capable of listening for new client connections.
-        /// A TLS channel without a certificate cannot listen.</param>
-        public SIPTCPChannel(IPEndPoint endPoint, SIPProtocolsEnum protocol, bool canListen = true) : base()
-        {
-            if (endPoint == null)
-            {
-                throw new ArgumentNullException("endPoint",
-                    "The end point must be specified when creating a SIPTCPChannel.");
-            }
-
-            ListeningIPAddress = endPoint.Address;
-            Port = endPoint.Port;
-            SIPProtocol = protocol;
-            IsReliable = true;
-
-            if (canListen)
-            {
-                StartListening(endPoint);
-            }
-        }
-
-        public SIPTCPChannel(IPEndPoint endPoint)
-            : this(endPoint, SIPProtocolsEnum.tcp)
-        {
-        }
-
-        public SIPTCPChannel(IPAddress listenAddress, int listenPort)
-            : this(new IPEndPoint(listenAddress, listenPort), SIPProtocolsEnum.tcp)
-        {
-        }
-
-        /// <summary>
         /// This string is used in debug messages. It makes it possible to differentiate
         /// whether an instance in acting solely as a TCP channel or as the base class of a TLS channel.
         /// </summary>
         virtual protected string ProtDescr { get; } = "TCP";
 
         /// <summary>
-        /// Initialises the SIP channel's socket listener.
+        /// Can be set to allow TCP channels hosted in the same process to send to each other. Useful for testing.
+        /// By default sends between TCP channels in the same process are disabled to prevent resource exhaustion.
         /// </summary>
-        private void StartListening(IPEndPoint listenEndPoint)
+        public bool DisableLocalTCPSocketsCheck;
+
+        /// <summary>
+        /// Maintains a list of all current TCP connections currently connected to/from this channel. This allows the SIP transport
+        /// layer to quickly find a channel where the same connection must be re-used.
+        /// </summary>
+        private ConcurrentDictionary<string, SIPStreamConnection> m_connections = new ConcurrentDictionary<string, SIPStreamConnection>();
+
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
+        private bool m_isDualMode;
+
+        /// <summary>
+        /// Creates a SIP channel to listen for and send SIP messages over TCP.
+        /// </summary>
+        /// <param name="endPoint">The IP end point to send from and optionally listen on.</param>
+        /// <param name="protocol">Whether the channel is being used with TCP or TLS (TLS channels get upgraded once connected).</param>
+        /// <param name="canListen">Indicates whether the channel is capable of listening for new client connections.
+        /// A TLS channel without a certificate cannot listen.</param>
+        public SIPTCPChannel(IPEndPoint endPoint, SIPProtocolsEnum protocol, bool canListen = true, bool useDualMode = false) : base()
         {
-            try
+            if (endPoint == null)
             {
-                m_tcpServerListener = new TcpListener(listenEndPoint);
-                m_tcpServerListener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress,
-                    true);
-                m_tcpServerListener.Server.LingerState = new LingerOption(true, 0);
-                if (listenEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
-                {
-                    m_tcpServerListener.Server.DualMode = true;
-                }
+                throw new ArgumentNullException("endPoint", "The end point must be specified when creating a SIPTCPChannel.");
+            }
 
-                m_tcpServerListener.Start(MAX_TCP_CONNECTIONS);
+            SIPProtocol = protocol;
+            IsReliable = true;
 
-                if (listenEndPoint.Port == 0)
-                {
-                    Port = (m_tcpServerListener.Server.LocalEndPoint as IPEndPoint).Port;
-                }
+            m_channelSocket = new Socket(endPoint.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_channelSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            m_channelSocket.LingerState = new LingerOption(true, 0);
 
-                m_localTCPSockets.Add(ListeningEndPoint.ToString());
+            if (useDualMode && endPoint.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                m_isDualMode = true;
+                m_channelSocket.DualMode = true;
+            }
+
+            m_channelSocket.Bind(endPoint);
+
+            Port = (m_channelSocket.LocalEndPoint as IPEndPoint).Port;
+            ListeningIPAddress = (m_channelSocket.LocalEndPoint as IPEndPoint).Address;
+
+            logger.LogInformation($"SIP {ProtDescr} Channel created for {ListeningSIPEndPoint}.");
+
+            if (canListen)
+            {
+                m_channelSocket.Listen(MAX_TCP_CONNECTIONS);
 
                 Task.Factory.StartNew(AcceptConnections, TaskCreationOptions.LongRunning);
                 Task.Factory.StartNew(PruneConnections, TaskCreationOptions.LongRunning);
-
-                logger.LogInformation($"SIP {ProtDescr} Channel created for {ListeningEndPoint}.");
-            }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception SIPTCPChannel Initialise. " + excp.Message);
-                throw;
             }
         }
+
+        public SIPTCPChannel(IPEndPoint endPoint, bool useDualMode = false)
+            : this(endPoint, SIPProtocolsEnum.tcp, true, useDualMode)
+        { }
+
+        public SIPTCPChannel(IPAddress listenAddress, int listenPort, bool useDualMode = false)
+            : this(new IPEndPoint(listenAddress, listenPort), SIPProtocolsEnum.tcp, true, useDualMode)
+        { }
 
         /// <summary>
         /// Processes the socket accepts from the channel's socket listener.
         /// </summary>
         private void AcceptConnections()
         {
-            logger.LogDebug(
-                $"SIP {ProtDescr} Channel socket on {m_tcpServerListener.Server.LocalEndPoint} accept connections thread started.");
+            logger.LogDebug($"SIP {ProtDescr} Channel socket on {ListeningSIPEndPoint} accept connections thread started.");
 
             while (!Closed)
             {
                 try
                 {
-                    Socket clientSocket = m_tcpServerListener.AcceptSocketAsync().Result;
+                    Socket clientSocket = m_channelSocket.Accept();
 
                     if (!Closed)
                     {
-                        logger.LogDebug(
-                            $"SIP {ProtDescr} Channel connection accepted from {clientSocket.RemoteEndPoint} by {clientSocket.LocalEndPoint}.");
+                        var remoteEndPoint = new SIPEndPoint(SIPProtocol, clientSocket.RemoteEndPoint as IPEndPoint);
+
+                        logger.LogDebug($"SIP {ProtDescr} Channel connection accepted from {remoteEndPoint} by {ListeningSIPEndPoint}.");
 
                         clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                         clientSocket.LingerState = new LingerOption(true, 0);
 
-                        SIPStreamConnection sipStmConn = new SIPStreamConnection(clientSocket,
-                            clientSocket.RemoteEndPoint as IPEndPoint, SIPProtocol);
+                        SIPStreamConnection sipStmConn = new SIPStreamConnection(clientSocket, remoteEndPoint, SIPProtocol);
                         sipStmConn.SIPMessageReceived += SIPTCPMessageReceived;
 
                         m_connections.TryAdd(sipStmConn.ConnectionID, sipStmConn);
 
-                        OnAccept(sipStmConn).Wait();
+                        OnAccept(sipStmConn);
                     }
                 }
                 catch (ObjectDisposedException)
@@ -215,15 +191,14 @@ namespace SIPSorcery.SIP
                     // This is a result of the transport channel being closed and WSACancelBlockingCall being called in WinSock2. Safe to ignore.
                     //logger.LogDebug($"SIP {ProtDescr} Channel accepts for {ListeningEndPoint} cancelled.");
                 }
-                catch (AggregateException)
+                catch (System.AggregateException)
                 {
                     // This is a result of the transport channel being closed. Safe to ignore.
                 }
                 catch (Exception acceptExcp)
                 {
                     // This exception gets thrown if the remote end disconnects during the socket accept.
-                    logger.LogWarning($"Exception SIP {ProtDescr} Channel accepting socket (" + acceptExcp.GetType() +
-                                      "). " + acceptExcp.Message);
+                    logger.LogWarning(acceptExcp, $"Exception SIP {ProtDescr} Channel accepting socket ({acceptExcp.GetType()}). {acceptExcp.Message}");
                 }
             }
         }
@@ -232,7 +207,7 @@ namespace SIPSorcery.SIP
         /// For TCP channel no special action is required when accepting a new client connection. Can start receiving immediately.
         /// </summary>
         /// <param name="streamConnection">The stream connection holding the newly accepted client socket.</param>
-        protected virtual Task OnAccept(SIPStreamConnection streamConnection)
+        protected virtual void OnAccept(SIPStreamConnection streamConnection)
         {
             SocketAsyncEventArgs args = streamConnection.RecvSocketArgs;
             args.AcceptSocket = streamConnection.StreamSocket;
@@ -244,8 +219,6 @@ namespace SIPSorcery.SIP
             {
                 ProcessReceive(args);
             }
-
-            return Task.FromResult(0);
         }
 
         /// <summary>
@@ -264,9 +237,7 @@ namespace SIPSorcery.SIP
                     ProcessSend(e);
                     break;
                 case SocketAsyncOperation.Disconnect:
-                    var sipStreamConn = m_connections
-                        .Where(x => x.Value.RemoteEndPoint.Equals(e.RemoteEndPoint as IPEndPoint)).FirstOrDefault()
-                        .Value;
+                    var sipStreamConn = m_connections.Where(x => x.Value.RemoteSIPEndPoint.GetIPEndPoint().Equals(e.RemoteEndPoint as IPEndPoint)).FirstOrDefault().Value;
                     OnSIPStreamDisconnected(sipStreamConn, e.SocketError);
                     break;
                 default:
@@ -280,7 +251,7 @@ namespace SIPSorcery.SIP
         /// <param name="e">The socket args for the completed receive operation.</param>
         private void ProcessReceive(SocketAsyncEventArgs e)
         {
-            SIPStreamConnection streamConn = (SIPStreamConnection) e.UserToken;
+            SIPStreamConnection streamConn = (SIPStreamConnection)e.UserToken;
 
             try
             {
@@ -289,8 +260,7 @@ namespace SIPSorcery.SIP
                     byte[] buffer = streamConn.RecvSocketArgs.Buffer;
                     streamConn.ExtractSIPMessages(this, buffer, e.BytesTransferred);
 
-                    streamConn.RecvSocketArgs.SetBuffer(buffer, streamConn.RecvEndPosn,
-                        buffer.Length - streamConn.RecvEndPosn);
+                    streamConn.RecvSocketArgs.SetBuffer(buffer, streamConn.RecvEndPosn, buffer.Length - streamConn.RecvEndPosn);
 
                     bool willRaiseEvent = streamConn.StreamSocket.ReceiveAsync(e);
                     if (!willRaiseEvent)
@@ -310,8 +280,7 @@ namespace SIPSorcery.SIP
             catch (Exception excp)
             {
                 // There was an error processing the last message received. Remove the disconnected socket.
-                logger.LogError(
-                    $"Exception processing SIP {ProtDescr} stream receive on read from {e.RemoteEndPoint} closing connection. {excp.Message}");
+                logger.LogError($"Exception processing SIP {ProtDescr} stream receive on read from {e.RemoteEndPoint} closing connection. {excp.Message}");
                 OnSIPStreamDisconnected(streamConn, SocketError.Fault);
             }
         }
@@ -322,13 +291,12 @@ namespace SIPSorcery.SIP
         /// <param name="e">The socket args for the completed send operation.</param>
         private void ProcessSend(SocketAsyncEventArgs e)
         {
-            SIPStreamConnection streamConn = (SIPStreamConnection) e.UserToken;
+            SIPStreamConnection streamConn = (SIPStreamConnection)e.UserToken;
 
             if (e.BytesTransferred == 0 || e.SocketError != SocketError.Success)
             {
                 // There was an error processing the last message send. Remove the disconnected socket.
-                logger.LogWarning(
-                    $"SIP {ProtDescr} Channel Socket send to {e.RemoteEndPoint} failed with socket error {e.SocketError}, removing connection.");
+                logger.LogWarning($"SIP {ProtDescr} Channel Socket send to {e.RemoteEndPoint} failed with socket error {e.SocketError}, removing connection.");
                 OnSIPStreamDisconnected(streamConn, e.SocketError);
             }
         }
@@ -339,27 +307,28 @@ namespace SIPSorcery.SIP
         /// <param name="dstEndPoint">The remote TCP end point to attempt to connect to.</param>
         /// <param name="buffer">An optional buffer that if set can contain data to transmit immediately after connecting.</param>
         /// <returns>If successful a connected client socket or null if not.</returns>
-        internal async Task<SocketError> ConnectClientAsync(IPEndPoint dstEndPoint, byte[] buffer,
-            string serverCertificateName)
+        internal async Task<SocketError> ConnectClientAsync(IPEndPoint dstEndPoint, byte[] buffer, string serverCertificateName)
         {
             try
             {
-                // No existing TCP connection to the destination. Attempt a new socket connection.
-                IPAddress localAddress = ListeningIPAddress;
-                if (ListeningIPAddress == IPAddress.Any)
+                // Map IPv4 to IPv6 for dual mode socket sends.
+                if(dstEndPoint.AddressFamily == AddressFamily.InterNetwork && m_isDualMode)
                 {
-                    localAddress = NetServices.GetLocalAddressForRemote(dstEndPoint.Address);
+                    dstEndPoint = new IPEndPoint(dstEndPoint.Address.MapToIPv6(), dstEndPoint.Port);
                 }
 
-                IPEndPoint localEndPoint = new IPEndPoint(localAddress, Port);
+                logger.LogDebug($"ConnectClientAsync SIP {ProtDescr} Channel local end point of {ListeningSIPEndPoint} selected for connection to {dstEndPoint}.");
 
-                logger.LogDebug(
-                    $"ConnectAsync SIP {ProtDescr} Channel local end point of {localEndPoint} selected for connection to {dstEndPoint}.");
-
-                Socket clientSocket = new Socket(dstEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                Socket clientSocket = new Socket(ListeningIPAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 clientSocket.LingerState = new LingerOption(true, 0);
-                clientSocket.Bind(localEndPoint);
+
+                if (m_isDualMode && ListeningIPAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    clientSocket.DualMode = true;
+                }
+
+                clientSocket.Bind(ListeningEndPoint);
 
                 SocketAsyncEventArgs connectArgs = new SocketAsyncEventArgs
                 {
@@ -375,11 +344,10 @@ namespace SIPSorcery.SIP
                 //    connectArgs.SetBuffer(buffer, 0, buffer.Length);
                 //}
 
-                logger.LogDebug($"Attempting TCP connection from {localEndPoint} to {dstEndPoint}.");
+                logger.LogDebug($"Attempting TCP connection from {ListeningSIPEndPoint} to {dstEndPoint}.");
 
                 // Attempt to connect.
-                TaskCompletionSource<SocketError> connectTcs =
-                    new TaskCompletionSource<SocketError>(TaskCreationOptions.RunContinuationsAsynchronously);
+                TaskCompletionSource<SocketError> connectTcs = new TaskCompletionSource<SocketError>(TaskCreationOptions.RunContinuationsAsynchronously);
                 connectArgs.Completed += (sender, sockArgs) =>
                 {
                     if (sockArgs.LastOperation == SocketAsyncOperation.Connect)
@@ -388,42 +356,50 @@ namespace SIPSorcery.SIP
                     }
                 };
                 bool willRaiseEvent = clientSocket.ConnectAsync(connectArgs);
-                if (!willRaiseEvent)
+                if (!willRaiseEvent && connectArgs.LastOperation == SocketAsyncOperation.Connect)
                 {
-                    if (connectArgs.LastOperation == SocketAsyncOperation.Connect)
-                    {
-                        connectTcs.SetResult(connectArgs.SocketError);
-                    }
+                    connectTcs.SetResult(connectArgs.SocketError);
                 }
 
-                var connectResult = await connectTcs.Task.ConfigureAwait(false);
+                var timeoutTask = Task.Delay(TCP_ATTEMPT_CONNECT_TIMEOUT);
+                var connectResult = await Task.WhenAny(connectTcs.Task, timeoutTask).ConfigureAwait(false);
 
-                logger.LogDebug(
-                    $"ConnectAsync SIP {ProtDescr} Channel connect completed result for {localEndPoint}->{dstEndPoint} {connectResult}.");
-
-                if (connectResult != SocketError.Success)
+                if (timeoutTask.IsCompleted)
                 {
-                    logger.LogWarning(
-                        $"SIP {ProtDescr} Channel send to {dstEndPoint} failed. Attempt to create a client socket failed.");
+                    logger.LogWarning($"SIP {ProtDescr} channel timed out attempting to establish a connection to {dstEndPoint}.");
+                    return SocketError.TimedOut;
+                }
+                else if (connectTcs.Task.Result != SocketError.Success)
+                {
+                    logger.LogWarning($"SIP {ProtDescr} Channel send to {dstEndPoint} failed. Attempt to create a client socket failed with {connectTcs.Task.Result}.");
+                    return connectTcs.Task.Result;
                 }
                 else
                 {
-                    SIPStreamConnection sipStmConn = new SIPStreamConnection(clientSocket,
-                        clientSocket.RemoteEndPoint as IPEndPoint, SIPProtocol);
+                    logger.LogDebug($"ConnectAsync SIP {ProtDescr} Channel connect completed result for {ListeningSIPEndPoint}->{dstEndPoint} {connectTcs.Task.Result}.");
+
+                    var remoteSIPEndPoint = new SIPEndPoint(SIPProtocol, clientSocket.RemoteEndPoint as IPEndPoint);
+                    SIPStreamConnection sipStmConn = new SIPStreamConnection(clientSocket, remoteSIPEndPoint, SIPProtocol);
                     sipStmConn.SIPMessageReceived += SIPTCPMessageReceived;
 
-                    m_connections.TryAdd(sipStmConn.ConnectionID, sipStmConn);
+                    var postConnectResult = await OnClientConnect(sipStmConn, serverCertificateName).ConfigureAwait(false);
 
-                    await OnClientConnect(sipStmConn, serverCertificateName).ConfigureAwait(false);
+                    if (postConnectResult != SocketError.Success)
+                    {
+                        logger.LogWarning($"SIP {ProtDescr} Channel send to {dstEndPoint} failed. Attempt to connect to server at {dstEndPoint} failed with {postConnectResult}.");
+                    }
+                    else
+                    {
+                        m_connections.TryAdd(sipStmConn.ConnectionID, sipStmConn);
+                        await SendOnConnected(sipStmConn, buffer).ConfigureAwait(false);
+                    }
 
-                    await SendOnConnected(sipStmConn, buffer).ConfigureAwait(false);
+                    return postConnectResult;
                 }
-
-                return connectResult;
             }
             catch (Exception excp)
             {
-                logger.LogError($"Exception ConnectClientAsync. {excp.Message}");
+                logger.LogError($"Exception ConnectClientAsync. {excp}");
                 return SocketError.Fault;
             }
         }
@@ -433,7 +409,7 @@ namespace SIPSorcery.SIP
         /// Can start receiving immediately.
         /// </summary>
         /// <param name="streamConnection">The stream connection holding the newly connected client socket.</param>
-        protected virtual Task OnClientConnect(SIPStreamConnection streamConnection, string certificateName)
+        protected virtual Task<SocketError> OnClientConnect(SIPStreamConnection streamConnection, string certificateName)
         {
             SocketAsyncEventArgs recvArgs = streamConnection.RecvSocketArgs;
             recvArgs.AcceptSocket = streamConnection.StreamSocket;
@@ -446,13 +422,12 @@ namespace SIPSorcery.SIP
                 ProcessReceive(recvArgs);
             }
 
-            // Task.IsCompleted not available for net452.
-            return Task.FromResult(0);
+            return Task.FromResult(SocketError.Success);
         }
 
-        public override Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer, string connectionIDHint)
+        public override Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer, bool canInitiateConnection, string connectionIDHint)
         {
-            return SendSecureAsync(dstEndPoint, buffer, null, connectionIDHint);
+            return SendSecureAsync(dstEndPoint, buffer, null, canInitiateConnection, connectionIDHint);
         }
 
         /// <summary>
@@ -463,35 +438,37 @@ namespace SIPSorcery.SIP
         /// <param name="buffer">The data to send.</param>
         /// <param name="serverCertificateName">Optional. Only relevant for SSL streams. The common name
         /// that is expected for the remote SSL server.</param>
+        /// <param name="canInitiateConnection">Indicates whether this send should initiate a connection if needed.
+        /// The typical case is SIP requests can initiate new connections but responses should not. Responses should
+        /// only be sent on the same TCP or TLS connection that the original request was received on.</param>
         /// <param name="connectionIDHint">Optional. The ID of the specific TCP connection to try and the send the message on.</param>
         /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
-        public override Task<SocketError> SendSecureAsync(SIPEndPoint dstSIPEndPoint, byte[] buffer,
-            string serverCertificateName, string connectionIDHint)
+        public override Task<SocketError> SendSecureAsync(
+            SIPEndPoint dstSIPEndPoint,
+            byte[] buffer,
+            string serverCertificateName,
+            bool canInitiateConnection,
+            string connectionIDHint)
         {
             try
             {
-                IPEndPoint dstEndPoint = dstSIPEndPoint?.GetIPEndPoint();
-
-                if (dstEndPoint == null)
+                if (dstSIPEndPoint == null)
                 {
-                    throw new ArgumentException("dstEndPoint",
-                        "An empty destination was specified to Send in SIPTCPChannel.");
+                    throw new ArgumentException(nameof(dstSIPEndPoint), "An empty destination was specified to Send in SIPTCPChannel.");
                 }
-
                 if (buffer == null || buffer.Length == 0)
                 {
                     throw new ApplicationException("An empty buffer was specified to Send in SIPTCPChannel.");
                 }
-                else if (DisableLocalTCPSocketsCheck == false && m_localTCPSockets.Contains(dstEndPoint.ToString()))
+                else if (!DisableLocalTCPSocketsCheck && NetServices.LocalIPAddresses.Contains(dstSIPEndPoint.Address) && Port == dstSIPEndPoint.Port)
                 {
-                    logger.LogWarning(
-                        $"SIP {ProtDescr} Channel blocked Send to {dstEndPoint} as it was identified as a locally hosted {ProtDescr} socket.\r\n" +
-                        Encoding.UTF8.GetString(buffer));
-                    throw new ApplicationException(
-                        $"A Send call was blocked in SIP {ProtDescr} Channel due to the destination being another local TCP socket.");
+                    logger.LogWarning($"SIP {ProtDescr} Channel blocked Send to {dstSIPEndPoint} as it was identified as a locally hosted {ProtDescr} socket.\r\n" + Encoding.UTF8.GetString(buffer));
+                    throw new ApplicationException($"A Send call was blocked in SIP {ProtDescr} Channel due to the destination being another local TCP socket.");
                 }
                 else
                 {
+                    IPEndPoint dstEndPoint = dstSIPEndPoint.GetIPEndPoint(m_isDualMode);
+
                     // Lookup a client socket that is connected to the destination. If it does not exist attempt to connect a new one.
                     SIPStreamConnection sipStreamConn = null;
 
@@ -502,8 +479,7 @@ namespace SIPSorcery.SIP
 
                     if (sipStreamConn == null && HasConnection(dstSIPEndPoint))
                     {
-                        sipStreamConn = m_connections.Where(x => x.Value.RemoteEndPoint.Equals(dstEndPoint)).First()
-                            .Value;
+                        sipStreamConn = m_connections.Where(x => x.Value.RemoteSIPEndPoint.IsSocketEqual(dstSIPEndPoint)).First().Value;
                     }
 
                     if (sipStreamConn != null)
@@ -511,9 +487,14 @@ namespace SIPSorcery.SIP
                         SendOnConnected(sipStreamConn, buffer);
                         return Task.FromResult(SocketError.Success);
                     }
-                    else
+                    else if(canInitiateConnection)
                     {
                         return ConnectClientAsync(dstEndPoint, buffer, serverCertificateName);
+                    }
+                    else
+                    {
+                        logger.LogWarning($"SIP {ProtDescr} Channel did not have an existing connection for send to {dstSIPEndPoint} and requested not to initiate a connection.");
+                        return Task.FromResult(SocketError.NotConnected);
                     }
                 }
             }
@@ -527,7 +508,7 @@ namespace SIPSorcery.SIP
             }
             catch (Exception excp)
             {
-                logger.LogError($"Exception SIPTCPChannel Send (sendto=> {dstSIPEndPoint}. {excp.Message}");
+                logger.LogError($"Exception SIPTCPChannel Send (sendto=>{dstSIPEndPoint}). {excp}");
                 throw;
             }
         }
@@ -540,8 +521,6 @@ namespace SIPSorcery.SIP
         /// <param name="buffer">The data to send.</param>
         protected virtual Task SendOnConnected(SIPStreamConnection sipStreamConn, byte[] buffer)
         {
-            IPEndPoint dstEndPoint = sipStreamConn.RemoteEndPoint;
-
             try
             {
                 lock (sipStreamConn.StreamSocket)
@@ -561,8 +540,7 @@ namespace SIPSorcery.SIP
             }
             catch (SocketException sockExcp)
             {
-                logger.LogWarning(
-                    $"SocketException SIP {ProtDescr} Channel SendOnConnected {dstEndPoint}. ErrorCode {sockExcp.SocketErrorCode}. {sockExcp}");
+                logger.LogWarning(sockExcp, $"SocketException SIP {ProtDescr} Channel SendOnConnected {sipStreamConn.RemoteSIPEndPoint}. ErrorCode {sockExcp.SocketErrorCode}. {sockExcp}");
                 OnSIPStreamDisconnected(sipStreamConn, sockExcp.SocketErrorCode);
                 throw;
             }
@@ -579,8 +557,15 @@ namespace SIPSorcery.SIP
             {
                 if (connection != null)
                 {
-                    logger.LogWarning(
-                        $"SIP {ProtDescr} stream disconnected {connection.RemoteEndPoint} {socketError}.");
+                    if (socketError == SocketError.ConnectionReset)
+                    {
+                        // Connection reset seems to be the way normal closures are reported.
+                        logger.LogDebug($"SIP {ProtDescr} stream disconnected {connection.RemoteSIPEndPoint} {socketError}.");
+                    }
+                    else
+                    {
+                        logger.LogWarning($"SIP {ProtDescr} stream disconnected {connection.RemoteSIPEndPoint} {socketError}.");
+                    }
 
                     if (m_connections.TryRemove(connection.ConnectionID, out _))
                     {
@@ -617,8 +602,7 @@ namespace SIPSorcery.SIP
         /// <summary>
         /// Gets fired when a suspected SIP message is extracted from the TCP data stream.
         /// </summary>
-        protected Task SIPTCPMessageReceived(SIPChannel channel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint,
-            byte[] buffer)
+        protected Task SIPTCPMessageReceived(SIPChannel channel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint, byte[] buffer)
         {
             return SIPMessageReceived?.Invoke(channel, localEndPoint, remoteEndPoint, buffer);
         }
@@ -642,7 +626,7 @@ namespace SIPSorcery.SIP
         /// <returns>True if there is a connection or false if not.</returns>
         public override bool HasConnection(SIPEndPoint remoteEndPoint)
         {
-            return m_connections.Any(x => x.Value.RemoteEndPoint.Equals(remoteEndPoint.GetIPEndPoint()));
+            return m_connections.Any(x => x.Value.RemoteSIPEndPoint.IsSocketEqual(remoteEndPoint));
         }
 
         /// <summary>
@@ -650,8 +634,7 @@ namespace SIPSorcery.SIP
         /// </summary>
         public override bool HasConnection(Uri serverUri)
         {
-            throw new NotImplementedException(
-                "This HasConnection method is not available in the SIP TCP channel, please use an alternative overload.");
+            throw new NotImplementedException("This HasConnection method is not available in the SIP TCP channel, please use an alternative overload.");
         }
 
         /// <summary>
@@ -661,7 +644,14 @@ namespace SIPSorcery.SIP
         /// <returns>True if supported, false if not.</returns>
         public override bool IsAddressFamilySupported(AddressFamily addresFamily)
         {
-            return addresFamily == ListeningIPAddress.AddressFamily;
+            if (ListeningIPAddress.AddressFamily == AddressFamily.InterNetworkV6 && m_isDualMode)
+            {
+                return true;
+            }
+            else
+            {
+                return addresFamily == ListeningIPAddress.AddressFamily;
+            }
         }
 
         /// <summary>
@@ -700,23 +690,20 @@ namespace SIPSorcery.SIP
                             logger.LogError($"Exception closing SIP connection on {ProtDescr}. {closeExcp.Message}");
                         }
                     }
-
                     m_connections.Clear();
                 }
 
-                // If it's an outbound only channel there will be no listener.
-                if (m_tcpServerListener != null)
+                if (m_channelSocket != null)
                 {
                     try
                     {
                         logger.LogDebug($"Stopping SIP {ProtDescr} Channel listener {ListeningEndPoint}.");
 
-                        m_tcpServerListener.Stop();
+                        m_channelSocket.Close();
                     }
                     catch (Exception stopExcp)
                     {
-                        logger.LogError(
-                            $"Exception SIP {ProtDescr} Channel Close (shutting down listener). {stopExcp.Message}");
+                        logger.LogError($"Exception SIP {ProtDescr} Channel Close (shutting down listener). {stopExcp.Message}");
                     }
                 }
 
@@ -752,9 +739,8 @@ namespace SIPSorcery.SIP
                             lock (m_connections)
                             {
                                 var inactiveConnectionKey = (from connection in m_connections
-                                    where connection.Value.LastTransmission <
-                                          DateTime.Now.AddMinutes(PRUNE_NOTRANSMISSION_MINUTES * -1)
-                                    select connection.Key).FirstOrDefault();
+                                                             where connection.Value.LastTransmission < DateTime.Now.AddMinutes(PRUNE_NOTRANSMISSION_MINUTES * -1)
+                                                             select connection.Key).FirstOrDefault();
 
                                 if (inactiveConnectionKey != null)
                                 {
@@ -765,8 +751,7 @@ namespace SIPSorcery.SIP
 
                             if (inactiveConnection != null)
                             {
-                                logger.LogDebug(
-                                    $"Pruning inactive connection on {ProtDescr} {ListeningEndPoint} to remote end point {inactiveConnection.RemoteEndPoint}.");
+                                logger.LogDebug($"Pruning inactive connection on {ProtDescr} {ListeningSIPEndPoint} to remote end point {inactiveConnection.RemoteSIPEndPoint}.");
                                 inactiveConnection.StreamSocket.Close();
                             }
                             else
@@ -777,8 +762,7 @@ namespace SIPSorcery.SIP
                         catch (SocketException sockExcp)
                         {
                             // Will be thrown if the socket is already closed.
-                            logger.LogWarning(
-                                $"Socket error in PruneConnections. {sockExcp.Message} ({sockExcp.ErrorCode}).");
+                            logger.LogWarning(sockExcp, $"Socket error in PruneConnections. {sockExcp.Message} ({sockExcp.ErrorCode}).");
                         }
                         catch (Exception pruneExcp)
                         {
@@ -791,14 +775,10 @@ namespace SIPSorcery.SIP
                     checkComplete = false;
                 }
 
-                logger.LogDebug($"SIP {ProtDescr} Channel socket on {ListeningEndPoint} pruning connections halted.");
+                logger.LogDebug($"SIP {ProtDescr} Channel socket on {ListeningSIPEndPoint} pruning connections halted.");
             }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (AggregateException)
-            {
-            } // This gets thrown if task is cancelled.
+            catch (OperationCanceledException) { }
+            catch (AggregateException) { } // This gets thrown if task is cancelled.
             catch (Exception excp)
             {
                 logger.LogError($"Exception SIP {ProtDescr} Channel PruneConnections. " + excp.Message);

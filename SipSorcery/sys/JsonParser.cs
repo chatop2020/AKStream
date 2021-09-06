@@ -17,7 +17,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -66,7 +65,6 @@ namespace TinyJson
                     i = AppendUntilStringEnd(true, i, json);
                     continue;
                 }
-
                 if (char.IsWhiteSpace(c))
                     continue;
 
@@ -74,7 +72,7 @@ namespace TinyJson
             }
 
             //Parse the thing!
-            return (T) ParseValue(typeof(T), stringBuilder.ToString());
+            return (T)ParseValue(typeof(T), stringBuilder.ToString());
         }
 
         static int AppendUntilStringEnd(bool appendEscapeCharacter, int startIdx, string json)
@@ -87,7 +85,7 @@ namespace TinyJson
                     if (appendEscapeCharacter)
                         stringBuilder.Append(json[i]);
                     stringBuilder.Append(json[i + 1]);
-                    i++; //Skip next character as it is escaped
+                    i++;//Skip next character as it is escaped
                 }
                 else if (json[i] == '"')
                 {
@@ -97,7 +95,6 @@ namespace TinyJson
                 else
                     stringBuilder.Append(json[i]);
             }
-
             return json.Length - 1;
         }
 
@@ -133,7 +130,6 @@ namespace TinyJson
                             stringBuilder.Length = 0;
                             continue;
                         }
-
                         break;
                 }
 
@@ -163,43 +159,36 @@ namespace TinyJson
                             ++i;
                             continue;
                         }
-
                         if (json[i + 1] == 'u' && i + 5 < json.Length - 1)
                         {
                             UInt32 c = 0;
-                            if (UInt32.TryParse(json.Substring(i + 2, 4), NumberStyles.AllowHexSpecifier, null, out c))
+                            if (UInt32.TryParse(json.Substring(i + 2, 4), System.Globalization.NumberStyles.AllowHexSpecifier, null, out c))
                             {
-                                parseStringBuilder.Append((char) c);
+                                parseStringBuilder.Append((char)c);
                                 i += 5;
                                 continue;
                             }
                         }
                     }
-
                     parseStringBuilder.Append(json[i]);
                 }
-
                 return parseStringBuilder.ToString();
             }
-
             if (type.IsPrimitive)
             {
-                var result = Convert.ChangeType(json, type, CultureInfo.InvariantCulture);
+                var result = Convert.ChangeType(json, type, System.Globalization.CultureInfo.InvariantCulture);
                 return result;
             }
-
             if (type == typeof(decimal))
             {
                 decimal result;
-                decimal.TryParse(json, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+                decimal.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
                 return result;
             }
-
             if (json == "null")
             {
                 return null;
             }
-
             if (type.IsEnum)
             {
                 if (json[0] == '"')
@@ -213,7 +202,6 @@ namespace TinyJson
                     return 0;
                 }
             }
-
             if (type.IsArray)
             {
                 Type arrayType = type.GetElementType();
@@ -227,7 +215,6 @@ namespace TinyJson
                 splitArrayPool.Push(elems);
                 return newArray;
             }
-
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 Type listType = type.GetGenericArguments()[0];
@@ -235,13 +222,12 @@ namespace TinyJson
                     return null;
 
                 List<string> elems = Split(json);
-                var list = (IList) type.GetConstructor(new Type[] {typeof(int)}).Invoke(new object[] {elems.Count});
+                var list = (IList)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count });
                 for (int i = 0; i < elems.Count; i++)
                     list.Add(ParseValue(listType, elems[i]));
                 splitArrayPool.Push(elems);
                 return list;
             }
-
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
             {
                 Type keyType, valueType;
@@ -262,8 +248,7 @@ namespace TinyJson
                 if (elems.Count % 2 != 0)
                     return null;
 
-                var dictionary = (IDictionary) type.GetConstructor(new Type[] {typeof(int)})
-                    .Invoke(new object[] {elems.Count / 2});
+                var dictionary = (IDictionary)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count / 2 });
                 for (int i = 0; i < elems.Count; i += 2)
                 {
                     if (elems[i].Length <= 2)
@@ -272,15 +257,12 @@ namespace TinyJson
                     object val = ParseValue(valueType, elems[i + 1]);
                     dictionary[keyValue] = val;
                 }
-
                 return dictionary;
             }
-
             if (type == typeof(object))
             {
                 return ParseAnonymousValue(json);
             }
-
             if (json[0] == '{' && json[json.Length - 1] == '}')
             {
                 return ParseObject(type, json);
@@ -303,7 +285,6 @@ namespace TinyJson
                     dict[elems[i].Substring(1, elems[i].Length - 2)] = ParseAnonymousValue(elems[i + 1]);
                 return dict;
             }
-
             if (json[0] == '[' && json[json.Length - 1] == ']')
             {
                 List<string> items = Split(json);
@@ -312,19 +293,17 @@ namespace TinyJson
                     finalList.Add(ParseAnonymousValue(items[i]));
                 return finalList;
             }
-
             if (json[0] == '"' && json[json.Length - 1] == '"')
             {
                 string str = json.Substring(1, json.Length - 2);
                 return str.Replace("\\", string.Empty);
             }
-
             if (char.IsDigit(json[0]) || json[0] == '-')
             {
                 if (json.Contains("."))
                 {
                     double result;
-                    double.TryParse(json, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+                    double.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
                     return result;
                 }
                 else
@@ -334,7 +313,6 @@ namespace TinyJson
                     return result;
                 }
             }
-
             if (json == "true")
                 return true;
             if (json == "false")
@@ -355,8 +333,7 @@ namespace TinyJson
                 string name = member.Name;
                 if (member.IsDefined(typeof(DataMemberAttribute), true))
                 {
-                    DataMemberAttribute dataMemberAttribute =
-                        (DataMemberAttribute) Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                    DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
                     if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
                         name = dataMemberAttribute.Name;
                 }
@@ -380,15 +357,12 @@ namespace TinyJson
             Dictionary<string, PropertyInfo> nameToProperty;
             if (!fieldInfoCache.TryGetValue(type, out nameToField))
             {
-                nameToField = CreateMemberNameDictionary(
-                    type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
+                nameToField = CreateMemberNameDictionary(type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
                 fieldInfoCache.Add(type, nameToField);
             }
-
             if (!propertyInfoCache.TryGetValue(type, out nameToProperty))
             {
-                nameToProperty = CreateMemberNameDictionary(
-                    type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
+                nameToProperty = CreateMemberNameDictionary(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy));
                 propertyInfoCache.Add(type, nameToProperty);
             }
 

@@ -27,7 +27,7 @@ namespace SIPSorcery.SIP
     /// optional setting on some SIP Headers (Contact, To, From, Via).
     /// This class also treats the header value of a SIP URI as a special case of a SIP parameter. The difference between
     /// a parameter and a SIP URI header is the start and delimiter characters used.
-    ///
+    /// </summary>
     /// <code>
     /// <![CDATA[
     /// SIP URI with parameters:
@@ -40,7 +40,6 @@ namespace SIPSorcery.SIP
     /// sip:1234@sip.com;key1=value1;key2=value2?key1=value1&key2=value2
     /// ]]>
     /// </code>
-    /// </summary>
     [DataContract]
     public class SIPParameters
     {
@@ -51,9 +50,17 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        [DataMember] public Dictionary<string, string> m_dictionary;
+        [DataMember]
+        public char TagDelimiter = DEFAULT_PARAMETER_DELIMITER;
 
-        [DataMember] public char TagDelimiter = DEFAULT_PARAMETER_DELIMITER;
+        [DataMember]
+        public Dictionary<string, string> m_dictionary;
+
+        [IgnoreDataMember]
+        public int Count
+        {
+            get { return (m_dictionary != null) ? m_dictionary.Count : 0; }
+        }
 
         internal SIPParameters()
         {
@@ -70,12 +77,6 @@ namespace SIPSorcery.SIP
             {
                 Initialise(sipString, delimiter);
             }
-        }
-
-        [IgnoreDataMember]
-        public int Count
-        {
-            get { return (m_dictionary != null) ? m_dictionary.Count : 0; }
         }
 
         private void Initialise(string sipString, char delimiter)
@@ -105,7 +106,7 @@ namespace SIPSorcery.SIP
                 }
                 else if (quotedString.IndexOf(delimiter) == -1)
                 {
-                    return new string[] {quotedString};
+                    return new string[] { quotedString };
                 }
                 else
                 {
@@ -115,7 +116,7 @@ namespace SIPSorcery.SIP
 
                     while (inParameterPosn != -1 && inParameterPosn < quotedString.Length)
                     {
-                        inParameterPosn = quotedString.IndexOfAny(new char[] {delimiter, QUOTE}, inParameterPosn);
+                        inParameterPosn = quotedString.IndexOfAny(new char[] { delimiter, QUOTE }, inParameterPosn);
 
                         // Determine if the delimiter position represents the end of the parameter or is in a quoted string.
                         if (inParameterPosn != -1)
@@ -129,14 +130,12 @@ namespace SIPSorcery.SIP
                             }
                             else if (quotedString[inParameterPosn] == QUOTE)
                             {
-                                if (inQuotedStr && inParameterPosn > 0 &&
-                                    quotedString[inParameterPosn - 1] != BACK_SLASH)
+                                if (inQuotedStr && inParameterPosn > 0 && quotedString[inParameterPosn - 1] != BACK_SLASH)
                                 {
                                     // If in a quoted string and this quote has not been escaped close the quoted string.
                                     inQuotedStr = false;
                                 }
-                                else if (inQuotedStr && inParameterPosn > 0 &&
-                                         quotedString[inParameterPosn - 1] == BACK_SLASH)
+                                else if (inQuotedStr && inParameterPosn > 0 && quotedString[inParameterPosn - 1] == BACK_SLASH)
                                 {
                                     // Do nothing, quote has been escaped in a quoted string.
                                 }
@@ -153,8 +152,7 @@ namespace SIPSorcery.SIP
                                 if (!inQuotedStr)
                                 {
                                     // Parameter delimiter found and not in quoted string therefore this is a parameter separator.
-                                    string keyValuePair = quotedString.Substring(startParameterPosn,
-                                        inParameterPosn - startParameterPosn);
+                                    string keyValuePair = quotedString.Substring(startParameterPosn, inParameterPosn - startParameterPosn);
 
                                     keyValuePairList.Add(keyValuePair);
 
@@ -298,8 +296,7 @@ namespace SIPSorcery.SIP
                 {
                     if (param.Value != null && param.Value.Trim().Length > 0)
                     {
-                        paramStr += TagDelimiter + param.Key + TAG_NAME_VALUE_SEPERATOR +
-                                    SIPEscape.SIPURIParameterEscape(param.Value);
+                        paramStr += TagDelimiter + param.Key + TAG_NAME_VALUE_SEPERATOR + SIPEscape.SIPURIParameterEscape(param.Value);
                     }
                     else
                     {
@@ -320,9 +317,7 @@ namespace SIPSorcery.SIP
         {
             SIPParameters copy = new SIPParameters();
             copy.TagDelimiter = this.TagDelimiter;
-            copy.m_dictionary = (this.m_dictionary != null)
-                ? new Dictionary<string, string>(this.m_dictionary)
-                : new Dictionary<string, string>();
+            copy.m_dictionary = (this.m_dictionary != null) ? new Dictionary<string, string>(this.m_dictionary) : new Dictionary<string, string>();
             return copy;
         }
 
@@ -333,7 +328,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPParameters) obj);
+            return AreEqual(this, (SIPParameters)obj);
         }
 
         /// <summary>
@@ -360,9 +355,8 @@ namespace SIPSorcery.SIP
             }
 
             return x.m_dictionary.Count == y.m_dictionary.Count &&
-                   x.m_dictionary.Keys.All(k => y.m_dictionary.ContainsKey(k)
-                                                && String.Equals(x.m_dictionary[k], y.m_dictionary[k],
-                                                    StringComparison.InvariantCultureIgnoreCase));
+               x.m_dictionary.Keys.All(k => y.m_dictionary.ContainsKey(k)
+               && String.Equals(x.m_dictionary[k], y.m_dictionary[k], StringComparison.InvariantCultureIgnoreCase));
 
             //return x.m_dictionary.Count == y.m_dictionary.Count && !x.m_dictionary.Except(y.m_dictionary).Any();
         }

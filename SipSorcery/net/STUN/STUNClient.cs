@@ -71,10 +71,8 @@ namespace SIPSorcery.Net
 
                             if (stunResponseBuffer != null && stunResponseBuffer.Length > 0)
                             {
-                                logger.LogDebug("STUNClient Response to initial STUN message received from " +
-                                                stunResponseEndPoint + ".");
-                                STUNMessage stunResponse =
-                                    STUNMessage.ParseSTUNMessage(stunResponseBuffer, stunResponseBuffer.Length);
+                                logger.LogDebug("STUNClient Response to initial STUN message received from " + stunResponseEndPoint + ".");
+                                STUNMessage stunResponse = STUNMessage.ParseSTUNMessage(stunResponseBuffer, stunResponseBuffer.Length);
 
                                 if (stunResponse.Attributes.Count > 0)
                                 {
@@ -82,10 +80,9 @@ namespace SIPSorcery.Net
                                     {
                                         if (stunAttribute.AttributeType == STUNAttributeTypesEnum.MappedAddress)
                                         {
-                                            STUNAddressAttribute stunAddress = (STUNAddressAttribute) stunAttribute;
+                                            STUNAddressAttribute stunAddress = (STUNAddressAttribute)stunAttribute;
                                             publicEndPoint = new IPEndPoint(stunAddress.Address, stunAddress.Port);
-                                            logger.LogDebug(
-                                                $"STUNClient Public IP={publicEndPoint.Address} Port={publicEndPoint.Port}.");
+                                            logger.LogDebug($"STUNClient Public IP={publicEndPoint.Address} Port={publicEndPoint.Port}.");
                                         }
                                     }
                                 }
@@ -95,7 +92,7 @@ namespace SIPSorcery.Net
                         }
                         catch (Exception recvExcp)
                         {
-                            logger.LogWarning("Exception STUNClient Receive. " + recvExcp.Message);
+                            logger.LogWarning(recvExcp, "Exception STUNClient Receive. " + recvExcp.Message);
                         }
                     }, state: null);
 
@@ -105,8 +102,7 @@ namespace SIPSorcery.Net
                     }
                     else
                     {
-                        logger.LogWarning("STUNClient server response timed out after " + STUN_SERVER_RESPONSE_TIMEOUT +
-                                          "s.");
+                        logger.LogWarning("STUNClient server response timed out after " + STUN_SERVER_RESPONSE_TIMEOUT + "s.");
                         return null;
                     }
                 }

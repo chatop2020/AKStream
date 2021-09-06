@@ -13,7 +13,6 @@
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //-----------------------------------------------------------------------------
 
-using System;
 using System.IO;
 using System.Threading;
 
@@ -22,13 +21,12 @@ namespace SIPSorcery.Sys
     internal class PipedMemoryStream
     {
         private readonly MemoryStream _ms = new MemoryStream();
-        private bool _isClosed = false;
-        private long _readPos = 0;
         private long _writePos = 0;
+        private long _readPos = 0;
+        private bool _isClosed = false;
 
         internal PipedMemoryStream()
-        {
-        }
+        { }
 
         public void Close()
         {
@@ -50,7 +48,7 @@ namespace SIPSorcery.Sys
                         _ms.Seek(_readPos, SeekOrigin.Begin);
                     }
 
-                    int len = (int) Math.Min(count, _writePos - _readPos);
+                    int len = (int)System.Math.Min(count, _writePos - _readPos);
                     int bytesRead = _ms.Read(buffer, offset, len);
                     _readPos += bytesRead;
                     return bytesRead;

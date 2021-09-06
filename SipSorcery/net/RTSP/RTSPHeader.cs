@@ -53,17 +53,17 @@ namespace SIPSorcery.Net
         private const string DEFAULT_BROADCAST_TYPE = "unicast";
 
         private static ILogger logger = Log.Logger;
-        public string BroadcastType; // Unicast or multicast.
-        public string ClientRTPPortRange; // e.g. client_port=3456-3457.
-        public string Destination;
-        public string Mode;
-        public string MulticastRTPPortRange; // e.g. port=3456-3457.
 
         public string RawHeader;
-        public string ServerRTPPortRange; // e.g. server_port=3456-3457.
-        public string Source;
 
-        public string TransportSpecifier; // RTP/AVP{/[TCP/UDP]}, default is UDP.
+        public string TransportSpecifier;   // RTP/AVP{/[TCP/UDP]}, default is UDP.
+        public string BroadcastType;        // Unicast or multicast.
+        public string Destination;
+        public string Source;
+        public string MulticastRTPPortRange;// e.g. port=3456-3457.
+        public string ClientRTPPortRange;   // e.g. client_port=3456-3457.
+        public string ServerRTPPortRange;   // e.g. server_port=3456-3457.
+        public string Mode;
 
         public RTSPTransportHeader()
         {
@@ -241,24 +241,23 @@ namespace SIPSorcery.Net
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] delimiterChars = new char[] {':'};
+        private static char[] delimiterChars = new char[] { ':' };
 
         public string Accept;
-        public int ContentLength;
         public string ContentType;
+        public int ContentLength;
         public int CSeq = -1;
-
-        public RTSPHeaderParserError CSeqParserError = RTSPHeaderParserError.None;
-
-        public string RawCSeq;
         public string Session;
         public RTSPTransportHeader Transport;
 
-        public List<string> UnknownHeaders = new List<string>(); // Holds any unrecognised headers.
+        public List<string> UnknownHeaders = new List<string>();    // Holds any unrecognised headers.
+
+        public string RawCSeq;
+
+        public RTSPHeaderParserError CSeqParserError = RTSPHeaderParserError.None;
 
         private RTSPHeader()
-        {
-        }
+        { }
 
         public RTSPHeader(int cseq, string session)
         {
@@ -317,9 +316,7 @@ namespace SIPSorcery.Net
                                 string errorHeaders = String.Join(m_CRLF, headersCollection);
                                 logger.LogError("Full Invalid Headers: " + errorHeaders);
                             }
-                            catch
-                            {
-                            }
+                            catch { }
 
                             continue;
                         }
@@ -333,45 +330,33 @@ namespace SIPSorcery.Net
                         string headerNameLower = headerName.ToLower();
 
                         #region Accept
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_ACCEPT.ToLower())
                         {
                             rtspHeader.Accept = headerValue;
                         }
-
                         #endregion
-
                         #region ContentType
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_CONTENTTYPE.ToLower())
                         {
                             rtspHeader.ContentType = headerValue;
                         }
-
                         #endregion
-
                         #region ContentLength
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_CONTENTLENGTH.ToLower())
                         {
                             rtspHeader.RawCSeq = headerValue;
 
                             if (headerValue == null || headerValue.Trim().Length == 0)
                             {
-                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CONTENTLENGTH +
-                                                  " was empty.");
+                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CONTENTLENGTH + " was empty.");
                             }
                             else if (!Int32.TryParse(headerValue.Trim(), out rtspHeader.ContentLength))
                             {
-                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CONTENTLENGTH +
-                                                  " was not a valid 32 bit integer, " + headerValue + ".");
+                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CONTENTLENGTH + " was not a valid 32 bit integer, " + headerValue + ".");
                             }
                         }
-
                         #endregion
-
                         #region CSeq
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_CSEQ.ToLower())
                         {
                             rtspHeader.RawCSeq = headerValue;
@@ -379,37 +364,27 @@ namespace SIPSorcery.Net
                             if (headerValue == null || headerValue.Trim().Length == 0)
                             {
                                 rtspHeader.CSeqParserError = RTSPHeaderParserError.CSeqEmpty;
-                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CSEQ +
-                                                  " was empty.");
+                                logger.LogWarning("Invalid RTSP header, the " + RTSPHeaders.RTSP_HEADER_CSEQ + " was empty.");
                             }
                             else if (!Int32.TryParse(headerValue.Trim(), out rtspHeader.CSeq))
                             {
                                 rtspHeader.CSeqParserError = RTSPHeaderParserError.CSeqNotValidInteger;
-                                logger.LogWarning("Invalid SIP header, the " + RTSPHeaders.RTSP_HEADER_CSEQ +
-                                                  " was not a valid 32 bit integer, " + headerValue + ".");
+                                logger.LogWarning("Invalid SIP header, the " + RTSPHeaders.RTSP_HEADER_CSEQ + " was not a valid 32 bit integer, " + headerValue + ".");
                             }
                         }
-
                         #endregion
-
                         #region Session
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_SESSION.ToLower())
                         {
                             rtspHeader.Session = headerValue;
                         }
-
                         #endregion
-
                         #region Transport
-
                         if (headerNameLower == RTSPHeaders.RTSP_HEADER_TRANSPORT.ToLower())
                         {
                             rtspHeader.Transport = RTSPTransportHeader.Parse(headerValue);
                         }
-
                         #endregion
-
                         else
                         {
                             rtspHeader.UnknownHeaders.Add(headerLine);
@@ -447,21 +422,11 @@ namespace SIPSorcery.Net
                 StringBuilder headersBuilder = new StringBuilder();
 
                 headersBuilder.Append((CSeq > 0) ? RTSPHeaders.RTSP_HEADER_CSEQ + ": " + CSeq + m_CRLF : null);
-                headersBuilder.Append((Session != null)
-                    ? RTSPHeaders.RTSP_HEADER_SESSION + ": " + Session + m_CRLF
-                    : null);
-                headersBuilder.Append((Accept != null)
-                    ? RTSPHeaders.RTSP_HEADER_ACCEPT + ": " + Accept + m_CRLF
-                    : null);
-                headersBuilder.Append((ContentType != null)
-                    ? RTSPHeaders.RTSP_HEADER_CONTENTTYPE + ": " + ContentType + m_CRLF
-                    : null);
-                headersBuilder.Append((ContentLength != 0)
-                    ? RTSPHeaders.RTSP_HEADER_CONTENTLENGTH + ": " + ContentLength + m_CRLF
-                    : null);
-                headersBuilder.Append((Transport != null)
-                    ? RTSPHeaders.RTSP_HEADER_TRANSPORT + ": " + Transport.ToString() + m_CRLF
-                    : null);
+                headersBuilder.Append((Session != null) ? RTSPHeaders.RTSP_HEADER_SESSION + ": " + Session + m_CRLF : null);
+                headersBuilder.Append((Accept != null) ? RTSPHeaders.RTSP_HEADER_ACCEPT + ": " + Accept + m_CRLF : null);
+                headersBuilder.Append((ContentType != null) ? RTSPHeaders.RTSP_HEADER_CONTENTTYPE + ": " + ContentType + m_CRLF : null);
+                headersBuilder.Append((ContentLength != 0) ? RTSPHeaders.RTSP_HEADER_CONTENTLENGTH + ": " + ContentLength + m_CRLF : null);
+                headersBuilder.Append((Transport != null) ? RTSPHeaders.RTSP_HEADER_TRANSPORT + ": " + Transport.ToString() + m_CRLF : null);
 
                 return headersBuilder.ToString();
             }

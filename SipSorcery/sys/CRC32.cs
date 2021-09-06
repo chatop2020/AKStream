@@ -9,11 +9,11 @@ namespace SIPSorcery.Sys
     {
         public const UInt32 DefaultPolynomial = 0xedb88320;
         public const UInt32 DefaultSeed = 0xffffffff;
-        private static UInt32[] defaultTable;
 
         private UInt32 hash;
         private UInt32 seed;
         private UInt32[] table;
+        private static UInt32[] defaultTable;
 
         public Crc32()
         {
@@ -27,11 +27,6 @@ namespace SIPSorcery.Sys
             table = InitializeTable(polynomial);
             this.seed = seed;
             Initialize();
-        }
-
-        public override int HashSize
-        {
-            get { return 32; }
         }
 
         public override void Initialize()
@@ -49,6 +44,11 @@ namespace SIPSorcery.Sys
             byte[] hashBuffer = UInt32ToBigEndianBytes(~hash);
             this.HashValue = hashBuffer;
             return hashBuffer;
+        }
+
+        public override int HashSize
+        {
+            get { return 32; }
         }
 
         public static UInt32 Compute(byte[] buffer)
@@ -69,22 +69,32 @@ namespace SIPSorcery.Sys
         private static UInt32[] InitializeTable(UInt32 polynomial)
         {
             if (polynomial == DefaultPolynomial && defaultTable != null)
+            {
                 return defaultTable;
+            }
 
             UInt32[] createTable = new UInt32[256];
             for (int i = 0; i < 256; i++)
             {
-                UInt32 entry = (UInt32) i;
+                UInt32 entry = (UInt32)i;
                 for (int j = 0; j < 8; j++)
+                {
                     if ((entry & 1) == 1)
+                    {
                         entry = (entry >> 1) ^ polynomial;
+                    }
                     else
+                    {
                         entry = entry >> 1;
+                    }
+                }
                 createTable[i] = entry;
             }
 
             if (polynomial == DefaultPolynomial)
+            {
                 defaultTable = createTable;
+            }
 
             return createTable;
         }
@@ -93,22 +103,22 @@ namespace SIPSorcery.Sys
         {
             UInt32 crc = seed;
             for (int i = start; i < size; i++)
+            {
                 unchecked
                 {
                     crc = (crc >> 8) ^ table[buffer[i] ^ crc & 0xff];
                 }
-
+            }
             return crc;
         }
 
         private byte[] UInt32ToBigEndianBytes(UInt32 x)
         {
-            return new byte[]
-            {
-                (byte) ((x >> 24) & 0xff),
-                (byte) ((x >> 16) & 0xff),
-                (byte) ((x >> 8) & 0xff),
-                (byte) (x & 0xff)
+            return new byte[] {
+                (byte)((x >> 24) & 0xff),
+                (byte)((x >> 16) & 0xff),
+                (byte)((x >> 8) & 0xff),
+                (byte)(x & 0xff)
             };
         }
     }
