@@ -25,20 +25,18 @@ namespace SIPSorcery.SIP
     public class SIPEventDialogParticipant
     {
         private static readonly string m_dialogXMLNS = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
-        private static readonly string m_sipsorceryXMLNS = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_URN;
-        public string CRMCompanyName;
-        public string CRMPersonName;
-        public string CRMPictureURL;
-        public int CSeq;
 
         public string DisplayName;
-        public string SwitchboardLineName;
-        public SIPURI TargetURI;
         public SIPURI URI;
+        public SIPURI TargetURI;
+        public int CSeq;
+        public string SwitchboardLineName;
+        public string CRMPersonName;
+        public string CRMCompanyName;
+        public string CRMPictureURL;
 
         private SIPEventDialogParticipant()
-        {
-        }
+        { }
 
         public SIPEventDialogParticipant(string displayName, SIPURI uri, SIPURI targetURI, int cseq)
         {
@@ -57,15 +55,12 @@ namespace SIPSorcery.SIP
         public static SIPEventDialogParticipant Parse(XElement participantElement)
         {
             XNamespace ns = m_dialogXMLNS;
-            XNamespace ss = m_sipsorceryXMLNS;
             SIPEventDialogParticipant participant = new SIPEventDialogParticipant();
 
             XElement identityElement = participantElement.Element(ns + "identity");
             if (identityElement != null)
             {
-                participant.DisplayName = (identityElement.Attribute("display-name") != null)
-                    ? identityElement.Attribute("display-name").Value
-                    : null;
+                participant.DisplayName = (identityElement.Attribute("display-name") != null) ? identityElement.Attribute("display-name").Value : null;
                 participant.URI = SIPURI.ParseSIPURI(identityElement.Value);
             }
 
@@ -75,23 +70,7 @@ namespace SIPSorcery.SIP
                 participant.TargetURI = SIPURI.ParseSIPURI(targetElement.Attribute("uri").Value);
             }
 
-            participant.CSeq = (participantElement.Element(ns + "cseq") != null)
-                ? Convert.ToInt32(participantElement.Element(ns + "cseq").Value)
-                : 0;
-            //participant.SwitchboardDescription = (participantElement.Element(ss + "switchboarddescription") != null) ? participantElement.Element(ss + "switchboarddescription").Value : null;
-            //participant.SwitchboardCallerDescription = (participantElement.Element(ss + "switchboardcallerdescription") != null) ? participantElement.Element(ss + "switchboardcallerdescription").Value : null;
-            participant.SwitchboardLineName = (participantElement.Element(ss + "switchboardlinename") != null)
-                ? participantElement.Element(ss + "switchboardlinename").Value
-                : null;
-            participant.CRMPersonName = (participantElement.Element(ss + "crmpersonname") != null)
-                ? participantElement.Element(ss + "crmpersonname").Value
-                : null;
-            participant.CRMCompanyName = (participantElement.Element(ss + "crmcompanyname") != null)
-                ? participantElement.Element(ss + "crmcompanyname").Value
-                : null;
-            participant.CRMPictureURL = (participantElement.Element(ss + "crmpictureurl") != null)
-                ? participantElement.Element(ss + "crmpictureurl").Value
-                : null;
+            participant.CSeq = (participantElement.Element(ns + "cseq") != null) ? Convert.ToInt32(participantElement.Element(ns + "cseq").Value) : 0;
 
             return participant;
         }
@@ -104,7 +83,6 @@ namespace SIPSorcery.SIP
         public XElement ToXML(string nodeName)
         {
             XNamespace ns = m_dialogXMLNS;
-            XNamespace ss = m_sipsorceryXMLNS;
             XElement participantElement = new XElement(ns + nodeName);
 
             if (URI != null)
@@ -114,7 +92,6 @@ namespace SIPSorcery.SIP
                 {
                     identityElement.Add(new XAttribute("display-name", DisplayName));
                 }
-
                 participantElement.Add(identityElement);
             }
 
@@ -128,30 +105,6 @@ namespace SIPSorcery.SIP
             {
                 XElement cseqElement = new XElement(ns + "cseq", CSeq);
                 participantElement.Add(cseqElement);
-            }
-
-            if (!SwitchboardLineName.IsNullOrBlank())
-            {
-                XElement switchLineNameElement = new XElement(ss + "switchboardlinename", SwitchboardLineName);
-                participantElement.Add(switchLineNameElement);
-            }
-
-            if (!CRMPersonName.IsNullOrBlank())
-            {
-                XElement crmPersonNameElement = new XElement(ss + "crmpersonname", CRMPersonName);
-                participantElement.Add(crmPersonNameElement);
-            }
-
-            if (!CRMCompanyName.IsNullOrBlank())
-            {
-                XElement crmCompanyNameElement = new XElement(ss + "crmcompanyname", CRMCompanyName);
-                participantElement.Add(crmCompanyNameElement);
-            }
-
-            if (!CRMPictureURL.IsNullOrBlank())
-            {
-                XElement crmPictureURLElement = new XElement(ss + "crmpictureurl", CRMPictureURL);
-                participantElement.Add(crmPictureURLElement);
             }
 
             return participantElement;

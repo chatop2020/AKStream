@@ -22,8 +22,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_LibSystemInfo", "Test_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibGB28181SipClient", "LibGB28181SipClient\LibGB28181SipClient.csproj", "{512AA143-360A-4CE4-A1AE-5361EA279CE6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_GB28181Client", "Test_GB28181Client\Test_GB28181Client.csproj", "{96906A8D-E7AE-4165-912D-D25BBB55A93E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,9 +72,5 @@ Global
 		{512AA143-360A-4CE4-A1AE-5361EA279CE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{512AA143-360A-4CE4-A1AE-5361EA279CE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{512AA143-360A-4CE4-A1AE-5361EA279CE6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{96906A8D-E7AE-4165-912D-D25BBB55A93E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96906A8D-E7AE-4165-912D-D25BBB55A93E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{96906A8D-E7AE-4165-912D-D25BBB55A93E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{96906A8D-E7AE-4165-912D-D25BBB55A93E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

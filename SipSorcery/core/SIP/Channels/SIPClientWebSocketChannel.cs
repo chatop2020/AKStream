@@ -37,22 +37,55 @@ namespace SIPSorcery.SIP
     /// </summary>
     public class SIPClientWebSocketChannel : SIPChannel
     {
-        public const string
-            SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
+        /// <summary>
+        /// Holds the state for a current web socket client connection.
+        /// </summary>
+        private class ClientWebSocketConnection
+        {
+            private static int MaxSIPTCPMessageSize = SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH;
 
+            public SIPEndPoint LocalEndPoint;
+            public Uri ServerUri;
+            public SIPEndPoint RemoteEndPoint;
+            public string ConnectionID;
+            public ArraySegment<byte> ReceiveBuffer;
+            public Task<WebSocketReceiveResult> ReceiveTask;
+            public ClientWebSocket Client;
+
+            /// <summary>
+            /// Records when a transmission was last sent or received on this stream.
+            /// </summary>
+            public DateTime LastTransmission;
+
+            /// <summary>
+            /// Pending receives that we don't have the full SIP message for yet.
+            /// </summary>
+            public byte[] PendingReceiveBuffer { get; internal set; } = new byte[2 * MaxSIPTCPMessageSize];
+
+            /// <summary>
+            /// The current start position of unprocessed data in the receive buffer.
+            /// </summary>
+            public int RecvStartPosn { get; internal set; }
+
+            /// <summary>
+            /// The current end position of unprocessed data in the receive buffer.
+            /// </summary>
+            public int RecvEndPosn { get; internal set; }
+        }
+
+        public const string SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
         public const string WEB_SOCKET_URI_PREFIX = "ws://";
         public const string WEB_SOCKET_SECURE_URI_PREFIX = "wss://";
+
+        /// <summary>
+        /// Maintains a list of current egress web socket connections (one's that have been initiated by us).
+        /// </summary>
+        private ConcurrentDictionary<string, ClientWebSocketConnection> m_egressConnections = new ConcurrentDictionary<string, ClientWebSocketConnection>();
 
         /// <summary>
         /// Cancellation source passed to all async operations in this class.
         /// </summary>
         private CancellationTokenSource m_cts = new CancellationTokenSource();
-
-        /// <summary>
-        /// Maintains a list of current egress web socket connections (one's that have been initiated by us).
-        /// </summary>
-        private ConcurrentDictionary<string, ClientWebSocketConnection> m_egressConnections =
-            new ConcurrentDictionary<string, ClientWebSocketConnection>();
 
         /// <summary>
         /// Indicates whether the receive thread that monitors the receive tasks for each web socket client is running.
@@ -83,17 +116,15 @@ namespace SIPSorcery.SIP
         /// <param name="buffer">The data to send.</param>
         /// <param name="connectionIDHint">The ID of the specific web socket connection to try and send the message on.</param>
         /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
-        public override Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer, string connectionIDHint)
+        public override Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer, bool canInitiateConnection, string connectionIDHint)
         {
             if (dstEndPoint == null)
             {
-                throw new ApplicationException(
-                    "An empty destination was specified to Send in SIPClientWebSocketChannel.");
+                throw new ApplicationException("An empty destination was specified to Send in SIPClientWebSocketChannel.");
             }
             else if (buffer == null || buffer.Length == 0)
             {
-                throw new ArgumentException("buffer",
-                    "The buffer must be set and non empty for Send in SIPClientWebSocketChannel.");
+                throw new ArgumentException("buffer", "The buffer must be set and non empty for Send in SIPClientWebSocketChannel.");
             }
 
             return SendAsync(dstEndPoint, buffer);
@@ -102,18 +133,15 @@ namespace SIPSorcery.SIP
         /// <summary>
         /// Send to a secure web socket server.
         /// </summary>
-        public override Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer,
-            string serverCertificateName, string connectionIDHint)
+        public override Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer, string serverCertificateName, bool canInitiateConnection, string connectionIDHint)
         {
             if (dstEndPoint == null)
             {
-                throw new ApplicationException(
-                    "An empty destination was specified to SendSecure in SIPClientWebSocketChannel.");
+                throw new ApplicationException("An empty destination was specified to SendSecure in SIPClientWebSocketChannel.");
             }
             else if (buffer == null || buffer.Length == 0)
             {
-                throw new ArgumentException("buffer",
-                    "The buffer must be set and non empty for SendSecure in SIPClientWebSocketChannel.");
+                throw new ArgumentException("buffer", "The buffer must be set and non empty for SendSecure in SIPClientWebSocketChannel.");
             }
 
             return SendAsync(dstEndPoint, buffer);
@@ -130,9 +158,7 @@ namespace SIPSorcery.SIP
         {
             try
             {
-                string uriPrefix = (serverEndPoint.Protocol == SIPProtocolsEnum.wss)
-                    ? WEB_SOCKET_SECURE_URI_PREFIX
-                    : WEB_SOCKET_URI_PREFIX;
+                string uriPrefix = (serverEndPoint.Protocol == SIPProtocolsEnum.wss) ? WEB_SOCKET_SECURE_URI_PREFIX : WEB_SOCKET_URI_PREFIX;
                 var serverUri = new Uri($"{uriPrefix}{serverEndPoint.GetIPEndPoint()}");
 
                 string connectionID = GetConnectionID(serverUri);
@@ -141,12 +167,10 @@ namespace SIPSorcery.SIP
 
                 if (m_egressConnections.TryGetValue(connectionID, out var conn))
                 {
-                    logger.LogDebug(
-                        $"Sending {buffer.Length} bytes on client web socket connection to {conn.ServerUri}.");
+                    logger.LogDebug($"Sending {buffer.Length} bytes on client web socket connection to {conn.ServerUri}.");
 
                     ArraySegment<byte> segmentBuffer = new ArraySegment<byte>(buffer);
-                    await conn.Client.SendAsync(segmentBuffer, WebSocketMessageType.Text, true, m_cts.Token)
-                        .ConfigureAwait(false);
+                    await conn.Client.SendAsync(segmentBuffer, WebSocketMessageType.Text, true, m_cts.Token).ConfigureAwait(false);
 
                     return SocketError.Success;
                 }
@@ -159,21 +183,15 @@ namespace SIPSorcery.SIP
                     logger.LogDebug($"Successfully connected web socket client to {serverUri}.");
 
                     ArraySegment<byte> segmentBuffer = new ArraySegment<byte>(buffer);
-                    await clientWebSocket.SendAsync(segmentBuffer, WebSocketMessageType.Text, true, m_cts.Token)
-                        .ConfigureAwait(false);
+                    await clientWebSocket.SendAsync(segmentBuffer, WebSocketMessageType.Text, true, m_cts.Token).ConfigureAwait(false);
 
                     var recvBuffer = new ArraySegment<byte>(new byte[2 * SIPStreamConnection.MaxSIPTCPMessageSize]);
                     Task<WebSocketReceiveResult> receiveTask = clientWebSocket.ReceiveAsync(recvBuffer, m_cts.Token);
 
                     // There's currently no way to get the socket IP end point used by the client web socket to establish
                     // the connection. Instead provide a dummy local end point that has as much of the information as we can.
-                    IPEndPoint localEndPoint =
-                        new IPEndPoint(
-                            (serverEndPoint.Address.AddressFamily == AddressFamily.InterNetwork)
-                                ? IPAddress.Any
-                                : IPAddress.IPv6Any, 0);
-                    SIPEndPoint localSIPEndPoint =
-                        new SIPEndPoint(serverEndPoint.Protocol, localEndPoint, this.ID, connectionID);
+                    IPEndPoint localEndPoint = new IPEndPoint((serverEndPoint.Address.AddressFamily == AddressFamily.InterNetwork) ? IPAddress.Any : IPAddress.IPv6Any, 0);
+                    SIPEndPoint localSIPEndPoint = new SIPEndPoint(serverEndPoint.Protocol, localEndPoint, this.ID, connectionID);
 
                     ClientWebSocketConnection newConn = new ClientWebSocketConnection
                     {
@@ -188,8 +206,7 @@ namespace SIPSorcery.SIP
 
                     if (!m_egressConnections.TryAdd(connectionID, newConn))
                     {
-                        logger.LogError(
-                            $"Could not add web socket client connected to {serverUri} to channel collection, closing.");
+                        logger.LogError($"Could not add web socket client connected to {serverUri} to channel collection, closing.");
                         await Close(connectionID, clientWebSocket).ConfigureAwait(false);
                     }
                     else
@@ -225,9 +242,7 @@ namespace SIPSorcery.SIP
         /// </summary>
         public override bool HasConnection(SIPEndPoint serverEndPoint)
         {
-            string uriPrefix = (serverEndPoint.Protocol == SIPProtocolsEnum.wss)
-                ? WEB_SOCKET_SECURE_URI_PREFIX
-                : WEB_SOCKET_URI_PREFIX;
+            string uriPrefix = (serverEndPoint.Protocol == SIPProtocolsEnum.wss) ? WEB_SOCKET_SECURE_URI_PREFIX : WEB_SOCKET_URI_PREFIX;
             var serverUri = new Uri($"{uriPrefix}{serverEndPoint.GetIPEndPoint()}");
             string connectionID = GetConnectionID(serverUri);
 
@@ -299,7 +314,7 @@ namespace SIPSorcery.SIP
             }
             catch (Exception excp)
             {
-                logger.LogWarning("Exception SIPClientWebSocketChannel Close. " + excp.Message);
+                logger.LogWarning(excp, "Exception SIPClientWebSocketChannel Close. " + excp.Message);
             }
         }
 
@@ -351,34 +366,26 @@ namespace SIPSorcery.SIP
                         var receiveTasks = m_egressConnections.Select(x => x.Value.ReceiveTask).ToArray();
                         int completedTaskIndex = Task.WaitAny(receiveTasks);
                         Task<WebSocketReceiveResult> receiveTask = receiveTasks[completedTaskIndex];
-                        var conn = m_egressConnections.Where(x => x.Value.ReceiveTask.Id == receiveTask.Id).Single()
-                            .Value;
+                        var conn = m_egressConnections.Where(x => x.Value.ReceiveTask.Id == receiveTask.Id).Single().Value;
 
                         if (receiveTask.IsCompleted)
                         {
-                            logger.LogDebug(
-                                $"Client web socket connection to {conn.ServerUri} received {receiveTask.Result.Count} bytes.");
+                            logger.LogDebug($"Client web socket connection to {conn.ServerUri} received {receiveTask.Result.Count} bytes.");
                             //SIPMessageReceived(this, conn.LocalEndPoint, conn.RemoteEndPoint, conn.ReceiveBuffer.Take(receiveTask.Result.Count).ToArray()).Wait();
                             ExtractSIPMessages(this, conn, conn.ReceiveBuffer, receiveTask.Result.Count);
                             conn.ReceiveTask = conn.Client.ReceiveAsync(conn.ReceiveBuffer, m_cts.Token);
                         }
                         else
                         {
-                            logger.LogWarning(
-                                $"Client web socket connection to {conn.ServerUri} returned without completing, closing.");
+                            logger.LogWarning($"Client web socket connection to {conn.ServerUri} returned without completing, closing.");
                             Close(conn.ConnectionID, conn.Client);
                         }
                     }
-                    catch (OperationCanceledException)
-                    {
-                    }
-                    catch (AggregateException)
-                    {
-                    } // This gets thrown if task is cancelled.
+                    catch (OperationCanceledException) { }
+                    catch (AggregateException) { } // This gets thrown if task is cancelled.
                     catch (Exception excp)
                     {
-                        logger.LogError(
-                            $"Exception SIPClientWebSocketChannel processing receive tasks. {excp.Message}");
+                        logger.LogError($"Exception SIPClientWebSocketChannel processing receive tasks. {excp.Message}");
                     }
                 }
             }
@@ -400,8 +407,7 @@ namespace SIPSorcery.SIP
         /// <param name="buffer">The buffer holding the current data from the stream. Note that the buffer can 
         /// stretch over multiple receives.</param>
         /// <param name="bytesRead">The bytes that were read by the latest receive operation (the new bytes available).</param>
-        private void ExtractSIPMessages(SIPChannel recvChannel, ClientWebSocketConnection clientConn,
-            ArraySegment<byte> buffer, int bytesRead)
+        private void ExtractSIPMessages(SIPChannel recvChannel, ClientWebSocketConnection clientConn, ArraySegment<byte> buffer, int bytesRead)
         {
             if (bytesRead + clientConn.RecvEndPosn > clientConn.PendingReceiveBuffer.Length)
             {
@@ -413,8 +419,7 @@ namespace SIPSorcery.SIP
             clientConn.RecvEndPosn += bytesRead;
 
             int bytesSkipped = 0;
-            byte[] sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(clientConn.PendingReceiveBuffer,
-                clientConn.RecvStartPosn, clientConn.RecvEndPosn, out bytesSkipped);
+            byte[] sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(clientConn.PendingReceiveBuffer, clientConn.RecvStartPosn, clientConn.RecvEndPosn, out bytesSkipped);
 
             while (sipMsgBuffer != null)
             {
@@ -422,8 +427,7 @@ namespace SIPSorcery.SIP
                 if (SIPMessageReceived != null)
                 {
                     clientConn.LastTransmission = DateTime.Now;
-                    SIPMessageReceived(recvChannel, clientConn.LocalEndPoint, clientConn.RemoteEndPoint, sipMsgBuffer)
-                        .Wait();
+                    SIPMessageReceived(recvChannel, clientConn.LocalEndPoint, clientConn.RemoteEndPoint, sipMsgBuffer).Wait();
                 }
 
                 clientConn.RecvStartPosn += (sipMsgBuffer.Length + bytesSkipped);
@@ -437,46 +441,9 @@ namespace SIPSorcery.SIP
                 else
                 {
                     // Try and extract another SIP message from the receive buffer.
-                    sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(clientConn.PendingReceiveBuffer,
-                        clientConn.RecvStartPosn, clientConn.RecvEndPosn, out bytesSkipped);
+                    sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(clientConn.PendingReceiveBuffer, clientConn.RecvStartPosn, clientConn.RecvEndPosn, out bytesSkipped);
                 }
             }
-        }
-
-        /// <summary>
-        /// Holds the state for a current web socket client connection.
-        /// </summary>
-        private class ClientWebSocketConnection
-        {
-            private static int MaxSIPTCPMessageSize = SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH;
-            public ClientWebSocket Client;
-            public string ConnectionID;
-
-            /// <summary>
-            /// Records when a transmission was last sent or received on this stream.
-            /// </summary>
-            public DateTime LastTransmission;
-
-            public SIPEndPoint LocalEndPoint;
-            public ArraySegment<byte> ReceiveBuffer;
-            public Task<WebSocketReceiveResult> ReceiveTask;
-            public SIPEndPoint RemoteEndPoint;
-            public Uri ServerUri;
-
-            /// <summary>
-            /// Pending receives that we don't have the full SIP message for yet.
-            /// </summary>
-            public byte[] PendingReceiveBuffer { get; internal set; } = new byte[2 * MaxSIPTCPMessageSize];
-
-            /// <summary>
-            /// The current start position of unprocessed data in the receive buffer.
-            /// </summary>
-            public int RecvStartPosn { get; internal set; }
-
-            /// <summary>
-            /// The current end position of unprocessed data in the receive buffer.
-            /// </summary>
-            public int RecvEndPosn { get; internal set; }
         }
     }
 }

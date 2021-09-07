@@ -26,9 +26,9 @@ namespace SIPSorcery.Net
         public const string m_CRLF = "\r\n";
 
         /// <summary>
-        /// IP or multicast address for the media connection.
+        /// Type of network, IN = Internet.
         /// </summary>
-        public string ConnectionAddress;
+        public string ConnectionNetworkType = "IN";
 
         /// <summary>
         /// Session level address family.
@@ -36,20 +36,17 @@ namespace SIPSorcery.Net
         public string ConnectionAddressType = CONNECTION_ADDRESS_TYPE_IPV4;
 
         /// <summary>
-        /// Type of network, IN = Internet.
+        /// IP or multicast address for the media connection.
         /// </summary>
-        public string ConnectionNetworkType = "IN";
+        public string ConnectionAddress;
 
         private SDPConnectionInformation()
-        {
-        }
+        { }
 
         public SDPConnectionInformation(IPAddress connectionAddress)
         {
             ConnectionAddress = connectionAddress.ToString();
-            ConnectionAddressType = (connectionAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                ? CONNECTION_ADDRESS_TYPE_IPV6
-                : CONNECTION_ADDRESS_TYPE_IPV4;
+            ConnectionAddressType = (connectionAddress.AddressFamily == AddressFamily.InterNetworkV6) ? CONNECTION_ADDRESS_TYPE_IPV6 : CONNECTION_ADDRESS_TYPE_IPV4;
         }
 
         public static SDPConnectionInformation ParseConnectionInformation(string connectionLine)

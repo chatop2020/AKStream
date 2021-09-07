@@ -26,25 +26,28 @@ namespace SIPSorcery.Net
     public class STUNXORAddressAttribute : STUNAttribute
     {
         public const UInt16 ADDRESS_ATTRIBUTE_LENGTH = 8;
+
+        public int Family = 1;      // Ipv4 = 1, IPv6 = 2.
+        public int Port;
         public IPAddress Address;
 
-        public int Family = 1; // Ipv4 = 1, IPv6 = 2.
-        public int Port;
+        public override UInt16 PaddedLength
+        {
+            get { return ADDRESS_ATTRIBUTE_LENGTH; }
+        }
 
         public STUNXORAddressAttribute(STUNAttributeTypesEnum attributeType, byte[] attributeValue)
             : base(attributeType, attributeValue)
         {
             if (BitConverter.IsLittleEndian)
             {
-                Port = NetConvert.DoReverseEndian(BitConverter.ToUInt16(attributeValue, 2)) ^
-                       (UInt16) (STUNHeader.MAGIC_COOKIE >> 16);
-                UInt32 address = NetConvert.DoReverseEndian(BitConverter.ToUInt32(attributeValue, 4)) ^
-                                 STUNHeader.MAGIC_COOKIE;
+                Port = NetConvert.DoReverseEndian(BitConverter.ToUInt16(attributeValue, 2)) ^ (UInt16)(STUNHeader.MAGIC_COOKIE >> 16);
+                UInt32 address = NetConvert.DoReverseEndian(BitConverter.ToUInt32(attributeValue, 4)) ^ STUNHeader.MAGIC_COOKIE;
                 Address = new IPAddress(NetConvert.DoReverseEndian(address));
             }
             else
             {
-                Port = BitConverter.ToUInt16(attributeValue, 2) ^ (UInt16) (STUNHeader.MAGIC_COOKIE >> 16);
+                Port = BitConverter.ToUInt16(attributeValue, 2) ^ (UInt16)(STUNHeader.MAGIC_COOKIE >> 16);
                 UInt32 address = BitConverter.ToUInt32(attributeValue, 4) ^ STUNHeader.MAGIC_COOKIE;
                 Address = new IPAddress(address);
             }
@@ -57,38 +60,28 @@ namespace SIPSorcery.Net
             Address = address;
         }
 
-        public override UInt16 PaddedLength
-        {
-            get { return ADDRESS_ATTRIBUTE_LENGTH; }
-        }
-
         public override int ToByteBuffer(byte[] buffer, int startIndex)
         {
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16) base.AttributeType)), 0,
-                    buffer, startIndex, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer,
-                    startIndex + 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16)base.AttributeType)), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer, startIndex + 2, 2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((UInt16) base.AttributeType), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((UInt16)base.AttributeType), 0, buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(ADDRESS_ATTRIBUTE_LENGTH), 0, buffer, startIndex + 2, 2);
             }
 
             buffer[startIndex + 4] = 0x00;
-            buffer[startIndex + 5] = (byte) Family;
+            buffer[startIndex + 5] = (byte)Family;
 
             if (BitConverter.IsLittleEndian)
             {
                 UInt16 xorPort = Convert.ToUInt16(Convert.ToUInt16(Port) ^ (STUNHeader.MAGIC_COOKIE >> 16));
-                UInt32 xorAddress = NetConvert.DoReverseEndian(BitConverter.ToUInt32(Address.GetAddressBytes(), 0)) ^
-                                    STUNHeader.MAGIC_COOKIE;
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(xorPort)), 0, buffer, startIndex + 6,
-                    2);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(xorAddress)), 0, buffer,
-                    startIndex + 8, 4);
+                UInt32 xorAddress = NetConvert.DoReverseEndian(BitConverter.ToUInt32(Address.GetAddressBytes(), 0)) ^ STUNHeader.MAGIC_COOKIE;
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(xorPort)), 0, buffer, startIndex + 6, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(xorAddress)), 0, buffer, startIndex + 8, 4);
             }
             else
             {
@@ -98,13 +91,12 @@ namespace SIPSorcery.Net
                 Buffer.BlockCopy(BitConverter.GetBytes(xorAddress), 0, buffer, startIndex + 8, 4);
             }
 
-            return STUNATTRIBUTE_HEADER_LENGTH + ADDRESS_ATTRIBUTE_LENGTH;
+            return STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH + ADDRESS_ATTRIBUTE_LENGTH;
         }
 
         public override string ToString()
         {
-            string attrDescrStr = "STUN XOR_MAPPED_ADDRESS Attribute: " + base.AttributeType + ", address=" +
-                                  Address.ToString() + ", port=" + Port + ".";
+            string attrDescrStr = "STUN XOR_MAPPED_ADDRESS Attribute: " + base.AttributeType + ", address=" + Address.ToString() + ", port=" + Port + ".";
 
             return attrDescrStr;
         }

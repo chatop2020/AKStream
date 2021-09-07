@@ -28,21 +28,6 @@ namespace SIPSorcery.SIP
 
         private SIPURI m_uri;
 
-        private SIPParameterlessURI()
-        {
-        }
-
-        public SIPParameterlessURI(SIPURI sipURI)
-        {
-            m_uri = sipURI;
-        }
-
-        public SIPParameterlessURI(SIPSchemesEnum scheme, string host, string user)
-        {
-            m_uri = new SIPURI(user, host, null);
-            m_uri.Scheme = scheme;
-        }
-
         [DataMember]
         public SIPURI URI
         {
@@ -71,6 +56,20 @@ namespace SIPSorcery.SIP
         {
             get { return m_uri.Host; }
             set { m_uri.Host = value; }
+        }
+
+        private SIPParameterlessURI()
+        { }
+
+        public SIPParameterlessURI(SIPURI sipURI)
+        {
+            m_uri = sipURI;
+        }
+
+        public SIPParameterlessURI(SIPSchemesEnum scheme, string host, string user)
+        {
+            m_uri = new SIPURI(user, host, null);
+            m_uri.Scheme = scheme;
         }
 
         public static SIPParameterlessURI ParseSIPParamterlessURI(string uri)

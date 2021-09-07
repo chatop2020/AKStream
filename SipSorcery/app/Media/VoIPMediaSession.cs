@@ -11,6 +11,7 @@
 //
 // History:
 // 04 Sep 2020	Aaron Clauson	Created, Dublin, Ireland.
+// 26 Jul 2021	Kurt Kießling	Added secure media negotiation.
 //
 // License: 
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
@@ -24,8 +25,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Net;
 using SIPSorcery.SIP.App;
-using SIPSorcery.Sys;
-using SIPSorceryMedia.Abstractions.V1;
+using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
 {
@@ -48,30 +48,53 @@ namespace SIPSorcery.Media
         private const int TEST_PATTERN_FPS = 30;
         private const int TEST_PATTERN_ONHOLD_FPS = 3;
 
-        private static ILogger logger = Log.Logger;
+        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+
+        private VideoTestPatternSource _videoTestPatternSource;
         private AudioExtrasSource _audioExtrasSource;
         private bool _videoCaptureDeviceFailed;
 
-        private VideoTestPatternSource _videoTestPatternSource;
+        public MediaEndPoints Media { get; private set; }
+
+        public AudioExtrasSource AudioExtrasSource
+        {
+            get => _audioExtrasSource;
+        }
+
+        public VideoTestPatternSource TestPatternSource
+        {
+            get => _videoTestPatternSource;
+        }
+
+        public event VideoSinkSampleDecodedDelegate OnVideoSinkSample;
 
         public VoIPMediaSession(MediaEndPoints mediaEndPoint, VideoTestPatternSource testPatternSource)
             : this(mediaEndPoint, null, 0, testPatternSource)
-        {
-        }
+        { }
 
         public VoIPMediaSession(
             MediaEndPoints mediaEndPoint,
             IPAddress bindAddress = null,
             int bindPort = 0,
             VideoTestPatternSource testPatternSource = null)
-            : base(false, false, false, bindAddress, bindPort)
+            : this(new VoIPMediaSessionConfig { MediaEndPoint = mediaEndPoint, BindAddress = bindAddress, BindPort = bindPort, TestPatternSource = testPatternSource })
         {
-            if (mediaEndPoint == null)
+        }
+
+        public VoIPMediaSession(VoIPMediaSessionConfig config)
+            : base(new RtpSessionConfig { 
+                IsMediaMultiplexed = false, 
+                IsRtcpMultiplexed = false, 
+                RtpSecureMediaOption = config.RtpSecureMediaOption, 
+                BindAddress = config.BindAddress,
+                BindPort = config.BindPort } )
+        {
+            if (config.MediaEndPoint == null)
             {
-                throw new ArgumentNullException("mediaEndPoint", "The media end point parameter cannot be null.");
+                throw new ArgumentNullException("MediaEndPoint", "The media end point parameter cannot be null.");
             }
 
-            Media = mediaEndPoint;
+            Media = config.MediaEndPoint;
 
             // The audio extras source is used for on-hold music.
             _audioExtrasSource = new AudioExtrasSource();
@@ -80,23 +103,23 @@ namespace SIPSorcery.Media
             // Wire up the audio and video sample event handlers.
             if (Media.AudioSource != null)
             {
-                var audioTrack = new MediaStreamTrack(mediaEndPoint.AudioSource.GetAudioSourceFormats());
+                var audioTrack = new MediaStreamTrack(config.MediaEndPoint.AudioSource.GetAudioSourceFormats());
                 base.addTrack(audioTrack);
                 Media.AudioSource.OnAudioSourceEncodedSample += base.SendAudio;
             }
 
             if (Media.VideoSource != null)
             {
-                var videoTrack = new MediaStreamTrack(mediaEndPoint.VideoSource.GetVideoSourceFormats());
+                var videoTrack = new MediaStreamTrack(config.MediaEndPoint.VideoSource.GetVideoSourceFormats());
                 base.addTrack(videoTrack);
                 Media.VideoSource.OnVideoSourceEncodedSample += base.SendVideo;
                 Media.VideoSource.OnVideoSourceError += VideoSource_OnVideoSourceError;
 
-                if (testPatternSource != null)
+                if (config.TestPatternSource != null)
                 {
                     // The test pattern source is used as failover if the webcam initialisation fails.
                     // It's also used as the video stream if the call is put on hold.
-                    _videoTestPatternSource = testPatternSource;
+                    _videoTestPatternSource = config.TestPatternSource;
                     _videoTestPatternSource.OnVideoSourceEncodedSample += base.SendVideo;
                     //_videoTestPatternSource.OnVideoSourceRawSample += Media.VideoSource.ExternalVideoSourceRawSample;
                 }
@@ -117,16 +140,34 @@ namespace SIPSorcery.Media
             base.OnVideoFormatsNegotiated += VideoFormatsNegotiated;
         }
 
-        public MediaEndPoints Media { get; private set; }
-
-        public AudioExtrasSource AudioExtrasSource
+        private async void VideoSource_OnVideoSourceError(string errorMessage)
         {
-            get => _audioExtrasSource;
+            if (!_videoCaptureDeviceFailed)
+            {
+                _videoCaptureDeviceFailed = true;
+
+                logger.LogWarning($"Video source for capture device failure. {errorMessage}");
+
+                // Can't use the webcam, switch to the test pattern source.
+                await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
+            }
         }
 
-        public VideoTestPatternSource TestPatternSource
+        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
         {
-            get => _videoTestPatternSource;
+            var audioFormat = audoFormats.First();
+            logger.LogDebug($"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate} (RTP clock rate {audioFormat.RtpClockRate}).");
+            Media.AudioSink?.SetAudioSinkFormat(audioFormat);
+            Media.AudioSource?.SetAudioSourceFormat(audioFormat);
+            _audioExtrasSource.SetAudioSourceFormat(audioFormat);
+        }
+
+        private void VideoFormatsNegotiated(List<VideoFormat> videoFormats)
+        {
+            var videoFormat = videoFormats.First();
+            logger.LogDebug($"Setting video sink and source format to {videoFormat.FormatID}:{videoFormat.Codec}.");
+            Media.VideoSink?.SetVideoSinkFormat(videoFormat);
+            Media.VideoSource?.SetVideoSourceFormat(videoFormat);
         }
 
         public async override Task Start()
@@ -153,8 +194,7 @@ namespace SIPSorcery.Media
                         }
                         else
                         {
-                            logger.LogWarning(
-                                $"Webcam video source failed before start, switching to test pattern source.");
+                            logger.LogWarning($"Webcam video source failed before start, switching to test pattern source.");
 
                             // The webcam source failed to start. Switch to a test pattern source.
                             await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
@@ -200,55 +240,19 @@ namespace SIPSorcery.Media
             }
         }
 
-        public event VideoSinkSampleDecodedDelegate OnVideoSinkSample;
-
-        private async void VideoSource_OnVideoSourceError(string errorMessage)
-        {
-            if (!_videoCaptureDeviceFailed)
-            {
-                _videoCaptureDeviceFailed = true;
-
-                logger.LogWarning($"Video source for capture device failure. {errorMessage}");
-
-                // Can't use the webcam, switch to the test pattern source.
-                await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
-            }
-        }
-
-        private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
-        {
-            var audioFormat = audoFormats.First();
-            logger.LogDebug(
-                $"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate}.");
-            Media.AudioSink?.SetAudioSinkFormat(audioFormat);
-            Media.AudioSource?.SetAudioSourceFormat(audioFormat);
-            _audioExtrasSource.SetAudioSourceFormat(audioFormat);
-        }
-
-        private void VideoFormatsNegotiated(List<VideoFormat> videoFormats)
-        {
-            var videoFormat = videoFormats.First();
-            logger.LogDebug($"Setting video sink and source format to {videoFormat.FormatID}:{videoFormat.Codec}.");
-            Media.VideoSink?.SetVideoSinkFormat(videoFormat);
-            Media.VideoSource?.SetVideoSourceFormat(videoFormat);
-        }
-
-        private void VideoSinkSampleReady(byte[] buffer, uint width, uint height, int stride,
-            VideoPixelFormatsEnum pixelFormat)
+        private void VideoSinkSampleReady(byte[] buffer, uint width, uint height, int stride, VideoPixelFormatsEnum pixelFormat)
         {
             OnVideoSinkSample?.Invoke(buffer, width, height, stride, pixelFormat);
         }
 
-        protected void RtpMediaPacketReceived(IPEndPoint remoteEndPoint, SDPMediaTypesEnum mediaType,
-            RTPPacket rtpPacket)
+        protected void RtpMediaPacketReceived(IPEndPoint remoteEndPoint, SDPMediaTypesEnum mediaType, RTPPacket rtpPacket)
         {
             var hdr = rtpPacket.Header;
             bool marker = rtpPacket.Header.MarkerBit > 0;
 
             if (mediaType == SDPMediaTypesEnum.audio && Media.AudioSink != null)
             {
-                Media.AudioSink.GotAudioRtp(remoteEndPoint, hdr.SyncSource, hdr.SequenceNumber, hdr.Timestamp,
-                    hdr.PayloadType, marker, rtpPacket.Payload);
+                Media.AudioSink.GotAudioRtp(remoteEndPoint, hdr.SyncSource, hdr.SequenceNumber, hdr.Timestamp, hdr.PayloadType, marker, rtpPacket.Payload);
             }
         }
 
@@ -262,13 +266,13 @@ namespace SIPSorcery.Media
 
             if (HasVideo)
             {
-                await Media.VideoSource.PauseVideo();
+                await Media.VideoSource.PauseVideo().ConfigureAwait(false);
 
                 //_videoTestPatternSource.SetEmbeddedTestPatternPath(VideoTestPatternSource.TEST_PATTERN_INVERTED_RESOURCE_PATH);
                 _videoTestPatternSource.SetFrameRate(TEST_PATTERN_ONHOLD_FPS);
 
                 Media.VideoSource.ForceKeyFrame();
-                await _videoTestPatternSource.ResumeVideo();
+                await _videoTestPatternSource.ResumeVideo().ConfigureAwait(false);
             }
         }
 
@@ -282,7 +286,7 @@ namespace SIPSorcery.Media
 
             if (HasVideo)
             {
-                await _videoTestPatternSource.PauseVideo();
+                await _videoTestPatternSource.PauseVideo().ConfigureAwait(false);
 
                 //_videoTestPatternSource.SetEmbeddedTestPatternPath(VideoTestPatternSource.TEST_PATTERN_RESOURCE_PATH);
                 _videoTestPatternSource.SetFrameRate(TEST_PATTERN_FPS);
@@ -291,11 +295,11 @@ namespace SIPSorcery.Media
 
                 if (!_videoCaptureDeviceFailed)
                 {
-                    await Media.VideoSource.ResumeVideo();
+                    await Media.VideoSource.ResumeVideo().ConfigureAwait(false);
                 }
                 else
                 {
-                    await _videoTestPatternSource.ResumeVideo();
+                    await _videoTestPatternSource.ResumeVideo().ConfigureAwait(false);
                 }
             }
         }

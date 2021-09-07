@@ -32,11 +32,6 @@ namespace SIPSorcery.SIP
     public class SIPResponse : SIPMessageBase
     {
         /// <summary>
-        /// The optional reason phrase for the SIP response.
-        /// </summary>
-        public string ReasonPhrase;
-
-        /// <summary>
         /// The version string for the SIP response.
         /// </summary>
         public string SIPVersion;
@@ -51,9 +46,21 @@ namespace SIPSorcery.SIP
         /// </summary>
         public int StatusCode;
 
-        private SIPResponse()
+        /// <summary>
+        /// The optional reason phrase for the SIP response.
+        /// </summary>
+        public string ReasonPhrase;
+
+        /// <summary>
+        /// A short one line summary of the SIP response. Useful for logging or diagnostics.
+        /// </summary>
+        public string ShortDescription
         {
+            get { return Header?.CSeqMethod + " " + StatusCode + " " + ReasonPhrase; }
         }
+
+        private SIPResponse()
+        { }
 
         /// <summary>
         /// SIPResponse Constructor.
@@ -65,18 +72,10 @@ namespace SIPSorcery.SIP
             string reasonPhrase)
         {
             SIPVersion = m_sipFullVersion;
-            StatusCode = (int) responseStatus;
+            StatusCode = (int)responseStatus;
             Status = responseStatus;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseStatus.ToString();
-        }
-
-        /// <summary>
-        /// A short one line summary of the SIP response. Useful for logging or diagnostics.
-        /// </summary>
-        public string ShortDescription
-        {
-            get { return Header?.CSeqMethod + " " + StatusCode + " " + ReasonPhrase; }
         }
 
         /// <summary>
@@ -102,7 +101,7 @@ namespace SIPSorcery.SIP
                 sipResponse.ReasonPhrase = statusLine.Substring(3).Trim();
 
                 sipResponse.Header = SIPHeader.ParseSIPHeaders(sipMessageBuffer.SIPHeaders);
-                sipResponse.Body = sipMessageBuffer.Body;
+                sipResponse.BodyBuffer = sipMessageBuffer.Body;
 
                 return sipResponse;
             }
@@ -128,7 +127,7 @@ namespace SIPSorcery.SIP
             try
             {
                 SIPMessageBuffer sipMessage = SIPMessageBuffer.ParseSIPMessage(sipMessageStr, null, null);
-                return ParseSIPResponse(sipMessage);
+                return SIPResponse.ParseSIPResponse(sipMessage);
             }
             catch (SIPValidationException)
             {
@@ -178,7 +177,13 @@ namespace SIPSorcery.SIP
             copy.StatusCode = StatusCode;
             copy.ReasonPhrase = ReasonPhrase;
             copy.Header = Header?.Copy();
-            copy.Body = Body;
+
+            if (_body != null && _body.Length > 0)
+            {
+                copy._body = new byte[_body.Length];
+                Buffer.BlockCopy(copy._body, 0, copy._body, 0, copy._body.Length);
+            }
+
             copy.Created = Created;
             copy.LocalSIPEndPoint = LocalSIPEndPoint?.CopyOf();
             copy.RemoteSIPEndPoint = RemoteSIPEndPoint?.CopyOf();
@@ -210,8 +215,7 @@ namespace SIPSorcery.SIP
         /// <param name="responseCode">The response code.</param>
         /// <param name="reasonPhrase">Optional reason phrase to set on the response (needs to be short).</param>
         /// <returns>A SIP response object.</returns>
-        public static SIPResponse GetResponse(SIPRequest sipRequest, SIPResponseStatusCodesEnum responseCode,
-            string reasonPhrase)
+        public static SIPResponse GetResponse(SIPRequest sipRequest, SIPResponseStatusCodesEnum responseCode, string reasonPhrase)
         {
             try
             {
@@ -224,24 +228,17 @@ namespace SIPSorcery.SIP
                 }
 
                 SIPHeader requestHeader = sipRequest.Header;
-                SIPFromHeader from = (requestHeader == null || requestHeader.From != null)
-                    ? requestHeader.From
-                    : new SIPFromHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
-                SIPToHeader to = (requestHeader == null || requestHeader.To != null)
-                    ? requestHeader.To
-                    : new SIPToHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
+                SIPFromHeader from = (requestHeader == null || requestHeader.From != null) ? requestHeader.From : new SIPFromHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
+                SIPToHeader to = (requestHeader == null || requestHeader.To != null) ? requestHeader.To : new SIPToHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
                 int cSeq = (requestHeader == null || requestHeader.CSeq != -1) ? requestHeader.CSeq : 1;
-                string callId = (requestHeader == null || requestHeader.CallId != null)
-                    ? requestHeader.CallId
-                    : CallProperties.CreateNewCallId();
+                string callId = (requestHeader == null || requestHeader.CallId != null) ? requestHeader.CallId : CallProperties.CreateNewCallId();
 
                 response.Header = new SIPHeader(from, to, cSeq, callId);
                 response.Header.CSeqMethod = (requestHeader != null) ? requestHeader.CSeqMethod : SIPMethodsEnum.NONE;
 
                 if (requestHeader == null || requestHeader.Vias == null || requestHeader.Vias.Length == 0)
                 {
-                    response.Header.Vias.PushViaHeader(new SIPViaHeader(sipRequest.RemoteSIPEndPoint,
-                        CallProperties.CreateBranchId()));
+                    response.Header.Vias.PushViaHeader(new SIPViaHeader(sipRequest.RemoteSIPEndPoint, CallProperties.CreateBranchId()));
                 }
                 else
                 {
@@ -271,25 +268,20 @@ namespace SIPSorcery.SIP
         /// <param name="remoteSIPEndPoint">The remote SIP end point the request was received on.</param>
         /// <param name="responseCode">The response code to set on the response.</param>
         /// <param name="reasonPhrase">Optional reason phrase to set on the response (keep short).</param>
-        public static SIPResponse GetResponse(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteSIPEndPoint,
-            SIPResponseStatusCodesEnum responseCode, string reasonPhrase)
+        public static SIPResponse GetResponse(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteSIPEndPoint, SIPResponseStatusCodesEnum responseCode, string reasonPhrase)
         {
             try
             {
                 SIPResponse response = new SIPResponse(responseCode, reasonPhrase);
                 response.SetSendFromHints(localSIPEndPoint);
-                SIPSchemesEnum sipScheme = (localSIPEndPoint.Protocol == SIPProtocolsEnum.tls)
-                    ? SIPSchemesEnum.sips
-                    : SIPSchemesEnum.sip;
+                SIPSchemesEnum sipScheme = (localSIPEndPoint.Protocol == SIPProtocolsEnum.tls) ? SIPSchemesEnum.sips : SIPSchemesEnum.sip;
                 SIPFromHeader from = new SIPFromHeader(null, new SIPURI(sipScheme, localSIPEndPoint), null);
                 SIPToHeader to = new SIPToHeader(null, new SIPURI(sipScheme, localSIPEndPoint), null);
                 int cSeq = 1;
                 string callId = CallProperties.CreateNewCallId();
                 response.Header = new SIPHeader(from, to, cSeq, callId);
                 response.Header.CSeqMethod = SIPMethodsEnum.NONE;
-                response.Header.Vias.PushViaHeader(new SIPViaHeader(
-                    new SIPEndPoint(localSIPEndPoint.Protocol, remoteSIPEndPoint.GetIPEndPoint()),
-                    CallProperties.CreateBranchId()));
+                response.Header.Vias.PushViaHeader(new SIPViaHeader(new SIPEndPoint(localSIPEndPoint.Protocol, remoteSIPEndPoint.GetIPEndPoint()), CallProperties.CreateBranchId()));
                 response.Header.MaxForwards = Int32.MinValue;
                 response.Header.Allow = m_allowedSIPMethods;
 
@@ -300,6 +292,13 @@ namespace SIPSorcery.SIP
                 logger.LogError("Exception SIPResponse.GetResponse. " + excp.Message);
                 throw;
             }
+        }
+
+        public byte[] GetBytes()
+        {
+            string reasonPhrase = (!ReasonPhrase.IsNullOrBlank()) ? " " + ReasonPhrase : null;
+            string firstLine = SIPVersion + " " + StatusCode + reasonPhrase + m_CRLF;
+            return base.GetBytes(firstLine);
         }
     }
 }

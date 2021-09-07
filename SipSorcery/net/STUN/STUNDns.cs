@@ -106,9 +106,8 @@ namespace SIPSorcery.Net
             {
                 if (!uri.Host.Contains(".") || uri.Host.EndsWith(MDNS_TLD))
                 {
-                    AddressFamily family = (queryType == QueryType.AAAA)
-                        ? AddressFamily.InterNetworkV6
-                        : AddressFamily.InterNetwork;
+                    AddressFamily family = (queryType == QueryType.AAAA) ? AddressFamily.InterNetworkV6 :
+                        AddressFamily.InterNetwork;
 
                     // The lookup is for a local network host. Use the OS DNS logic as the 
                     // main DNS client can be configured to use external DNS servers that won't
@@ -167,22 +166,18 @@ namespace SIPSorcery.Net
                         {
                             ServiceHostEntry srvResult = null;
                             // No explicit port so use a SRV -> (A | AAAA -> A) record lookup.
-                            var result = await _lookupClient
-                                .ResolveServiceAsync(uri.Host, uri.Scheme.ToString(), uri.Protocol.ToString().ToLower())
-                                .ConfigureAwait(false);
+                            var result = await _lookupClient.ResolveServiceAsync(uri.Host, uri.Scheme.ToString(), uri.Protocol.ToString().ToLower()).ConfigureAwait(false);
                             if (result == null || result.Count() == 0)
                             {
                                 //logger.LogDebug($"STUNDns SRV lookup returned no results for {uri}.");
                             }
                             else
                             {
-                                srvResult = result.OrderBy(y => y.Priority).ThenByDescending(w => w.Weight)
-                                    .FirstOrDefault();
+                                srvResult = result.OrderBy(y => y.Priority).ThenByDescending(w => w.Weight).FirstOrDefault();
                             }
 
-                            string
-                                host = uri.Host; // If no SRV results then fallback is to lookup the hostname directly.
-                            int port = uri.Port; // If no SRV results then fallback is to use the default port.
+                            string host = uri.Host; // If no SRV results then fallback is to lookup the hostname directly.
+                            int port = uri.Port;    // If no SRV results then fallback is to use the default port.
 
                             if (srvResult != null)
                             {
@@ -221,7 +216,7 @@ namespace SIPSorcery.Net
             }
             catch (Exception excp)
             {
-                logger.LogWarning($"STUNDns lookup failure for {host} and query {queryType}. {excp.Message}");
+                logger.LogWarning(excp, $"STUNDns lookup failure for {host} and query {queryType}. {excp.Message}");
             }
 
             if (queryType == QueryType.AAAA)

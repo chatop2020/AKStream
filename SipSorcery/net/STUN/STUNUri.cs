@@ -42,8 +42,7 @@ namespace SIPSorcery.Net
                 case STUNSchemesEnum.turns:
                     return DEFAULT_TURN_TLS_PORT;
                 default:
-                    throw new ApplicationException(
-                        "STUN or TURN scheme not recognised in STUNConstants.GetPortForScheme.");
+                    throw new ApplicationException("STUN or TURN scheme not recognised in STUNConstants.GetPortForScheme.");
             }
         }
     }
@@ -66,17 +65,14 @@ namespace SIPSorcery.Net
         /// User Datagram Protocol.
         /// </summary>
         udp = 1,
-
         /// <summary>.
         /// Transmission Control Protocol
         /// </summary>
         tcp = 2,
-
         /// <summary>
         /// Transport Layer Security.
         /// </summary>
         tls = 3,
-
         /// <summary>
         /// Transport Layer Security over UDP.
         /// </summary>
@@ -90,29 +86,18 @@ namespace SIPSorcery.Net
 
         public const STUNSchemesEnum DefaultSTUNScheme = STUNSchemesEnum.stun;
 
+        public STUNProtocolsEnum Transport = STUNProtocolsEnum.udp;
+        public STUNSchemesEnum Scheme = DefaultSTUNScheme;
+
+        public string Host;
+        public int Port;
+
         /// <summary>
         /// If the port is specified in a URI it affects the way a DNS lookup occurs.
         /// An explicit port means to lookup the A or AAAA record directly without
         /// checking for SRV records.
         /// </summary>
         public bool ExplicitPort;
-
-        public string Host;
-        public int Port;
-        public STUNSchemesEnum Scheme = DefaultSTUNScheme;
-
-        public STUNProtocolsEnum Transport = STUNProtocolsEnum.udp;
-
-        private STUNUri()
-        {
-        }
-
-        public STUNUri(STUNSchemesEnum scheme, string host, int port = STUNConstants.DEFAULT_STUN_PORT)
-        {
-            Scheme = scheme;
-            Host = host;
-            Port = port;
-        }
 
         /// <summary>
         /// The network protocol for this URI type.
@@ -130,6 +115,16 @@ namespace SIPSorcery.Net
                     return ProtocolType.Udp;
                 }
             }
+        }
+
+        private STUNUri()
+        { }
+
+        public STUNUri(STUNSchemesEnum scheme, string host, int port = STUNConstants.DEFAULT_STUN_PORT)
+        {
+            Scheme = scheme;
+            Host = host;
+            Port = port;
         }
 
         public static STUNUri ParseSTUNUri(string uri)
@@ -157,8 +152,7 @@ namespace SIPSorcery.Net
                     }
                     else
                     {
-                        if (!Enum.TryParse<STUNSchemesEnum>(schemeStr.Substring(0, colonPosn), true,
-                            out stunUri.Scheme))
+                        if (!Enum.TryParse<STUNSchemesEnum>(schemeStr.Substring(0, colonPosn), true, out stunUri.Scheme))
                         {
                             stunUri.Scheme = DefaultSTUNScheme;
                         }
@@ -239,7 +233,7 @@ namespace SIPSorcery.Net
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (STUNUri) obj);
+            return AreEqual(this, (STUNUri)obj);
         }
 
         public static bool operator ==(STUNUri uri1, STUNUri uri2)
@@ -284,10 +278,10 @@ namespace SIPSorcery.Net
         public override int GetHashCode()
         {
             return Scheme.GetHashCode()
-                   + Transport.GetHashCode()
-                   + ((Host != null) ? Host.GetHashCode() : 0)
-                   + Port
-                   + ((ExplicitPort) ? 1 : 0);
+                + Transport.GetHashCode()
+                + ((Host != null) ? Host.GetHashCode() : 0)
+                + Port
+                + ((ExplicitPort) ? 1 : 0);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace SIPSorcery.SIP
     {
         public static SIPUserAgentRolesEnum GetSIPUserAgentType(string userRoleType)
         {
-            return (SIPUserAgentRolesEnum) Enum.Parse(typeof(SIPUserAgentRolesEnum), userRoleType, true);
+            return (SIPUserAgentRolesEnum)Enum.Parse(typeof(SIPUserAgentRolesEnum), userRoleType, true);
         }
     }
 }

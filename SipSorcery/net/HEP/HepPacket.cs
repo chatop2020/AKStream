@@ -39,21 +39,21 @@ namespace SIPSorcery.Net
 {
     public enum ChunkTypeEnum : ushort
     {
-        IPFamily = 0x0001, // Payload Type: byte.
-        IPProtocolID = 0x0002, // Payload Type: byte.
-        IPv4SourceAddress = 0x0003, // Payload Type: 4 byte IPv4 address. most significant octet first.
+        IPFamily = 0x0001,              // Payload Type: byte.
+        IPProtocolID = 0x0002,          // Payload Type: byte.
+        IPv4SourceAddress = 0x0003,     // Payload Type: 4 byte IPv4 address. most significant octet first.
         IPv4DesinationAddress = 0x0004, // Payload Type: same as source address. 
-        IPv6SourceAddress = 0x0005, // Payload Type: 16 byte IPv6 address. most significant octet first.
+        IPv6SourceAddress = 0x0005,     // Payload Type: 16 byte IPv6 address. most significant octet first.
         IPv6DesinationAddress = 0x0006, // Payload Type: same as source address. 
-        SourcePort = 0x0007, // Payload Type: ushort.
-        DestinationPort = 0x0008, // Payload Type: ushort.
-        TimestampSeconds = 0x0009, // Payload Type: uint, seconds since UNIX epoch.
+        SourcePort = 0x0007,            // Payload Type: ushort.
+        DestinationPort = 0x0008,       // Payload Type: ushort.
+        TimestampSeconds = 0x0009,      // Payload Type: uint, seconds since UNIX epoch.
         TimestampMicroSeconds = 0x000a, // Payload Type: uint, offset added to timestamp seconds.
-        ProtocolType = 0x000b, // Payload Type: byte, predefined values from CaptureProtocolTypeEnum.
-        CaptureAgentID = 0x000c, // Payload Type: uint, arbitrary, used to identify agent sending packets.
-        KeepAliveTimeSeconds = 0x000d, // Payload Type: ushort.
-        AuthenticationKey = 0x000e, // Payload Type: octet-string, variable.
-        CapturedPayload = 0x000f, // Payload Type: octet-string, variable.
+        ProtocolType = 0x000b,          // Payload Type: byte, predefined values from CaptureProtocolTypeEnum.
+        CaptureAgentID = 0x000c,        // Payload Type: uint, arbitrary, used to identify agent sending packets.
+        KeepAliveTimeSeconds = 0x000d,  // Payload Type: ushort.
+        AuthenticationKey = 0x000e,     // Payload Type: octet-string, variable.
+        CapturedPayload = 0x000f,       // Payload Type: octet-string, variable.
         // There are more types but at this point none that are useful for this library.
     }
 
@@ -70,7 +70,7 @@ namespace SIPSorcery.Net
 
     public class HepChunk
     {
-        private const ushort GENERIC_VENDOR_ID = 0x0000; // Vendor ID for the default chunk types.
+        private const ushort GENERIC_VENDOR_ID = 0x0000;  // Vendor ID for the default chunk types.
         private const ushort MINIMUM_CHUNK_LENGTH = 6;
 
         /// <summary>
@@ -86,16 +86,15 @@ namespace SIPSorcery.Net
             if (BitConverter.IsLittleEndian)
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(GENERIC_VENDOR_ID)), 0, buf, 0, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort) chunkType)), 0, buf, 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort)chunkType)), 0, buf, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(length)), 0, buf, 4, 2);
             }
             else
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(GENERIC_VENDOR_ID), 0, buf, 0, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes((ushort) chunkType), 0, buf, 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((ushort)chunkType), 0, buf, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(length), 0, buf, 4, 2);
             }
-
             return buf;
         }
 
@@ -118,14 +117,12 @@ namespace SIPSorcery.Net
 
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(val)), 0, buf, MINIMUM_CHUNK_LENGTH,
-                    2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(val)), 0, buf, MINIMUM_CHUNK_LENGTH, 2);
             }
             else
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(val), 0, buf, MINIMUM_CHUNK_LENGTH, 2);
             }
-
             return buf;
         }
 
@@ -138,14 +135,12 @@ namespace SIPSorcery.Net
 
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(val)), 0, buf, MINIMUM_CHUNK_LENGTH,
-                    4);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(val)), 0, buf, MINIMUM_CHUNK_LENGTH, 4);
             }
             else
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(val), 0, buf, MINIMUM_CHUNK_LENGTH, 4);
             }
-
             return buf;
         }
 
@@ -154,8 +149,8 @@ namespace SIPSorcery.Net
         /// </summary>
         public static byte[] GetBytes(ChunkTypeEnum chunkType, byte[] payload)
         {
-            byte[] buf = InitBuffer(chunkType, (ushort) (MINIMUM_CHUNK_LENGTH + payload.Length));
-            Buffer.BlockCopy(payload, 0, buf, MINIMUM_CHUNK_LENGTH, (ushort) payload.Length);
+            byte[] buf = InitBuffer(chunkType, (ushort)(MINIMUM_CHUNK_LENGTH + payload.Length));
+            Buffer.BlockCopy(payload, 0, buf, MINIMUM_CHUNK_LENGTH, (ushort)payload.Length);
             return buf;
         }
 
@@ -210,9 +205,9 @@ namespace SIPSorcery.Net
             switch (sipProtocol)
             {
                 case SIPProtocolsEnum.udp:
-                    return (byte) ProtocolType.Udp;
+                    return (byte)ProtocolType.Udp;
                 default:
-                    return (byte) ProtocolType.Tcp;
+                    return (byte)ProtocolType.Tcp;
             }
         }
 
@@ -229,8 +224,7 @@ namespace SIPSorcery.Net
         /// <param name="payload">The SIP request or response.</param>
         /// <returns>An array of bytes representing the serialised HEP packet and that is ready for transmission
         /// to a HOMER server.</returns>
-        public static byte[] GetBytes(SIPEndPoint srcEndPoint, SIPEndPoint dstEndPoint, DateTime timestamp,
-            uint agentID, string password, string payload)
+        public static byte[] GetBytes(SIPEndPoint srcEndPoint, SIPEndPoint dstEndPoint, DateTime timestamp, uint agentID, string password, string payload)
         {
             byte[] packetBuffer = new byte[MAX_HEP_PACKET_LENGTH];
             int offset = 0;
@@ -244,55 +238,49 @@ namespace SIPSorcery.Net
             offset = 6;
 
             // IP family.
-            var familyChunkBuffer = HepChunk.GetBytes(ChunkTypeEnum.IPFamily, (byte) srcEndPoint.Address.AddressFamily);
+            var familyChunkBuffer = HepChunk.GetBytes(ChunkTypeEnum.IPFamily, (byte)srcEndPoint.Address.AddressFamily);
             Buffer.BlockCopy(familyChunkBuffer, 0, packetBuffer, offset, familyChunkBuffer.Length);
             offset += familyChunkBuffer.Length;
 
             // IP transport layer protocol.
-            var protocolChunkBuffer =
-                HepChunk.GetBytes(ChunkTypeEnum.IPProtocolID, GetProtocolNumber(srcEndPoint.Protocol));
+            var protocolChunkBuffer = HepChunk.GetBytes(ChunkTypeEnum.IPProtocolID, GetProtocolNumber(srcEndPoint.Protocol));
             Buffer.BlockCopy(protocolChunkBuffer, 0, packetBuffer, offset, protocolChunkBuffer.Length);
             offset += protocolChunkBuffer.Length;
 
             // Source IP address.
-            ChunkTypeEnum srcChunkType = srcEndPoint.Address.AddressFamily == AddressFamily.InterNetwork
-                ? ChunkTypeEnum.IPv4SourceAddress
-                : ChunkTypeEnum.IPv6SourceAddress;
+            ChunkTypeEnum srcChunkType = srcEndPoint.Address.AddressFamily == AddressFamily.InterNetwork ? ChunkTypeEnum.IPv4SourceAddress : ChunkTypeEnum.IPv6SourceAddress;
             var srcIPAddress = HepChunk.GetBytes(srcChunkType, srcEndPoint.Address);
             Buffer.BlockCopy(srcIPAddress, 0, packetBuffer, offset, srcIPAddress.Length);
             offset += srcIPAddress.Length;
 
             // Destination IP address.
-            ChunkTypeEnum dstChunkType = dstEndPoint.Address.AddressFamily == AddressFamily.InterNetwork
-                ? ChunkTypeEnum.IPv4DesinationAddress
-                : ChunkTypeEnum.IPv6DesinationAddress;
+            ChunkTypeEnum dstChunkType = dstEndPoint.Address.AddressFamily == AddressFamily.InterNetwork ? ChunkTypeEnum.IPv4DesinationAddress : ChunkTypeEnum.IPv6DesinationAddress;
             var dstIPAddress = HepChunk.GetBytes(dstChunkType, dstEndPoint.Address);
             Buffer.BlockCopy(dstIPAddress, 0, packetBuffer, offset, dstIPAddress.Length);
             offset += dstIPAddress.Length;
 
             // Source port.
-            var srcPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.SourcePort, (ushort) srcEndPoint.Port);
+            var srcPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.SourcePort, (ushort)srcEndPoint.Port);
             Buffer.BlockCopy(srcPortBuffer, 0, packetBuffer, offset, srcPortBuffer.Length);
             offset += srcPortBuffer.Length;
 
             // Destination port.
-            var dstPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.DestinationPort, (ushort) dstEndPoint.Port);
+            var dstPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.DestinationPort, (ushort)dstEndPoint.Port);
             Buffer.BlockCopy(dstPortBuffer, 0, packetBuffer, offset, dstPortBuffer.Length);
             offset += dstPortBuffer.Length;
 
             // Timestamp.
-            var timestampBuffer = HepChunk.GetBytes(ChunkTypeEnum.TimestampSeconds, (uint) timestamp.GetEpoch());
+            var timestampBuffer = HepChunk.GetBytes(ChunkTypeEnum.TimestampSeconds, (uint)timestamp.GetEpoch());
             Buffer.BlockCopy(timestampBuffer, 0, packetBuffer, offset, timestampBuffer.Length);
             offset += timestampBuffer.Length;
 
             // Timestamp micro seconds (.NET only has millisecond resolution).
-            var timestampMicrosBuffer =
-                HepChunk.GetBytes(ChunkTypeEnum.TimestampMicroSeconds, (uint) (timestamp.Millisecond * 1000));
+            var timestampMicrosBuffer = HepChunk.GetBytes(ChunkTypeEnum.TimestampMicroSeconds, (uint)(timestamp.Millisecond * 1000));
             Buffer.BlockCopy(timestampMicrosBuffer, 0, packetBuffer, offset, timestampMicrosBuffer.Length);
             offset += timestampMicrosBuffer.Length;
 
             // Protocol type, only interested in SIP at this point.
-            var protocolTypeBuffer = HepChunk.GetBytes(ChunkTypeEnum.ProtocolType, (byte) CaptureProtocolTypeEnum.SIP);
+            var protocolTypeBuffer = HepChunk.GetBytes(ChunkTypeEnum.ProtocolType, (byte)CaptureProtocolTypeEnum.SIP);
             Buffer.BlockCopy(protocolTypeBuffer, 0, packetBuffer, offset, protocolTypeBuffer.Length);
             offset += protocolTypeBuffer.Length;
 
@@ -304,8 +292,7 @@ namespace SIPSorcery.Net
             // Auth key
             if (!String.IsNullOrEmpty(password))
             {
-                var passwordBuffer =
-                    HepChunk.GetBytes(ChunkTypeEnum.AuthenticationKey, Encoding.UTF8.GetBytes(password));
+                var passwordBuffer = HepChunk.GetBytes(ChunkTypeEnum.AuthenticationKey, Encoding.UTF8.GetBytes(password));
                 Buffer.BlockCopy(passwordBuffer, 0, packetBuffer, offset, passwordBuffer.Length);
                 offset += passwordBuffer.Length;
             }
@@ -314,9 +301,7 @@ namespace SIPSorcery.Net
             var payloadBuffer = HepChunk.GetBytes(ChunkTypeEnum.CapturedPayload, Encoding.UTF8.GetBytes(payload));
 
             // If we don't have enough space left truncate the payload.
-            int payloadLength = (payloadBuffer.Length > packetBuffer.Length - offset)
-                ? packetBuffer.Length - offset
-                : payloadBuffer.Length;
+            int payloadLength = (payloadBuffer.Length > packetBuffer.Length - offset) ? packetBuffer.Length - offset : payloadBuffer.Length;
 
             Buffer.BlockCopy(payloadBuffer, 0, packetBuffer, offset, payloadLength);
             offset += payloadLength;
@@ -324,12 +309,11 @@ namespace SIPSorcery.Net
             // Length
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort) offset)), 0, packetBuffer, 4,
-                    2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort)offset)), 0, packetBuffer, 4, 2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((ushort) offset), 0, packetBuffer, 4, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((ushort)offset), 0, packetBuffer, 4, 2);
             }
 
             return packetBuffer.Take(offset).ToArray();

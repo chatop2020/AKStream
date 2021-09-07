@@ -22,7 +22,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
@@ -37,13 +36,14 @@ namespace SIPSorcery.Net
         private const int MAX_RECEIVE_BUFFER = 8192;
         private const int MAX_SEND_BUFFER = 8192;
         private const int WEB_SOCKET_CONNECTION_TIMEOUT_MS = 10000;
+
+        private ILogger logger = SIPSorcery.Sys.Log.Logger;
+
+        private Uri _webSocketServerUri;
         private Func<Task<RTCPeerConnection>> _createPeerConnection;
 
         private RTCPeerConnection _pc;
-
-        private Uri _webSocketServerUri;
-
-        private ILogger logger = Log.Logger;
+        public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
         /// Default constructor.
@@ -62,8 +62,6 @@ namespace SIPSorcery.Net
             _webSocketServerUri = new Uri(webSocketServer);
             _createPeerConnection = createPeerConnection;
         }
-
-        public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
         /// Creates a new WebRTC peer connection and then starts polling the web socket server.
@@ -103,17 +101,15 @@ namespace SIPSorcery.Net
             int posn = 0;
 
             while (ws.State == WebSocketState.Open &&
-                   (pc.connectionState == RTCPeerConnectionState.@new ||
-                    pc.connectionState == RTCPeerConnectionState.connecting))
+                (pc.connectionState == RTCPeerConnectionState.@new || pc.connectionState == RTCPeerConnectionState.connecting))
             {
                 WebSocketReceiveResult receiveResult;
                 do
                 {
-                    receiveResult = await ws
-                        .ReceiveAsync(new ArraySegment<byte>(buffer, posn, MAX_RECEIVE_BUFFER - posn), ct)
-                        .ConfigureAwait(false);
+                    receiveResult = await ws.ReceiveAsync(new ArraySegment<byte>(buffer, posn, MAX_RECEIVE_BUFFER - posn), ct).ConfigureAwait(false);
                     posn += receiveResult.Count;
-                } while (!receiveResult.EndOfMessage);
+                }
+                while (!receiveResult.EndOfMessage);
 
                 if (posn > 0)
                 {
@@ -122,8 +118,7 @@ namespace SIPSorcery.Net
 
                     if (jsonResp != null)
                     {
-                        await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResp)),
-                            WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
+                        await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResp)), WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
                     }
                 }
 

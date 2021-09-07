@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SIPSorceryMedia.Abstractions.V1;
+using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Net
 {
@@ -38,7 +38,7 @@ namespace SIPSorcery.Net
         public const int DYNAMIC_ID_MAX = 127;
         public const int DEFAULT_AUDIO_CHANNEL_COUNT = 1;
 
-        public static SDPAudioVideoMediaFormat Empty = new SDPAudioVideoMediaFormat() {_isEmpty = true};
+        public static SDPAudioVideoMediaFormat Empty = new SDPAudioVideoMediaFormat() { _isEmpty = true };
 
         /// <summary>
         /// Indicates whether the format is for audio or video.
@@ -106,6 +106,7 @@ namespace SIPSorcery.Net
         /// </code>
         /// </summary>
         //public string Name { get; set; }
+
         private bool _isEmpty;
 
         /// <summary>
@@ -114,10 +115,9 @@ namespace SIPSorcery.Net
         /// </summary>
         public SDPAudioVideoMediaFormat(SDPWellKnownMediaFormatsEnum knownFormat)
         {
-            Kind = AudioVideoWellKnown.WellKnownAudioFormats.ContainsKey(knownFormat)
-                ? SDPMediaTypesEnum.audio
-                : SDPMediaTypesEnum.video;
-            ID = (int) knownFormat;
+            Kind = AudioVideoWellKnown.WellKnownAudioFormats.ContainsKey(knownFormat) ? SDPMediaTypesEnum.audio :
+                SDPMediaTypesEnum.video;
+            ID = (int)knownFormat;
             Rtpmap = null;
             Fmtp = null;
             _isEmpty = false;
@@ -125,7 +125,7 @@ namespace SIPSorcery.Net
             if (Kind == SDPMediaTypesEnum.audio)
             {
                 var audioFormat = AudioVideoWellKnown.WellKnownAudioFormats[knownFormat];
-                Rtpmap = SetRtpmap(audioFormat.FormatName, audioFormat.ClockRate, audioFormat.ChannelCount);
+                Rtpmap = SetRtpmap(audioFormat.FormatName, audioFormat.RtpClockRate, audioFormat.ChannelCount);
             }
             else
             {
@@ -146,8 +146,7 @@ namespace SIPSorcery.Net
             }
             else if (string.IsNullOrWhiteSpace(rtpmap))
             {
-                throw new ArgumentNullException("rtpmap",
-                    "The rtpmap parameter cannot be empty for a dynamic SDPMediaFormat.");
+                throw new ArgumentNullException("rtpmap", "The rtpmap parameter cannot be empty for a dynamic SDPMediaFormat.");
             }
 
             Kind = kind;
@@ -161,8 +160,7 @@ namespace SIPSorcery.Net
         /// Creates a new SDP media format for a dynamic media type. Dynamic media types are those that use 
         /// ID's between 96 and 127 inclusive and require an rtpmap attribute and optionally an fmtp attribute.
         /// </summary>
-        public SDPAudioVideoMediaFormat(SDPMediaTypesEnum kind, int id, string name, int clockRate,
-            int channels = DEFAULT_AUDIO_CHANNEL_COUNT, string fmtp = null)
+        public SDPAudioVideoMediaFormat(SDPMediaTypesEnum kind, int id, string name, int clockRate, int channels = DEFAULT_AUDIO_CHANNEL_COUNT, string fmtp = null)
         {
             if (id < 0 || id > DYNAMIC_ID_MAX)
             {
@@ -170,8 +168,7 @@ namespace SIPSorcery.Net
             }
             else if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentNullException("name",
-                    "The name parameter cannot be empty for a dynamic SDPMediaFormat.");
+                throw new ArgumentNullException("name", "The name parameter cannot be empty for a dynamic SDPMediaFormat.");
             }
 
             Kind = kind;
@@ -197,7 +194,7 @@ namespace SIPSorcery.Net
             Fmtp = audioFormat.Parameters;
             _isEmpty = false;
 
-            Rtpmap = SetRtpmap(audioFormat.FormatName, audioFormat.ClockRate, audioFormat.ChannelCount);
+            Rtpmap = SetRtpmap(audioFormat.FormatName, audioFormat.RtpClockRate, audioFormat.ChannelCount);
         }
 
         /// <summary>
@@ -219,16 +216,12 @@ namespace SIPSorcery.Net
 
         private string SetRtpmap(string name, int clockRate, int channels = DEFAULT_AUDIO_CHANNEL_COUNT)
             =>
-                Kind == SDPMediaTypesEnum.video ? $"{name}/{clockRate}" :
-                (channels == DEFAULT_AUDIO_CHANNEL_COUNT) ? $"{name}/{clockRate}" : $"{name}/{clockRate}/{channels}";
-
+             Kind == SDPMediaTypesEnum.video ? $"{name}/{clockRate}" :
+            (channels == DEFAULT_AUDIO_CHANNEL_COUNT) ? $"{name}/{clockRate}" : $"{name}/{clockRate}/{channels}";
         public bool IsEmpty() => _isEmpty;
-
-        public int ClockRate() =>
-            Kind == SDPMediaTypesEnum.video ? ToVideoFormat().ClockRate : ToAudioFormat().ClockRate;
-
+        public int ClockRate() => Kind == SDPMediaTypesEnum.video ? ToVideoFormat().ClockRate : ToAudioFormat().ClockRate;
         public int Channels() =>
-            Kind == SDPMediaTypesEnum.video ? 0 :
+             Kind == SDPMediaTypesEnum.video ? 0 :
             TryParseRtpmap(Rtpmap, out _, out _, out var channels) ? channels : DEFAULT_AUDIO_CHANNEL_COUNT;
 
         public string Name()
@@ -238,10 +231,10 @@ namespace SIPSorcery.Net
             {
                 return name;
             }
-            else if (Enum.IsDefined(typeof(SDPWellKnownMediaFormatsEnum), (byte) ID))
+            else if (Enum.IsDefined(typeof(SDPWellKnownMediaFormatsEnum), ID))
             {
                 // If no rtpmap available then it must be a well known format.
-                return Enum.ToObject(typeof(SDPWellKnownMediaFormatsEnum), (byte) ID).ToString();
+                return Enum.ToObject(typeof(SDPWellKnownMediaFormatsEnum), ID).ToString();
             }
             else
             {
@@ -272,14 +265,24 @@ namespace SIPSorcery.Net
         /// <returns>An audio format value.</returns>
         public AudioFormat ToAudioFormat()
         {
-            // Rtpmap taks priority over well known media type as ID's can be changed.
-            if (Rtpmap != null && TryParseRtpmap(Rtpmap, out var name, out int clockRate, out int channels))
+            // Rtpmap takes priority over well known media type as ID's can be changed.
+            if (Rtpmap != null && TryParseRtpmap(Rtpmap, out var name, out int rtpClockRate, out int channels))
             {
-                return new AudioFormat(ID, name, clockRate, clockRate, channels, Fmtp);
+                int clockRate = rtpClockRate;
+
+                // G722 is a special case. It's the only audio format that uses the wrong RTP clock rate.
+                // It sets 8000 in the SDP but then expects samples to be sent as 16KHz.
+                // See https://tools.ietf.org/html/rfc3551#section-4.5.2.
+                if (name == "G722" && rtpClockRate == 8000)
+                {
+                    clockRate = 16000;
+                }
+
+                return new AudioFormat(ID, name, clockRate, rtpClockRate, channels, Fmtp);
             }
             else if (ID < DYNAMIC_ID_MIN
-                     && Enum.TryParse<SDPWellKnownMediaFormatsEnum>(Name(), out var wellKnownFormat)
-                     && AudioVideoWellKnown.WellKnownAudioFormats.ContainsKey(wellKnownFormat))
+                && Enum.TryParse<SDPWellKnownMediaFormatsEnum>(Name(), out var wellKnownFormat)
+                && AudioVideoWellKnown.WellKnownAudioFormats.ContainsKey(wellKnownFormat))
             {
                 return AudioVideoWellKnown.WellKnownAudioFormats[wellKnownFormat];
             }
@@ -313,16 +316,16 @@ namespace SIPSorcery.Net
         /// </summary>
         public static bool AreMatch(SDPAudioVideoMediaFormat format1, SDPAudioVideoMediaFormat format2)
         {
-            // rtpmap takes priority as well known foramt ID's can be overruled.
+            // rtpmap takes priority as well known format ID's can be overruled.
             if (format1.Rtpmap != null
-                && format2.Rtpmap != null
-                && format1.Rtpmap == format2.Rtpmap)
+                && format2.Rtpmap != null &&
+                string.Equals(format1.Rtpmap.Trim(), format2.Rtpmap.Trim(), StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
             else if (format1.ID < DYNAMIC_ID_MIN
-                     && format1.ID == format2.ID
-                     && string.Equals(format1.Name(), format2.Name(), StringComparison.OrdinalIgnoreCase))
+                && format1.ID == format2.ID
+                && string.Equals(format1.Name(), format2.Name(), StringComparison.OrdinalIgnoreCase))
             {
                 // Well known format type.
                 return true;
@@ -340,8 +343,7 @@ namespace SIPSorcery.Net
         /// <param name="a">The first list to match the media formats for.</param>
         /// <param name="b">The second list to match the media formats for.</param>
         /// <returns>A list of media formats that are compatible for BOTH lists.</returns>
-        public static List<SDPAudioVideoMediaFormat> GetCompatibleFormats(List<SDPAudioVideoMediaFormat> a,
-            List<SDPAudioVideoMediaFormat> b)
+        public static List<SDPAudioVideoMediaFormat> GetCompatibleFormats(List<SDPAudioVideoMediaFormat> a, List<SDPAudioVideoMediaFormat> b)
         {
             List<SDPAudioVideoMediaFormat> compatible = new List<SDPAudioVideoMediaFormat>();
 
@@ -359,7 +361,7 @@ namespace SIPSorcery.Net
             {
                 foreach (var format in a)
                 {
-                    if (b.Any(x => AreMatch(format, x)))
+                    if (b.Any(x => SDPAudioVideoMediaFormat.AreMatch(format, x)))
                     {
                         compatible.Add(format);
                     }
@@ -418,8 +420,7 @@ namespace SIPSorcery.Net
         /// <param name="a">The first of supported media formats.</param>
         /// <param name="b">The second of supported media formats.</param>
         /// <returns>An SDP media format with a compatible RTP event format.</returns>
-        public static SDPAudioVideoMediaFormat GetCommonRtpEventFormat(List<SDPAudioVideoMediaFormat> a,
-            List<SDPAudioVideoMediaFormat> b)
+        public static SDPAudioVideoMediaFormat GetCommonRtpEventFormat(List<SDPAudioVideoMediaFormat> a, List<SDPAudioVideoMediaFormat> b)
         {
             if (a == null || b == null || a.Count == 0 || b.Count() == 0)
             {

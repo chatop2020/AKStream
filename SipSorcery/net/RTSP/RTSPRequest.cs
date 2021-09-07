@@ -38,26 +38,25 @@ namespace SIPSorcery.Net
         private static string m_rtspVersion = RTSPConstants.RTSP_VERSION_STRING;
         private static int m_rtspMajorVersion = RTSPConstants.RTSP_MAJOR_VERSION;
         private static int m_rtspMinorVersion = RTSPConstants.RTSP_MINOR_VERSION;
-        public string Body;
-        public RTSPHeader Header;
-        public RTSPMethodsEnum Method;
-
-        public DateTime ReceivedAt = DateTime.MinValue;
-        public IPEndPoint ReceivedFrom;
-        public int RTSPMajorVersion = m_rtspMajorVersion;
-        public int RTSPMinorVersion = m_rtspMinorVersion;
-
-        public string RTSPVersion = m_rtspVersion;
-        public string UnknownMethod = null;
-
-        public RTSPURL URL;
 
         public bool Valid = true;
         public RTSPHeaderError ValidationError = RTSPHeaderError.None;
 
+        public string RTSPVersion = m_rtspVersion;
+        public int RTSPMajorVersion = m_rtspMajorVersion;
+        public int RTSPMinorVersion = m_rtspMinorVersion;
+        public RTSPMethodsEnum Method;
+        public string UnknownMethod = null;
+
+        public RTSPURL URL;
+        public RTSPHeader Header;
+        public string Body;
+
+        public DateTime ReceivedAt = DateTime.MinValue;
+        public IPEndPoint ReceivedFrom;
+
         private RTSPRequest()
-        {
-        }
+        { }
 
         public RTSPRequest(RTSPMethodsEnum method, string url)
         {
@@ -94,8 +93,7 @@ namespace SIPSorcery.Net
             return ParseRTSPRequest(rtspMessage, out dontCare);
         }
 
-        public static RTSPRequest ParseRTSPRequest(RTSPMessage rtspMessage,
-            out RTSPRequestParserError requestParserError)
+        public static RTSPRequest ParseRTSPRequest(RTSPMessage rtspMessage, out RTSPRequestParserError requestParserError)
         {
             requestParserError = RTSPRequestParserError.None;
             string urlStr = null;
@@ -124,11 +122,8 @@ namespace SIPSorcery.Net
                     urlStr = statusLine.Substring(0, secondSpacePosn);
 
                     rtspRequest.URL = RTSPURL.ParseRTSPURL(urlStr);
-                    rtspRequest.RTSPVersion = statusLine.Substring(secondSpacePosn, statusLine.Length - secondSpacePosn)
-                        .Trim();
-                    rtspRequest.Header = (rtspMessage.RTSPHeaders != null)
-                        ? RTSPHeader.ParseRTSPHeaders(rtspMessage.RTSPHeaders)
-                        : new RTSPHeader(0, null);
+                    rtspRequest.RTSPVersion = statusLine.Substring(secondSpacePosn, statusLine.Length - secondSpacePosn).Trim();
+                    rtspRequest.Header = (rtspMessage.RTSPHeaders != null) ? RTSPHeader.ParseRTSPHeaders(rtspMessage.RTSPHeaders) : new RTSPHeader(0, null);
                     rtspRequest.Body = rtspMessage.Body;
 
                     return rtspRequest;

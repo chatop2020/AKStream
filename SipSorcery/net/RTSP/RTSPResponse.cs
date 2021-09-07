@@ -37,29 +37,28 @@ namespace SIPSorcery.Net
         private static string m_rtspVersion = RTSPConstants.RTSP_VERSION_STRING;
         private static int m_rtspMajorVersion = RTSPConstants.RTSP_MAJOR_VERSION;
         private static int m_rtspMinorVersion = RTSPConstants.RTSP_MINOR_VERSION;
-        public string Body;
-        public RTSPHeader Header;
-        public string ReasonPhrase;
-
-        public DateTime ReceivedAt = DateTime.MinValue;
-        public IPEndPoint ReceivedFrom;
-        public int RTSPMajorVersion = m_rtspMajorVersion;
-        public int RTSPMinorVersion = m_rtspMinorVersion;
-
-        public string RTSPVersion = m_rtspVersion;
-        public RTSPResponseStatusCodesEnum Status;
-        public int StatusCode;
 
         public bool Valid = true;
         public RTSPHeaderError ValidationError = RTSPHeaderError.None;
 
+        public string RTSPVersion = m_rtspVersion;
+        public int RTSPMajorVersion = m_rtspMajorVersion;
+        public int RTSPMinorVersion = m_rtspMinorVersion;
+        public RTSPResponseStatusCodesEnum Status;
+        public int StatusCode;
+        public string ReasonPhrase;
+        public string Body;
+        public RTSPHeader Header;
+
+        public DateTime ReceivedAt = DateTime.MinValue;
+        public IPEndPoint ReceivedFrom;
+
         private RTSPResponse()
-        {
-        }
+        { }
 
         public RTSPResponse(RTSPResponseStatusCodesEnum responseType, string reasonPhrase)
         {
-            StatusCode = (int) responseType;
+            StatusCode = (int)responseType;
             Status = responseType;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseType.ToString();
@@ -71,8 +70,7 @@ namespace SIPSorcery.Net
             return ParseRTSPResponse(rtspMessage, out dontCare);
         }
 
-        public static RTSPResponse ParseRTSPResponse(RTSPMessage rtspMessage,
-            out RTSPResponseParserError responseParserError)
+        public static RTSPResponse ParseRTSPResponse(RTSPMessage rtspMessage, out RTSPResponseParserError responseParserError)
         {
             responseParserError = RTSPResponseParserError.None;
 
@@ -109,8 +107,7 @@ namespace SIPSorcery.Net
                 string reasonPhrase = (!ReasonPhrase.IsNullOrBlank()) ? " " + ReasonPhrase : null;
 
                 string message =
-                    RTSPVersion + "/" + RTSPMajorVersion + "." + RTSPMinorVersion + " " + StatusCode + reasonPhrase +
-                    m_CRLF +
+                    RTSPVersion + "/" + RTSPMajorVersion + "." + RTSPMinorVersion + " " + StatusCode + reasonPhrase + m_CRLF +
                     this.Header.ToString();
 
                 if (Body != null)

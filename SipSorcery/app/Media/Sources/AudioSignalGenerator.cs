@@ -37,15 +37,16 @@ namespace SIPSorcery.Media
     /// </remarks>
     public class SignalGenerator //: ISampleProvider
     {
-        // Const Math
-        private const double TwoPi = 2 * Math.PI;
-
-        private readonly double[] pinkNoiseBuffer = new double[7];
         // Wave format
         //private readonly WaveFormat waveFormat;
 
         // Random Number for the White Noise & Pink Noise Generator
         private readonly Random random = new Random();
+
+        private readonly double[] pinkNoiseBuffer = new double[7];
+
+        // Const Math
+        private const double TwoPi = 2 * Math.PI;
 
         // Generator variable
         private int nSample;
@@ -59,6 +60,7 @@ namespace SIPSorcery.Media
         public SignalGenerator()
             : this(44100, 2)
         {
+
         }
 
         /// <summary>
@@ -177,7 +179,6 @@ namespace SIPSorcery.Media
                         {
                             sampleValue = 2 - sampleValue;
                         }
-
                         if (sampleValue < -1)
                         {
                             sampleValue = -2 - sampleValue;
@@ -216,9 +217,7 @@ namespace SIPSorcery.Media
                         pinkNoiseBuffer[3] = 0.86650 * pinkNoiseBuffer[3] + white * 0.3104856;
                         pinkNoiseBuffer[4] = 0.55000 * pinkNoiseBuffer[4] + white * 0.5329522;
                         pinkNoiseBuffer[5] = -0.7616 * pinkNoiseBuffer[5] - white * 0.0168980;
-                        double pink = pinkNoiseBuffer[0] + pinkNoiseBuffer[1] + pinkNoiseBuffer[2] +
-                                      pinkNoiseBuffer[3] + pinkNoiseBuffer[4] + pinkNoiseBuffer[5] +
-                                      pinkNoiseBuffer[6] + white * 0.5362;
+                        double pink = pinkNoiseBuffer[0] + pinkNoiseBuffer[1] + pinkNoiseBuffer[2] + pinkNoiseBuffer[3] + pinkNoiseBuffer[4] + pinkNoiseBuffer[5] + pinkNoiseBuffer[6] + white * 0.5362;
                         pinkNoiseBuffer[6] = white * 0.115926;
                         sampleValue = (Gain * (pink / 5));
                         break;
@@ -226,8 +225,7 @@ namespace SIPSorcery.Media
                     case SignalGeneratorType.Sweep:
 
                         // Sweep Generator
-                        double f = Math.Exp(FrequencyLog + (nSample * (FrequencyEndLog - FrequencyLog)) /
-                            (SweepLengthSecs * SampleRate));
+                        double f = Math.Exp(FrequencyLog + (nSample * (FrequencyEndLog - FrequencyLog)) / (SweepLengthSecs * SampleRate));
 
                         multiple = TwoPi * f / SampleRate;
                         phi += multiple;
@@ -238,7 +236,6 @@ namespace SIPSorcery.Media
                             nSample = 0;
                             phi = 0;
                         }
-
                         break;
 
                     default:
@@ -251,15 +248,14 @@ namespace SIPSorcery.Media
                 {
                     if (PhaseReverse[i])
                     {
-                        buffer[outIndex++] = (float) -sampleValue;
+                        buffer[outIndex++] = (float)-sampleValue;
                     }
                     else
                     {
-                        buffer[outIndex++] = (float) sampleValue;
+                        buffer[outIndex++] = (float)sampleValue;
                     }
                 }
             }
-
             return count;
         }
 
@@ -271,6 +267,7 @@ namespace SIPSorcery.Media
         {
             return 2 * random.NextDouble() - 1;
         }
+
     }
 
     /// <summary>
@@ -282,32 +279,26 @@ namespace SIPSorcery.Media
         /// Pink noise
         /// </summary>
         Pink,
-
         /// <summary>
         /// White noise
         /// </summary>
         White,
-
         /// <summary>
         /// Sweep
         /// </summary>
         Sweep,
-
         /// <summary>
         /// Sine wave
         /// </summary>
         Sin,
-
         /// <summary>
         /// Square wave
         /// </summary>
         Square,
-
         /// <summary>
         /// Triangle Wave
         /// </summary>
         Triangle,
-
         /// <summary>
         /// Sawtooth wave
         /// </summary>

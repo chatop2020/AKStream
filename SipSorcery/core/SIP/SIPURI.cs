@@ -15,7 +15,6 @@
 
 using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
@@ -29,8 +28,6 @@ namespace SIPSorcery.SIP
     [DataContract]
     public class SIPURI
     {
-        public const int DNS_RESOLUTION_TIMEOUT = 2000; // Timeout for resolving DNS hosts in milliseconds.
-
         public const char SCHEME_ADDR_SEPARATOR = ':';
         public const char USER_HOST_SEPARATOR = '@';
         public const char PARAM_TAG_DELIMITER = ';';
@@ -40,77 +37,27 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] m_invalidSIPHostChars = new char[] {',', '"'};
+        private static char[] m_invalidSIPHostChars = new char[] { ',', '"' };
 
         private static SIPProtocolsEnum m_defaultSIPTransport = SIPProtocolsEnum.udp;
         private static SIPSchemesEnum m_defaultSIPScheme = SIPSchemesEnum.sip;
         private static string m_sipRegisterRemoveAll = SIPConstants.SIP_REGISTER_REMOVEALL;
         private static string m_uriParamTransportKey = SIPHeaderAncillary.SIP_HEADERANC_TRANSPORT;
 
-        [DataMember] public SIPParameters Headers = new SIPParameters();
+        [DataMember]
+        public SIPSchemesEnum Scheme = m_defaultSIPScheme;
 
-        [DataMember] public string Host;
+        [DataMember]
+        public string User;
 
-        [DataMember] public SIPParameters Parameters = new SIPParameters();
+        [DataMember]
+        public string Host;
 
-        [DataMember] public SIPSchemesEnum Scheme = m_defaultSIPScheme;
+        [DataMember]
+        public SIPParameters Parameters = new SIPParameters();
 
-        [DataMember] public string User;
-
-        private SIPURI()
-        {
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-            Scheme = scheme;
-        }
-
-        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme,
-            SIPProtocolsEnum protocol)
-        {
-            User = user;
-            Host = host;
-            ParseParamsAndHeaders(paramsAndHeaders);
-            Scheme = scheme;
-
-            if (protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
-            {
-                Parameters.Set(m_uriParamTransportKey, protocol.ToString());
-            }
-        }
-
-        public SIPURI(SIPSchemesEnum scheme, SIPEndPoint sipEndPoint)
-        {
-            Scheme = scheme;
-            Host = sipEndPoint.GetIPEndPoint().ToString();
-
-            if (sipEndPoint.Protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
-            {
-                Parameters.Set(m_uriParamTransportKey, sipEndPoint.Protocol.ToString());
-            }
-        }
-
-        public SIPURI(SIPSchemesEnum scheme, IPAddress address, int port)
-        {
-            Scheme = scheme;
-            if (address != null)
-            {
-                Host = address.AddressFamily == AddressFamily.InterNetworkV6
-                    ? $"[{address}]:{port}"
-                    : $"{address}:{port}";
-            }
-        }
+        [DataMember]
+        public SIPParameters Headers = new SIPParameters();
 
         /// <summary>
         /// The protocol for a SIP URI is dictated by the scheme of the URI and then by the transport parameter and finally by the 
@@ -200,14 +147,16 @@ namespace SIPSorcery.SIP
                 {
                     return Host.Substring(0, Host.IndexOf(":"));
                 }
-
                 return Host;
             }
         }
 
         public string MAddrOrHostAddress
         {
-            get { return this.MAddr ?? this.HostAddress; }
+            get
+            {
+                return this.MAddr ?? this.HostAddress;
+            }
         }
 
         public string MAddrOrHost
@@ -218,7 +167,6 @@ namespace SIPSorcery.SIP
                 {
                     return MAddrOrHostAddress;
                 }
-
                 return MAddrOrHostAddress + ":" + this.HostPort;
             }
         }
@@ -231,7 +179,6 @@ namespace SIPSorcery.SIP
                 {
                     return this.Parameters.Get(SIPHeaderAncillary.SIP_HEADERANC_MADDR);
                 }
-
                 return null;
             }
         }
@@ -254,14 +201,67 @@ namespace SIPSorcery.SIP
                 {
                     return Host.Substring(Host.IndexOf(":") + 1);
                 }
-
                 return null;
             }
         }
 
         public string UnescapedUser
         {
-            get { return (User.IsNullOrBlank()) ? User : SIPEscape.SIPURIUserUnescape(User); }
+            get
+            {
+                return (User.IsNullOrBlank()) ? User : SIPEscape.SIPURIUserUnescape(User);
+            }
+        }
+
+        private SIPURI()
+        { }
+
+        public SIPURI(string user, string host, string paramsAndHeaders)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+        }
+
+        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+            Scheme = scheme;
+        }
+
+        public SIPURI(string user, string host, string paramsAndHeaders, SIPSchemesEnum scheme, SIPProtocolsEnum protocol)
+        {
+            User = user;
+            Host = host;
+            ParseParamsAndHeaders(paramsAndHeaders);
+            Scheme = scheme;
+
+            if (protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
+            {
+                Parameters.Set(m_uriParamTransportKey, protocol.ToString());
+            }
+        }
+
+        public SIPURI(SIPSchemesEnum scheme, SIPEndPoint sipEndPoint)
+        {
+            Scheme = scheme;
+            Host = sipEndPoint.GetIPEndPoint().ToString();
+
+            if (sipEndPoint.Protocol != SIPProtocolsEnum.udp && scheme != SIPSchemesEnum.sips)
+            {
+                Parameters.Set(m_uriParamTransportKey, sipEndPoint.Protocol.ToString());
+            }
+        }
+
+        public SIPURI(SIPSchemesEnum scheme, IPAddress address, int port)
+        {
+            Scheme = scheme;
+            if (address != null)
+            {
+                Host = address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? $"[{address}]:{port}" : $"{address}:{port}";
+            }
         }
 
         public static SIPURI ParseSIPURI(string uri)
@@ -272,8 +272,7 @@ namespace SIPSorcery.SIP
 
                 if (String.IsNullOrEmpty(uri))
                 {
-                    throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                        "A SIP URI cannot be parsed from an empty string.");
+                    throw new SIPValidationException(SIPValidationFieldsEnum.URI, "A SIP URI cannot be parsed from an empty string.");
                 }
                 else
                 {
@@ -287,8 +286,7 @@ namespace SIPSorcery.SIP
 
                         if (colonPosn == -1)
                         {
-                            throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                "SIP URI did not contain compulsory colon");
+                            throw new SIPValidationException(SIPValidationFieldsEnum.URI, "SIP URI did not contain compulsory colon");
                         }
                         else
                         {
@@ -298,9 +296,7 @@ namespace SIPSorcery.SIP
                             }
                             catch
                             {
-                                throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                    SIPResponseStatusCodesEnum.UnsupportedURIScheme,
-                                    "SIP scheme " + uri.Substring(0, colonPosn) + " was not understood");
+                                throw new SIPValidationException(SIPValidationFieldsEnum.URI, SIPResponseStatusCodesEnum.UnsupportedURIScheme, "SIP scheme " + uri.Substring(0, colonPosn) + " was not understood");
                             }
 
                             string uriHostPortion = uri.Substring(colonPosn + 1);
@@ -308,15 +304,12 @@ namespace SIPSorcery.SIP
                             int paramHeaderPosn = -1;
                             if (ampPosn != -1)
                             {
-                                paramHeaderPosn =
-                                    uriHostPortion.IndexOfAny(new char[] {PARAM_TAG_DELIMITER, HEADER_START_DELIMITER},
-                                        ampPosn);
+                                paramHeaderPosn = uriHostPortion.IndexOfAny(new char[] { PARAM_TAG_DELIMITER, HEADER_START_DELIMITER }, ampPosn);
                             }
                             else
                             {
                                 // Host only SIP URI.
-                                paramHeaderPosn = uriHostPortion.IndexOfAny(new char[]
-                                    {PARAM_TAG_DELIMITER, HEADER_START_DELIMITER});
+                                paramHeaderPosn = uriHostPortion.IndexOfAny(new char[] { PARAM_TAG_DELIMITER, HEADER_START_DELIMITER });
                             }
 
                             if (ampPosn != -1 && paramHeaderPosn != -1)
@@ -329,8 +322,7 @@ namespace SIPSorcery.SIP
                             }
                             else if (ampPosn == -1 && paramHeaderPosn == 0)
                             {
-                                throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                    "No Host portion in SIP URI");
+                                throw new SIPValidationException(SIPValidationFieldsEnum.URI, "No Host portion in SIP URI");
                             }
                             else if (ampPosn == -1 && paramHeaderPosn != -1)
                             {
@@ -343,8 +335,7 @@ namespace SIPSorcery.SIP
                             else if (ampPosn != -1)
                             {
                                 sipURI.User = uriHostPortion.Substring(0, ampPosn);
-                                sipURI.Host =
-                                    uriHostPortion.Substring(ampPosn + 1, uriHostPortion.Length - ampPosn - 1);
+                                sipURI.Host = uriHostPortion.Substring(ampPosn + 1, uriHostPortion.Length - ampPosn - 1);
                             }
                             else
                             {
@@ -353,25 +344,21 @@ namespace SIPSorcery.SIP
 
                             if (sipURI.Host.IndexOfAny(m_invalidSIPHostChars) != -1)
                             {
-                                throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                    "The SIP URI host portion contained an invalid character.");
+                                throw new SIPValidationException(SIPValidationFieldsEnum.URI, "The SIP URI host portion contained an invalid character.");
                             }
                             else if (sipURI.Host.IndexOf(':') != sipURI.Host.LastIndexOf(':'))
                             {
                                 // If the host contains multiple ':' characters then it must be an IPv6 address which require a start '[' and an end ']'.
                                 if (sipURI.Host.ToCharArray()[0] != '[')
                                 {
-                                    throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                        "The SIP URI host portion contained an IPv6 address that was missing the start '['.");
+                                    throw new SIPValidationException(SIPValidationFieldsEnum.URI, "The SIP URI host portion contained an IPv6 address that was missing the start '['.");
                                 }
                                 else if (!sipURI.Host.EndsWith("]") &&
-                                         (sipURI.Host.ToCharArray().Length < sipURI.Host.LastIndexOf(':') + 1 ||
-                                          sipURI.Host.ToCharArray()[sipURI.Host.LastIndexOf(':') - 1] != ']'))
+                                    (sipURI.Host.ToCharArray().Length < sipURI.Host.LastIndexOf(':') + 1 ||
+                                    sipURI.Host.ToCharArray()[sipURI.Host.LastIndexOf(':') - 1] != ']'))
                                 {
-                                    throw new SIPValidationException(SIPValidationFieldsEnum.URI,
-                                        "The SIP URI host portion contained an IPv6 address that was missing the end ']'.");
+                                    throw new SIPValidationException(SIPValidationFieldsEnum.URI, "The SIP URI host portion contained an IPv6 address that was missing the end ']'.");
                                 }
-
                                 //rj2: apply robustness principle mentioned in RFC 5118 4.10
                                 while (sipURI.Host.Contains(":::"))
                                 {
@@ -408,12 +395,12 @@ namespace SIPSorcery.SIP
                 if (Regex.Match(partialURI, regexSchemePattern + @"\S+").Success)
                 {
                     // The partial uri is already valid.
-                    return ParseSIPURI(partialURI);
+                    return SIPURI.ParseSIPURI(partialURI);
                 }
                 else
                 {
                     // The partial URI is missing the scheme.
-                    return ParseSIPURI(m_defaultSIPScheme.ToString() + SCHEME_ADDR_SEPARATOR.ToString() + partialURI);
+                    return SIPURI.ParseSIPURI(m_defaultSIPScheme.ToString() + SCHEME_ADDR_SEPARATOR.ToString() + partialURI);
                 }
             }
         }
@@ -446,11 +433,9 @@ namespace SIPSorcery.SIP
                 }
 
                 // If the URI's protocol is not implied already set the transport parameter.
-                if (Scheme != SIPSchemesEnum.sips && Protocol != SIPProtocolsEnum.udp &&
-                    !Parameters.Has(m_uriParamTransportKey))
+                if (Scheme != SIPSchemesEnum.sips && Protocol != SIPProtocolsEnum.udp && !Parameters.Has(m_uriParamTransportKey))
                 {
-                    uriStr += PARAM_TAG_DELIMITER + m_uriParamTransportKey + TAG_NAME_VALUE_SEPERATOR +
-                              Protocol.ToString();
+                    uriStr += PARAM_TAG_DELIMITER + m_uriParamTransportKey + TAG_NAME_VALUE_SEPERATOR + Protocol.ToString();
                 }
 
                 if (Headers != null && Headers.Count > 0)
@@ -483,11 +468,9 @@ namespace SIPSorcery.SIP
                 uriStr = (User != null) ? uriStr + User + USER_HOST_SEPARATOR + Host : uriStr + Host;
 
                 // If the URI's protocol is not implied already set the transport parameter.
-                if (Scheme != SIPSchemesEnum.sips && Protocol != SIPProtocolsEnum.udp &&
-                    !Parameters.Has(m_uriParamTransportKey))
+                if (Scheme != SIPSchemesEnum.sips && Protocol != SIPProtocolsEnum.udp && !Parameters.Has(m_uriParamTransportKey))
                 {
-                    uriStr += PARAM_TAG_DELIMITER + m_uriParamTransportKey + TAG_NAME_VALUE_SEPERATOR +
-                              Protocol.ToString();
+                    uriStr += PARAM_TAG_DELIMITER + m_uriParamTransportKey + TAG_NAME_VALUE_SEPERATOR + Protocol.ToString();
                 }
 
                 return uriStr;
@@ -553,7 +536,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPURI) obj);
+            return AreEqual(this, (SIPURI)obj);
         }
 
         public static bool operator ==(SIPURI uri1, SIPURI uri2)
@@ -614,6 +597,68 @@ namespace SIPSorcery.SIP
             }
 
             return copy;
+        }
+
+        /// <summary>
+        /// Checks whether the specified SIP URI Host field contains a private IPv4 address
+        /// and if so and the recevied on IP address is different then "mangles" the host to
+        /// contain the received on IP end point. The purpose of the mangling is to assist
+        /// in dealing with IPv4 NAT's.
+        /// If the SIP URI host is IPv6 or a host name no mangling will be done.
+        /// </summary>
+        /// <param name="uri">The SIP URI to mangle.</param>
+        /// <param name="receivedOn">The IP end point that the SIP message was received from.</param>
+        /// <returns>A new SIP URI if mangling took place. Null if no mangling occurred.</returns>
+        public static SIPURI Mangle(SIPURI uri, IPEndPoint receivedOn)
+        {
+            if (uri != null && receivedOn != null && IPAddress.TryParse(uri.HostAddress, out var ipv4Host))
+            {
+
+                if (ipv4Host.IsPrivate() && !IPAddress.Equals(ipv4Host, receivedOn.Address))
+                {
+                    var mangledURI = uri.CopyOf();
+                    mangledURI.Host = mangledURI.Host.Replace(mangledURI.Host, receivedOn.ToString());
+                    return mangledURI;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Indicates whether the SIP URI is using the default port for its protocol.
+        /// Default ports are 5060 for UDP and TCP, 5061 for TLS, 80 for WS and 443 for WSS.
+        /// </summary>
+        /// <returns>True if the default port is being used, false if not.</returns>
+        public bool IsDefaultPort()
+        {
+            if (HostPort == null)
+            {
+                // If the URI does not contain an explicit port it means the default is implcit.
+                return true;
+            }
+            else if (int.TryParse(HostPort, out var port))
+            {
+                switch (Protocol)
+                {
+                    case SIPProtocolsEnum.udp:
+                    case SIPProtocolsEnum.tcp:
+                        return port == SIPConstants.DEFAULT_SIP_PORT;
+                    case SIPProtocolsEnum.tls:
+                        return port == SIPConstants.DEFAULT_SIP_TLS_PORT;
+                    case SIPProtocolsEnum.ws:
+                        return port == SIPConstants.DEFAULT_SIP_WEBSOCKET_PORT;
+                    case SIPProtocolsEnum.wss:
+                        return port == SIPConstants.DEFAULT_SIPS_WEBSOCKET_PORT;
+                    default:
+                        return false;
+                }
+            }
+            else
+            {
+                // Couldn't understand the port. Assume it's not a default.
+                return false;
+            }
         }
     }
 }

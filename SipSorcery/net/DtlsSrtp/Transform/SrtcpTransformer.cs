@@ -19,6 +19,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SIPSorcery.Net
 {
@@ -31,15 +32,18 @@ namespace SIPSorcery.Net
     /// </summary>
     public class SrtcpTransformer : IPacketTransformer
     {
+        private int _isLocked = 0;
+        private RawPacket packet;
+
+        private SrtpTransformEngine forwardEngine;
+        private SrtpTransformEngine reverseEngine;
+
         /** All the known SSRC's corresponding SRTCPCryptoContexts */
         private ConcurrentDictionary<long, SrtcpCryptoContext> contexts;
 
-        private SrtpTransformEngine forwardEngine;
-        private RawPacket packet;
-        private SrtpTransformEngine reverseEngine;
-
         public SrtcpTransformer(SrtpTransformEngine engine) : this(engine, engine)
         {
+
         }
 
         public SrtcpTransformer(SrtpTransformEngine forwardEngine, SrtpTransformEngine reverseEngine)
@@ -62,24 +66,37 @@ namespace SIPSorcery.Net
 
         public byte[] Transform(byte[] pkt, int offset, int length)
         {
-            // Wrap the data into raw packet for readable format
-            this.packet.Wrap(pkt, offset, length);
-
-            // Associate the packet with its encryption context
-            long ssrc = this.packet.GetRTCPSSRC();
-            SrtcpCryptoContext context = null;
-            contexts.TryGetValue(ssrc, out context);
-
-            if (context == null)
+            var isLocked = Interlocked.CompareExchange(ref _isLocked, 1, 0) != 0;
+            try
             {
-                context = forwardEngine.GetDefaultContextControl().DeriveContext(ssrc);
-                context.DeriveSrtcpKeys();
-                contexts.AddOrUpdate(ssrc, context, (a, b) => context);
-            }
+                // Wrap the data into raw packet for readable format
+                var packet = !isLocked ? this.packet : new RawPacket();
+                packet.Wrap(pkt, offset, length);
 
-            // Secure packet into SRTCP format
-            context.TransformPacket(packet);
-            return packet.GetData();
+                // Associate the packet with its encryption context
+                long ssrc = packet.GetRTCPSSRC();
+                SrtcpCryptoContext context = null;
+                contexts.TryGetValue(ssrc, out context);
+
+                if (context == null)
+                {
+                    context = forwardEngine.GetDefaultContextControl().DeriveContext(ssrc);
+                    context.DeriveSrtcpKeys();
+                    contexts.AddOrUpdate(ssrc, context, (a, b) => context);
+                }
+
+                // Secure packet into SRTCP format
+                context.TransformPacket(packet);
+                byte[] result = packet.GetData();
+
+                return result;
+            }
+            finally
+            {
+                //Unlock
+                if (!isLocked)
+                    Interlocked.CompareExchange(ref _isLocked, 0, 1);
+            }
         }
 
         public byte[] ReverseTransform(byte[] pkt)
@@ -89,29 +106,40 @@ namespace SIPSorcery.Net
 
         public byte[] ReverseTransform(byte[] pkt, int offset, int length)
         {
-            // wrap data into raw packet for readable format
-            this.packet.Wrap(pkt, offset, length);
-
-            // Associate the packet with its encryption context
-            long ssrc = this.packet.GetRTCPSSRC();
-            SrtcpCryptoContext context = null;
-            contexts.TryGetValue(ssrc, out context);
-
-            if (context == null)
+            var isLocked = Interlocked.CompareExchange(ref _isLocked, 1, 0) != 0;
+            try
             {
-                context = reverseEngine.GetDefaultContextControl().DeriveContext(ssrc);
-                context.DeriveSrtcpKeys();
-                contexts[ssrc] = context;
-            }
+                // wrap data into raw packet for readable format
+                var packet = !isLocked ? this.packet : new RawPacket();
+                packet.Wrap(pkt, offset, length);
 
-            // Decode packet to RTCP format
-            bool reversed = context.ReverseTransformPacket(packet);
-            if (reversed)
+                // Associate the packet with its encryption context
+                long ssrc = packet.GetRTCPSSRC();
+                SrtcpCryptoContext context = null;
+                contexts.TryGetValue(ssrc, out context);
+
+                if (context == null)
+                {
+                    context = reverseEngine.GetDefaultContextControl().DeriveContext(ssrc);
+                    context.DeriveSrtcpKeys();
+                    contexts.AddOrUpdate(ssrc, context, (a, b) => context);
+                }
+
+                // Decode packet to RTCP format
+                byte[] result = null;
+                bool reversed = context.ReverseTransformPacket(packet);
+                if (reversed)
+                {
+                    result = packet.GetData();
+                }
+                return result;
+            }
+            finally
             {
-                return packet.GetData();
+                //Unlock
+                if (!isLocked)
+                    Interlocked.CompareExchange(ref _isLocked, 0, 1);
             }
-
-            return null;
         }
 
         /// <summary>

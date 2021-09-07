@@ -120,7 +120,7 @@ namespace SIPSorcery.Net
     {
         public static STUNMessageTypesEnum GetSTUNMessageTypeForId(int stunMessageTypeId)
         {
-            return (STUNMessageTypesEnum) Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
+            return (STUNMessageTypesEnum)Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
         }
     }
 
@@ -132,28 +132,26 @@ namespace SIPSorcery.Net
         public const UInt32 MAGIC_COOKIE = 0x2112A442;
         public const int TRANSACTION_ID_LENGTH = 12;
 
-        public UInt16 MessageLength;
-
         public STUNMessageTypesEnum MessageType = STUNMessageTypesEnum.BindingRequest;
+        public STUNClassTypesEnum MessageClass
+        {
+            get
+            {
+                int @class = ((ushort)MessageType >> 8 & 0x01) * 2 | ((ushort)MessageType >> 4 & 0x01);
+                return (STUNClassTypesEnum)@class;
+            }
+        }
+
+        public UInt16 MessageLength;
         public byte[] TransactionId = new byte[TRANSACTION_ID_LENGTH];
 
         public STUNHeader()
-        {
-        }
+        { }
 
         public STUNHeader(STUNMessageTypesEnum messageType)
         {
             MessageType = messageType;
             TransactionId = Encoding.ASCII.GetBytes(Guid.NewGuid().ToString().Substring(0, TRANSACTION_ID_LENGTH));
-        }
-
-        public STUNClassTypesEnum MessageClass
-        {
-            get
-            {
-                int @class = ((ushort) MessageType >> 8 & 0x01) * 2 | ((ushort) MessageType >> 4 & 0x01);
-                return (STUNClassTypesEnum) @class;
-            }
         }
 
         public static STUNHeader ParseSTUNHeader(byte[] buffer)

@@ -27,42 +27,39 @@ namespace SIPSorcery.SIP
     public class SIPMessageBuffer
     {
         private const string SIP_RESPONSE_PREFIX = "SIP";
-
-        private const string
-            SIP_MESSAGE_IDENTIFIER =
-                "SIP"; // String that must be in a message buffer to be recognised as a SIP message and processed.
+        private const string SIP_MESSAGE_IDENTIFIER = "SIP";    // String that must be in a message buffer to be recognised as a SIP message and processed.
 
         private static int m_sipFullVersionStrLen = SIPConstants.SIP_FULLVERSION_STRING.Length;
         private static int m_minFirstLineLength = 7;
         private static string m_CRLF = SIPConstants.CRLF;
-
-        private static string
-            m_sipMessageDelimiter =
-                SIPConstants.CRLF + SIPConstants.CRLF; // The delimiting character sequence for messages in a stream.
+        private static string m_sipMessageDelimiter = SIPConstants.CRLF + SIPConstants.CRLF;    // The delimiting character sequence for messages in a stream.
 
         private static ILogger logger = Log.Logger;
-        public string Body;
 
-        public DateTime Created = DateTime.Now;
+        public string RawMessage
+        {
+            get
+            {
+                if (RawBuffer != null)
+                {
+                    return Encoding.UTF8.GetString(RawBuffer);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        public SIPMessageTypesEnum SIPMessageType = SIPMessageTypesEnum.Unknown;
         public string FirstLine;
-        public SIPEndPoint LocalSIPEndPoint; // The local SIP socket the message was received on or sent from.
+        public string[] SIPHeaders;
+        public byte[] Body;
         public byte[] RawBuffer;
 
-        public string RawMessage;
-        public SIPEndPoint RemoteSIPEndPoint; // The remote IP socket the message was received from or sent to.
-        public string[] SIPHeaders;
-        public SIPMessageTypesEnum SIPMessageType = SIPMessageTypesEnum.Unknown;
-
-        /// <summary>
-        /// byte数组转string
-        /// </summary>
-        /// <param name="bt"></param>
-        /// <param name="encoding"></param>
-        /// <returns></returns>
-        private static String ByteToStr(Byte[] bt, Encoding encoding)
-        {
-            return encoding.GetString(bt);
-        }
+        public DateTime Created = DateTime.Now;
+        public SIPEndPoint RemoteSIPEndPoint;               // The remote IP socket the message was received from or sent to.
+        public SIPEndPoint LocalSIPEndPoint;                // The local SIP socket the message was received on or sent from.
 
         /// <summary>
         /// Attempts to parse a SIP message from a single buffer that can only contain a single message.
@@ -71,72 +68,28 @@ namespace SIPSorcery.SIP
         /// <param name="localSIPEndPoint">The end point the message was received on.</param>
         /// <param name="remoteSIPEndPoint">The end point the message was received from.</param>
         /// <returns>If successful a SIP message or null if not.</returns>
-        public static SIPMessageBuffer ParseSIPMessage(byte[] buffer, SIPEndPoint localSIPEndPoint,
-            SIPEndPoint remoteSIPEndPoint)
+        public static SIPMessageBuffer ParseSIPMessage(byte[] buffer, SIPEndPoint localSIPEndPoint, SIPEndPoint remoteSIPEndPoint)
         {
-            string message = null;
 
-            try
+            if (buffer == null || buffer.Length < m_minFirstLineLength)
             {
-                if (buffer == null || buffer.Length < m_minFirstLineLength)
-                {
-                    // Ignore.
-                    return null;
-                }
-                else if (buffer.Length > SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH)
-                {
-                    throw new ApplicationException(
-                        "SIP message received that exceeded the maximum allowed message length, ignoring.");
-                }
-                else if (!BufferUtils.HasString(buffer, 0, buffer.Length, SIP_MESSAGE_IDENTIFIER, m_CRLF))
-                {
-                    // Message does not contain "SIP" anywhere on the first line, ignore.
-                    return null;
-                }
-                else
-                {
-                    message = ByteToStr(buffer, Encoding.GetEncoding("utf-8"));
-                    if (message.ToUpper().Contains("ENCODING=\"GBK\"")
-                        || message.ToUpper().Contains("ENCODING=\"GB2312\""))
-                    {
-                        message = ByteToStr(buffer, Encoding.GetEncoding("GBK")); //兼容gbk,gb2312编码中文字符串
-                    }
-
-                    SIPMessageBuffer sipMessageBuffer = ParseSIPMessage(message, localSIPEndPoint, remoteSIPEndPoint);
-
-                    if (sipMessageBuffer != null)
-                    {
-                        sipMessageBuffer.RawBuffer = buffer;
-                        return sipMessageBuffer;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-            catch (Exception excp)
-            {
-                message = message.Replace("\n", "LF");
-                message = message.Replace("\r", "CR");
-                logger.LogError("Exception ParseSIPMessage. " + excp.Message + "\nSIP Message=" + message + ".");
+                // Ignore.
                 return null;
             }
-        }
-
-        /// <summary>
-        /// Attempts to parse a SIP message from a string containing a single SIP request or response.
-        /// </summary>
-        /// <param name="message">The string to parse.</param>
-        /// <param name="localSIPEndPoint">The end point the message was received on.</param>
-        /// <param name="remoteSIPEndPoint">The end point the message was received from.</param>
-        /// <returns>If successful a SIP message or null if not.</returns>
-        public static SIPMessageBuffer ParseSIPMessage(string message, SIPEndPoint localSIPEndPoint,
-            SIPEndPoint remoteSIPEndPoint)
-        {
-            try
+            else if (buffer.Length > SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH)
             {
-                SIPMessageBuffer sipMessage = new SIPMessageBuffer();
+                throw new ApplicationException("SIP message received that exceeded the maximum allowed message length, ignoring.");
+            }
+            else if (!BufferUtils.HasString(buffer, 0, buffer.Length, SIP_MESSAGE_IDENTIFIER, m_CRLF))
+            {
+                // Message does not contain "SIP" anywhere on the first line, ignore.
+                return null;
+            }
+            else
+            {
+                var sipMessage = new SIPMessageBuffer();
+
+                sipMessage.RawBuffer = buffer;
                 sipMessage.LocalSIPEndPoint = localSIPEndPoint;
                 sipMessage.RemoteSIPEndPoint = remoteSIPEndPoint;
 
@@ -146,7 +99,20 @@ namespace SIPSorcery.SIP
                     sipMessage.LocalSIPEndPoint.ConnectionID = remoteSIPEndPoint.ConnectionID;
                 }
 
-                sipMessage.RawMessage = message;
+                string message = Encoding.UTF8.GetString(buffer);
+                if (!string.IsNullOrEmpty(message) &&
+                    (message.ToLower().Contains("gb2312") || message.ToLower().Contains("gbk")))
+                {
+                    byte[] utf8bytes;
+                    Encoding utf8, gbk;
+                    gbk = Encoding.GetEncoding("gbk");
+                    utf8 = Encoding.GetEncoding("utf-8");
+                    utf8bytes = Encoding.Convert(gbk, utf8, buffer);
+                    message=utf8.GetString(utf8bytes);
+                    buffer = Encoding.UTF8.GetBytes(message);
+                    sipMessage.RawBuffer = buffer;
+                }
+             
                 int endFistLinePosn = message.IndexOf(m_CRLF);
 
                 if (endFistLinePosn != -1)
@@ -166,19 +132,18 @@ namespace SIPSorcery.SIP
                     if (endHeaderPosn == -1)
                     {
                         // Assume flakey implementation if message does not contain the required CRLFCRLF sequence and treat the message as having no body.
-                        string headerString =
-                            message.Substring(endFistLinePosn + 2, message.Length - endFistLinePosn - 2);
+                        string headerString = message.Substring(endFistLinePosn + 2, message.Length - endFistLinePosn - 2);
                         sipMessage.SIPHeaders = SIPHeader.SplitHeaders(headerString);
                     }
                     else
                     {
-                        string headerString =
-                            message.Substring(endFistLinePosn + 2, endHeaderPosn - endFistLinePosn - 2);
+                        string headerString = message.Substring(endFistLinePosn + 2, endHeaderPosn - endFistLinePosn - 2);
                         sipMessage.SIPHeaders = SIPHeader.SplitHeaders(headerString);
 
                         if (message.Length > endHeaderPosn + 4)
                         {
-                            sipMessage.Body = message.Substring(endHeaderPosn + 4);
+                            sipMessage.Body = new byte[buffer.Length - (endHeaderPosn + 4)];
+                            Buffer.BlockCopy(buffer, endHeaderPosn + 4, sipMessage.Body, 0, buffer.Length - (endHeaderPosn + 4));
                         }
                     }
 
@@ -186,16 +151,24 @@ namespace SIPSorcery.SIP
                 }
                 else
                 {
-                    logger.LogWarning(
-                        "Error ParseSIPMessage, there were no end of line characters in the string being parsed.");
+                    logger.LogWarning("Error ParseSIPMessage, there were no end of line characters in the string being parsed.");
                     return null;
                 }
             }
-            catch (Exception excp)
-            {
-                logger.LogError("Exception ParseSIPMessage. " + excp.Message + "\nSIP Message=" + message + ".");
-                return null;
-            }
+        }
+
+        /// <summary>
+        /// Attempts to parse a SIP message from a string containing a single SIP request or response.
+        /// </summary>
+        /// <param name="message">The string to parse.</param>
+        /// <param name="localSIPEndPoint">The end point the message was received on.</param>
+        /// <param name="remoteSIPEndPoint">The end point the message was received from.</param>
+        /// <returns>If successful a SIP message or null if not.</returns>
+        public static SIPMessageBuffer ParseSIPMessage(string message, SIPEndPoint localSIPEndPoint, SIPEndPoint remoteSIPEndPoint)
+        {
+            
+            
+            return ParseSIPMessage(Encoding.UTF8.GetBytes(message), localSIPEndPoint, remoteSIPEndPoint);
         }
 
         //rj2: check if message could be "well"known Ping message
@@ -209,32 +182,27 @@ namespace SIPSorcery.SIP
                     //only cr/lf for ping, return NULL and no error msg
                     return true;
                 }
-
                 if (bufLen == 4 && buffer[0] == '\r' && buffer[1] == '\n' && buffer[2] == '\r' && buffer[3] == '\n')
                 {
                     //only cr/lf for ping, return NULL and no error msg
                     return true;
                 }
-
                 if (bufLen == 4 && buffer[0] == 'j' && buffer[1] == 'a' && buffer[2] == 'K' && buffer[3] == '\0')
                 {
                     // linphones keep alive message sucks, ping w/o error msg 
                     return true;
                 }
-
                 if (bufLen == 3 && buffer[0] == 'p' && buffer[1] == 'n' && buffer[2] == 'g')
                 {
                     //only cr/lf for ping, return NULL and no error msg
                     return true;
                 }
-
                 if (bufLen == 4 && buffer[0] == '\0' && buffer[1] == '\0' && buffer[2] == '\0' && buffer[3] == '\0')
                 {
                     //4x byte 0 used as ping
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -247,8 +215,7 @@ namespace SIPSorcery.SIP
         /// <param name="start">The position in the buffer to start parsing for a SIP message.</param>
         /// <param name="length">The position in the buffer that indicates the end of the received bytes.</param>
         /// <returns>A byte array holding a full SIP message or if no full SIP messages are available null.</returns>
-        public static byte[] ParseSIPMessageFromStream(byte[] receiveBuffer, int start, int length,
-            out int bytesSkipped)
+        public static byte[] ParseSIPMessageFromStream(byte[] receiveBuffer, int start, int length, out int bytesSkipped)
         {
             // NAT keep-alives can be interspersed between SIP messages. Treat any non-letter character
             // at the start of a receive as a non SIP transmission and skip over it.
@@ -256,7 +223,7 @@ namespace SIPSorcery.SIP
             bool letterCharFound = false;
             while (!letterCharFound && start < length)
             {
-                if ((int) receiveBuffer[start] >= 65)
+                if ((int)receiveBuffer[start] >= 65)
                 {
                     break;
                 }
@@ -269,8 +236,7 @@ namespace SIPSorcery.SIP
 
             if (start < length)
             {
-                int endMessageIndex =
-                    BufferUtils.GetStringPosition(receiveBuffer, start, length, m_sipMessageDelimiter, null);
+                int endMessageIndex = BufferUtils.GetStringPosition(receiveBuffer, start, length, m_sipMessageDelimiter, null);
                 if (endMessageIndex != -1)
                 {
                     int contentLength = GetContentLength(receiveBuffer, start, endMessageIndex);
@@ -303,10 +269,8 @@ namespace SIPSorcery.SIP
             }
             else
             {
-                byte[] contentHeaderBytes =
-                    Encoding.UTF8.GetBytes(m_CRLF + SIP.SIPHeaders.SIP_HEADER_CONTENTLENGTH.ToUpper());
-                byte[] compactContentHeaderBytes =
-                    Encoding.UTF8.GetBytes(m_CRLF + SIP.SIPHeaders.SIP_COMPACTHEADER_CONTENTLENGTH.ToUpper());
+                byte[] contentHeaderBytes = Encoding.UTF8.GetBytes(m_CRLF + SIPSorcery.SIP.SIPHeaders.SIP_HEADER_CONTENTLENGTH.ToUpper());
+                byte[] compactContentHeaderBytes = Encoding.UTF8.GetBytes(m_CRLF + SIPSorcery.SIP.SIPHeaders.SIP_COMPACTHEADER_CONTENTLENGTH.ToUpper());
 
                 int inContentHeaderPosn = 0;
                 int inCompactContentHeaderPosn = 0;
@@ -338,8 +302,7 @@ namespace SIPSorcery.SIP
                         }
                     }
 
-                    if (buffer[index] == contentHeaderBytes[inContentHeaderPosn] ||
-                        buffer[index] == contentHeaderBytes[inContentHeaderPosn] + 32)
+                    if (buffer[index] == contentHeaderBytes[inContentHeaderPosn] || buffer[index] == contentHeaderBytes[inContentHeaderPosn] + 32)
                     {
                         inContentHeaderPosn++;
 
@@ -353,8 +316,7 @@ namespace SIPSorcery.SIP
                         inContentHeaderPosn = 0;
                     }
 
-                    if (buffer[index] == compactContentHeaderBytes[inCompactContentHeaderPosn] ||
-                        buffer[index] == compactContentHeaderBytes[inCompactContentHeaderPosn] + 32)
+                    if (buffer[index] == compactContentHeaderBytes[inCompactContentHeaderPosn] || buffer[index] == compactContentHeaderBytes[inCompactContentHeaderPosn] + 32)
                     {
                         inCompactContentHeaderPosn++;
 
@@ -383,7 +345,7 @@ namespace SIPSorcery.SIP
                         }
                         else if (buffer[index] >= '0' && buffer[index] <= '9')
                         {
-                            contentLengthValue += ((char) buffer[index]).ToString();
+                            contentLengthValue += ((char)buffer[index]).ToString();
                         }
                         else
                         {

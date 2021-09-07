@@ -32,9 +32,9 @@ namespace SIPSorcery.SIP
     internal class IncomingMessage
     {
         /// <summary>
-        /// The message data.
+        /// The SIP channel we received the message on.
         /// </summary>
-        public byte[] Buffer;
+        public SIPChannel LocalSIPChannel;
 
         /// <summary>
         /// The local end point that the message was received on. If a SIP channel
@@ -44,22 +44,21 @@ namespace SIPSorcery.SIP
         public SIPEndPoint LocalEndPoint;
 
         /// <summary>
-        /// The SIP channel we received the message on.
+        /// The next hop remote SIP end point the message came from.
         /// </summary>
-        public SIPChannel LocalSIPChannel;
+        public SIPEndPoint RemoteEndPoint;
+
+        /// <summary>
+        /// The message data.
+        /// </summary>
+        public byte[] Buffer;
 
         /// <summary>
         /// The time at which the message was received.
         /// </summary>
         public DateTime ReceivedAt;
 
-        /// <summary>
-        /// The next hop remote SIP end point the message came from.
-        /// </summary>
-        public SIPEndPoint RemoteEndPoint;
-
-        public IncomingMessage(SIPChannel sipChannel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint,
-            byte[] buffer)
+        public IncomingMessage(SIPChannel sipChannel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint, byte[] buffer)
         {
             LocalSIPChannel = sipChannel;
             LocalEndPoint = localEndPoint;
@@ -77,34 +76,7 @@ namespace SIPSorcery.SIP
     {
         private static int _lastUsedChannelID = 0;
 
-        /// <summary>
-        /// Indicates whether close has been called on the SIP channel. Once closed a SIP channel can no longer be used
-        /// to send or receive messages. It should generally only be called at the same time the SIP transport class using it
-        /// is shutdown.
-        /// </summary>
-        protected bool Closed;
-
         protected ILogger logger = Log.Logger;
-
-        /// <summary>
-        /// The function delegate that will be called whenever a new SIP message is received on the SIP channel.
-        /// </summary>
-        public SIPMessageReceivedAsyncDelegate SIPMessageReceived;
-
-        static SIPChannel()
-        {
-            LocalIPAddresses = NetServices.LocalIPAddresses;
-
-            // When using IPAddress.Any a default end point is still needed for placing in SIP headers and payloads.
-            // Using 0.0.0.0 in SIP headers causes issues for some SIP software stacks.
-            InternetDefaultAddress = NetServices.InternetDefaultAddress;
-        }
-
-        public SIPChannel()
-        {
-            int id = Interlocked.Increment(ref _lastUsedChannelID);
-            ID = id.ToString();
-        }
 
         /// <summary>
         /// A unique ID for the channel. Useful for ensuring a transmission can occur
@@ -170,9 +142,31 @@ namespace SIPSorcery.SIP
         public SIPProtocolsEnum SIPProtocol { get; protected set; }
 
         /// <summary>
-        /// Calls close on the SIP channel when the object is disposed.
+        /// Indicates whether close has been called on the SIP channel. Once closed a SIP channel can no longer be used
+        /// to send or receive messages. It should generally only be called at the same time the SIP transport class using it
+        /// is shutdown.
         /// </summary>
-        public abstract void Dispose();
+        protected bool Closed;
+
+        /// <summary>
+        /// The function delegate that will be called whenever a new SIP message is received on the SIP channel.
+        /// </summary>
+        public SIPMessageReceivedAsyncDelegate SIPMessageReceived;
+
+        static SIPChannel()
+        {
+            LocalIPAddresses = NetServices.LocalIPAddresses;
+
+            // When using IPAddress.Any a default end point is still needed for placing in SIP headers and payloads.
+            // Using 0.0.0.0 in SIP headers causes issues for some SIP software stacks.
+            InternetDefaultAddress = NetServices.InternetDefaultAddress;
+        }
+
+        public SIPChannel()
+        {
+            int id = Interlocked.Increment(ref _lastUsedChannelID);
+            ID = id.ToString();
+        }
 
         /// <summary>
         /// Checks whether the host string corresponds to a socket address that this SIP channel is listening on.
@@ -201,11 +195,13 @@ namespace SIPSorcery.SIP
         /// </summary>
         /// <param name="dstEndPoint">The remote end point to send the message to.</param>
         /// <param name="buffer">The data to send.</param>
-        /// <param name="connectionID">Optional ID of the specific client connection that the message should be sent on. It's only
+        /// <param name="canInitiateConnection">Indicates whether this send should initiate a connection if needed.
+        /// The typical case is SIP requests can initiate new connections but responses should not. Responses should
+        /// only be sent on the same TCP or TLS connection that the original request was received on.</param>
+        /// <param name="connectionIDHint">Optional ID of the specific client connection that the message should be sent on. It's only
         /// a hint so if the connection has been closed a new one will be attempted.</param>
         /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
-        public abstract Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer,
-            string connectionIDHint = null);
+        public abstract Task<SocketError> SendAsync(SIPEndPoint dstEndPoint, byte[] buffer, bool canInitiateConnection, string connectionIDHint = null);
 
         /// <summary>
         /// Asynchronous SIP message send over a secure TLS connection to a remote end point.
@@ -213,9 +209,13 @@ namespace SIPSorcery.SIP
         /// <param name="dstEndPoint">The remote end point to send the message to.</param>
         /// <param name="buffer">The data to send.</param>
         /// <param name="serverCertificateName">If the send is over SSL the required common name of the server's X509 certificate.</param>
+        /// <param name="canInitiateConnection">Indicates whether this send should initiate a connection if needed.
+        /// The typical case is SIP requests can initiate new connections but responses should not. Responses should
+        /// only be sent on the same TCP or TLS connection that the original request was received on.</param>
+        /// <param name="connectionIDHint">Optional ID of the specific client connection that the message should be sent on. It's only
+        /// a hint so if the connection has been closed a new one will be attempted.</param>
         /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
-        public abstract Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer,
-            string serverCertificateName, string connectionIDHint = null);
+        public abstract Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer, string serverCertificateName, bool canInitiateConnection, string connectionIDHint = null);
 
         /// <summary>
         /// Checks whether the SIP channel has a connection matching a unique connection ID.
@@ -300,5 +300,10 @@ namespace SIPSorcery.SIP
         /// should only be done at the same time the parent SIP transport layer is shutdown.
         /// </summary>
         public abstract void Close();
+
+        /// <summary>
+        /// Calls close on the SIP channel when the object is disposed.
+        /// </summary>
+        public abstract void Dispose();
     }
 }

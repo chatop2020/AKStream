@@ -26,14 +26,11 @@ namespace SIPSorcery.Net
         public const int RTSP_MINOR_VERSION = 0;
         public const string RTSP_FULLVERSION_STRING = "RTSP/1.0";
 
-        public const int DEFAULT_RTSP_PORT = 554; // RFC2326 9.2, default port for both TCP and UDP.
+        public const int DEFAULT_RTSP_PORT = 554;                       // RFC2326 9.2, default port for both TCP and UDP.
         public const string RTSP_RELIABLE_TRANSPORTID = "rtsp";
         public const string RTSP_UNRELIABLE_TRANSPORTID = "rtspu";
 
-        public const int
-            INITIAL_RTT_MILLISECONDS =
-                500; // RFC2326 9.2, initial round trip time used for retransmits on unreliable transports.
-
+        public const int INITIAL_RTT_MILLISECONDS = 500;                // RFC2326 9.2, initial round trip time used for retransmits on unreliable transports.
         public const int RTSP_MAXIMUM_LENGTH = 4096;
     }
 
@@ -68,11 +65,9 @@ namespace SIPSorcery.Net
 
             try
             {
-                rtspMethod = (RTSPMethodsEnum) Enum.Parse(typeof(RTSPMethodsEnum), method, true);
+                rtspMethod = (RTSPMethodsEnum)Enum.Parse(typeof(RTSPMethodsEnum), method, true);
             }
-            catch
-            {
-            }
+            catch { }
 
             return rtspMethod;
         }
@@ -159,8 +154,8 @@ namespace SIPSorcery.Net
     {
         public static RTSPResponseStatusCodesEnum GetStatusTypeForCode(int statusCode)
         {
-            return (RTSPResponseStatusCodesEnum) Enum.Parse(typeof(RTSPResponseStatusCodesEnum), statusCode.ToString(),
-                true);
+            return (RTSPResponseStatusCodesEnum)Enum.Parse(typeof(RTSPResponseStatusCodesEnum), statusCode.ToString(), true);
         }
     }
+
 }

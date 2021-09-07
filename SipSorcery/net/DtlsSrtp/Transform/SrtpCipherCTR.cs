@@ -61,7 +61,6 @@
  * @author Werner Dittmann <werner.dittmann@t-online.de>
  */
 
-using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 
@@ -99,8 +98,8 @@ namespace SIPSorcery.Net
         private const int BLKLEN = 16;
         private const int MAX_BUFFER_LENGTH = 10 * 1024;
         private byte[] cipherInBlock = new byte[BLKLEN];
-        private byte[] streamBuf = new byte[1024];
         private byte[] tmpCipherBlock = new byte[BLKLEN];
+        private byte[] streamBuf = new byte[1024];
 
         public void Process(IBlockCipher cipher, MemoryStream data, int off, int len, byte[] iv)
         {
@@ -127,7 +126,7 @@ namespace SIPSorcery.Net
                 data.Position = i + off;
                 var byteToWrite = data.ReadByte();
                 data.Position = i + off;
-                data.WriteByte((byte) (byteToWrite ^ cipherStream[i]));
+                data.WriteByte((byte)(byteToWrite ^ cipherStream[i]));
             }
         }
 
@@ -144,24 +143,25 @@ namespace SIPSorcery.Net
          */
         public void GetCipherStream(IBlockCipher aesCipher, byte[] _out, int length, byte[] iv)
         {
-            Array.Copy(iv, 0, cipherInBlock, 0, 14);
+            System.Array.Copy(iv, 0, cipherInBlock, 0, 14);
 
             int ctr;
             for (ctr = 0; ctr < length / BLKLEN; ctr++)
             {
                 // compute the cipher stream
-                cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
-                cipherInBlock[15] = (byte) ((ctr & 0x00FF));
+                cipherInBlock[14] = (byte)((ctr & 0xFF00) >> 8);
+                cipherInBlock[15] = (byte)((ctr & 0x00FF));
 
                 aesCipher.ProcessBlock(cipherInBlock, 0, _out, ctr * BLKLEN);
             }
 
             // Treat the last bytes:
-            cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
-            cipherInBlock[15] = (byte) ((ctr & 0x00FF));
+            cipherInBlock[14] = (byte)((ctr & 0xFF00) >> 8);
+            cipherInBlock[15] = (byte)((ctr & 0x00FF));
 
             aesCipher.ProcessBlock(cipherInBlock, 0, tmpCipherBlock, 0);
-            Array.Copy(tmpCipherBlock, 0, _out, ctr * BLKLEN, length % BLKLEN);
+            System.Array.Copy(tmpCipherBlock, 0, _out, ctr * BLKLEN, length % BLKLEN);
         }
     }
 }
+

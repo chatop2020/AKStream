@@ -22,18 +22,24 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
-    public delegate void STUNMessageReceived(IPEndPoint receivedEndPoint, IPEndPoint receivedOnEndPoint, byte[] buffer,
-        int bufferLength);
+    public delegate void STUNMessageReceived(IPEndPoint receivedEndPoint, IPEndPoint receivedOnEndPoint, byte[] buffer, int bufferLength);
 
     public class STUNListener
     {
         private const string STUN_LISTENER_THREAD_NAME = "stunlistener-";
 
         private static ILogger logger = Log.Logger;
-        private bool m_closed = false;
 
         private IPEndPoint m_localEndPoint = null;
         private UdpClient m_stunConn = null;
+        private bool m_closed = false;
+
+        public event STUNMessageReceived MessageReceived;
+
+        public IPEndPoint SIPChannelEndPoint
+        {
+            get { return m_localEndPoint; }
+        }
 
         public STUNListener(IPEndPoint endPoint)
         {
@@ -48,13 +54,6 @@ namespace SIPSorcery.Net
                 throw;
             }
         }
-
-        public IPEndPoint SIPChannelEndPoint
-        {
-            get { return m_localEndPoint; }
-        }
-
-        public event STUNMessageReceived MessageReceived;
 
         public void Dispose(bool disposing)
         {
@@ -80,7 +79,7 @@ namespace SIPSorcery.Net
 
                 m_stunConn = stunConn;
 
-                Thread listenThread = new Thread(new ThreadStart(Listen));
+                Thread listenThread = new Thread(new ThreadStart(Listen)) { IsBackground = true };
                 listenThread.Start();
 
                 return localEndPoint;
@@ -118,8 +117,7 @@ namespace SIPSorcery.Net
 
                     if (buffer == null || buffer.Length == 0)
                     {
-                        logger.LogError("Unable to read from STUNListener local end point " +
-                                        m_localEndPoint.Address.ToString() + ":" + m_localEndPoint.Port);
+                        logger.LogError("Unable to read from STUNListener local end point " + m_localEndPoint.Address.ToString() + ":" + m_localEndPoint.Port);
                     }
                     else
                     {
@@ -157,13 +155,11 @@ namespace SIPSorcery.Net
             }
             catch (ObjectDisposedException)
             {
-                logger.LogWarning("The STUNListener was not accessible when attempting to send a message to, " +
-                                  IPSocket.GetSocketString(destinationEndPoint) + ".");
+                logger.LogWarning("The STUNListener was not accessible when attempting to send a message to, " + IPSocket.GetSocketString(destinationEndPoint) + ".");
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception (" + excp.GetType().ToString() + ") STUNListener Send (sendto=>" +
-                                IPSocket.GetSocketString(destinationEndPoint) + "). " + excp.Message);
+                logger.LogError("Exception (" + excp.GetType().ToString() + ") STUNListener Send (sendto=>" + IPSocket.GetSocketString(destinationEndPoint) + "). " + excp.Message);
                 throw;
             }
         }
@@ -179,7 +175,7 @@ namespace SIPSorcery.Net
             }
             catch (Exception excp)
             {
-                logger.LogWarning("Exception STUNListener Close. " + excp.Message);
+                logger.LogWarning(excp, "Exception STUNListener Close. " + excp.Message);
             }
         }
     }

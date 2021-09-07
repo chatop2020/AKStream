@@ -14,32 +14,53 @@
 //-----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using SIPSorceryMedia.Abstractions.V1;
+using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
 {
     public class AudioEncoder : IAudioEncoder
     {
-        private const int G722_BIT_RATE = 64000; // G722 sampling rate is 16KHz with bits per sample of 16.
+        private const int G722_BIT_RATE = 64000;              // G722 sampling rate is 16KHz with bits per sample of 16.
 
         private G722Codec _g722Codec;
         private G722CodecState _g722CodecState;
         private G722Codec _g722Decoder;
         private G722CodecState _g722DecoderState;
 
-        public bool IsSupported(AudioFormat format)
+        private List<AudioFormat> _linearFormats = new List<AudioFormat>
         {
-            switch (format.Codec)
+            new AudioFormat(AudioCodecsEnum.L16, 117, 16000),
+            new AudioFormat(AudioCodecsEnum.L16, 118, 8000),
+
+            // Not recommended due to very, very crude up-sampling in AudioEncoder class. PR's welcome :).
+            //new AudioFormat(121, "L16", "L16/48000", null),
+        };
+
+        private List<AudioFormat> _supportedFormats = new List<AudioFormat>
+        {
+            new AudioFormat(SDPWellKnownMediaFormatsEnum.PCMU),
+            new AudioFormat(SDPWellKnownMediaFormatsEnum.PCMA),
+            new AudioFormat(SDPWellKnownMediaFormatsEnum.G722),
+        };
+
+        public List<AudioFormat> SupportedFormats
+        {
+            get => _supportedFormats;
+        }
+
+        /// <summary>
+        /// Creates a new audio encoder instance.
+        /// </summary>
+        /// <param name="includeLinearFormats">If set to true the linear audio formats will be added
+        /// to the list of supported formats. The reason they are only included if explicitly requested
+        /// is they are not very popular for other VoIP systems and thereofre needlessly pollute the SDP.</param>
+        public AudioEncoder(bool includeLinearFormats = false)
+        {
+            if (includeLinearFormats)
             {
-                case AudioCodecsEnum.G722:
-                case AudioCodecsEnum.PCMA:
-                case AudioCodecsEnum.PCMU:
-                case AudioCodecsEnum.L16:
-                case AudioCodecsEnum.PCM_S16LE:
-                    return true;
-                default:
-                    return false;
+                _supportedFormats.AddRange(_linearFormats);
             }
         }
 
@@ -73,12 +94,12 @@ namespace SIPSorcery.Media
                 //return MemoryMarshal.Cast<short, byte>(pcm)
 
                 // Put on the wire in network byte order (big endian).
-                return pcm.SelectMany(x => new byte[] {(byte) (x >> 8), (byte) (x)}).ToArray();
+                return pcm.SelectMany(x => new byte[] { (byte)(x >> 8), (byte)(x) }).ToArray();
             }
             else if (format.Codec == AudioCodecsEnum.PCM_S16LE)
             {
                 // Put on the wire as little endian.
-                return pcm.SelectMany(x => new byte[] {(byte) (x), (byte) (x >> 8)}).ToArray();
+                return pcm.SelectMany(x => new byte[] { (byte)(x), (byte)(x >> 8) }).ToArray();
             }
             else
             {
@@ -103,8 +124,7 @@ namespace SIPSorcery.Media
                 }
 
                 short[] decodedPcm = new short[encodedSample.Length * 2];
-                int decodedSampleCount =
-                    _g722Decoder.Decode(_g722DecoderState, decodedPcm, encodedSample, encodedSample.Length);
+                int decodedSampleCount = _g722Decoder.Decode(_g722DecoderState, decodedPcm, encodedSample, encodedSample.Length);
 
                 return decodedPcm.Take(decodedSampleCount).ToArray();
             }
@@ -119,15 +139,13 @@ namespace SIPSorcery.Media
             else if (format.Codec == AudioCodecsEnum.L16)
             {
                 // Samples are on the wire as big endian.
-                return encodedSample.Where((x, i) => i % 2 == 0)
-                    .Select((y, i) => (short) (encodedSample[i * 2] << 8 | encodedSample[i * 2 + 1])).ToArray();
+                return encodedSample.Where((x, i) => i % 2 == 0).Select((y, i) => (short)(encodedSample[i * 2] << 8 | encodedSample[i * 2 + 1])).ToArray();
             }
             else if (format.Codec == AudioCodecsEnum.PCM_S16LE)
             {
                 // Samples are on the wire as little endian (well unlikely to be on the wire in this case but when they 
                 // arrive from somewhere like the SkypeBot SDK they will be in little endian format).
-                return encodedSample.Where((x, i) => i % 2 == 0)
-                    .Select((y, i) => (short) (encodedSample[i * 2 + 1] << 8 | encodedSample[i * 2])).ToArray();
+                return encodedSample.Where((x, i) => i % 2 == 0).Select((y, i) => (short)(encodedSample[i * 2 + 1] << 8 | encodedSample[i * 2])).ToArray();
             }
             else
             {
@@ -144,12 +162,12 @@ namespace SIPSorcery.Media
             else if (inRate == 8000 && outRate == 16000)
             {
                 // Crude up-sample to 16Khz by doubling each sample.
-                return pcm.SelectMany(x => new short[] {x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x }).ToArray();
             }
             else if (inRate == 8000 && outRate == 48000)
             {
                 // Crude up-sample to 48Khz by 6x each sample. This sounds bad, use for testing only.
-                return pcm.SelectMany(x => new short[] {x, x, x, x, x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x, x, x, x, x }).ToArray();
             }
             else if (inRate == 16000 && outRate == 8000)
             {
@@ -159,12 +177,11 @@ namespace SIPSorcery.Media
             else if (inRate == 16000 && outRate == 48000)
             {
                 // Crude up-sample to 48Khz by 3x each sample. This sounds bad, use for testing only.
-                return pcm.SelectMany(x => new short[] {x, x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x, x }).ToArray();
             }
             else
             {
-                throw new ApplicationException(
-                    $"Sorry don't know how to re-sample PCM from {inRate} to {outRate}. Pull requests welcome!");
+                throw new ApplicationException($"Sorry don't know how to re-sample PCM from {inRate} to {outRate}. Pull requests welcome!");
             }
         }
     }

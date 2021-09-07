@@ -6,13 +6,10 @@
 // RFC4235 "An INVITE-Initiated Dialog Event Package for the Session Initiation Protocol (SIP)".
 //
 // Author(s):
-// Aaron Clauson
-// 
-// Author(s):
-// Aaron Clauson
+// Aaron Clauson (aaron@sipsorcery.com)
 //
 // History:
-// 28 Feb 2010	Aaron Clauson	Created (aaron@sipsorcery.com), SIPSorcery Ltd, London, UK (www.sipsorcery.com).
+// 28 Feb 2010	Aaron Clauson	Created, Hobart, Australia.
 //
 // License: 
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
@@ -29,7 +26,8 @@ using SIPSorcery.Sys;
 namespace SIPSorcery.SIP
 {
     /// <summary>
-    /// 
+    /// Represents the top level XML element on a SIP event dialog payload as described in: 
+    /// RFC4235 "An INVITE-Initiated Dialog Event Package for the Session Initiation Protocol (SIP)".
     /// </summary>
     /// <remarks>
     /// RFC4235 on Dialog Event Packages:
@@ -64,23 +62,19 @@ namespace SIPSorcery.SIP
     ///  ]]>
     /// </code>
     /// </remarks>
-    public class SIPEventDialogInfo : SIPEvent
+    public class SIPEventDialogInfo
     {
         private static ILogger logger = Log.Logger;
 
         public static readonly string m_dialogXMLNS = SIPEventConsts.DIALOG_XML_NAMESPACE_URN;
-        public List<SIPEventDialog> DialogItems = new List<SIPEventDialog>();
-        public SIPURI Entity;
-
-        public SIPEventDialogInfoStateEnum State;
-        //private static readonly string m_sipsorceryXMLNS = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_URN;
-        //private static readonly string m_sipsorceryXMLPrefix = SIPEventConsts.SIPSORCERY_DIALOG_XML_NAMESPACE_PREFIX;
 
         public int Version;
+        public SIPEventDialogInfoStateEnum State;
+        public SIPURI Entity;
+        public List<SIPEventDialog> DialogItems = new List<SIPEventDialog>();
 
         public SIPEventDialogInfo()
-        {
-        }
+        { }
 
         public SIPEventDialogInfo(int version, SIPEventDialogInfoStateEnum state, SIPURI entity)
         {
@@ -89,17 +83,16 @@ namespace SIPSorcery.SIP
             Entity = entity.CopyOf();
         }
 
-        public override void Load(string dialogInfoXMLStr)
+        public void Load(string dialogInfoXMLStr)
         {
             try
             {
                 XNamespace ns = m_dialogXMLNS;
                 XDocument eventDialogDoc = XDocument.Parse(dialogInfoXMLStr);
 
-                Version = Convert.ToInt32(((XElement) eventDialogDoc.FirstNode).Attribute("version").Value);
-                State = (SIPEventDialogInfoStateEnum) Enum.Parse(typeof(SIPEventDialogInfoStateEnum),
-                    ((XElement) eventDialogDoc.FirstNode).Attribute("state").Value, true);
-                Entity = SIPURI.ParseSIPURI(((XElement) eventDialogDoc.FirstNode).Attribute("entity").Value);
+                Version = Convert.ToInt32(((XElement)eventDialogDoc.FirstNode).Attribute("version").Value);
+                State = (SIPEventDialogInfoStateEnum)Enum.Parse(typeof(SIPEventDialogInfoStateEnum), ((XElement)eventDialogDoc.FirstNode).Attribute("state").Value, true);
+                Entity = SIPURI.ParseSIPURI(((XElement)eventDialogDoc.FirstNode).Attribute("entity").Value);
 
                 var dialogElements = eventDialogDoc.Root.Elements(ns + "dialog");
                 foreach (XElement dialogElement in dialogElements)
@@ -109,7 +102,7 @@ namespace SIPSorcery.SIP
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception SIPEventDialogInfo Ctor. " + excp.Message);
+                logger.LogError("Exception SIPEventDialogInfo constructor. " + excp.Message);
                 throw;
             }
         }
@@ -121,16 +114,14 @@ namespace SIPSorcery.SIP
             return eventDialogInfo;
         }
 
-        public override string ToXMLText()
+        public string ToXMLText()
         {
             XNamespace ns = m_dialogXMLNS;
-            //XNamespace ss = m_sipsorceryXMLNS;
             XDocument dialogEventDoc = new XDocument(new XElement(ns + "dialog-info",
-                //new XAttribute(XNamespace.Xmlns + m_sipsorceryXMLPrefix, m_sipsorceryXMLNS),
                 new XAttribute("version", Version),
                 new XAttribute("state", State),
                 new XAttribute("entity", Entity.ToString())
-            ));
+                ));
 
             DialogItems.ForEach((item) =>
             {

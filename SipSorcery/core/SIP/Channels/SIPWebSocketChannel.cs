@@ -54,264 +54,7 @@ namespace SIPSorcery.SIP
     public class SIPWebSocketChannel : SIPChannel
     {
         private const int CLOSE_TIMEOUT = 5000;
-
-        public const string
-            SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
-
-        private CancellationTokenSource m_cts = new CancellationTokenSource();
-
-        /// <summary>
-        /// Maintains a list of current ingress web socket connections across for this web socket server. This allows the SIP transport
-        /// layer to quickly match a channel where the same connection must be re-used.
-        /// </summary>
-        private ConcurrentDictionary<string, SIPMessagWebSocketBehavior> m_ingressConnections =
-            new ConcurrentDictionary<string, SIPMessagWebSocketBehavior>();
-
-        /// <summary>
-        /// This object is responsible for all the web sockets magic including accepting HTTP requests, matching URLs, handling the
-        /// keep alives etc. etc. Any data messages received by the server will be handed over to the SIP transport layer for processing.
-        /// </summary>
-        private WebSocketServer m_webSocketServer;
-
-        /// <summary>
-        /// Creates a SIP channel to listen for and send SIP messages over a web socket communications layer.
-        /// </summary>
-        /// <param name="endPoint">The IP end point to listen on and send from.</param>
-        public SIPWebSocketChannel(IPEndPoint endPoint, X509Certificate2 certificate) : base()
-        {
-            if (endPoint == null)
-            {
-                throw new ArgumentNullException("endPoint",
-                    "The end point must be specified when creating a SIPWebSocketChannel.");
-            }
-
-            ListeningIPAddress = endPoint.Address;
-            Port = endPoint.Port;
-            IsReliable = true;
-
-            if (certificate == null)
-            {
-                SIPProtocol = SIPProtocolsEnum.ws;
-                m_webSocketServer = new WebSocketServer(endPoint.Address, endPoint.Port, false);
-            }
-            else
-            {
-                SIPProtocol = SIPProtocolsEnum.wss;
-                m_webSocketServer = new WebSocketServer(endPoint.Address, endPoint.Port, true);
-                var sslConfig = m_webSocketServer.SslConfiguration;
-                sslConfig.ServerCertificate = certificate;
-                sslConfig.CheckCertificateRevocation = false;
-                IsSecure = true;
-            }
-
-            //m_webSocketServer.Log.Level = WebSocketSharp.LogLevel.Debug;
-
-            logger.LogInformation($"SIP WebSocket Channel created for {endPoint}.");
-
-            m_webSocketServer.AddWebSocketService<SIPMessagWebSocketBehavior>("/", (behaviour) =>
-            {
-                behaviour.Channel = this;
-                behaviour.Logger = this.logger;
-
-                behaviour.OnClientClose += (id) => m_ingressConnections.TryRemove(id, out _);
-            });
-
-            m_webSocketServer.Start();
-        }
-
-        public SIPWebSocketChannel(IPAddress listenAddress, int listenPort)
-            : this(new IPEndPoint(listenAddress, listenPort), null)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new secure web socket server (e.g. wss://localhost).
-        /// </summary>
-        /// <param name="listenAddress">The IPv4 or IPv6 address to listen on.</param>
-        /// <param name="listenPort">The network port to listen on.</param>
-        /// <param name="certificate">The X509 certificate to supply to connecting clients. Unless
-        /// the client has been specifically configured otherwise the it will perform validation on the certificate
-        /// which typically involved checking that the hostname of the server matches the certificate's common name.</param>
-        public SIPWebSocketChannel(IPAddress listenAddress, int listenPort, X509Certificate2 certificate)
-            : this(new IPEndPoint(listenAddress, listenPort), certificate)
-        {
-        }
-
-        /// <summary>
-        /// Records a new client connection in the list. This allows responses or subsequent requests to the same SIP agent
-        /// to reuse the same connection.
-        /// </summary>
-        /// <param name="id">The unique ID of the client connection.</param>
-        /// <param name="client">The web socket client.</param>
-        private void AddClientConnection(string id, SIPMessagWebSocketBehavior client)
-        {
-            m_ingressConnections.TryAdd(id, client);
-        }
-
-        /// <summary>
-        /// Ideally sends on the web socket channel should specify the connection ID. But if there's
-        /// a good reason not to we can check if there is an existing client connection with the
-        /// requested remote end point and use it.
-        /// </summary>
-        /// <param name="destinationEndPoint">The remote destination end point to send the data to.</param>
-        /// <param name="buffer">The data to send.</param>
-        /// <param name="connectionIDHint">The ID of the specific web socket connection to try and send the message on.</param>
-        /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
-        public override async Task<SocketError> SendAsync(SIPEndPoint destinationEndPoint, byte[] buffer,
-            string connectionIDHint)
-        {
-            if (destinationEndPoint == null)
-            {
-                throw new ApplicationException("An empty destination was specified to Send in SIPWebSocketChannel.");
-            }
-            else if (buffer == null || buffer.Length == 0)
-            {
-                throw new ArgumentException("buffer",
-                    "The buffer must be set and non empty for Send in SIPWebSocketChannel.");
-            }
-
-            try
-            {
-                var ingressClient = GetIngressConnection(destinationEndPoint.GetIPEndPoint(), connectionIDHint);
-
-                // And lastly if we now have a valid web socket then send.
-                if (ingressClient != null)
-                {
-                    await Task.Run(() => ingressClient.Send(buffer, 0, buffer.Length)).ConfigureAwait(false);
-                    return SocketError.Success;
-                }
-                else
-                {
-                    return SocketError.ConnectionReset;
-                }
-            }
-            catch (SocketException sockExcp)
-            {
-                return sockExcp.SocketErrorCode;
-            }
-        }
-
-        /// <summary>
-        /// Not implemented for the WebSocket channel.
-        /// </summary>
-        public override Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer,
-            string serverCertificateName, string connectionIDHint)
-        {
-            throw new NotImplementedException(
-                "This Send method is not available in the SIP Web Socket channel, please use an alternative overload.");
-        }
-
-        /// <summary>
-        /// Checks whether the web socket SIP channel has a connection matching a unique connection ID.
-        /// </summary>
-        /// <param name="connectionID">The connection ID to check for a match on.</param>
-        /// <returns>True if a match is found or false if not.</returns>
-        public override bool HasConnection(string connectionID)
-        {
-            return m_ingressConnections.ContainsKey(connectionID);
-        }
-
-        /// <summary>
-        /// Checks whether there is an existing client web socket connection for a remote end point.
-        /// </summary>
-        /// <param name="remoteEndPoint">The remote end point to check for an existing connection.</param>
-        /// <returns>True if there is a connection or false if not.</returns>
-        public override bool HasConnection(SIPEndPoint remoteEndPoint)
-        {
-            return m_ingressConnections.Any(x => x.Value.Context.UserEndPoint.Equals(remoteEndPoint.GetIPEndPoint()));
-        }
-
-        /// <summary>
-        /// Not implemented for the this channel.
-        /// </summary>
-        public override bool HasConnection(Uri serverUri)
-        {
-            throw new NotImplementedException(
-                "This HasConnection method is not available in the SIP Web Socket channel, please use an alternative overload.");
-        }
-
-        /// <summary>
-        /// Checks whether the specified address family is supported.
-        /// </summary>
-        /// <param name="addresFamily">The address family to check.</param>
-        /// <returns>True if supported, false if not.</returns>
-        public override bool IsAddressFamilySupported(AddressFamily addresFamily)
-        {
-            return addresFamily == ListeningIPAddress.AddressFamily;
-        }
-
-        /// <summary>
-        /// Checks whether the specified protocol is supported.
-        /// </summary>
-        /// <param name="protocol">The protocol to check.</param>
-        /// <returns>True if supported, false if not.</returns>
-        public override bool IsProtocolSupported(SIPProtocolsEnum protocol)
-        {
-            if (IsSecure)
-            {
-                return protocol == SIPProtocolsEnum.wss;
-            }
-            else
-            {
-                return protocol == SIPProtocolsEnum.ws;
-            }
-        }
-
-        /// <summary>
-        /// Stops the web socket server and closes any client connections.
-        /// </summary>
-        public override void Close()
-        {
-            try
-            {
-                logger.LogDebug($"Closing SIP Web Socket Channel {ListeningEndPoint}.");
-
-                Closed = true;
-                //m_webSocketServer.Stop();
-
-                // The web socket server hangs when attempting to shutdown on Ubuntu.
-                Task.WhenAny(Task.Run(m_webSocketServer.Stop), Task.Delay(CLOSE_TIMEOUT)).Wait();
-            }
-            catch (Exception excp)
-            {
-                logger.LogWarning("Exception SIPWebSocketChannel Close. " + excp.Message);
-            }
-        }
-
-        /// <summary>
-        /// Calls close on the channel when it is disposed.
-        /// </summary>
-        public override void Dispose()
-        {
-            this.Close();
-        }
-
-        /// <summary>
-        /// Attempts to get a web socket ingress connection (one where a client connected to us).
-        /// </summary>
-        /// <param name="destinationEndPoint">The remote end point of the connection.</param>
-        /// <param name="connectionIDHint">Optional. A connection ID hint for the ingress connection.</param>
-        /// <returns>Returns the client connection or null if not found.</returns>
-        private SIPMessagWebSocketBehavior GetIngressConnection(IPEndPoint destinationEndPoint, string connectionIDHint)
-        {
-            SIPMessagWebSocketBehavior client = null;
-
-            if (connectionIDHint != null)
-            {
-                // This send needs to use a specific web socket connection. If the connection has been closed
-                // then don't attempt to re-connect (often not possible any way).
-
-                m_ingressConnections.TryGetValue(connectionIDHint, out client);
-            }
-
-            if (client == null)
-            {
-                client = m_ingressConnections.Where(x => x.Value.Context.UserEndPoint.Equals(destinationEndPoint))
-                    .Select(x => x.Value).FirstOrDefault();
-            }
-
-            return client;
-        }
+        public const string SIP_Sec_WebSocket_Protocol = "sip"; // Web socket protocol string for SIP as defined in RFC7118.
 
         /// <summary>
         /// The web socket server instantiates an instance of this class for each web socket client that connects. The methods 
@@ -319,20 +62,20 @@ namespace SIPSorcery.SIP
         /// </summary>
         private class SIPMessagWebSocketBehavior : WebSocketBehavior
         {
-            /// <summary>
-            /// This is the local end point for the web socket connection. It can be different from the listening end point if
-            /// the IPAddress.Any is being used.
-            /// </summary>
-            private IPEndPoint _localEndPoint;
+            internal SIPWebSocketChannel Channel;
+            internal ILogger Logger;
+            private SIPProtocolsEnum _sipProtocol;
 
             /// <summary>
             /// This is the remote end point for the web socket connection.
             /// </summary>
             private IPEndPoint _remoteEndPoint;
 
-            private SIPProtocolsEnum _sipProtocol;
-            internal SIPWebSocketChannel Channel;
-            internal ILogger Logger;
+            /// <summary>
+            /// This is the local end point for the web socket connection. It can be different from the listening end point if
+            /// the IPAddress.Any is being used.
+            /// </summary>
+            private IPEndPoint _localEndPoint;
 
             public Action<string> OnClientClose;
 
@@ -380,6 +123,251 @@ namespace SIPSorcery.SIP
             {
                 base.Send(buffer.Skip(offset).Take(length).ToArray());
             }
+        }
+
+        /// <summary>
+        /// This object is responsible for all the web sockets magic including accepting HTTP requests, matching URLs, handling the
+        /// keep alives etc. etc. Any data messages received by the server will be handed over to the SIP transport layer for processing.
+        /// </summary>
+        private WebSocketServer m_webSocketServer;
+
+        /// <summary>
+        /// Maintains a list of current ingress web socket connections across for this web socket server. This allows the SIP transport
+        /// layer to quickly match a channel where the same connection must be re-used.
+        /// </summary>
+        private ConcurrentDictionary<string, SIPMessagWebSocketBehavior> m_ingressConnections = new ConcurrentDictionary<string, SIPMessagWebSocketBehavior>();
+
+        private CancellationTokenSource m_cts = new CancellationTokenSource();
+
+        /// <summary>
+        /// Creates a SIP channel to listen for and send SIP messages over a web socket communications layer.
+        /// </summary>
+        /// <param name="endPoint">The IP end point to listen on and send from.</param>
+        public SIPWebSocketChannel(IPEndPoint endPoint, X509Certificate2 certificate) : base()
+        {
+            if (endPoint == null)
+            {
+                throw new ArgumentNullException("endPoint", "The end point must be specified when creating a SIPWebSocketChannel.");
+            }
+
+            ListeningIPAddress = endPoint.Address;
+            Port = endPoint.Port;
+            IsReliable = true;
+
+            if (certificate == null)
+            {
+                SIPProtocol = SIPProtocolsEnum.ws;
+                m_webSocketServer = new WebSocketServer(endPoint.Address, endPoint.Port, false);
+            }
+            else
+            {
+                SIPProtocol = SIPProtocolsEnum.wss;
+                m_webSocketServer = new WebSocketServer(endPoint.Address, endPoint.Port, true);
+                var sslConfig = m_webSocketServer.SslConfiguration;
+                sslConfig.ServerCertificate = certificate;
+                sslConfig.CheckCertificateRevocation = false;
+                IsSecure = true;
+            }
+
+            //m_webSocketServer.Log.Level = WebSocketSharp.LogLevel.Debug;
+
+            logger.LogInformation($"SIP WebSocket Channel created for {endPoint}.");
+
+            m_webSocketServer.AddWebSocketService<SIPMessagWebSocketBehavior>("/", (behaviour) =>
+            {
+                behaviour.Channel = this;
+                behaviour.Logger = this.logger;
+
+                behaviour.OnClientClose += (id) => m_ingressConnections.TryRemove(id, out _);
+            });
+
+            m_webSocketServer.Start();
+        }
+
+        public SIPWebSocketChannel(IPAddress listenAddress, int listenPort)
+            : this(new IPEndPoint(listenAddress, listenPort), null)
+        { }
+
+        /// <summary>
+        /// Creates a new secure web socket server (e.g. wss://localhost).
+        /// </summary>
+        /// <param name="listenAddress">The IPv4 or IPv6 address to listen on.</param>
+        /// <param name="listenPort">The network port to listen on.</param>
+        /// <param name="certificate">The X509 certificate to supply to connecting clients. Unless
+        /// the client has been specifically configured otherwise the it will perform validation on the certificate
+        /// which typically involved checking that the hostname of the server matches the certificate's common name.</param>
+        public SIPWebSocketChannel(IPAddress listenAddress, int listenPort, X509Certificate2 certificate)
+            : this(new IPEndPoint(listenAddress, listenPort), certificate)
+        { }
+
+        /// <summary>
+        /// Records a new client connection in the list. This allows responses or subsequent requests to the same SIP agent
+        /// to reuse the same connection.
+        /// </summary>
+        /// <param name="id">The unique ID of the client connection.</param>
+        /// <param name="client">The web socket client.</param>
+        private void AddClientConnection(string id, SIPMessagWebSocketBehavior client)
+        {
+            m_ingressConnections.TryAdd(id, client);
+        }
+
+        /// <summary>
+        /// Ideally sends on the web socket channel should specify the connection ID. But if there's
+        /// a good reason not to we can check if there is an existing client connection with the
+        /// requested remote end point and use it.
+        /// </summary>
+        /// <param name="destinationEndPoint">The remote destination end point to send the data to.</param>
+        /// <param name="buffer">The data to send.</param>
+        /// <param name="connectionIDHint">The ID of the specific web socket connection to try and send the message on.</param>
+        /// <returns>If no errors SocketError.Success otherwise an error value.</returns>
+        public override async Task<SocketError> SendAsync(SIPEndPoint destinationEndPoint, byte[] buffer, bool canInitiateConnection, string connectionIDHint)
+        {
+            if (destinationEndPoint == null)
+            {
+                throw new ApplicationException("An empty destination was specified to Send in SIPWebSocketChannel.");
+            }
+            else if (buffer == null || buffer.Length == 0)
+            {
+                throw new ArgumentException("buffer", "The buffer must be set and non empty for Send in SIPWebSocketChannel.");
+            }
+
+            try
+            {
+                var ingressClient = GetIngressConnection(destinationEndPoint.GetIPEndPoint(), connectionIDHint);
+
+                // And lastly if we now have a valid web socket then send.
+                if (ingressClient != null)
+                {
+                    await Task.Run(() => ingressClient.Send(buffer, 0, buffer.Length)).ConfigureAwait(false);
+                    return SocketError.Success;
+                }
+                else
+                {
+                    return SocketError.ConnectionReset;
+                }
+            }
+            catch (SocketException sockExcp)
+            {
+                return sockExcp.SocketErrorCode;
+            }
+        }
+
+        /// <summary>
+        /// Not implemented for the WebSocket channel.
+        /// </summary>
+        public override Task<SocketError> SendSecureAsync(SIPEndPoint dstEndPoint, byte[] buffer, string serverCertificateName, bool canInitiateConnection, string connectionIDHint)
+        {
+            throw new NotImplementedException("This Send method is not available in the SIP Web Socket channel, please use an alternative overload.");
+        }
+
+        /// <summary>
+        /// Checks whether the web socket SIP channel has a connection matching a unique connection ID.
+        /// </summary>
+        /// <param name="connectionID">The connection ID to check for a match on.</param>
+        /// <returns>True if a match is found or false if not.</returns>
+        public override bool HasConnection(string connectionID)
+        {
+            return m_ingressConnections.ContainsKey(connectionID);
+        }
+
+        /// <summary>
+        /// Checks whether there is an existing client web socket connection for a remote end point.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote end point to check for an existing connection.</param>
+        /// <returns>True if there is a connection or false if not.</returns>
+        public override bool HasConnection(SIPEndPoint remoteEndPoint)
+        {
+            return m_ingressConnections.Any(x => x.Value.Context.UserEndPoint.Equals(remoteEndPoint.GetIPEndPoint()));
+        }
+
+        /// <summary>
+        /// Not implemented for the this channel.
+        /// </summary>
+        public override bool HasConnection(Uri serverUri)
+        {
+            throw new NotImplementedException("This HasConnection method is not available in the SIP Web Socket channel, please use an alternative overload.");
+        }
+
+        /// <summary>
+        /// Checks whether the specified address family is supported.
+        /// </summary>
+        /// <param name="addresFamily">The address family to check.</param>
+        /// <returns>True if supported, false if not.</returns>
+        public override bool IsAddressFamilySupported(AddressFamily addresFamily)
+        {
+            return addresFamily == ListeningIPAddress.AddressFamily;
+        }
+
+        /// <summary>
+        /// Checks whether the specified protocol is supported.
+        /// </summary>
+        /// <param name="protocol">The protocol to check.</param>
+        /// <returns>True if supported, false if not.</returns>
+        public override bool IsProtocolSupported(SIPProtocolsEnum protocol)
+        {
+            if (IsSecure)
+            {
+                return protocol == SIPProtocolsEnum.wss;
+            }
+            else
+            {
+                return protocol == SIPProtocolsEnum.ws;
+            }
+        }
+
+        /// <summary>
+        /// Stops the web socket server and closes any client connections.
+        /// </summary>
+        public override void Close()
+        {
+            try
+            {
+                logger.LogDebug($"Closing SIP Web Socket Channel {ListeningEndPoint}.");
+
+                Closed = true;
+                //m_webSocketServer.Stop();
+
+                // The web socket server hangs when attempting to shutdown on Ubuntu.
+                Task.WhenAny(Task.Run(m_webSocketServer.Stop), Task.Delay(CLOSE_TIMEOUT)).Wait();
+            }
+            catch (Exception excp)
+            {
+                logger.LogWarning(excp, "Exception SIPWebSocketChannel Close. " + excp.Message);
+            }
+        }
+
+        /// <summary>
+        /// Calls close on the channel when it is disposed.
+        /// </summary>
+        public override void Dispose()
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// Attempts to get a web socket ingress connection (one where a client connected to us).
+        /// </summary>
+        /// <param name="destinationEndPoint">The remote end point of the connection.</param>
+        /// <param name="connectionIDHint">Optional. A connection ID hint for the ingress connection.</param>
+        /// <returns>Returns the client connection or null if not found.</returns>
+        private SIPMessagWebSocketBehavior GetIngressConnection(IPEndPoint destinationEndPoint, string connectionIDHint)
+        {
+            SIPMessagWebSocketBehavior client = null;
+
+            if (connectionIDHint != null)
+            {
+                // This send needs to use a specific web socket connection. If the connection has been closed
+                // then don't attempt to re-connect (often not possible any way).
+
+                m_ingressConnections.TryGetValue(connectionIDHint, out client);
+            }
+
+            if (client == null)
+            {
+                client = m_ingressConnections.Where(x => x.Value.Context.UserEndPoint.Equals(destinationEndPoint)).Select(x => x.Value).FirstOrDefault();
+            }
+
+            return client;
         }
     }
 }

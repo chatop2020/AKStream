@@ -572,7 +572,7 @@ namespace LibGB28181SipServer
             return true; //需要鉴权
         }
 
-        /// <summary>
+       /// <summary>
         /// 处理sip设备注册事件
         /// </summary>
         /// <param name="localSipChannel"></param>
@@ -639,7 +639,7 @@ namespace LibGB28181SipServer
                     if (Common.SipServerConfig.Authentication &&
                         CheckDeviceAuthenticationNeed(sipDeviceId, sipDeviceIpV4Address, sipDeviceIpV6Address))
                     {
-                        if (sipRequest.Header.AuthenticationHeader == null)
+                        if (sipRequest.Header.AuthenticationHeaders.Count<=0 )
                         {
                             SIPAuthenticationHeader authHeader =
                                 new SIPAuthenticationHeader(SIPAuthorisationHeadersEnum.WWWAuthenticate,
@@ -652,8 +652,8 @@ namespace LibGB28181SipServer
 
                             var unAuthorizedResponse = SIPResponse.GetResponse(sipRequest,
                                 SIPResponseStatusCodesEnum.Unauthorized, null);
-                            unAuthorizedResponse.Header.AuthenticationHeader =
-                                unAuthorisedHead.AuthenticationRequiredHeader;
+                            unAuthorizedResponse.Header.AuthenticationHeaders.Add( unAuthorisedHead.AuthenticationRequiredHeader);
+
                             unAuthorizedResponse.Header.Allow = null;
                             unAuthorizedResponse.Header.Expires = 7200;
                             await Common.SipServer.SipTransport.SendResponseAsync(unAuthorizedResponse);
@@ -667,18 +667,18 @@ namespace LibGB28181SipServer
                              HA2=MD5(Method:Uri)//Method一般有INVITE, ACK, OPTIONS, BYE, CANCEL, REGISTER；Uri可以在字段“Authorization”找到
                              response = MD5(HA1:nonce:HA2)
                              */
-                            string ha1 = UtilsHelper.Md5(sipRequest.Header.AuthenticationHeader.SIPDigest.Username +
-                                                         ":" + sipRequest.Header.AuthenticationHeader.SIPDigest.Realm +
+                            string ha1 = UtilsHelper.Md5(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Username +
+                                                         ":" + sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Realm +
                                                          ":" + (string.IsNullOrEmpty(password)
                                                              ? Common.SipServerConfig.SipPassword
                                                              : password));
 
                             string ha2 = UtilsHelper.Md5("REGISTER" + ":" +
-                                                         sipRequest.Header.AuthenticationHeader.SIPDigest.URI);
+                                                         sipRequest.Header.AuthenticationHeaders[0].SIPDigest.URI);
                             string ha3 = UtilsHelper.Md5(ha1 + ":" +
-                                                         sipRequest.Header.AuthenticationHeader.SIPDigest.Nonce + ":" +
+                                                         sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Nonce + ":" +
                                                          ha2);
-                            if (!ha3.Equals(sipRequest.Header.AuthenticationHeader.SIPDigest.Response))
+                            if (!ha3.Equals(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Response))
                             {
                                 Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->鉴权失败,注册失败");

@@ -95,45 +95,8 @@ namespace SIPSorcery.Net
     {
         private static readonly ILogger logger = Log.Logger;
 
-        /// <summary>
-        /// The number of checks that have been sent without a response.
-        /// </summary>
-        public int ChecksSent;
-
-        /// <summary>
-        /// The candidate pairs whose local and remote candidates are both the
-        /// default candidates for a particular component is called the "default
-        /// candidate pair" for that component.  This is the pair that would be
-        /// used to transmit data if both agents had not been ICE aware.
-        /// </summary>
-        public bool Default;
-
-        /// <summary>
-        /// Timestamp the first connectivity check (STUN binding request) was sent at.
-        /// </summary>
-        public DateTime FirstCheckSentAt = DateTime.MinValue;
-
-        /// <summary>
-        /// Timestamp the last connectivity check (STUN binding request) was sent at.
-        /// </summary>
-        public DateTime LastCheckSentAt = DateTime.MinValue;
-
         public RTCIceCandidate LocalCandidate;
-
-        /// <summary>
-        /// Gets set to true if this entry is selected as the single nominated entry to be
-        /// used for the session communications. Setting a check list entry as nominated
-        /// indicates the ICE checks have been successful and the application can begin
-        /// normal communications.
-        /// </summary>
-        public bool Nominated;
-
         public RTCIceCandidate RemoteCandidate;
-
-        /// <summary>
-        /// The transaction ID that was set in the last STUN request connectivity check.
-        /// </summary>
-        public string RequestTransactionID;
 
         /// <summary>
         /// The current state of this checklist entry. Indicates whether a STUN check has been
@@ -146,10 +109,91 @@ namespace SIPSorcery.Net
         public ChecklistEntryState State = ChecklistEntryState.Frozen;
 
         /// <summary>
+        /// The candidate pairs whose local and remote candidates are both the
+        /// default candidates for a particular component is called the "default
+        /// candidate pair" for that component.  This is the pair that would be
+        /// used to transmit data if both agents had not been ICE aware.
+        /// </summary>
+        public bool Default;
+
+        /// <summary>
         /// Gets set to true when the connectivity checks for the candidate pair are
         /// successful. Valid entries are eligible to be set as nominated.
         /// </summary>
         public bool Valid;
+
+        /// <summary>
+        /// Gets set to true if this entry is selected as the single nominated entry to be
+        /// used for the session communications. Setting a check list entry as nominated
+        /// indicates the ICE checks have been successful and the application can begin
+        /// normal communications.
+        /// </summary>
+        public bool Nominated;
+
+        public uint LocalPriority { get; private set; }
+
+        public uint RemotePriority { get; private set; }
+
+        /// <summary>
+        /// The priority for the candidate pair:
+        ///  - Let G be the priority for the candidate provided by the controlling agent.
+        ///  - Let D be the priority for the candidate provided by the controlled agent.
+        /// Pair Priority = 2^32*MIN(G,D) + 2*MAX(G,D) + (G>D?1:0)
+        /// </summary>
+        /// <remarks>
+        /// See https://tools.ietf.org/html/rfc8445#section-6.1.2.3.
+        /// </remarks>
+        public ulong Priority =>
+                ((2 << 32) * Math.Min(LocalPriority, RemotePriority) +
+                2 * Math.Max(LocalPriority, RemotePriority) +
+                (ulong)((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
+                    : RemotePriority > LocalPriority ? 1 : 0));
+
+        /// <summary>
+        /// Timestamp the first connectivity check (STUN binding request) was sent at.
+        /// </summary>
+        public DateTime FirstCheckSentAt = DateTime.MinValue;
+
+        /// <summary>
+        /// Timestamp the last connectivity check (STUN binding request) was sent at.
+        /// </summary>
+        public DateTime LastCheckSentAt = DateTime.MinValue;
+
+        /// <summary>
+        /// The number of checks that have been sent without a response.
+        /// </summary>
+        public int ChecksSent;
+
+        /// <summary>
+        /// The transaction ID that was set in the last STUN request connectivity check.
+        /// </summary>
+        public string RequestTransactionID;
+
+        /// <summary>
+        /// Before a remote peer will be able to use the relay it's IP address needs
+        /// to be authorised by sending a Create Permissions request to the TURN server.
+        /// This field records the number of Create Permissions requests that have been
+        /// sent for this entry.
+        /// </summary>
+        public int TurnPermissionsRequestSent { get; set; } = 0;
+
+        /// <summary>
+        /// This field records the time a Create Permissions response was received.
+        /// </summary>
+        public DateTime TurnPermissionsResponseAt { get; set; } = DateTime.MinValue;
+
+        /// <summary>
+        /// If a candidate has been nominated this field records the time the last
+        /// STUN binding response was received from the remote peer.
+        /// </summary>
+        public DateTime LastConnectedResponseAt { get; set; }
+
+        public bool IsLocalController { get; private set; }
+
+        /// <summary>
+        /// Timestamp for the most recent binding request received from the remote peer.
+        /// </summary>
+        public DateTime LastBindingRequestReceivedAt { get; set; }
 
         /// <summary>
         /// Creates a new entry for the ICE session checklist.
@@ -166,46 +210,6 @@ namespace SIPSorcery.Net
             LocalPriority = localCandidate.priority;
             RemotePriority = remoteCandidate.priority;
         }
-
-        public uint LocalPriority { get; private set; }
-
-        public uint RemotePriority { get; private set; }
-
-        /// <summary>
-        /// The priority for the candidate pair:
-        ///  - Let G be the priority for the candidate provided by the controlling agent.
-        ///  - Let D be the priority for the candidate provided by the controlled agent.
-        /// Pair Priority = 2^32*MIN(G,D) + 2*MAX(G,D) + (G>D?1:0)
-        /// </summary>
-        /// <remarks>
-        /// See https://tools.ietf.org/html/rfc8445#section-6.1.2.3.
-        /// </remarks>
-        public ulong Priority =>
-            ((2 << 32) * Math.Min(LocalPriority, RemotePriority) +
-             2 * Math.Max(LocalPriority, RemotePriority) +
-             (ulong) ((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
-                 : RemotePriority > LocalPriority ? 1 : 0));
-
-        /// <summary>
-        /// Before a remote peer will be able to use the relay it's IP address needs
-        /// to be authorised by sending a Create Permissions request to the TURN server.
-        /// This field records the number of Create Permissions requests that have been
-        /// sent for this entry.
-        /// </summary>
-        public int TurnPermissionsRequestSent { get; set; } = 0;
-
-        /// <summary>
-        /// This field records the time a Create Permissions response was received.
-        /// </summary>
-        public DateTime TurnPermissionsResponseAt { get; set; } = DateTime.MinValue;
-
-        /// <summary>
-        /// If a candidate has been nominated then this field records the time the last
-        /// STUN binding response was received from the remote peer.
-        /// </summary>
-        public DateTime LastConnectedResponseAt { get; set; }
-
-        public bool IsLocalController { get; private set; }
 
         /// <summary>
         /// Compare method to allow the checklist to be sorted in priority order.
@@ -232,6 +236,7 @@ namespace SIPSorcery.Net
                     // If the candidate has been nominated then this is a response to a periodic
                     // check to whether the connection is still available.
                     LastConnectedResponseAt = DateTime.Now;
+                    RequestTransactionID = Crypto.GetRandomString(STUNHeader.TRANSACTION_ID_LENGTH);
                 }
                 else
                 {
@@ -248,21 +253,18 @@ namespace SIPSorcery.Net
             }
             else if (stunResponse.Header.MessageType == STUNMessageTypesEnum.CreatePermissionSuccessResponse)
             {
-                logger.LogDebug(
-                    $"A TURN Create Permission success response was received from {remoteEndPoint} (TxID: {Encoding.ASCII.GetString(stunResponse.Header.TransactionId)}).");
+                logger.LogDebug($"A TURN Create Permission success response was received from {remoteEndPoint} (TxID: {Encoding.ASCII.GetString(stunResponse.Header.TransactionId)}).");
                 TurnPermissionsResponseAt = DateTime.Now;
             }
             else if (stunResponse.Header.MessageType == STUNMessageTypesEnum.CreatePermissionErrorResponse)
             {
-                logger.LogWarning(
-                    $"ICE RTP channel TURN Create Permission error response was received from {remoteEndPoint}.");
+                logger.LogWarning($"ICE RTP channel TURN Create Permission error response was received from {remoteEndPoint}.");
                 TurnPermissionsResponseAt = DateTime.Now;
                 State = ChecklistEntryState.Failed;
             }
             else
             {
-                logger.LogWarning(
-                    $"ICE RTP channel received an unexpected STUN response {stunResponse.Header.MessageType} from {remoteEndPoint}.");
+                logger.LogWarning($"ICE RTP channel received an unexpected STUN response {stunResponse.Header.MessageType} from {remoteEndPoint}.");
             }
         }
     }

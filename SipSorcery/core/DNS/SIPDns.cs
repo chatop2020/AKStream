@@ -8,6 +8,7 @@
 // 
 // History:
 // 20 Jul 2020	Aaron Clauson	Created, Dublin, Ireland.
+// 05 Jan 2021  Aaron Clauson   Re-enabled cache lookups (now supported by DNS library).
 //
 // License: 
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
@@ -51,11 +52,12 @@ namespace SIPSorcery.SIP
     /// - A DNS server has been observed to not respond at all to NAPTR or SRV record queries meaning lookups for
     ///   them will permanently time out.
     /// </remarks>
-    public class SIPDns
+    public static class SIPDns
     {
         public const string MDNS_TLD = "local"; // Top Level Domain name for multicast lookups as per RFC6762.
         public const int DNS_TIMEOUT_SECONDS = 1;
         public const int DNS_RETRIES_PER_SERVER = 1;
+        public const int CACHE_FAILED_RESULTS_DURATION = 10;    // Cache failed DNS responses for this duration in seconds.
 
         private static readonly ILogger logger = Log.Logger;
 
@@ -66,9 +68,26 @@ namespace SIPSorcery.SIP
         /// </summary>
         public static bool UseANYLookups = false;
 
-        //public static List<DnsClient.NameServer> DefaultNameServers { get; set; }
+        private static ILookupClient _lookupClient;
 
-        private static LookupClient _lookupClient;
+        /// <summary>
+        /// The client performing the SIP DNS lookups. In normal circumstances this property does not need to
+        /// be set manually and care needs to be taken if it is. SIP relies heavily on DNS lookups and most
+        /// functions will fail if the DNS client is misconfigured.
+        /// </summary>
+        public static ILookupClient LookupClient
+        {
+            get
+            {
+                return _lookupClient;
+            }
+            set
+            {
+                // Intended to allow unit testing with client options that will cause the
+                // lookup logic to execute failure conditions.
+                _lookupClient = value;
+            }
+        }
 
         static SIPDns()
         {
@@ -78,34 +97,23 @@ namespace SIPSorcery.SIP
                 Retries = DNS_RETRIES_PER_SERVER,
                 Timeout = TimeSpan.FromSeconds(DNS_TIMEOUT_SECONDS),
                 UseCache = true,
-                // TODO: Re-enable when DnsClient adds cache querying.
-                //UseCacheForFailures = true,
+                CacheFailedResults = true,
+                FailedResultsCacheDuration = TimeSpan.FromSeconds(CACHE_FAILED_RESULTS_DURATION)
             };
 
             _lookupClient = new LookupClient(clientOptions);
         }
 
-        public static LookupClient LookupClient
-        {
-            get { return _lookupClient; }
-            internal set
-            {
-                // Intended to allow unit testing with client options that will cause the
-                // lookup logic to execute failure conditions.
-                _lookupClient = value;
-            }
-        }
-
         public static SIPEndPoint ResolveFromCache(SIPURI uri, bool preferIPv6)
         {
-            if (uri == null || String.IsNullOrWhiteSpace(uri.MAddrOrHostAddress))
+            if (uri == null || string.IsNullOrWhiteSpace(uri.MAddrOrHostAddress))
             {
                 throw new ArgumentNullException("uri", "SIP DNS resolve was supplied an empty input.");
             }
 
             if (!ushort.TryParse(uri.HostPort, out var uriPort))
             {
-                uriPort = SIPConstants.DEFAULT_SIP_PORT;
+                uriPort = (uri.Scheme == SIPSchemesEnum.sip) ? SIPConstants.DEFAULT_SIP_PORT : SIPConstants.DEFAULT_SIP_TLS_PORT;
             }
 
             if (IPAddress.TryParse(uri.MAddrOrHostAddress, out var ipAddress))
@@ -115,8 +123,11 @@ namespace SIPSorcery.SIP
             }
             else if (!uri.MAddrOrHostAddress.Contains(".") || uri.MAddrOrHostAddress.EndsWith(MDNS_TLD))
             {
-                // No caching for local network hostnames.
-                return null;
+                // The meaning of "cached" is being extended here to include any DNS lookups that can be done
+                // by the OS. Since these lookups cannot be sent to an external DNS server they cannot be
+                // stored in the external lookup client's cache. The assumption, which should be fairly reasonable,
+                // is that lookups that can be done from a DNS server on the local subnet should be fast.
+                return ResolveLocalHostname(uri, preferIPv6);
             }
             else
             {
@@ -142,14 +153,14 @@ namespace SIPSorcery.SIP
         /// <returns>A SIPEndPoint or null.</returns>
         public static Task<SIPEndPoint> ResolveAsync(SIPURI uri, bool preferIPv6, CancellationToken ct)
         {
-            if (uri == null || String.IsNullOrWhiteSpace(uri.MAddrOrHostAddress))
+            if (uri == null || string.IsNullOrWhiteSpace(uri.MAddrOrHostAddress))
             {
                 throw new ArgumentNullException("uri", "SIP DNS resolve was supplied an empty input.");
             }
 
             if (!ushort.TryParse(uri.HostPort, out var uriPort))
             {
-                uriPort = SIPConstants.DEFAULT_SIP_PORT;
+                uriPort = (uri.Scheme == SIPSchemesEnum.sip) ? SIPConstants.DEFAULT_SIP_PORT : SIPConstants.DEFAULT_SIP_TLS_PORT;
             }
 
             if (IPAddress.TryParse(uri.MAddrOrHostAddress, out var ipAddress))
@@ -190,80 +201,76 @@ namespace SIPSorcery.SIP
             QueryType startQuery,
             bool preferIPv6)
         {
-            CancellationTokenSource cts = new CancellationTokenSource();
-            return SIPLookupAsync(uri, startQuery, preferIPv6, cts.Token).Result;
+            SIPEndPoint result = null;
+            QueryType queryType = startQuery;
 
-            // TODO: Re-enable when DnsClient adds cache querying.
-            //SIPEndPoint result = null;
-            //QueryType queryType = startQuery;
+            string host = uri.MAddrOrHostAddress;
+            int port = SIPConstants.GetDefaultPort(uri.Protocol);
+            if (ushort.TryParse(uri.HostPort, out var uriPort))
+            {
+                port = uriPort;
+            }
 
-            //string host = uri.MAddrOrHostAddress;
-            //int port = SIPConstants.GetDefaultPort(uri.Protocol);
-            //if (ushort.TryParse(uri.HostPort, out var uriPort))
-            //{
-            //    port = uriPort;
-            //}
+            bool isDone = false;
 
-            //bool isDone = false;
+            while (!isDone)
+            {
+                switch (queryType)
+                {
+                    case QueryType.SRV:
 
-            //while (!isDone)
-            //{
-            //    switch (queryType)
-            //    {
-            //        case QueryType.SRV:
+                        var srvProtocol = SIPServices.GetSRVProtocolForSIPURI(uri);
+                        string serviceHost = DnsQueryExtensions.ConcatServiceName(uri.MAddrOrHostAddress, uri.Scheme.ToString(), srvProtocol.ToString());
+                        var srvResult = _lookupClient.QueryCache(serviceHost, QueryType.SRV);
+                        (var srvHost, var srvPort) = GetHostAndPortFromSrvResult(srvResult);
+                        if (srvHost != null)
+                        {
+                            host = srvHost;
+                            port = srvPort != 0 ? srvPort : port;
+                        }
+                        queryType = preferIPv6 ? QueryType.AAAA : QueryType.A;
 
-            //            var srvProtocol = SIPServices.GetSRVProtocolForSIPURI(uri);
-            //            string serviceHost = DnsQueryExtensions.ConcatResolveServiceName(uri.MAddrOrHostAddress, uri.Scheme.ToString(), srvProtocol.ToString());
-            //            var srvResult = _lookupClient.QueryCache(serviceHost, QueryType.SRV);
-            //            (var srvHost, var srvPort) = GetHostAndPortFromSrvResult(srvResult);
-            //            if (srvHost != null)
-            //            {
-            //                host = srvHost;
-            //                port = srvPort != 0 ? srvPort : port;
-            //            }
-            //            queryType = preferIPv6 ? QueryType.AAAA : QueryType.A;
+                        break;
 
-            //            break;
+                    case QueryType.AAAA:
 
-            //        case QueryType.AAAA:
+                        var aaaaResult = _lookupClient.QueryCache(host, UseANYLookups ? QueryType.ANY : QueryType.AAAA, QueryClass.IN);
+                        if (aaaaResult?.Answers?.Count > 0)
+                        {
+                            result = GetFromLookupResult(uri.Protocol, aaaaResult.Answers.OrderByDescending(x => x.RecordType).First(), port);
+                            isDone = true;
+                        }
+                        else
+                        {
+                            queryType = QueryType.A;
+                        }
 
-            //            var aaaaResult = _lookupClient.QueryCache(host, UseANYLookups ? QueryType.ANY : QueryType.AAAA, QueryClass.IN);
-            //            if (aaaaResult?.Answers?.Count > 0)
-            //            {
-            //                result = GetFromLookupResult(uri.Protocol, aaaaResult.Answers.OrderByDescending(x => x.RecordType).First(), port);
-            //                isDone = true;
-            //            }
-            //            else
-            //            {
-            //                queryType = QueryType.A;
-            //            }
+                        break;
 
-            //            break;
+                    default:
+                        // A record lookup.
 
-            //        default:
-            //            // A record lookup.
+                        var aResult = _lookupClient.QueryCache(host, QueryType.A, QueryClass.IN);
+                        if (aResult != null)
+                        {
+                            if (aResult.Answers?.Count > 0)
+                            {
+                                result = GetFromLookupResult(uri.Protocol, aResult.Answers.First(), port);
+                            }
+                            else
+                            {
+                                // We got a result back but it was empty indicating an unresolvable host or
+                                // some other DNS error condition.
+                                result = SIPEndPoint.Empty;
+                            }
+                        }
 
-            //            var aResult = _lookupClient.QueryCache(host, QueryType.A, QueryClass.IN);
-            //            if (aResult != null)
-            //            {
-            //                if (aResult.Answers?.Count > 0)
-            //                {
-            //                    result = GetFromLookupResult(uri.Protocol, aResult.Answers.First(), port);
-            //                }
-            //                else
-            //                {
-            //                    // We got a result back but it was empty indicating an unresolvable host or
-            //                    // some other DNS error condition.
-            //                    result = SIPEndPoint.Empty;
-            //                }
-            //            }
+                        isDone = true;
+                        break;
+                }
+            }
 
-            //            isDone = true;
-            //            break;
-            //    }
-            //}
-
-            //return result;
+            return result;
         }
 
         /// <summary>
@@ -301,22 +308,20 @@ namespace SIPSorcery.SIP
                         try
                         {
                             var srvProtocol = SIPServices.GetSRVProtocolForSIPURI(uri);
-                            //string serviceHost = DnsQueryExtensions.ConcatResolveServiceName(uri.MAddrOrHostAddress, uri.Scheme.ToString(), srvProtocol.ToString());
-                            //var srvResult = await _lookupClient.QueryAsync(serviceHost, QueryType.SRV, QueryClass.IN, ct).ConfigureAwait(false);
-                            var srvResult = await _lookupClient.ResolveServiceAsync(uri.MAddrOrHostAddress,
-                                uri.Scheme.ToString(), srvProtocol.ToString());
+                            var srvResult = await _lookupClient.ResolveServiceAsync(uri.MAddrOrHostAddress, uri.Scheme.ToString(), srvProtocol.ToString()).ConfigureAwait(false);
                             (var srvHost, var srvPort) = GetHostAndPortFromSrvResult(srvResult);
                             if (srvHost != null)
                             {
                                 host = srvHost;
                                 port = srvPort != 0 ? srvPort : port;
+
+                                logger.LogDebug($"SIP DNS SRV for {uri} resolved to {host} and port {port}.");
                             }
                         }
                         catch (Exception srvExcp)
                         {
-                            logger.LogWarning($"SIPDNS exception on SRV lookup. {srvExcp.Message}.");
+                            logger.LogWarning(srvExcp, $"SIPDNS exception on SRV lookup. {srvExcp.Message}.");
                         }
-
                         queryType = preferIPv6 ? QueryType.AAAA : QueryType.A;
 
                         break;
@@ -325,14 +330,10 @@ namespace SIPSorcery.SIP
 
                         try
                         {
-                            var aaaaResult = await _lookupClient
-                                .QueryAsync(host, UseANYLookups ? QueryType.ANY : QueryType.AAAA, QueryClass.IN, ct)
-                                .ConfigureAwait(false);
+                            var aaaaResult = await _lookupClient.QueryAsync(host, UseANYLookups ? QueryType.ANY : QueryType.AAAA, QueryClass.IN, ct).ConfigureAwait(false);
                             if (aaaaResult?.Answers?.Count > 0)
                             {
-                                result = GetFromLookupResult(uri.Protocol,
-                                    aaaaResult.Answers.AddressRecords().OrderByDescending(x => x.RecordType).First(),
-                                    port);
+                                result = GetFromLookupResult(uri.Protocol, aaaaResult.Answers.AddressRecords().OrderByDescending(x => x.RecordType).First(), port);
                                 isDone = true;
                             }
                             else
@@ -342,7 +343,7 @@ namespace SIPSorcery.SIP
                         }
                         catch (Exception srvExcp)
                         {
-                            logger.LogWarning($"SIPDNS exception on AAAA lookup. {srvExcp.Message}.");
+                            logger.LogWarning(srvExcp, $"SIPDNS exception on AAAA lookup. {srvExcp.Message}.");
                             queryType = QueryType.A;
                         }
 
@@ -352,14 +353,12 @@ namespace SIPSorcery.SIP
                         // A record lookup.
                         try
                         {
-                            var aResult = await _lookupClient.QueryAsync(host, QueryType.A, QueryClass.IN, ct)
-                                .ConfigureAwait(false);
+                            var aResult = await _lookupClient.QueryAsync(host, QueryType.A, QueryClass.IN, ct).ConfigureAwait(false);
                             if (aResult != null)
                             {
                                 if (aResult.Answers?.Count > 0)
                                 {
-                                    result = GetFromLookupResult(uri.Protocol, aResult.Answers.AddressRecords().First(),
-                                        port);
+                                    result = GetFromLookupResult(uri.Protocol, aResult.Answers.AddressRecords().First(), port);
                                 }
                                 else
                                 {
@@ -368,10 +367,11 @@ namespace SIPSorcery.SIP
                                     result = SIPEndPoint.Empty;
                                 }
                             }
+
                         }
                         catch (Exception srvExcp)
                         {
-                            logger.LogWarning($"SIPDNS exception on A lookup. {srvExcp.Message}.");
+                            logger.LogWarning(srvExcp, $"SIPDNS exception on A lookup. {srvExcp.Message}.");
                             result = SIPEndPoint.Empty;
                         }
 
@@ -390,16 +390,15 @@ namespace SIPSorcery.SIP
         /// <returns>The hostname and port for the chosen SRV result record.</returns>
         private static (string, int) GetHostAndPortFromSrvResult(IDnsQueryResponse srvResult)
         {
-            // TODO: Re-enable when DnsClient adds cache querying.
-            //if (srvResult != null)
-            //{
-            //    if (srvResult.Answers.Count() > 0)
-            //    {
-            //        var serviceHostEntries = DnsQueryExtensions.ResolveServiceProcessResult(srvResult);
+            if (srvResult != null)
+            {
+                if (srvResult.Answers.Count() > 0)
+                {
+                    var serviceHostEntries = DnsQueryExtensions.ResolveServiceProcessResult(srvResult);
 
-            //        return GetHostAndPortFromSrvResult(serviceHostEntries);
-            //    }
-            //}
+                    return GetHostAndPortFromSrvResult(serviceHostEntries);
+                }
+            }
 
             return (null, 0);
         }
@@ -414,8 +413,7 @@ namespace SIPSorcery.SIP
             if (serviceHostEntries != null && serviceHostEntries.Length > 0)
             {
                 // TODO: Should be applying some randomisation logic here to take advantage if there are multiple SRV records.
-                var srvEntry = serviceHostEntries.OrderBy(y => y.Priority).ThenByDescending(w => w.Weight)
-                    .FirstOrDefault();
+                var srvEntry = serviceHostEntries.OrderBy(y => y.Priority).ThenByDescending(w => w.Weight).FirstOrDefault();
 
                 return (srvEntry.HostName, srvEntry.Port);
             }
@@ -433,8 +431,7 @@ namespace SIPSorcery.SIP
         /// <param name="addrRecord">The DNS lookup result.</param>
         /// <param name="port">The port for the IP end point.</param>
         /// <returns>An IP end point or null.</returns>
-        private static SIPEndPoint GetFromLookupResult(SIPProtocolsEnum protocol, DnsResourceRecord addrRecord,
-            int port)
+        private static SIPEndPoint GetFromLookupResult(SIPProtocolsEnum protocol, DnsResourceRecord addrRecord, int port)
         {
             if (addrRecord is AaaaRecord)
             {
@@ -451,20 +448,21 @@ namespace SIPSorcery.SIP
         }
 
         /// <summary>
-        /// The lookup is for a local network host. Use the OS DNS logic as the 
+        /// The lookup is for a local network host. Use the OS DNS logic as the
         /// main DNS client can be configured to use external DNS servers that won't
         /// be able to lookup this hostname.
         /// </summary>
         /// <param name="uri">The SIP URI to lookup.</param>
-        /// <param name="queryType">Whether the lookup should prefer an IPv6 result.</param>
+        /// <param name="preferIPv6">Whether the lookup should prefer an IPv6 result.</param>
         /// <returns>A SIP end point for the host or null if the URI cannot be resolved.</returns>
         private static SIPEndPoint ResolveLocalHostname(SIPURI uri, bool preferIPv6)
         {
-            AddressFamily family = preferIPv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
+            AddressFamily family = preferIPv6 ? AddressFamily.InterNetworkV6 :
+                       AddressFamily.InterNetwork;
 
             if (!ushort.TryParse(uri.HostPort, out var uriPort))
             {
-                uriPort = SIPConstants.DEFAULT_SIP_PORT;
+                uriPort = (uri.Scheme == SIPSchemesEnum.sip) ? SIPConstants.DEFAULT_SIP_PORT : SIPConstants.DEFAULT_SIP_TLS_PORT;
             }
 
             IPHostEntry hostEntry = null;

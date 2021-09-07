@@ -30,15 +30,9 @@ namespace SIPSorcery.Net
     /// </summary>
     public class WebRTCWebSocketPeer : WebSocketBehavior
     {
+        private ILogger logger = SIPSorcery.Sys.Log.Logger;
+
         private RTCPeerConnection _pc;
-
-        public Func<Task<RTCPeerConnection>> CreatePeerConnection;
-        private ILogger logger = Sys.Log.Logger;
-
-        public WebRTCWebSocketPeer()
-        {
-        }
-
         public RTCPeerConnection RTCPeerConnection => _pc;
 
         /// <summary>
@@ -47,15 +41,25 @@ namespace SIPSorcery.Net
         public RTCOfferOptions OfferOptions { get; set; }
 
         /// <summary>
+        /// Optional property to allow the peer connection SDP answer options to be set.
+        /// </summary>
+        public RTCAnswerOptions AnswerOptions { get; set; }
+
+        /// <summary>
         /// Optional filter that can be applied to remote ICE candidates. The filter is 
         /// primarily intended for use in testing. In real application scenarios it's 
         /// normally desirable to accept all remote ICE candidates.
         /// </summary>
         public Func<RTCIceCandidateInit, bool> FilterRemoteICECandidates { get; set; }
 
-        protected override void OnMessage(MessageEventArgs e)
+        public Func<Task<RTCPeerConnection>> CreatePeerConnection;
+
+        public WebRTCWebSocketPeer()
+        { }
+
+        protected override async void OnMessage(MessageEventArgs e)
         {
-            logger.LogDebug($"OnMessage: {e.Data}");
+            //logger.LogDebug($"OnMessage: {e.Data}");
 
             if (RTCIceCandidateInit.TryParse(e.Data, out var iceCandidateInit))
             {
@@ -69,8 +73,7 @@ namespace SIPSorcery.Net
 
                 if (!useCandidate)
                 {
-                    logger.LogDebug(
-                        $"WebRTCWebSocketPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
+                    logger.LogDebug($"WebRTCWebSocketPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
                 }
                 else
                 {
@@ -88,6 +91,19 @@ namespace SIPSorcery.Net
                     _pc.Close("failed to set remote description");
                     this.Close();
                 }
+                else
+                {
+                    if(_pc.signalingState == RTCSignalingState.have_remote_offer)
+                    {
+                        var answerSdp = _pc.createAnswer(AnswerOptions);
+                        await _pc.setLocalDescription(answerSdp).ConfigureAwait(false);
+
+                        logger.LogDebug($"Sending SDP answer to client {Context.UserEndPoint}.");
+                        //logger.LogDebug(answerSdp.sdp);
+
+                        Context.WebSocket.Send(answerSdp.toJSON());
+                    }
+                }
             }
             else
             {
@@ -101,22 +117,27 @@ namespace SIPSorcery.Net
 
             logger.LogDebug($"Web socket client connection from {Context.UserEndPoint}.");
 
-            _pc = await CreatePeerConnection();
+            _pc = await CreatePeerConnection().ConfigureAwait(false);
 
-            var offerSdp = _pc.createOffer(OfferOptions);
-            await _pc.setLocalDescription(offerSdp);
             _pc.onicecandidate += (iceCandidate) =>
             {
-                if (_pc.signalingState == RTCSignalingState.have_remote_offer)
+                if (_pc.signalingState == RTCSignalingState.have_remote_offer ||
+                    _pc.signalingState == RTCSignalingState.stable)
                 {
                     Context.WebSocket.Send(iceCandidate.toJSON());
                 }
             };
 
-            logger.LogDebug($"Sending SDP offer to client {Context.UserEndPoint}.");
-            logger.LogDebug(offerSdp.sdp);
+            if (base.Context.QueryString["role"] != "offer")
+            {
+                var offerSdp = _pc.createOffer(OfferOptions);
+                await _pc.setLocalDescription(offerSdp).ConfigureAwait(false);
 
-            Context.WebSocket.Send(offerSdp.toJSON());
+                logger.LogDebug($"Sending SDP offer to client {Context.UserEndPoint}.");
+                logger.LogDebug(offerSdp.sdp);
+
+                Context.WebSocket.Send(offerSdp.toJSON());
+            }
         }
     }
 }
