@@ -26,6 +26,7 @@ namespace LibCommon
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
 
 
+
         static GCommon()
         {
             //使用CodePagesEncodingProvider去注册扩展编码,以支持utf-x以外的字符集
@@ -127,6 +128,20 @@ namespace LibCommon
         /// </summary>
         /// <param name="sipDeviceId"></param>
         public delegate string DeviceAuthentication(string sipDeviceId);
+        
+        /// <summary>
+        /// Sip客户端收到Sip服务端的消息时
+        /// </summary>
+        public delegate void RecvSipServerMsg(string msg, DateTime dateTime);
+
+        /// <summary>
+        /// 当有实时流推流请求时
+        /// </summary>
+        public delegate bool InviteChannel(ShareInviteInfo info);
+        /// <summary>
+        /// 当有实时流结束推流请求时
+        /// </summary>
+        public delegate bool DeInviteChannel(SIPRequest req);
 
         #endregion
     }

@@ -37,6 +37,10 @@ namespace LibCommon.Structs.WebRequest
         private VideoDeviceType _videoDeviceType;
         private string? _videoSrcUrl;
         private string? _fFmpegTemplate;
+        private bool _isShareChannel;
+        private string? _shareUrl;
+        private string _shareDeviceId;
+        
 
         public string MediaServerId
         {
@@ -198,6 +202,24 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _fFmpegTemplate;
             set => _fFmpegTemplate = value;
+        }
+
+        public bool IsShareChannel
+        {
+            get => _isShareChannel;
+            set => _isShareChannel = value;
+        }
+
+        public string? ShareUrl
+        {
+            get => _shareUrl;
+            set => _shareUrl = value;
+        }
+
+        public string ShareDeviceId
+        {
+            get => _shareDeviceId;
+            set => _shareDeviceId = value ?? throw new ArgumentNullException(nameof(value));
         }
     }
 }

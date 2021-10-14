@@ -68,5 +68,10 @@ namespace LibCommon
             get => _exceptStackTrace;
             set => _exceptStackTrace = value;
         }
+
+        public override string ToString()
+        {
+            return $"{nameof(Code)}: {Code}, {nameof(Message)}: {Message}, {nameof(ExceptMessage)}: {ExceptMessage}, {nameof(ExceptStackTrace)}: {ExceptStackTrace}";
+        }
     }
 }

@@ -1188,7 +1188,7 @@ namespace AKStreamWeb.Services
 
                 if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此Sip通道本身就处于推流状态)->{mainId}");
+                    Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
 
                     return mediaInfo.MediaServerStreamInfo;
                 }
@@ -2816,6 +2816,10 @@ namespace AKStreamWeb.Services
                 tmpVideoChannel.VideoSrcUrl = UtilsHelper.StringIsNullEx(req.VideoSrcUrl) ? null : req.VideoSrcUrl;
                 tmpVideoChannel.MethodByGetStream = req.MethodByGetStream;
                 tmpVideoChannel.FFmpegTemplate = req.FFmpegTemplate;
+                tmpVideoChannel.IsShareChannel = req.IsShareChannel;
+                tmpVideoChannel.ShareUrl = UtilsHelper.StringIsNullEx(req.ShareUrl) ? null : req.ShareUrl;
+                tmpVideoChannel.ShareDeviceId =
+                    UtilsHelper.StringIsNullEx(req.ShareDeviceId) ? null : req.ShareDeviceId;
                 result = ORMHelper.Db.Insert(tmpVideoChannel).ExecuteAffrows();
             }
             catch (Exception ex)
@@ -3635,6 +3639,9 @@ namespace AKStreamWeb.Services
                     .SetIf(req.DeviceStreamType != null, x => x.DeviceStreamType, req.DeviceStreamType)
                     .SetIf(req.MethodByGetStream != null, x => x.MethodByGetStream, req.MethodByGetStream)
                     .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
+                    .SetIf(req.IsShareChannel!=null ,x=>x.IsShareChannel,req.IsShareChannel)
+                    .SetIf(!UtilsHelper.StringIsNullEx(req.ShareUrl),x=>x.ShareUrl,req.ShareUrl)
+                    .SetIf(!UtilsHelper.StringIsNullEx(req.ShareDeviceId),x=>x.ShareDeviceId,req.ShareDeviceId)
                     .Set(x => x.UpdateTime, DateTime.Now)
                     .Where("1=1")
                     .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ExecuteAffrows();
@@ -3642,6 +3649,7 @@ namespace AKStreamWeb.Services
                 {
                     var r = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                         .First();
+                    
                     Logger.Info(
                         $"[{Common.LoggerHead}]->修改音视频通道实例成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(r)}");
 

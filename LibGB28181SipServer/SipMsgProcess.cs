@@ -667,6 +667,7 @@ namespace LibGB28181SipServer
                              HA2=MD5(Method:Uri)//Method一般有INVITE, ACK, OPTIONS, BYE, CANCEL, REGISTER；Uri可以在字段“Authorization”找到
                              response = MD5(HA1:nonce:HA2)
                              */
+                            
                             string ha1 = UtilsHelper.Md5(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Username +
                                                          ":" + sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Realm +
                                                          ":" + (string.IsNullOrEmpty(password)
@@ -678,6 +679,7 @@ namespace LibGB28181SipServer
                             string ha3 = UtilsHelper.Md5(ha1 + ":" +
                                                          sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Nonce + ":" +
                                                          ha2);
+                          
                             if (!ha3.Equals(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Response))
                             {
                                 Logger.Debug(
