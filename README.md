@@ -1,6 +1,60 @@
 # AKStream介绍 
 ## 技术交流QQ群：870526956
 -------
+
+## 2021-10-14
+- 新增Net5_dev分支，将AKStream全面切换到.Net5平台，获得更好的系统性能
+- 新增GB28181级联功能，可做为下级平台向上级平台级联（实验性，未完成所有功能）
+- GB28181级联功能已支持内容
+- [x] 向上级平台注册自己
+- [x] 向上级平台保持心跳
+- [x] 向上级平台提供自己的设备状态
+- [x] 向上级平台提供自己的设备信息
+- [x] 向上级平台提供自己的音视频流通道
+- [ ] 向上级共享流（推流，还未实现）
+- [ ] 向上级终端共享流（结束推流，还未实现）
+- [ ] 向上级提供录像文件查询（还未实现）
+- [ ] 向上级提供回放流（还未实现）
+- [ ] 向上级提供PTZ控制（还未实现）
+- [ ] 向上级提供非28181流的共享与结束（还未实现）
+- 系统中的各种优化与完善，以及发现的bug的处理
+- 配合GB28181级联，数据库增加三个字段，分别为以下内容
+
+```C#
+   /// <summary>
+        /// 是否为可分享通道？
+        /// 如果为true,则此通道可以被推往其他服务器
+        /// </summary>
+        public bool IsShareChannel
+        {
+            get => _isShareChannel;
+            set => _isShareChannel = value;
+        }
+
+        /// <summary>
+        /// 分享通道地址
+        /// 如果IsShareChannel为true,而ShareUrl为空，则表示此通道可以分享给GB28181服务器
+        /// 如果IsShareChannel为true,而ShareUrl不为空，则表示此通道可以分享线GB28181服务
+        /// 器的同时还可以分享给其他流媒体服务器
+        /// </summary>
+        public string? ShareUrl
+        {
+            get => _shareUrl;
+            set => _shareUrl = value;
+        }
+
+        /// <summary>
+        /// 共享通道时此通道的唯一id
+        /// gb28181时可以是deviceid
+        /// 其他服务时可以按照其他服务的
+        /// 规则来确定此id
+        /// </summary>
+        public string? ShareDeviceId
+        {
+            get => _shareDeviceId;
+            set => _shareDeviceId = value;
+        }
+```
 ![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
 * AKStream是一套全功能的软NVR接口平台，软NVR指的是软件定义的NVR（Network Video Recoder），AKStream经过长达一年半的开发，测试与调优，已经具备了一定的使用价值，在可靠性，实用性方面都有着较为不错的表现，同时因为AKStream是一套完全开源的软件产品，在众多网友的一起加持下，AKStream的安全性也得到了验证。
 
