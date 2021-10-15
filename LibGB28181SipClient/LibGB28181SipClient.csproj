@@ -7,7 +7,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
-      <ProjectReference Include="..\LibSocketCore\LibSocketCore.csproj" />
       <ProjectReference Include="..\LibSystemInfo\LibSystemInfo.csproj" />
       <ProjectReference Include="..\SipSorcery\SIPSorcery.csproj" />
     </ItemGroup>
