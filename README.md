@@ -1,12 +1,6 @@
 # AKStream介绍 
 ## 技术交流QQ群：870526956
 -------
-<<<<<<< HEAD
-           
-=======
-
-
->>>>>>> Net5_dev
 ![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
 * AKStream是一套全功能的软NVR接口平台，软NVR指的是软件定义的NVR（Network Video Recoder），AKStream经过长达一年半的开发，测试与调优，已经具备了一定的使用价值，在可靠性，实用性方面都有着较为不错的表现，同时因为AKStream是一套完全开源的软件产品，在众多网友的一起加持下，AKStream的安全性也得到了验证。
 
