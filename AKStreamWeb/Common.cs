@@ -318,6 +318,7 @@ namespace AKStreamWeb
                     WebApiPort = 5800,
                     HttpClientTimeoutSec = 20,
                     AccessKey = UtilsHelper.generalGuid(),
+                    DeletedRecordsExpiredDays = 0,
                 };
                 try
                 {
