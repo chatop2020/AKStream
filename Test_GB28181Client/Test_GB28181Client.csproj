@@ -9,7 +9,6 @@
     <ItemGroup>
       <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
       <ProjectReference Include="..\LibGB28181SipClient\LibGB28181SipClient.csproj" />
-      <ProjectReference Include="..\LibSocketCore\LibSocketCore.csproj" />
       <ProjectReference Include="..\SipSorcery\SIPSorcery.csproj" />
     </ItemGroup>
 
