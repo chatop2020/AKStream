@@ -13,6 +13,7 @@ namespace AKStreamWeb.Misc
         private int _waitEventTimeOutMSec = 10000;
         private int _waitSipRequestTimeOutMSec = 5000;
         private ushort _webApiPort = 5800;
+        private ushort _deletedRecordsExpiredDays = 30;
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver
@@ -86,6 +87,15 @@ namespace AKStreamWeb.Misc
         {
             get => _waitSipRequestTimeOutMSec;
             set => _waitSipRequestTimeOutMSec = value;
+        }
+
+        /// <summary>
+        /// 录像记录中被删除的记录，保留多久天后彻底删除
+        /// </summary>
+        public ushort DeletedRecordsExpiredDays
+        {
+            get => _deletedRecordsExpiredDays;
+            set => _deletedRecordsExpiredDays = value;
         }
     }
 }

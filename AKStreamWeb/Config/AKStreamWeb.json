@@ -6,5 +6,6 @@
   "AccessKey": "047I4WS1-U51UBO6W-1J4BT21P-MF17IT99-92J8WIHU-944Q4KIW",
   "HttpClientTimeoutSec": 5,
   "WaitEventTimeOutMSec" : 10000,
-  "WaitSipRequestTimeOutMSec" : 5000
+  "WaitSipRequestTimeOutMSec" : 5000,
+  "DeletedRecordsExpiredDays" : 30
 }
