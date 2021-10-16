@@ -13,7 +13,7 @@ namespace AKStreamWeb.Controllers
     [Log]
     [ApiController]
     [Route("/MediaServer/WebHook")]
-    [SwaggerTag("WebHook相关接口")]
+    [SwaggerTag("WebHook相关接口，第三方应用不需要关心此类接口")]
     public class WebHookController : ControllerBase
     {
         /// <summary>

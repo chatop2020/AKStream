@@ -7,11 +7,13 @@ using AKStreamWeb.AutoTask;
 using AKStreamWeb.Misc;
 using LibCommon;
 using LibCommon.Structs;
+using LibGB28181SipClient;
 using LibGB28181SipServer;
 using LibLogger;
 using LibSystemInfo;
 using LibZLMediaKitMediaServer;
 using Newtonsoft.Json;
+using SIPSorcery.SIP;
 using JsonHelper = LibCommon.JsonHelper;
 
 namespace AKStreamWeb
@@ -56,6 +58,21 @@ namespace AKStreamWeb
         /// Sip服务实例
         /// </summary>
         public static SipServer SipServer = new SipServer();
+
+        /// <summary>
+        /// Sip客户端实例
+        /// </summary>
+        public static SipClient SipClient;
+        
+        private static List<LibCommon.Structs.ShareInviteChannel> _shareInviteChannels = new List<LibCommon.Structs.ShareInviteChannel>();
+        /// <summary>
+        /// 共享流列表
+        /// </summary>
+        public static List<LibCommon.Structs.ShareInviteChannel> ShareInviteChannels
+        {
+            get => _shareInviteChannels;
+            set => _shareInviteChannels = value;
+        }
 
         static Common()
         {
@@ -162,6 +179,9 @@ namespace AKStreamWeb
             SipMsgProcess.OnInviteHistoryVideoFinished += SipServerCallBack.OnInviteHistoryVideoFinished;
             SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
             SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
+            SipClient = new SipClient();
+            SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
+            
             try
             {
                 ResponseStruct rs;

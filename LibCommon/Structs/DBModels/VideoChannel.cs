@@ -51,6 +51,9 @@ namespace LibCommon.Structs.DBModels
         private VideoDeviceType _videoDeviceType;
         private string? _videoSrcUrl;
         private string? _ffmpegTemplate;
+        private bool _isShareChannel;
+        private string? _shareUrl;
+        private string? _shareDeviceId;
 
 
         /// <summary>
@@ -358,6 +361,40 @@ namespace LibCommon.Structs.DBModels
         {
             get => _ffmpegTemplate;
             set => _ffmpegTemplate = value;
+        }
+
+        /// <summary>
+        /// 是否为可分享通道？
+        /// 如果为true,则此通道可以被推往其他服务器
+        /// </summary>
+        public bool IsShareChannel
+        {
+            get => _isShareChannel;
+            set => _isShareChannel = value;
+        }
+
+        /// <summary>
+        /// 分享通道地址
+        /// 如果IsShareChannel为true,而ShareUrl为空，则表示此通道可以分享给GB28181服务器
+        /// 如果IsShareChannel为true,而ShareUrl不为空，则表示此通道可以分享线GB28181服务
+        /// 器的同时还可以分享给其他流媒体服务器
+        /// </summary>
+        public string? ShareUrl
+        {
+            get => _shareUrl;
+            set => _shareUrl = value;
+        }
+
+        /// <summary>
+        /// 共享通道时此通道的唯一id
+        /// gb28181时可以是deviceid
+        /// 其他服务时可以按照其他服务的
+        /// 规则来确定此id
+        /// </summary>
+        public string? ShareDeviceId
+        {
+            get => _shareDeviceId;
+            set => _shareDeviceId = value;
         }
     }
 }

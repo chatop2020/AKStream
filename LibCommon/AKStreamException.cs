@@ -11,5 +11,10 @@ namespace LibCommon
         {
             ResponseStruct = rs;
         }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}, {nameof(ResponseStruct)}: {ResponseStruct}";
+        }
     }
 }

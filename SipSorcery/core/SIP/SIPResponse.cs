@@ -228,10 +228,10 @@ namespace SIPSorcery.SIP
                 }
 
                 SIPHeader requestHeader = sipRequest.Header;
-                SIPFromHeader from = (requestHeader == null || requestHeader.From != null) ? requestHeader.From : new SIPFromHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
-                SIPToHeader to = (requestHeader == null || requestHeader.To != null) ? requestHeader.To : new SIPToHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
+                SIPFromHeader from = (requestHeader != null && requestHeader.From != null) ? requestHeader.From : new SIPFromHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
+                SIPToHeader to = (requestHeader != null && requestHeader.To != null) ? requestHeader.To : new SIPToHeader(null, new SIPURI(sipRequest.URI.Scheme, sipRequest.LocalSIPEndPoint), null);
                 int cSeq = (requestHeader == null || requestHeader.CSeq != -1) ? requestHeader.CSeq : 1;
-                string callId = (requestHeader == null || requestHeader.CallId != null) ? requestHeader.CallId : CallProperties.CreateNewCallId();
+                string callId = (requestHeader != null && !string.IsNullOrEmpty(requestHeader.CallId)) ? requestHeader.CallId : CallProperties.CreateNewCallId();
 
                 response.Header = new SIPHeader(from, to, cSeq, callId);
                 response.Header.CSeqMethod = (requestHeader != null) ? requestHeader.CSeqMethod : SIPMethodsEnum.NONE;

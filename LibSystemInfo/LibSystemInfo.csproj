@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <Nullable>enable</Nullable>
+        <TargetFramework>net5.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -14,12 +15,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
+      <ProjectReference Include="..\SystemInfoLibrary\src\SystemInfoLibrary.Standard\SystemInfoLibrary.Standard.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
-      <ProjectReference Include="..\SystemInfoLibrary\src\SystemInfoLibrary.Standard\SystemInfoLibrary.Standard.csproj" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
 </Project>

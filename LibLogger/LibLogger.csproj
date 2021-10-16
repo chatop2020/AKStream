@@ -2,12 +2,13 @@
 
     <PropertyGroup>
         <RootNamespace>Logger</RootNamespace>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>9</LangVersion>
        
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="log4net" Version="2.0.11" />
+      <PackageReference Include="log4net" Version="2.0.12" />
     </ItemGroup>
 
 </Project>

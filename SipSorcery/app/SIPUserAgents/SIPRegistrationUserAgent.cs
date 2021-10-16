@@ -156,6 +156,7 @@ namespace SIPSorcery.SIP.App
 
             // Setting the contact to "0.0.0.0" tells the transport layer to populate it at send time.
             m_contactURI = new SIPURI(m_sipAccountAOR.Scheme, IPAddress.Any, 0);
+          
         }
 
         public SIPRegistrationUserAgent(

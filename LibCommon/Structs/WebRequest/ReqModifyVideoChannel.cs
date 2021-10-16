@@ -13,7 +13,9 @@ namespace LibCommon.Structs.WebRequest
         private string? _mediaServerId;
         private MethodByGetStream? _methodByGetStream;
         private string? _videoSrcUrl;
-     
+        private bool? _isShareChannel;
+        private string? _shareUrl;
+        private string? _shareDeviceId;
 
 
         /// <summary>
@@ -79,6 +81,22 @@ namespace LibCommon.Structs.WebRequest
             set => _channelId = value;
         }
 
-       
+        public bool? IsShareChannel
+        {
+            get => _isShareChannel;
+            set => _isShareChannel = value;
+        }
+
+        public string? ShareUrl
+        {
+            get => _shareUrl;
+            set => _shareUrl = value;
+        }
+
+        public string? ShareDeviceId
+        {
+            get => _shareDeviceId;
+            set => _shareDeviceId = value;
+        }
     }
 }
