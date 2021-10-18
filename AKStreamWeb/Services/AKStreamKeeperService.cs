@@ -669,6 +669,218 @@ namespace AKStreamWeb.Services
 
             return ret;
         }
+        
+        
+        /// <summary>
+        /// 释放rtp端口
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="port"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool ReleaseRtpPort(string mediaServerId, ushort port,out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.ReleaseRtpPort(port,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || ret==false)
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->释放rtp端口成功->{mediaServerId}-port:{port}");
+
+            return true;
+        }
+        
+         /// <summary>
+        /// 释放rtp(发送)端口
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="port"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool ReleaseRtpPortForSender(string mediaServerId, ushort port,out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp(发送)端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp(发送)端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp(发送)端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.ReleaseRtpPortForSender(port,out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || ret==false)
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->释放rtp(发送)端口失败->{mediaServerId}-port:{port}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->释放rtp(发送)端口成功->{mediaServerId}-port:{port}");
+
+            return true;
+        }
+         
+         /// <summary>
+        /// 获取一个可用的rtp(发送)端口（偶数端口）
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="rs"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static ushort GuessAnRtpPortForSender(string mediaServerId, out ResponseStruct rs, ushort? min = 0,
+            ushort? max = 0)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取可用的rtp(发送)端口失败->{mediaServerId}-portMin:{min}-portMax:{max}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return 0;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取可用的rtp(发送)端口失败->{mediaServerId}-portMin:{min}-portMax:{max}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return 0;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取可用的rtp(发送)端口失败->{mediaServerId}-portMin:{min}-portMax:{max}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return 0;
+            }
+
+            var ret = mediaServer.KeeperWebApi.GuessAnRtpPortForSender(out rs, min, max);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取可用的rtp(发送)端口失败->{mediaServerId}-portMin:{min}-portMax:{max}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return 0;
+            }
+
+            Logger.Info($"[{Common.LoggerHead}]->获取可用的rtp(发送)端口成功->{mediaServerId}-portMin:{min}-portMax:{max}->端口:{ret}");
+
+            return ret;
+        }
 
         /// <summary>
         /// 删除一个指定文件

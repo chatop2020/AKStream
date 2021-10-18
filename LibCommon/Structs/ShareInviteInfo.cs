@@ -13,6 +13,7 @@ namespace LibCommon.Structs
         private string _channelId;
         private string _callId;
         private int _cseq;
+        private string _tag;
 
         public string RemoteIpAddress
         {
@@ -48,6 +49,12 @@ namespace LibCommon.Structs
         {
             get => _cseq;
             set => _cseq = value;
+        }
+
+        public string Tag
+        {
+            get => _tag;
+            set => _tag = value;
         }
     }
 }

@@ -495,6 +495,75 @@ namespace LibZLMediaKitMediaServer
 
             return false;
         }
+        
+          /// <summary>
+        /// 释放被使用过的rtp(发送)端口，以防止段时间内同样的端口被重复使用
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public bool ReleaseRtpPortForSender(ushort port, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            string url = $"{_baseUrl}/ApiService/ReleaseRtpPortForSender?port={port}";
+            try
+            {
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+                var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return false;
+                    }
+
+                    bool isOk = false;
+                    var ret = bool.TryParse(httpRet, out isOk);
+                    if (ret)
+                    {
+                        return isOk;
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = "",
+                    };
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// 热加载配置文件
@@ -1179,6 +1248,88 @@ namespace LibZLMediaKitMediaServer
             return 0;
         }
 
+        
+          /// <summary>
+        /// 获取一个可用的rtp(发送)端口（偶数端口）
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public ushort GuessAnRtpPortForSender(out ResponseStruct rs, ushort? min = 0, ushort? max = 0)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            string url = $"{_baseUrl}/ApiService/GuessAnRtpPortSender";
+            url += (min != null && min > 0) ? "?min=" + min : "";
+            if (url.Contains('?'))
+            {
+                url += (max != null && max > 0) ? "&max=" + max : "";
+            }
+            else
+            {
+                url += (max != null && max > 0) ? "?max=" + max : "";
+            }
+
+            try
+            {
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+                var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return 0;
+                    }
+
+                    ushort port = 0;
+                    var ret = ushort.TryParse(httpRet, out port);
+                    if (ret)
+                    {
+                        return port;
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = "",
+                    };
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return 0;
+        }
+
+          
         /// <summary>
         /// 获取裁剪合并任务积压列表
         /// </summary>

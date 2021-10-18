@@ -21,6 +21,8 @@ namespace AKStreamKeeper.Misc
         private ushort _maxRtpPort = 30000;
         private string _mediaServerPath;
         private ushort _minRtpPort = 10001;
+        private ushort _minSendRtpPort= 20002;
+        private ushort _maxSendRtpPort = 20200;
         private bool _randomPort = false;
         private int? _recordSec = 120;
         private int _rtpPortCDTime;
@@ -190,6 +192,24 @@ namespace AKStreamKeeper.Misc
         {
             get => _zLMediakitSSLFilePath;
             set => _zLMediakitSSLFilePath = value;
+        }
+
+        /// <summary>
+        /// 用于指定发送的Rtp端口的最小值
+        /// </summary>
+        public ushort MinSendRtpPort
+        {
+            get => _minSendRtpPort;
+            set => _minSendRtpPort = value;
+        }
+
+        /// <summary>
+        /// 用于指定发送的Rtp端口的最大值
+        /// </summary>
+        public ushort MaxSendRtpPort
+        {
+            get => _maxSendRtpPort;
+            set => _maxSendRtpPort = value;
         }
     }
 }

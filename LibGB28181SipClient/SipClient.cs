@@ -9,6 +9,7 @@ using LibLogger;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
+using LibCommon.Structs.GB28181.Net.SDP;
 using LibCommon.Structs.GB28181.Net.SIP;
 using LibCommon.Structs.GB28181.Sys;
 using LibCommon.Structs.GB28181.XML;
@@ -136,7 +137,7 @@ namespace LibGB28181SipClient
                 new SIPContactHeader(null, fromSipUri)
             };
             req.Header.Expires = 3600;
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent = Common.SipUserAgent;
             req.Header.CallId = _registerCallId;
             RegisterCallid = req.Header.CallId;
             req.Header.CSeq = CSeq;
@@ -182,7 +183,7 @@ namespace LibGB28181SipClient
                 new SIPContactHeader(null, fromSipUri)
             };
             req.Header.Expires = 3600;
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent =Common.SipUserAgent;
             req.Header.CallId = CallProperties.CreateNewCallId();
             RegisterCallid = req.Header.CallId;
             req.Header.CSeq = CSeq;
@@ -213,7 +214,7 @@ namespace LibGB28181SipClient
             {
                 new SIPContactHeader(null, fromSipUri)
             };
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent = Common.SipUserAgent;
             req.Header.ContentType = "Application/MANSCDP+xml";
             req.Header.CallId = CallProperties.CreateNewCallId();
             _keepaliveCallId = req.Header.CallId;
@@ -368,7 +369,7 @@ namespace LibGB28181SipClient
             {
                 new SIPContactHeader(null, fromSipUri)
             };
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent = Common.SipUserAgent;
             req.Header.ContentType = "Application/MANSCDP+xml";
             req.Header.CallId = CallProperties.CreateNewCallId();
             _lastCallId = req.Header.CallId;
@@ -431,7 +432,7 @@ namespace LibGB28181SipClient
             {
                 new SIPContactHeader(null, fromSipUri)
             };
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent = Common.SipUserAgent;
             req.Header.ContentType = "Application/MANSCDP+xml";
             req.Header.CallId = CallProperties.CreateNewCallId();
             _lastCallId = req.Header.CallId;
@@ -509,7 +510,7 @@ namespace LibGB28181SipClient
             {
                 new SIPContactHeader(null, fromSipUri)
             };
-            req.Header.UserAgent = "AKStreamSipClient/1.0";
+            req.Header.UserAgent = Common.SipUserAgent;
             req.Header.ContentType = "Application/MANSCDP+xml";
             req.Header.CallId =
                 string.IsNullOrEmpty(_catalogCallId) ? CallProperties.CreateNewCallId() : _catalogCallId;
@@ -575,6 +576,11 @@ namespace LibGB28181SipClient
             }
         }
 
+
+        private ShareInviteInfo GetDeInviteShareInfo(SIPRequest req)
+        {
+            return null;
+        }
 
         /// <summary>
         /// 获取流共享信息
@@ -651,6 +657,7 @@ namespace LibGB28181SipClient
                     Ssrc = ssrc,
                     CallId = req.Header.CallId,
                     Cseq = req.Header.CSeq,
+                    Tag = req.Header.From.FromTag,
                 };
 
             }
@@ -662,6 +669,115 @@ namespace LibGB28181SipClient
             return null;
         }
 
+
+        private string CreateSdp(SIPRequest reqold)
+        {
+            var from = reqold.Header.From;
+            var to = reqold.Header.To;
+            string callId = reqold.Header.CallId;
+            SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.INVITE, reqold.Header.To.ToURI,
+                new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
+                new SIPFromHeader("", from.FromURI, from.FromTag));
+            req.Header.Contact = new List<SIPContactHeader>()
+                {new SIPContactHeader(reqold.Header.From.FromName, reqold.Header.From.FromURI)};
+            req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
+            req.Header.Allow = null;
+            req.Header.Vias = reqold.Header.Vias;
+            req.Header.CallId = callId;
+            req.Header.CSeq = reqold.Header.CSeq;
+            
+            
+            /*
+            var sdpConn = new SDPConnectionInformation(Common.SipClientConfig.LocalIpAddress);
+            var sdp = new SDP()
+            {
+                Version = 0,
+                SessionId = "0",
+                Username = Common.SipClientConfig.SipUsername,
+                SessionName = CommandType.Play.ToString(),
+                Connection = sdpConn,
+                Timing = "0 0",
+                Address = Common.SipClientConfig.LocalIpAddress,
+            };
+
+            var psFormat = new SDPMediaFormat(SDPMediaFormatsEnum.PS)
+            {
+                IsStandardAttribute = false,
+            };
+            var h264Format = new SDPMediaFormat(SDPMediaFormatsEnum.H264)
+            {
+                IsStandardAttribute = false,
+            };
+            var media = new SDPMediaAnnouncement()
+            {
+                Media = SDPMediaTypesEnum.video,
+                Port = pushMediaInfo.StreamPort,
+            };
+            media.MediaFormats.Add(psFormat);
+            media.MediaFormats.Add(h264Format);
+            media.AddExtra("a=recvonly");
+            if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
+            {
+                media.Transport = "TCP/RTP/AVP";
+                media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                media.AddExtra("a=connection:new");
+            }
+
+            media.AddExtra("y=" + sipChannel.SsrcId); //设置ssrc
+            media.AddFormatParameterAttribute(psFormat.FormatID, psFormat.Name);
+            media.AddFormatParameterAttribute(h264Format.FormatID, h264Format.Name);
+            media.Port = pushMediaInfo.StreamPort;
+            sdp.Media.Add(media);
+            return sdp.ToString();*/
+            
+            return "";
+            /*v=0
+           SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.200.19:5060;branch=z9hG4bK66ff8da0198b422fa1cb2cd7f7fb95ac;rport=5060
+To: <sip:34020000021310000001@192.168.200.1:5060>;tag=1161000782
+From: <sip:33020000021180000001@192.168.200.19:5060>;tag=AKStream
+Call-ID: a4f9a2275d2c4e21ac24a97c98cc43a1
+CSeq: 46800 INVITE
+Contact: <sip:34020000021310000001@192.168.200.1:5060>
+User-Agent: Embedded Net DVR/NVR/DVS
+Content-Length: 245
+Content-Type: application/SDP
+
+v=0
+o=34020000001110000001 0 0 IN IP4 192.168.200.1
+s=Play
+c=IN IP4 192.168.200.1
+t=0 0
+m=video 62418 RTP/AVP 96
+a=sendonly
+a=rtpmap:96 PS/90000
+a=username:34020000001110000001
+a=password:123#@!qwe
+y=0007132891
+f=v/2/6/25/1/2048a///
+，callid:a4f9a2275d2c4e21ac24a97c98cc43a1
+*/
+
+
+
+        }
+        
+        /// <summary>
+        /// 发送实时流确认回复
+        /// </summary>
+        /// <param name="request"></param>
+        private  async Task InviteAck(SIPRequest request)
+        {
+            SIPResponseStatusCodesEnum messaageResponse = SIPResponseStatusCodesEnum.Ok;
+            SIPResponse okResponse = SIPResponse.GetResponse(request, messaageResponse, null);
+            okResponse.Header.Contact = request.Header.Contact;
+            okResponse.Header.UserAgent = Common.SipUserAgent;
+            okResponse.Header.MaxForwards = 70;
+            okResponse.Header.CSeqMethod = SIPMethodsEnum.ACK;
+            await _sipTransport.SendResponseAsync(okResponse);
+            Logger.Debug(
+                $"[{Common.LoggerHead}]->发送实时流请求回复->{okResponse.RemoteSIPEndPoint}->{okResponse}");
+        }
         /// <summary>
         /// 处理来自远端的请求
         /// </summary>
@@ -678,9 +794,19 @@ namespace LibGB28181SipClient
             {
                 case SIPMethodsEnum.BYE:
                     Console.WriteLine(sipRequest);
-                    OnDeInviteChannel?.Invoke(sipRequest);
+                    var info = GetDeInviteShareInfo(sipRequest);
+                    if (info != null)
+                    {
+                        var b=OnDeInviteChannel?.Invoke(info);
+                        if (b == true)
+                        {
+                            
+                        }
+                    }
                     break;
                 case SIPMethodsEnum.INVITE:
+                   
+                   await InviteAck(sipRequest);
                     var shareinfo = GetShareInfo(sipRequest);
                     if (shareinfo != null)
                     {

@@ -141,7 +141,7 @@ namespace LibCommon
         /// <summary>
         /// 当有实时流结束推流请求时
         /// </summary>
-        public delegate bool DeInviteChannel(SIPRequest req);
+        public delegate bool DeInviteChannel(ShareInviteInfo info);
 
         #endregion
     }

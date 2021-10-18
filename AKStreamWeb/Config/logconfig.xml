@@ -21,7 +21,7 @@
 
         <!-- Setup the root category, add the appenders and set the default level -->
         <root>
-            <level value="ALL" />
+            <level value="ALL" /><!-- 这里可以改，其他地方最好不要改，可以是ALL DEBUG INFO WARN ERROR -->
             <appender-ref ref="ConsoleAppender" />
             <appender-ref ref="RollingLogFileAppender" />
         </root>

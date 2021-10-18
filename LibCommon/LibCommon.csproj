@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\LibCommon.xml</DocumentationFile>
+      <DocumentationFile>bin/Debug/net5.0/LibCommon.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\LibCommon.xml</DocumentationFile>
+      <DocumentationFile>bin/Release/net5.0/LibCommon.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

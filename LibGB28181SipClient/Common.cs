@@ -16,6 +16,7 @@ namespace LibGB28181SipClient
         private static SipClientConfig _sipClientConfig = null!;
         private static string _sipClientConfigPath = GCommon.ConfigPath + "SipClientConfig.json";
         private static SipClient _sipClient = null;
+        private static string _sipUserAgent = "AKStreamSipClient/1.0";
 
         public static SipClient SipClient
         {
@@ -35,6 +36,12 @@ namespace LibGB28181SipClient
         {
             get => _sipClientConfig;
             set => _sipClientConfig = value;
+        }
+
+        public static string SipUserAgent
+        {
+            get => _sipUserAgent;
+            set => _sipUserAgent = value;
         }
 
         /// <summary>

@@ -181,6 +181,7 @@ namespace AKStreamWeb
             SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
             SipClient = new SipClient();
             SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
+            SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             
             try
             {

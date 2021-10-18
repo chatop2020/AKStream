@@ -367,6 +367,20 @@ namespace AKStreamKeeper.Controllers
             var ret = ApiService.ReleaseRtpPort(port);
             return ret;
         }
+        
+        /// <summary>
+        /// 释放被用过的rtp(发送)端口
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        [Route("ReleaseRtpPortForSender")]
+        [HttpGet]
+        public bool ReleaseRtpPortForSender([FromHeader(Name = "AccessKey")] string AccessKey, ushort port)
+        {
+            var ret = ApiService.ReleaseRtpPortForSender(port);
+            return ret;
+        }
 
         /// <summary>
         ///  获取一个可用的rtp端口（配置文件中minPort-maxPort的范围内的偶数端口）
@@ -383,6 +397,28 @@ namespace AKStreamKeeper.Controllers
         {
             ResponseStruct rs;
             var ret = ApiService.GuessAnRtpPort(out rs, min, max);
+            if (ret == 0 || !rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        /// <summary>
+        ///  获取一个可用的rtp(发送)端口（配置文件中minSenderPort-maxSenderPort的范围内的偶数端口）
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GuessAnRtpPortForSender")]
+        [HttpGet]
+        public ushort GuessAnRtpPortForSender([FromHeader(Name = "AccessKey")] string AccessKey, ushort? min = 0,
+            ushort? max = 0)
+        {
+            ResponseStruct rs;
+            var ret = ApiService.GuessAnRtpPortForSender(out rs, min, max);
             if (ret == 0 || !rs.Code.Equals(ErrorNumber.None))
             {
                 throw new AkStreamException(rs);

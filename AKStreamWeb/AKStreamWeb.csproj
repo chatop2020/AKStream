@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\netcoreapp3.1\AKStreamWeb.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net5.0\AKStreamWeb.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\AKStreamWeb.xml</DocumentationFile>
+      <DocumentationFile>bin\Release\net5.0\AKStreamWeb.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

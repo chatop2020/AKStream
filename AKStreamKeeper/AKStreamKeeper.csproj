@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\netcoreapp3.1\AKStreamKeeper.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net5.0\AKStreamKeeper.xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Debug\netcoreapp3.1\AKStreamKeeper.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net5.0\AKStreamKeeper.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

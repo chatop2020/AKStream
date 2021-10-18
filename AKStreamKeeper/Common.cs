@@ -46,6 +46,10 @@ namespace AKStreamKeeper
         /// 申请的rtp端口放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
         /// </summary>
         public static List<PortInfo> PortInfoList = new List<PortInfo>();
+        /// <summary>
+        /// 申请的rtp端口(发送)放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
+        /// </summary>
+        public static List<PortInfo> PortInfoListForSender = new List<PortInfo>();
 
         public static int FFmpegThreadCount = 2;
 
@@ -313,6 +317,8 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.ZLMediakitSSLFilePath = "";
                 _akStreamKeeperConfig.MaxRtpPort = 20000;
                 _akStreamKeeperConfig.MinRtpPort = 10001;
+                _akStreamKeeperConfig.MinSendRtpPort = 20002;
+                _akStreamKeeperConfig.MaxSendRtpPort = 20200;
                 _akStreamKeeperConfig.RandomPort = false;
                 _akStreamKeeperConfig.RecordSec = 120; //时长120秒
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
