@@ -1263,7 +1263,8 @@ namespace LibZLMediaKitMediaServer
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            string url = $"{_baseUrl}/ApiService/GuessAnRtpPortSender";
+            
+            string url = $"{_baseUrl}/ApiService/GuessAnRtpPortForSender";
             url += (min != null && min > 0) ? "?min=" + min : "";
             if (url.Contains('?'))
             {

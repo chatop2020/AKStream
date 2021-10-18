@@ -12,5 +12,6 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             get => _code;
             set => _code = value;
         }
+        
     }
 }

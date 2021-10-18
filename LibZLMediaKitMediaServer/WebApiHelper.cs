@@ -1498,7 +1498,7 @@ namespace LibZLMediaKitMediaServer
         /// <param name="req"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public ResZLMediaKitResponseBase StartSendRtp(ReqZLMediaKitStartSendRtp req, out ResponseStruct rs)
+        public ResZLMediakitStartSendRtp StartSendRtp(ReqZLMediaKitStartSendRtp req, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -1524,10 +1524,10 @@ namespace LibZLMediaKitMediaServer
                         return null;
                     }
 
-                    var resZLMediaKitResponseBase = JsonHelper.FromJson<ResZLMediaKitResponseBase>(httpRet);
-                    if (resZLMediaKitResponseBase != null)
+                    var resZLMediakitStartSendRtp = JsonHelper.FromJson<ResZLMediakitStartSendRtp>(httpRet);
+                    if (resZLMediakitStartSendRtp != null)
                     {
-                        return resZLMediaKitResponseBase;
+                        return resZLMediakitStartSendRtp;
                     }
 
                     var resError = JsonHelper.FromJson<ResZLMediaKitErrorResponse>(httpRet);

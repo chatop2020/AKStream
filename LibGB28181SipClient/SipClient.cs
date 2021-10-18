@@ -648,18 +648,33 @@ namespace LibGB28181SipClient
                         }
                     }
                 }
-                
-                return new ShareInviteInfo()
-                {
-                    ChannelId = channelid,
-                    RemoteIpAddress = mediaip,
-                    RemotePort = mediaport,
-                    Ssrc = ssrc,
-                    CallId = req.Header.CallId,
-                    Cseq = req.Header.CSeq,
-                    Tag = req.Header.From.FromTag,
-                };
 
+                ResponseStruct rs;
+                var shareList = WebApiHelper.GetShareChannelList(out rs);
+                if (rs.Code.Equals(ErrorNumber.None) && shareList != null)
+                {
+                    var obj = shareList.FindLast(x =>
+                       x.ShareDeviceId.Equals(channelid));
+                    if (obj != null)
+                    {
+                        return new ShareInviteInfo()
+                        {
+                            ChannelId = channelid,
+                            RemoteIpAddress = mediaip,
+                            RemotePort = mediaport,
+                            Ssrc = ssrc,
+                            CallId = req.Header.CallId,
+                            Cseq = req.Header.CSeq,
+                            Tag = req.Header.From.FromTag,
+                            MediaServerId = obj.MediaServerId,
+                            Stream = obj.MainId,
+                            App = obj.App,
+                            Vhost = obj.Vhost,
+                            Is_Udp = true,
+                        };
+                    }
+                  
+                }
             }
             catch
             {
@@ -670,7 +685,7 @@ namespace LibGB28181SipClient
         }
 
 
-        private string CreateSdp(SIPRequest reqold)
+        private string CreateSdp(SIPRequest reqold,ref ShareInviteInfo info)
         {
             var from = reqold.Header.From;
             var to = reqold.Header.To;
@@ -685,9 +700,6 @@ namespace LibGB28181SipClient
             req.Header.Vias = reqold.Header.Vias;
             req.Header.CallId = callId;
             req.Header.CSeq = reqold.Header.CSeq;
-            
-            
-            /*
             var sdpConn = new SDPConnectionInformation(Common.SipClientConfig.LocalIpAddress);
             var sdp = new SDP()
             {
@@ -708,58 +720,31 @@ namespace LibGB28181SipClient
             {
                 IsStandardAttribute = false,
             };
-            var media = new SDPMediaAnnouncement()
+
+            ResponseStruct rs;
+            var rtpPort = WebApiHelper.GuessAnRtpPortForSender(info.MediaServerId, out rs);
+            if (rs.Code.Equals(ErrorNumber.None) && rtpPort > 0)
             {
-                Media = SDPMediaTypesEnum.video,
-                Port = pushMediaInfo.StreamPort,
-            };
-            media.MediaFormats.Add(psFormat);
-            media.MediaFormats.Add(h264Format);
-            media.AddExtra("a=recvonly");
-            if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
-            {
-                media.Transport = "TCP/RTP/AVP";
-                media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
-                media.AddExtra("a=connection:new");
+                var media = new SDPMediaAnnouncement()
+                {
+                    Media = SDPMediaTypesEnum.video,
+                    Port = rtpPort,
+                };
+                info.LocalRtpPort = rtpPort;
+                media.MediaFormats.Add(psFormat);
+                media.MediaFormats.Add(h264Format);
+                media.AddExtra("a=sendonly");
+                media.Transport = "RTP/AVP";
+                media.AddFormatParameterAttribute(psFormat.FormatID, psFormat.Name);
+                media.AddFormatParameterAttribute(h264Format.FormatID, h264Format.Name);
+                media.AddExtra($"a=username:{Common.SipClientConfig.SipUsername}"); 
+                media.AddExtra($"a=password:{Common.SipClientConfig.SipPassword}"); 
+                media.AddExtra($"y={info.Ssrc}"); 
+                media.AddExtra("f="); 
+                sdp.Media.Add(media);
+                return sdp.ToString();
             }
-
-            media.AddExtra("y=" + sipChannel.SsrcId); //设置ssrc
-            media.AddFormatParameterAttribute(psFormat.FormatID, psFormat.Name);
-            media.AddFormatParameterAttribute(h264Format.FormatID, h264Format.Name);
-            media.Port = pushMediaInfo.StreamPort;
-            sdp.Media.Add(media);
-            return sdp.ToString();*/
-            
             return "";
-            /*v=0
-           SIP/2.0 200 OK
-Via: SIP/2.0/UDP 192.168.200.19:5060;branch=z9hG4bK66ff8da0198b422fa1cb2cd7f7fb95ac;rport=5060
-To: <sip:34020000021310000001@192.168.200.1:5060>;tag=1161000782
-From: <sip:33020000021180000001@192.168.200.19:5060>;tag=AKStream
-Call-ID: a4f9a2275d2c4e21ac24a97c98cc43a1
-CSeq: 46800 INVITE
-Contact: <sip:34020000021310000001@192.168.200.1:5060>
-User-Agent: Embedded Net DVR/NVR/DVS
-Content-Length: 245
-Content-Type: application/SDP
-
-v=0
-o=34020000001110000001 0 0 IN IP4 192.168.200.1
-s=Play
-c=IN IP4 192.168.200.1
-t=0 0
-m=video 62418 RTP/AVP 96
-a=sendonly
-a=rtpmap:96 PS/90000
-a=username:34020000001110000001
-a=password:123#@!qwe
-y=0007132891
-f=v/2/6/25/1/2048a///
-，callid:a4f9a2275d2c4e21ac24a97c98cc43a1
-*/
-
-
-
         }
         
         /// <summary>
@@ -778,6 +763,45 @@ f=v/2/6/25/1/2048a///
             Logger.Debug(
                 $"[{Common.LoggerHead}]->发送实时流请求回复->{okResponse.RemoteSIPEndPoint}->{okResponse}");
         }
+        
+        
+        /// <summary>
+        /// 创建invite协商结果
+        /// </summary>
+        /// <param name="oldreq"></param>
+        /// <param name="sdp"></param>
+        /// <returns></returns>
+        private SIPRequest CreateInviteRequest(SIPRequest oldreq,string sdp)
+        {
+            SIPProtocolsEnum protocols = SIPProtocolsEnum.udp;
+            var toSipUri = new SIPURI(SIPSchemesEnum.sip,
+                new SIPEndPoint(protocols, _localIpEndPoint));
+            toSipUri.User = Common.SipClientConfig.SipServerDeviceId;
+            SIPToHeader to = new SIPToHeader(null, toSipUri, null);
+
+            var fromSipUri = new SIPURI(SIPSchemesEnum.sip, _localIpEndPoint.Address, _localIpEndPoint.Port);
+            fromSipUri.User = Common.SipClientConfig.SipDeviceId;
+            SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStreamClient");
+            SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.MESSAGE, toSipUri, to,
+                from,
+                new SIPEndPoint(protocols,
+                    _localIpEndPoint));
+            req.Header.Allow = null;
+            req.Header.Contact = new List<SIPContactHeader>()
+            {
+                new SIPContactHeader(null, fromSipUri)
+            };
+            req.Header.UserAgent = Common.SipUserAgent;
+            req.Header.ContentType = "Application/MANSCDP+xml";
+            req.Header.CallId = oldreq.Header.CallId;
+            _catalogCallId = req.Header.CallId;
+            req.Header.CSeq = oldreq.Header.CSeq;
+            req.Header.CSeqMethod = SIPMethodsEnum.INVITE;
+
+            req.Body = sdp;
+            return req;
+        }
+        
         /// <summary>
         /// 处理来自远端的请求
         /// </summary>
@@ -795,6 +819,7 @@ f=v/2/6/25/1/2048a///
                 case SIPMethodsEnum.BYE:
                     Console.WriteLine(sipRequest);
                     var info = GetDeInviteShareInfo(sipRequest);
+                  
                     if (info != null)
                     {
                         var b=OnDeInviteChannel?.Invoke(info);
@@ -810,8 +835,14 @@ f=v/2/6/25/1/2048a///
                     var shareinfo = GetShareInfo(sipRequest);
                     if (shareinfo != null)
                     {
+                        
                         SIPResponse tryingResponse = SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Trying, null);
                         await SipClientInstance.SendResponseAsync(tryingResponse);
+                        var sdp = CreateSdp(sipRequest, ref shareinfo);
+                        var newreq = CreateInviteRequest(sipRequest, sdp);
+                        Logger.Debug("回复invite信息->\r\n"+newreq);
+                        await SipClientInstance.SendRequestAsync(newreq);
+                       
                         var b = OnInviteChannel?.Invoke(shareinfo);
                         if (b==true)
                         {
