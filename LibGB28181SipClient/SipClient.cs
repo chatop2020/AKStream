@@ -834,10 +834,13 @@ namespace LibGB28181SipClient
                     var fromTag = sipRequest.Header.From.FromTag.Trim();
                     var toTag = sipRequest.Header.To.ToTag.Trim();
                     var callid = sipRequest.Header.CallId.Trim();
-
+                    SIPResponse byeResponse =
+                        SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null);
+                    await SipClientInstance.SendResponseAsync(byeResponse);
                     retok = OnDeInviteChannel?.Invoke(fromTag, toTag, callid, out rs, out info);
                     if (retok == true)
                     {
+                       
                         Logger.Info(
                             $"[{Common.LoggerHead}]->终止共享推流成功->{sipRequest.RemoteSIPEndPoint}->{info}");
                     }
