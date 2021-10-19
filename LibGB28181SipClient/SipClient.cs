@@ -464,23 +464,7 @@ namespace LibGB28181SipClient
         }
 
 
-        /// <summary>
-        /// 按指定数量对List分组
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="list"></param>
-        /// <param name="groupNum"></param>
-        /// <returns></returns>
-        private List<List<T>> GetListGroup<T>(List<T> list, int groupNum)
-        {
-            List<List<T>> listGroup = new List<List<T>>();
-            for (int i = 0; i < list.Count(); i += groupNum)
-            {
-                listGroup.Add(list.Skip(i).Take(groupNum).ToList());
-            }
-
-            return listGroup;
-        }
+       
 
         /// <summary>
         /// 生成设备目录信令
@@ -553,7 +537,7 @@ namespace LibGB28181SipClient
                 var shareList = WebApiHelper.GetShareChannelList(out rs);
                 if (shareList != null && rs.Code.Equals(ErrorNumber.None))
                 {
-                    var listGroup = GetListGroup(shareList, 2);
+                    var listGroup = UtilsHelper.GetListGroup(shareList, 2);
                     foreach (var obj in listGroup)
                     {
                         var req = CreateCatalog(obj, shareList.Count);
