@@ -7,5 +7,6 @@
   "HttpClientTimeoutSec": 5,
   "WaitEventTimeOutMSec" : 10000,
   "WaitSipRequestTimeOutMSec" : 5000,
-  "DeletedRecordsExpiredDays" : 30
+  "DeletedRecordsExpiredDays" : 30,
+  "EnableGB28181Client": true
 }

@@ -64,11 +64,12 @@ namespace AKStreamWeb
         /// </summary>
         public static SipClient SipClient;
         
-        private static List<LibCommon.Structs.ShareInviteChannel> _shareInviteChannels = new List<LibCommon.Structs.ShareInviteChannel>();
+
+        private static List<LibCommon.Structs.ShareInviteInfo> _shareInviteChannels = new List<LibCommon.Structs.ShareInviteInfo>();
         /// <summary>
         /// 共享流列表
         /// </summary>
-        public static List<LibCommon.Structs.ShareInviteChannel> ShareInviteChannels
+        public static List<LibCommon.Structs.ShareInviteInfo> ShareInviteChannels
         {
             get => _shareInviteChannels;
             set => _shareInviteChannels = value;
@@ -179,10 +180,13 @@ namespace AKStreamWeb
             SipMsgProcess.OnInviteHistoryVideoFinished += SipServerCallBack.OnInviteHistoryVideoFinished;
             SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
             SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
-            SipClient = new SipClient();
-            SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
-            SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
-            
+            if (AkStreamWebConfig.EnableGB28181Client)
+            {
+                SipClient = new SipClient();
+                SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
+                SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
+            }
+
             try
             {
                 ResponseStruct rs;
@@ -320,6 +324,7 @@ namespace AKStreamWeb
                     HttpClientTimeoutSec = 20,
                     AccessKey = UtilsHelper.generalGuid(),
                     DeletedRecordsExpiredDays = 0,
+                    EnableGB28181Client = false
                 };
                 try
                 {

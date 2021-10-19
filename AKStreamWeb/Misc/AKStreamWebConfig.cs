@@ -14,6 +14,7 @@ namespace AKStreamWeb.Misc
         private int _waitSipRequestTimeOutMSec = 5000;
         private ushort _webApiPort = 5800;
         private ushort _deletedRecordsExpiredDays = 30;
+        private bool _enableGB28181Client = false;
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver
@@ -96,6 +97,15 @@ namespace AKStreamWeb.Misc
         {
             get => _deletedRecordsExpiredDays;
             set => _deletedRecordsExpiredDays = value;
+        }
+
+        /// <summary>
+        /// 是否启用gb28181客户端
+        /// </summary>
+        public bool EnableGB28181Client
+        {
+            get => _enableGB28181Client;
+            set => _enableGB28181Client = value;
         }
     }
 }

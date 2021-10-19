@@ -11,7 +11,6 @@ namespace LibCommon.Structs.GB28181
     /// </summary>
     public class SipClientConfig
     {
-        private bool _enable;
         private string _localIpAddress;
         private ushort _localPort;
         private string _sipServerIpAddress;
@@ -29,15 +28,7 @@ namespace LibCommon.Structs.GB28181
         private Encoding _encoding;
         private string _akstreamWebHttpUrl;
 
-        /// <summary>
-        /// 是否启用Sip客户端
-        /// </summary>
-        public bool Enable
-        {
-            get => _enable;
-            set => _enable = value;
-        }
-
+    
         /// <summary>
         /// 本机ip地址
         /// </summary>

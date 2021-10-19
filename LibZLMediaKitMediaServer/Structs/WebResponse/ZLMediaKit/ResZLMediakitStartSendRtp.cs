@@ -19,5 +19,6 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             get => _msg;
             set => _msg = value;
         }
+        
     }
 }

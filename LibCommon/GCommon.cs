@@ -137,11 +137,11 @@ namespace LibCommon
         /// <summary>
         /// 当有实时流推流请求时
         /// </summary>
-        public delegate bool InviteChannel(ShareInviteInfo info);
+        public delegate bool InviteChannel(ShareInviteInfo info,out ResponseStruct rs);
         /// <summary>
         /// 当有实时流结束推流请求时
         /// </summary>
-        public delegate bool DeInviteChannel(ShareInviteInfo info);
+        public delegate bool DeInviteChannel(string fromTag,string toTag,string callid,out ResponseStruct rs,out ShareInviteInfo info);
 
         #endregion
     }

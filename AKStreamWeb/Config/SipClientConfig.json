@@ -1,5 +1,4 @@
 {
-  "Enable": true,
   "LocalIpAddress": "192.168.200.19",
   "LocalPort": 5061,
   "SipServerIpAddress": "192.168.200.19",

@@ -89,7 +89,6 @@ namespace LibGB28181SipClient
                 if (!string.IsNullOrEmpty(ipInfo.IpV4))
                 {
                     SipClientConfig sipClientConfig = new SipClientConfig();
-                    sipClientConfig.Enable = false;
                     sipClientConfig.LocalIpAddress = ipInfo.IpV4;
                     sipClientConfig.SipDeviceId = "33020000021190000002";
                     sipClientConfig.SipServerDeviceId = "33020000021180000001";
@@ -124,8 +123,8 @@ namespace LibGB28181SipClient
             {
                 rs = new ResponseStruct()
                 {
-                    Code = ErrorNumber.SipClient_InitExcept,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.SipClient_InitExcept],
+                    Code = ErrorNumber.Sip_SipClient_InitExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SipClient_InitExcept],
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };  
