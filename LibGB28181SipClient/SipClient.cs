@@ -742,23 +742,7 @@ namespace LibGB28181SipClient
             return false;
         }
 
-        /// <summary>
-        /// 发送实时流确认回复
-        /// </summary>
-        /// <param name="request"></param>
-        private async Task InviteAck(SIPRequest request)
-        {
-            SIPResponseStatusCodesEnum messaageResponse = SIPResponseStatusCodesEnum.Ok;
-            SIPResponse okResponse = SIPResponse.GetResponse(request, messaageResponse, null);
-            okResponse.Header.Contact = request.Header.Contact;
-            okResponse.Header.UserAgent = Common.SipUserAgent;
-            okResponse.Header.MaxForwards = 70;
-            okResponse.Header.CSeqMethod = SIPMethodsEnum.ACK;
-            await _sipTransport.SendResponseAsync(okResponse);
-            Logger.Debug(
-                $"[{Common.LoggerHead}]->发送实时流请求回复->{okResponse.RemoteSIPEndPoint}->{okResponse}");
-        }
-
+    
 
         /// <summary>
         /// 创建invite协商结果
@@ -766,36 +750,21 @@ namespace LibGB28181SipClient
         /// <param name="oldreq"></param>
         /// <param name="sdp"></param>
         /// <returns></returns>
-        private SIPRequest CreateInviteRequest(SIPRequest oldreq, string sdp)
+        private SIPResponse CreateInviteResponse(SIPRequest oldreq, string sdp)
         {
-            SIPProtocolsEnum protocols = SIPProtocolsEnum.udp;
-            var toSipUri = new SIPURI(SIPSchemesEnum.sip,
-                new SIPEndPoint(protocols, _localIpEndPoint));
-            toSipUri.User = Common.SipClientConfig.SipServerDeviceId;
-            SIPToHeader to = new SIPToHeader(null, toSipUri, null);
+           var res= SIPResponse.GetResponse(oldreq, SIPResponseStatusCodesEnum.Ok, null);
+           res.Header.UserAgent = Common.SipUserAgent;
+           res.Header.ContentType = "Application/MANSCDP+xml";
+           res.Header.CallId = oldreq.Header.CallId;
+           res.Header.To.ToTag = UtilsHelper.CreateNewCSeq().ToString();
+           _catalogCallId = res.Header.CallId;
+           res.Header.CSeq = oldreq.Header.CSeq;
+           res.Header.CSeqMethod = SIPMethodsEnum.INVITE;
+           res.Body = sdp;
 
-            var fromSipUri = new SIPURI(SIPSchemesEnum.sip, _localIpEndPoint.Address, _localIpEndPoint.Port);
-            fromSipUri.User = Common.SipClientConfig.SipDeviceId;
-            SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStreamClient");
-            SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.MESSAGE, toSipUri, to,
-                from,
-                new SIPEndPoint(protocols,
-                    _localIpEndPoint));
-            req.Header.Allow = null;
-            req.Header.Contact = new List<SIPContactHeader>()
-            {
-                new SIPContactHeader(null, fromSipUri)
-            };
-            req.Header.UserAgent = Common.SipUserAgent;
-            req.Header.ContentType = "Application/MANSCDP+xml";
-            req.Header.CallId = oldreq.Header.CallId;
-            _catalogCallId = req.Header.CallId;
-            req.Header.CSeq = oldreq.Header.CSeq;
-            req.Header.CSeqMethod = SIPMethodsEnum.INVITE;
-
-            req.Body = sdp;
-            return req;
+           return res;
         }
+       
 
         /// <summary>
         /// 处理来自远端的请求
@@ -826,54 +795,64 @@ namespace LibGB28181SipClient
                     {
                        
                         Logger.Info(
-                            $"[{Common.LoggerHead}]->终止共享推流成功->{sipRequest.RemoteSIPEndPoint}->{info}");
+                            $"[{Common.LoggerHead}]->终止共享推流成功->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(info)}");
+                        
+                        var b=WebApiHelper.ReleaseRtpPortForSender(info.MediaServerId, info.LocalRtpPort,out rs);
+                       
+                        if (!b || !rs.Code.Equals(ErrorNumber.None))
+                        {
+                            Logger.Warn(
+                                $"[{Common.LoggerHead}]->Rtp(发送)端口释放失败->{JsonHelper.ToJson(info.LocalRtpPort)}");
+
+                        }
+                        else
+                        {
+                            Logger.Info(
+                                $"[{Common.LoggerHead}]->Rtp(发送)端口释放成功->{JsonHelper.ToJson(info.LocalRtpPort)}");
+                        }
                     }
                     else
                     {
                         Logger.Warn(
-                            $"[{Common.LoggerHead}]->终止共享推流失败->{sipRequest.RemoteSIPEndPoint}->{info}->{JsonHelper.ToJson(rs)}");
+                            $"[{Common.LoggerHead}]->终止共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(info)}->{JsonHelper.ToJson(rs)}");
                     }
 
                     break;
                 case SIPMethodsEnum.INVITE:
-
-                    await InviteAck(sipRequest);
+                
                     ShareInviteInfo shareinfo = null;
                     var shareinfook = GetShareInfo(sipRequest, out shareinfo);
                     if (shareinfook && shareinfo != null)
                     {
-                        SIPResponse tryingResponse =
-                            SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Trying, null);
-                        await SipClientInstance.SendResponseAsync(tryingResponse);
                         string sdp = "";
                         var sdpok = CreateSdp(sipRequest, ref shareinfo, out sdp);
                         if (sdpok && !string.IsNullOrEmpty(sdp))
                         {
-                            var newreq = CreateInviteRequest(sipRequest, sdp);
-                            await SipClientInstance.SendRequestAsync(newreq);
-                            _oldSipRequest = newreq;
+                            var response = CreateInviteResponse(sipRequest, sdp);
+                            shareinfo.ToTag = response.Header.To.ToTag;
+                            await SipClientInstance.SendResponseAsync(response);
                             retok = OnInviteChannel?.Invoke(shareinfo, out rs);
                             if (retok == true && rs.Code.Equals(ErrorNumber.None))
                             {
                                 Logger.Info(
-                                    $"[{Common.LoggerHead}]->共享推流成功->{sipRequest.RemoteSIPEndPoint}->{shareinfo}");
+                                    $"[{Common.LoggerHead}]->共享推流成功->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}");
                             }
                             else
                             {
                                 Logger.Warn(
-                                    $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{shareinfo}->{JsonHelper.ToJson(rs)}");
+                                    $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}->{JsonHelper.ToJson(rs)}");
                             }
                         }
                         else
                         {
                             Logger.Warn(
-                                $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{shareinfo}->{JsonHelper.ToJson(rs)}");
+                                $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}->{JsonHelper.ToJson(rs)}");
                         }
                     }
                     else
                     {
                         Logger.Warn(
-                            $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{shareinfo}");
+                            $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}");
                     }
 
 
@@ -925,6 +904,7 @@ namespace LibGB28181SipClient
             SIPEndPoint remoteEndPoint,
             SIPResponse sipResponse)
         {
+            
             var method = sipResponse.Header.CSeqMethod;
             var status = sipResponse.Status;
             switch (method)
@@ -1042,6 +1022,20 @@ namespace LibGB28181SipClient
 
             try
             {
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地IP地址->{Common.SipClientConfig.LocalIpAddress}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地端口->{Common.SipClientConfig.LocalPort}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器IP地址->{Common.SipClientConfig.SipServerIpAddress}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器端口->{Common.SipClientConfig.SipServerPort}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器设备ID->{Common.SipClientConfig.SipServerDeviceId}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端设备ID->{Common.SipClientConfig.SipDeviceId}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端域(REALM)->{Common.SipClientConfig.Realm}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端注册有效时间->{Common.SipClientConfig.Expiry}秒");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端用户名->{Common.SipClientConfig.SipUsername}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端密码->{Common.SipClientConfig.SipPassword}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳间隔周期->{Common.SipClientConfig.KeepAliveInterval}秒/次");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端字符集->{Common.SipClientConfig.EncodingType}");
+                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
                 _sipTransport = new SIPTransport();
                 _sipTransport.SIPTransportResponseReceived += RecvSipMessageOfResponse;
                 _sipTransport.SIPTransportRequestReceived += RecvSipMessageOfRequest;

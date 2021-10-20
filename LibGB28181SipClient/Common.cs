@@ -110,7 +110,6 @@ namespace LibGB28181SipClient
                     sipClientConfig.SipServerPort = 5060;
                     sipClientConfig.KeepAliveLostNumber = 3;
                     sipClientConfig.SipServerIpAddress = "Sip服务器的ip地址";
-                    sipClientConfig.UdpMtu = 1500;
                     sipClientConfig.Expiry = 3600;//注册有效期 3600秒
                     sipClientConfig.EncodingType = EncodingType.UTF8;
                     sipClientConfig.Encoding=Encoding.UTF8;

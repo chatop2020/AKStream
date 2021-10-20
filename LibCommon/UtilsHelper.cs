@@ -323,6 +323,8 @@ namespace LibCommon
             return r.Next(1, ushort.MaxValue);
         }
 
+        
+        
         /// <summary>
         /// 通过mac地址获取ip地址
         /// </summary>

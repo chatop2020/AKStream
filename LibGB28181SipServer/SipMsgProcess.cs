@@ -871,6 +871,7 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         private static async Task InviteOk(SIPResponse sipResponse, SipChannel sipChannel)
         {
+         
             var from = sipResponse.Header.From;
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
@@ -899,6 +900,7 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         private static async Task InviteOk(SIPResponse sipResponse, RecordInfo.RecItem record)
         {
+          
             var from = sipResponse.Header.From;
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
@@ -1082,7 +1084,7 @@ namespace LibGB28181SipServer
                             }
 
                             Logger.Debug(
-                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的SipResponse->{sipResponse}，callid:{sipResponse.Header.CallId}");
+                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的SipResponse->{sipResponse}");
                             _task.AutoResetEvent.Set(); //通知调用者任务完成,凋用者后续要做dispose操作
                         }
                         catch (Exception ex)

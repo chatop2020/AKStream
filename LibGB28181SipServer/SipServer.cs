@@ -150,11 +150,11 @@ namespace LibGB28181SipServer
 
                 if (commandType == CommandType.Playback && obj != null)
                 {
-                    ((RecordInfo.RecItem) obj).InviteSipRequest = req;
-                    ((RecordInfo.RecItem) obj).CallId = req.Header.CallId;
-                    ((RecordInfo.RecItem) obj).CSeq = -1;
-                    ((RecordInfo.RecItem) obj).ToTag = "";
-                    ((RecordInfo.RecItem) obj).FromTag = req.Header.From.FromTag;
+                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem)obj).CallId = req.Header.CallId;
+                    ((RecordInfo.RecItem)obj).CSeq = -1;
+                    ((RecordInfo.RecItem)obj).ToTag = "";
+                    ((RecordInfo.RecItem)obj).FromTag = req.Header.From.FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -267,12 +267,13 @@ namespace LibGB28181SipServer
             }
         }
 
-        
-        private async Task SendRequestForRecordSeekPosition(SipDevice sipDevice, SipChannel sipChannel, SIPMethodsEnum method,
-          string contentType,
-          string xmlBody, string subject, CommandType commandType, bool needResponse, AutoResetEvent evnt,
-          AutoResetEvent evnt2, object obj,
-          int timeout)
+
+        private async Task SendRequestForRecordSeekPosition(SipDevice sipDevice, SipChannel sipChannel,
+            SIPMethodsEnum method,
+            string contentType,
+            string xmlBody, string subject, CommandType commandType, bool needResponse, AutoResetEvent evnt,
+            AutoResetEvent evnt2, object obj,
+            int timeout)
         {
             try
             {
@@ -682,20 +683,20 @@ namespace LibGB28181SipServer
                 case PTZCommandType.SetPreset: //设置预置位
                     cmdList.Add(0x81);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);//当id使用
+                    cmdList.Add(dwSpeed); //当id使用
                     cmdList.Add(00);
                     break;
                 case PTZCommandType.GetPreset: //调用预置位
                     cmdList.Add(0x82);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);//当id使用
-                    cmdList.Add(0x80);//默认速度128
+                    cmdList.Add(dwSpeed); //当id使用
+                    cmdList.Add(0x80); //默认速度128
                     break;
                 case PTZCommandType.RemovePreset: //删除预置位
                     cmdList.Add(0x83);
                     cmdList.Add(00);
-                    cmdList.Add(dwSpeed);//当id使用
-                    cmdList.Add(00); 
+                    cmdList.Add(dwSpeed); //当id使用
+                    cmdList.Add(00);
                     break;
                 default:
                     break;
@@ -959,7 +960,7 @@ namespace LibGB28181SipServer
             var body = new RecordQuery()
             {
                 DeviceID = sipChannel.DeviceId,
-                SN = (int) sipQueryRecordFile.TaskId, //跟进去一个sn
+                SN = (int)sipQueryRecordFile.TaskId, //跟进去一个sn
                 CmdType = CommandType.RecordInfo,
                 Secrecy = 0,
                 StartTime = sipQueryRecordFile.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -1168,7 +1169,7 @@ namespace LibGB28181SipServer
                 "Range: npt=" + time + "-\r\n";
             return recordSdp;
         }
-        
+
         /// <summary>
         /// 回放视频时的seek position操作
         /// </summary>
@@ -1178,8 +1179,9 @@ namespace LibGB28181SipServer
         /// <param name="evnt"></param>
         /// <param name="rs"></param>
         /// <param name="timeout"></param>
-        public void InviteRecordPosition(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, long time, AutoResetEvent evnt,
-          out ResponseStruct rs, int timeout = 5000)
+        public void InviteRecordPosition(RecordInfo.RecItem record, PushMediaInfo pushMediaInfo, long time,
+            AutoResetEvent evnt,
+            out ResponseStruct rs, int timeout = 5000)
         {
             try
             {
@@ -1189,8 +1191,8 @@ namespace LibGB28181SipServer
                     Message = ErrorMessage.ErrorDic![ErrorNumber.None],
                 };
 
-               
-                string recordSdp =  CreateRecordSeekPositionSdp(record, time);
+
+                string recordSdp = CreateRecordSeekPositionSdp(record, time);
 
                 if (!string.IsNullOrEmpty(recordSdp))
                 {
@@ -1198,9 +1200,12 @@ namespace LibGB28181SipServer
                     var subject = record.InviteSipRequest.Header.Subject;
                     try
                     {
-                        Func<SipDevice, SipChannel, SIPMethodsEnum, string, string, string, CommandType, bool, AutoResetEvent, AutoResetEvent, object, int, Task> request = SendRequestForRecordSeekPosition ;
+                        Func<SipDevice, SipChannel, SIPMethodsEnum, string, string, string, CommandType, bool,
+                            AutoResetEvent, AutoResetEvent, object, int, Task> request =
+                            SendRequestForRecordSeekPosition;
 
-                        request(record.SipDevice, record.SipChannel, method, ConstString.Application_SDP, recordSdp, subject, CommandType.Playback, false, evnt, null, record, timeout);
+                        request(record.SipDevice, record.SipChannel, method, ConstString.Application_SDP, recordSdp,
+                            subject, CommandType.Playback, false, evnt, null, record, timeout);
                     }
                     catch (AkStreamException ex)
                     {
@@ -1516,7 +1521,7 @@ namespace LibGB28181SipServer
                 req.Header.Allow = null;
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
                 record.CSeq++;
-                req.Header.CSeq = record.CSeq ;
+                req.Header.CSeq = record.CSeq;
                 var nrt = new NeedReturnTask(Common.NeedResponseRequests)
                 {
                     AutoResetEvent = evnt,
@@ -1618,7 +1623,11 @@ namespace LibGB28181SipServer
                     return;
                 }
 
+
                 var tmpSipDevice = Common.SipDevices.FindLast(x => x.DeviceId.Equals(sipChannel.ParentId));
+
+                SIPRequest req = null;
+
                 SIPMethodsEnum method = SIPMethodsEnum.BYE;
                 IPAddress sipDeviceIpAddr = tmpSipDevice.RemoteEndPoint.Address;
                 int sipDevicePort = tmpSipDevice.RemoteEndPoint.Port;
@@ -1638,7 +1647,7 @@ namespace LibGB28181SipServer
                                AddressFamily.InterNetworkV6)
                     ? true
                     : false;
-                SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
+                req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(tmpSipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
@@ -1647,7 +1656,8 @@ namespace LibGB28181SipServer
                                 : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             tmpSipDevice.SipChannelLayout.Port)));
                 req.Header.CallId = sipChannel.InviteSipRequest.Header.CallId;
-                req.Header.From = new SIPFromHeader(null, fromSipUri, sipChannel.InviteSipRequest.Header.From.FromTag);
+                req.Header.From =
+                    new SIPFromHeader(null, fromSipUri, sipChannel.InviteSipRequest.Header.From.FromTag);
                 req.Header.To = new SIPToHeader(null, toSipUri, sipChannel.InviteSipResponse.Header.To.ToTag);
                 req.Header.Contact = new List<SIPContactHeader>()
                 {
@@ -1658,7 +1668,7 @@ namespace LibGB28181SipServer
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
                 sipChannel.InviteSipResponse.Header.CSeq++;
                 req.Header.CSeq = sipChannel.InviteSipResponse.Header.CSeq;
-                
+
 
                 var nrt = new NeedReturnTask(Common.NeedResponseRequests)
                 {
@@ -1670,6 +1680,7 @@ namespace LibGB28181SipServer
                     SipChannel = sipChannel,
                     CommandType = CommandType.Unknown,
                 };
+
                 Common.NeedResponseRequests.TryAdd(req.Header.CallId, nrt);
                 Logger.Debug($"[{Common.LoggerHead}]->发送终止时实流请求->{req}");
                 _sipTransport.SendRequestAsync(tmpSipDevice.RemoteEndPoint, req);

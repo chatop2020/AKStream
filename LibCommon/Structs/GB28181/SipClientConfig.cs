@@ -22,7 +22,6 @@ namespace LibCommon.Structs.GB28181
         private int _keepAliveInterval;
         private int _keepAliveLostNumber;
         private string _sipDeviceId;
-        private ushort _udpMTU = 1500;
         private ushort _expiry = 3600;
         private EncodingType _encodingType;
         private Encoding _encoding;
@@ -131,15 +130,6 @@ namespace LibCommon.Structs.GB28181
         {
             get => _sipDeviceId;
             set => _sipDeviceId = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
-        /// <summary>
-        /// udp最多传输值大小，默认1500字节
-        /// </summary>
-        public ushort UdpMtu
-        {
-            get => _udpMTU;
-            set => _udpMTU = value;
         }
 
         /// <summary>

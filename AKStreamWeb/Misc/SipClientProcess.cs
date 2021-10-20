@@ -61,7 +61,7 @@ namespace AKStreamWeb.Misc
                         {
                             Common.ShareInviteChannels.Remove(obj);
                         }
-
+                        
                         return true;
                     }
                 }

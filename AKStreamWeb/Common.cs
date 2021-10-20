@@ -186,6 +186,8 @@ namespace AKStreamWeb
                 SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
                 SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             }
+            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
+
 
             try
             {
