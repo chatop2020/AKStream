@@ -10,7 +10,6 @@
   "KeepAliveInterval": 10,
   "KeepAliveLostNumber": 3,
   "SipDeviceId": "33020000021190000002",
-  "UdpMtu": 1500,
   "Expiry": 3600,
   "EncodingType": "UTF8",
   "AkstreamWebHttpUrl": "http://127.0.0.1:5800/SipClient"
