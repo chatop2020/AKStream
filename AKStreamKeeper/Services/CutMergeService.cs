@@ -308,6 +308,13 @@ namespace AKStreamKeeper.Services
                         str = str.ToLower();
                         str = str.Replace("kb", "");
                         long.TryParse(str, out find);
+                        if (find <= 0)
+                        {
+                            str = UtilsHelper.GetValue(err, "audio:", "subtitle:"); 
+                            str = str.ToLower();
+                            str = str.Replace("kb", "");
+                            long.TryParse(str, out find);
+                        }
                     }
                 }
                 else if (!string.IsNullOrEmpty(err))
@@ -316,6 +323,13 @@ namespace AKStreamKeeper.Services
                     str = str.ToLower();
                     str = str.Replace("kb", "");
                     long.TryParse(str, out find);
+                    if (find <= 0)
+                    {
+                        str = UtilsHelper.GetValue(err, "audio:", "subtitle:"); 
+                        str = str.ToLower();
+                        str = str.Replace("kb", "");
+                        long.TryParse(str, out find);
+                    }
                 }
 
                 if (find > 0)
