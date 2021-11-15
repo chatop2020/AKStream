@@ -41,6 +41,10 @@
 
 * Please support a lot, star a lot, thank you
 
+# 网友创建维护的Docker容器版本
+- 包含了AKStreamWeb,AKStreamKeeper,ZLMediaKit,AKStreamWebNVR 开箱即用
+- https://github.com/scottzhang/AKStreamDocker
+
 # 强烈推荐AKStream生态圈中又一个开源Web管理平台(新作-基于React纯前端框架)
 - 基于React的纯前端AKStream Web UI
 - 非常简单的部署方式，非常简单的运行方式
