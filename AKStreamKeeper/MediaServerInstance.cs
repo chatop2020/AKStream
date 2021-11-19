@@ -587,7 +587,10 @@ namespace AKStreamKeeper
                     data["hook"]["on_server_started"] = "";
                     data["hook"]["timeoutSec"] = "20"; //httpclient超时时间20秒
                     data["general"]["flowThreshold"] = "0"; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
-                    data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;
+                    if (!Common.AkStreamKeeperConfig.FFmpegPath.Contains("\"") || Common.AkStreamKeeperConfig.FFmpegPath.Contains(" "))
+                    {
+                        data["ffmpeg"]["bin"] = $"\"{Common.AkStreamKeeperConfig.FFmpegPath}\"";
+                    }
                     data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
                     data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
                     if (Common.AkStreamKeeperConfig.DisableShell == true)
