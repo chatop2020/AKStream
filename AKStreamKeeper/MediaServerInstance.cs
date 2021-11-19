@@ -591,8 +591,8 @@ namespace AKStreamKeeper
                     {
                         data["ffmpeg"]["bin"] = $"\"{Common.AkStreamKeeperConfig.FFmpegPath}\"";
                     }
-                    data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
-                    data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
+                    data["ffmpeg"]["cmd"] = "%s -re -i \"%s\" -vcodec copy -acodec copy -f flv -y  \"%s\"";
+                    data["ffmpeg"]["snap"] = "%s -i \"%s\" -y -f mjpeg -t 0.001 \"%s\"";
                     if (Common.AkStreamKeeperConfig.DisableShell == true)
                     {
                         data["shell"]["port"] = "0";
