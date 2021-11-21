@@ -488,7 +488,7 @@ namespace LibCommon
             try
             {
                 string Url = "^((rtsp|rtsps)?://)"
-                             + "?(([0-9a-zA-Z_!~*'().&=+$%-]+:)?[0-9a-zA-Z_!~*'().&=+$%-]+@)?" //rtsp的user@
+                             + "?(([0-9a-zA-Z_!~*'().&=+$%-]+:)?([0-9a-zA-Z_!~*'().&=+$%-]+)?@)?" //rtsp的user@
                              + "(([0-9]{1,3}.){3}[0-9]{1,3}" // IP形式的URL- 199.194.52.184
                              + "|" // 允许IP和DOMAIN（域名）
                              + "([0-9a-zA-Z_!~*'()-]+.)*" // 域名- www.
@@ -497,7 +497,7 @@ namespace LibCommon
                              + "(:[0-9]{1,4})?" // 端口- :80
                              + "((/?)|" // a slash isn't required if there is no file name
                              + "(/[0-9a-zA-Z_!~*'().;?:@&=+$,%#-]+)+/?)"
-                             + "[A-Za-z0-9_!~*'().;?:@&=+$,%#-]{4,40}$";
+                             + "[A-Za-z0-9_!~*'().;?:@&=+$,%#-]{1,40}$";
                 return Regex.IsMatch(str, Url, RegexOptions.IgnoreCase);
             }
             catch
