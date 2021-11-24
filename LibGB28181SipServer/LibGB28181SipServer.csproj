@@ -4,7 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>GB28181SipGate</RootNamespace>
         <Nullable>disable</Nullable>
-        <LangVersion>9</LangVersion>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
