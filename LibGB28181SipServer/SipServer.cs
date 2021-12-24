@@ -47,10 +47,14 @@ namespace LibGB28181SipServer
         /// </summary>
         private SIPUDPChannel _sipUdpIpV6Channel = null!;
 
-        public SipServer()
+        public SipServer(string outConfigPath="")
         {
             ResponseStruct rs;
             Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
+            if (!string.IsNullOrEmpty(outConfigPath))
+            {
+                Common.SipServerConfigPath = outConfigPath + "/SipServerConfig.json";
+            }
             var ret = Common.ReadSipServerConfig(out rs);
 
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))

@@ -22,6 +22,7 @@ namespace AKStreamKeeper
     {
         public delegate void MediaServerKilled(bool self = false);
 
+     
         private static string _configPath = GCommon.ConfigPath + "AKStreamKeeper.json";
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static SystemInfo _keeperSystemInfo = new SystemInfo();
@@ -40,6 +41,8 @@ namespace AKStreamKeeper
         public static string CutOrMergePath = GCommon.BaseStartPath + "/CutMergeFile/";
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
         public static DateTime StartupDateTime;
+
+       
 
 
         /// <summary>
@@ -710,6 +713,11 @@ namespace AKStreamKeeper
         /// </summary>
         public static void Init()
         {
+            if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
+            {
+                _configPath= GCommon.OutConfigPath + "AKStreamKeeper.json";
+            }
+            
             Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
 #if (DEBUG)

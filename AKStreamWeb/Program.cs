@@ -1,3 +1,4 @@
+using LibCommon;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -7,6 +8,26 @@ namespace AKStreamWeb
     {
         public static void Main(string[] args)
         {
+            var tmpRet=  UtilsHelper.GetMainParams(args);
+            if (tmpRet != null && tmpRet.Count > 0)
+            {
+                foreach (var tmp in tmpRet)
+                {
+                    if (tmp.Key.ToUpper().Equals("-C"))
+                    {
+                        GCommon.OutConfigPath = tmp.Value;
+                    }
+                    if (tmp.Key.ToUpper().Equals("-L"))
+                    {
+                        GCommon.OutLogPath = tmp.Value;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(GCommon.OutLogPath))
+            {
+                LibLogger.Logger.logxmlPath = GCommon.OutLogPath;
+            }
             Common.Init();
             CreateHostBuilder(args).Build().Run();
         }

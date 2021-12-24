@@ -12,6 +12,8 @@ namespace LibCommon
 {
     public static class GCommon
     {
+        private static string _outConfigPath = "";
+        private static string _outLogPath = "";
         private static LiteDBHelper _ldb = new LiteDBHelper();
         private static List<VideoChannelRecordInfo> _videoChannelRecordInfo = new List<VideoChannelRecordInfo>();
         public static string BaseStartPath = Environment.CurrentDirectory; //程序启动的目录
@@ -25,6 +27,23 @@ namespace LibCommon
         public static string ConfigPath = BaseStartPath + "/Config/";
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
 
+        /// <summary>
+        /// 外部传入的配置文件所在目录路径
+        /// </summary>
+        public static string OutConfigPath
+        {
+            get => _outConfigPath;
+            set => _outConfigPath = value;
+        }
+
+        /// <summary>
+        /// 外部传入的日志文件所在目录路径
+        /// </summary>
+        public static string OutLogPath
+        {
+            get => _outLogPath;
+            set => _outLogPath = value;
+        }
 
 
         static GCommon()

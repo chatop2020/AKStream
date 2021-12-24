@@ -12,14 +12,16 @@ namespace LibLogger
         private static readonly ILog _instance = null;
         public static bool init = true;
         private static object lockobj = new object();
+        public static string logxmlPath = Environment.CurrentDirectory + "/Config/logconfig.xml";
 
         static Logger()
         {
             lock (lockobj)
             {
                 ILoggerRepository repository = LogManager.CreateRepository("NETCoreRepository");
+                
                 XmlConfigurator.Configure(repository,
-                    new FileInfo(Environment.CurrentDirectory + "/Config/logconfig.xml")); //程序启动目录下
+                    new FileInfo(logxmlPath+"/logconfig.xml")); //程序启动目录下
                 _instance = LogManager.GetLogger(repository.Name, "AKStream");
             }
         }

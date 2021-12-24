@@ -57,12 +57,12 @@ namespace AKStreamWeb
         /// <summary>
         /// Sip服务实例
         /// </summary>
-        public static SipServer SipServer = new SipServer();
+        public static SipServer SipServer=null;
 
         /// <summary>
         /// Sip客户端实例
         /// </summary>
-        public static SipClient SipClient;
+        public static SipClient SipClient=null;
         
 
         private static List<LibCommon.Structs.ShareInviteInfo> _shareInviteChannels = new List<LibCommon.Structs.ShareInviteInfo>();
@@ -77,6 +77,12 @@ namespace AKStreamWeb
 
         static Common()
         {
+            
+            if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
+            {
+                _configPath= GCommon.OutConfigPath + "AKStreamWeb.json";
+            }
+
             StartupDateTime = DateTime.Now;
             string supportDataBaseList = "MySql\r\n" +
                                          "SqlServer\r\n" +
@@ -171,7 +177,12 @@ namespace AKStreamWeb
             }
 
 
-            SipServer = new SipServer();
+            string outPath = "";
+            if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
+            {
+                outPath = GCommon.OutConfigPath;
+            }
+            SipServer = new SipServer(outPath);
             SipMsgProcess.OnRegisterReceived += SipServerCallBack.OnRegister;
             SipMsgProcess.OnUnRegisterReceived += SipServerCallBack.OnUnRegister;
             SipMsgProcess.OnKeepaliveReceived += SipServerCallBack.OnKeepalive;
@@ -182,7 +193,12 @@ namespace AKStreamWeb
             SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
             if (AkStreamWebConfig.EnableGB28181Client)
             {
-                SipClient = new SipClient();
+                outPath = "";
+                if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
+                {
+                    outPath = GCommon.OutConfigPath;
+                }
+                SipClient = new SipClient(outPath);
                 SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
                 SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             }

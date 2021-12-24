@@ -21,6 +21,7 @@ namespace LibGB28181SipServer
         private static List<SipDevice> _sipDevices = new List<SipDevice>();
         private static ConcurrentQueue<Catalog> _tmpCatalogs = new ConcurrentQueue<Catalog>();
         private static ConcurrentQueue<RecordInfoEx> _tmpRecItems = new ConcurrentQueue<RecordInfoEx>();
+        
 
         /// <summary>
         /// 用于操作_sipDevices时的锁
@@ -37,6 +38,7 @@ namespace LibGB28181SipServer
 
         static Common()
         {
+            
         }
 
         /// <summary>

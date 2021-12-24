@@ -21,6 +21,27 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+
+        /// <summary>
+        /// 获取启动时传入参数列表
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static List<KeyValuePair<string, string>> GetMainParams(string[] args)
+        {
+            List<KeyValuePair<string, string>> tmpReturn = new List<KeyValuePair<string, string>>();
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i].Trim().Length == 2 && args[i].Trim().StartsWith('-'))
+                {
+                    if (!string.IsNullOrEmpty(args[i + 1].Trim()))
+                    {
+                        tmpReturn.Add(new KeyValuePair<string,string>(args[i].Trim(),args[i+1].Trim()));
+                    }
+                }
+            }
+            return tmpReturn;
+        }
         
         /// <summary>
         /// 按指定数量对List分组

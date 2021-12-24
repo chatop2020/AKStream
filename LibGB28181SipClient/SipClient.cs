@@ -1005,9 +1005,13 @@ namespace LibGB28181SipClient
         /// 类构造
         /// </summary>
         /// <exception cref="AkStreamException"></exception>
-        public SipClient()
+        public SipClient(string outConfigPath="")
         {
             ResponseStruct rs;
+            if (!string.IsNullOrEmpty(outConfigPath))
+            {
+                Common.SipClientConfigPath = outConfigPath + "/SipClientConfig.json";
+            }
             var ret = Common.ReadSipClientConfig(out rs);
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
             {
