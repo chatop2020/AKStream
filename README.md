@@ -10,7 +10,7 @@
 * 支持画面秒开、极低延时(500毫秒内，最低可达100毫秒)。
 * 提供完善的标准Restful WebApi接口,供其他语言调用。
 * AKStream的GB28181 Sip信令网关重新编写，不再使用StreamNode方案中的那个Sip网关，网关更加稳定可靠。目前仅支持GB28181-2016标准（由于没有其他版本协议的设备，没有做过详细测试），但由于新的Sip网关的高可扩展性，可以根据自己的需要进行功能扩展。
-* AKStream使用.Net 5框架，采用C#语言编写。
+* AKStream使用.Net6框架，采用C#语言编写。
 * 数据库部分使用开源项目freeSql数据库类库，支持数据库类型众多，如sqlite、mssql等，建议使用Mysql 5.7以及以上版本。
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 * 2020-2-5增加国内gitee同步仓库，方便国内下载
@@ -31,7 +31,7 @@
 
 * AKStream's GB28181(China GOV Video Rtp Stream Protocol Standard) Sip signaling gateway is rewritten, and the Sip gateway in the StreamNode solution is no longer used, and the gateway is more stable and reliable. Currently it only supports the GB28181-2016 standard (because there is no equipment with other versions of the protocol, no detailed testing has been done), but due to the high scalability of the new SIP gateway, it can be expanded according to your needs.
 
-* AKStream uses the .Net 5 framework and is written in C# language.
+* AKStream uses the .Net6 framework and is written in C# language.
 
 * The database part uses the open source project freeSql database library, which supports many types of databases, such as sqlite, mssql, etc. It is recommended to use Mysql 5.7 and above.
 
