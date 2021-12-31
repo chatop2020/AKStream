@@ -12,7 +12,7 @@ namespace LibLogger
         private static readonly ILog _instance = null;
         public static bool init = true;
         private static object lockobj = new object();
-        public static string logxmlPath = Environment.CurrentDirectory + "/Config/logconfig.xml";
+        public static string logxmlPath = Environment.CurrentDirectory + "/Config";
 
         static Logger()
         {
