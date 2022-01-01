@@ -1,8 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
+using LibLogger;
 
 namespace LibCommon.Structs.GB28181.XML
 {
@@ -38,7 +41,6 @@ namespace LibCommon.Structs.GB28181.XML
             {
                 OmitXmlDeclaration = false,
                 Encoding = Encoding.GetEncoding("utf-8"),
-
                 Indent = true
             };
             XmlSerializer s = new XmlSerializer(t.GetType());
@@ -50,7 +52,30 @@ namespace LibCommon.Structs.GB28181.XML
             w.Close();
         }
 
+
         public virtual string Serialize<T1>(T1 obj)
+        {
+            var ns = new XmlSerializerNamespaces();
+            ns.Add("", "");
+            var xmlSerializer = new XmlSerializer(typeof(T1));
+            var stringBuilder = new StringBuilder();
+          
+
+            using (var xmlWriter = XmlWriter.Create(new StringWriter(stringBuilder), new XmlWriterSettings
+                   {
+                       OmitXmlDeclaration = false,
+                       Encoding = Encoding.GetEncoding("utf-8"),
+                       Indent = true
+                   }))
+            {
+                xmlSerializer.Serialize(xmlWriter, obj, ns);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+
+        /*public virtual string Serialize<T1>(T1 obj)
         {
             var stream = new MemoryStream();
             var xml = new XmlSerializer(typeof(T1));
@@ -67,7 +92,7 @@ namespace LibCommon.Structs.GB28181.XML
             }
 
             return Encoding.UTF8.GetString(stream.ToArray()); //.Replace("\r", "");
-        }
+        }*/
 
 
         /// <summary>

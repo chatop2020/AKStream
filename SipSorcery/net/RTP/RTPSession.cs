@@ -177,6 +177,7 @@ namespace SIPSorcery.Net
         private bool m_isRtcpMultiplexed = false;       // Indicates whether the RTP channel is multiplexing RTP and RTCP packets on the same port.
         private IPAddress m_bindAddress = null;       // If set the address to use for binding the RTP and control sockets.
         protected int m_bindPort = 0;                     // If non-zero specifies the port number to attempt to bind the first RTP socket on.
+        protected PortRange m_rtpPortRange = null;        // If non-null, overwritws m_bindPort and calls to PortRange.GetNextPort() when trying to bind an RTP socket
         private bool m_rtpEventInProgress;              // Gets set to true when an RTP event is being sent and the normal stream is interrupted.
         private uint m_lastRtpTimestamp;                // The last timestamp used in an RTP packet.    
         private RtpVideoFramer _rtpVideoFramer;
@@ -478,6 +479,7 @@ namespace SIPSorcery.Net
             UseSdpCryptoNegotiation = config.RtpSecureMediaOption == RtpSecureMediaOptionEnum.SdpCryptoNegotiation;
             m_bindAddress = config.BindAddress;
             m_bindPort = config.BindPort;
+            m_rtpPortRange = config.RtpPortRange;
 
             m_sdpSessionID = Crypto.GetRandomInt(SDP_SESSIONID_LENGTH).ToString();
 
@@ -570,7 +572,9 @@ namespace SIPSorcery.Net
                 foreach (var localTrack in localTracks)
                 {
                     if (localTrack != null && localTrack.StreamStatus == MediaStreamStatusEnum.Inactive)
+                    {
                         localTrack.StreamStatus = localTrack.DefaultStreamStatus;
+                    }
                 }
 
                 var offerSdp = GetSessionDesciption(localTracks, connectionAddress);
@@ -1162,7 +1166,9 @@ namespace SIPSorcery.Net
             if (localTrack != null)
             {
                 if (localTrack.StreamStatus == MediaStreamStatusEnum.Inactive)
+                {
                     localTrack.StreamStatus = localTrack.DefaultStreamStatus;
+                }
 
                 if (remoteTrackStatus == MediaStreamStatusEnum.Inactive)
                 {
@@ -1257,7 +1263,7 @@ namespace SIPSorcery.Net
 
             foreach (var track in tracks)
             {
-                int mindex = RemoteDescription == null ? mediaIndex++ : RemoteDescription.GetIndexForMediaType(track.Kind);
+                (int mindex, string midTag) = RemoteDescription == null ? (mediaIndex++, mediaIndex.ToString()) : RemoteDescription.GetIndexForMediaType(track.Kind);
 
                 int rtpPort = 0; // A port of zero means the media type is not supported.
                 if (track.Capabilities != null && track.Capabilities.Count() > 0 && track.StreamStatus != MediaStreamStatusEnum.Inactive)
@@ -1366,7 +1372,7 @@ namespace SIPSorcery.Net
         {
             // If RTCP is multiplexed we don't need a control socket.
             int bindPort = (m_bindPort == 0) ? 0 : m_bindPort + m_rtpChannels.Count() * 2;
-            var rtpChannel = new RTPChannel(!m_isRtcpMultiplexed, m_bindAddress, bindPort);
+            var rtpChannel = new RTPChannel(!m_isRtcpMultiplexed, m_bindAddress, bindPort, m_rtpPortRange);
             m_rtpChannels.Add(mediaType, rtpChannel);
 
             rtpChannel.OnRTPDataReceived += OnReceive;
@@ -2378,7 +2384,7 @@ namespace SIPSorcery.Net
         /// <param name="mediaType">The media type of the RTP packet received.</param>
         /// <param name="ssrc">The SSRC from the RTP packet header.</param>
         /// <param name="receivedOnEndPoint">The actual remote end point that the RTP packet came from.</param>
-        /// <returns>True if remote end point for this media type was th expected one or it was adjusted. False if
+        /// <returns>True if remote end point for this media type was the expected one or it was adjusted. False if
         /// the remote end point was deemed to be invalid for this media type.</returns>
         private bool AdjustRemoteEndPoint(SDPMediaTypesEnum mediaType, uint ssrc, IPEndPoint receivedOnEndPoint)
         {
@@ -2428,7 +2434,7 @@ namespace SIPSorcery.Net
                     }
                     else
                     {
-                        VideoControlDestinationEndPoint = new IPEndPoint(VideoControlDestinationEndPoint.Address, VideoControlDestinationEndPoint.Port + 1);
+                        VideoControlDestinationEndPoint = new IPEndPoint(VideoDestinationEndPoint.Address, VideoDestinationEndPoint.Port + 1);
                     }
                 }
 

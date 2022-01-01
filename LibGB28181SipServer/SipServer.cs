@@ -110,18 +110,15 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
 
-                bool isIpV6 = (sipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
-                               AddressFamily.InterNetworkV6)
-                    ? true
-                    : false;
+            
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                            isIpV6
-                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
-                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
+                         
+                                 IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
+                
 
                 req.Header.Allow = null;
 
@@ -214,18 +211,15 @@ namespace LibGB28181SipServer
                 var fromSipUri = new SIPURI(SIPSchemesEnum.sip, sipServerIpAddress, Common.SipServerConfig.SipPort);
                 fromSipUri.User = Common.SipServerConfig.ServerSipDeviceId;
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
-                bool isIpV6 = (sipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
-                               AddressFamily.InterNetworkV6)
-                    ? true
-                    : false;
+              
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                            isIpV6
-                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
-                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
+                         
+                            IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
+
                 req.Header.Allow = null;
                 req.Header.Contact = new List<SIPContactHeader>()
                 {
@@ -256,6 +250,7 @@ namespace LibGB28181SipServer
 
                 sipDevice.LastSipRequest = req;
                 Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
+             
                 await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -294,18 +289,15 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
 
-                bool isIpV6 = (sipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
-                               AddressFamily.InterNetworkV6)
-                    ? true
-                    : false;
+            
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                            isIpV6
-                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
-                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
+                         
+                            IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
+
 
                 req.Header.Allow = null;
 
@@ -1501,18 +1493,9 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
                 var fromUri = tmpSipDevice.LastSipRequest.URI;
-                bool isIpV6 = (tmpSipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
-                               AddressFamily.InterNetworkV6)
-                    ? true
-                    : false;
+               
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
-                    from,
-                    new SIPEndPoint(tmpSipDevice.SipChannelLayout.SIPProtocol,
-                        new IPEndPoint(
-                            isIpV6
-                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
-                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
-                            tmpSipDevice.SipChannelLayout.Port)));
+                    from);
 
                 req.Header.CallId = record.CallId;
                 req.Header.From = new SIPFromHeader(null, fromSipUri, record.FromTag);
@@ -1647,18 +1630,9 @@ namespace LibGB28181SipServer
                 fromSipUri.User = Common.SipServerConfig.ServerSipDeviceId;
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
                 var fromUri = tmpSipDevice.LastSipRequest.URI;
-                bool isIpV6 = (tmpSipDevice.SipChannelLayout!.ListeningIPAddress.AddressFamily ==
-                               AddressFamily.InterNetworkV6)
-                    ? true
-                    : false;
+             
                 req = SIPRequest.GetRequest(method, toSipUri, to,
-                    from,
-                    new SIPEndPoint(tmpSipDevice.SipChannelLayout.SIPProtocol,
-                        new IPEndPoint(
-                            isIpV6
-                                ? IPAddress.Parse(Common.SipServerConfig.SipIpV6Address!)
-                                : IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
-                            tmpSipDevice.SipChannelLayout.Port)));
+                    from);
                 req.Header.CallId = sipChannel.InviteSipRequest.Header.CallId;
                 req.Header.From =
                     new SIPFromHeader(null, fromSipUri, sipChannel.InviteSipRequest.Header.From.FromTag);

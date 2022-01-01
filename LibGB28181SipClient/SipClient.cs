@@ -958,8 +958,7 @@ namespace LibGB28181SipClient
                     break;
                 case SIPMethodsEnum.REGISTER:
 
-                    if (status == SIPResponseStatusCodesEnum.Unauthorised ||
-                        status == SIPResponseStatusCodesEnum.Unauthorized)
+                    if (status == SIPResponseStatusCodesEnum.Unauthorised)
                     {
                         Logger.Debug(
                             $"[{Common.LoggerHead}]->收到要求注册验证回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");

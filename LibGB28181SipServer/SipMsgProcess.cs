@@ -596,7 +596,7 @@ namespace LibGB28181SipServer
             SIPResponseStatusCodesEnum registerResponse = SIPResponseStatusCodesEnum.Ok;
             if (sipRequest.Header.Contact?.Count > 0)
             {
-                int expiry = sipRequest.Header.Contact[0].Expires > 0
+                long expiry = sipRequest.Header.Contact[0].Expires > 0
                     ? sipRequest.Header.Contact[0].Expires
                     : sipRequest.Header.Expires;
                 if (expiry <= 0)
@@ -647,11 +647,12 @@ namespace LibGB28181SipServer
                             var unAuthorisedHead =
                                 new SIPRequestAuthenticationResult(SIPResponseStatusCodesEnum.Unauthorised, authHeader);
                             unAuthorisedHead.AuthenticationRequiredHeader.SIPDigest.Opaque = "";
+                            authHeader.SIPDigest.DigestAlgorithm = DigestAlgorithmsEnum.MD5;
                             unAuthorisedHead.AuthenticationRequiredHeader.SIPDigest.Algorithhm =
                                 SIPAuthorisationDigest.AUTH_ALGORITHM;
 
                             var unAuthorizedResponse = SIPResponse.GetResponse(sipRequest,
-                                SIPResponseStatusCodesEnum.Unauthorized, null);
+                                SIPResponseStatusCodesEnum.Unauthorised, null);
                             unAuthorizedResponse.Header.AuthenticationHeaders.Add( unAuthorisedHead.AuthenticationRequiredHeader);
 
                             unAuthorizedResponse.Header.Allow = null;
@@ -991,6 +992,7 @@ namespace LibGB28181SipServer
             SIPEndPoint remoteEndPoint,
             SIPResponse sipResponse)
         {
+            Logger.Debug($"收到的回复信息:\r\n远端端点：{remoteEndPoint.ToString()}\r\n内容：{sipResponse}");
             var status = sipResponse.Status;
             SIPMethodsEnum method;
             bool ret;

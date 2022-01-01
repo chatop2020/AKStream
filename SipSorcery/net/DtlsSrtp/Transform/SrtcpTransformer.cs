@@ -93,9 +93,12 @@ namespace SIPSorcery.Net
             }
             finally
             {
+             
                 //Unlock
                 if (!isLocked)
+                {
                     Interlocked.CompareExchange(ref _isLocked, 0, 1);
+                }
             }
         }
 
@@ -138,7 +141,9 @@ namespace SIPSorcery.Net
             {
                 //Unlock
                 if (!isLocked)
+                {
                     Interlocked.CompareExchange(ref _isLocked, 0, 1);
+                }
             }
         }
 

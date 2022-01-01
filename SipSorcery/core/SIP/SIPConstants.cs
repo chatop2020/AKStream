@@ -16,7 +16,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using SIPSorcery.Sys;
+// ReSharper disable InconsistentNaming
 
 namespace SIPSorcery.SIP
 {
@@ -62,7 +64,7 @@ namespace SIPSorcery.SIP
         public const string ALLOWED_SIP_METHODS = "ACK, BYE, CANCEL, INFO, INVITE, NOTIFY, OPTIONS, PRACK, REFER, REGISTER, SUBSCRIBE";
 
         private static string _userAgentVersion;
-        public static string SIP_USERAGENT_STRING
+        public static string SipUserAgentVersionString
         {
             get
             {
@@ -73,7 +75,13 @@ namespace SIPSorcery.SIP
 
                 return _userAgentVersion;
             }
+            set
+            {
+                _userAgentVersion = value;
+            }
         }
+
+        public static Encoding DEFAULT_ENCODING = Encoding.UTF8;
 
         /// <summary>
         /// Gets the default SIP port for the protocol. 
@@ -223,7 +231,7 @@ namespace SIPSorcery.SIP
         /// <returns>True if the protocol is connectionless.</returns>
         public static bool IsConnectionless(SIPProtocolsEnum protocol)
         {
-            if(protocol == SIPProtocolsEnum.udp)
+            if (protocol == SIPProtocolsEnum.udp)
             {
                 return true;
             }
@@ -417,7 +425,6 @@ namespace SIPSorcery.SIP
         // Client-Error
         BadRequest = 400,
         Unauthorised = 401,
-        Unauthorized = 401,
         PaymentRequired = 402,
         Forbidden = 403,
         NotFound = 404,
