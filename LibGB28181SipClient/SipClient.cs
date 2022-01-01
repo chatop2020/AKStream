@@ -1009,7 +1009,7 @@ namespace LibGB28181SipClient
             ResponseStruct rs;
             if (!string.IsNullOrEmpty(outConfigPath))
             {
-                Common.SipClientConfigPath = outConfigPath + "/SipClientConfig.json";
+                Common.SipClientConfigPath = outConfigPath + "SipClientConfig.json";
             }
             var ret = Common.ReadSipClientConfig(out rs);
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))

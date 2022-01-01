@@ -715,6 +715,10 @@ namespace AKStreamKeeper
         {
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
+                if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
+                {
+                    GCommon.OutConfigPath +=  "/";
+                }
                 _configPath= GCommon.OutConfigPath + "AKStreamKeeper.json";
             }
             

@@ -80,6 +80,10 @@ namespace AKStreamWeb
             
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
+                if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
+                {
+                    GCommon.OutConfigPath +=  "/";
+                }
                 _configPath= GCommon.OutConfigPath + "AKStreamWeb.json";
             }
 

@@ -26,6 +26,10 @@ namespace AKStreamWeb
 
             if (!string.IsNullOrEmpty(GCommon.OutLogPath))
             {
+                if (!GCommon.OutLogPath.Trim().EndsWith('/'))
+                {
+                    GCommon.OutLogPath +=  "/";
+                }
                 LibLogger.Logger.logxmlPath = GCommon.OutLogPath;
             }
             Common.Init();

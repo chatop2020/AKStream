@@ -53,7 +53,7 @@ namespace LibGB28181SipServer
             Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
             if (!string.IsNullOrEmpty(outConfigPath))
             {
-                Common.SipServerConfigPath = outConfigPath + "/SipServerConfig.json";
+                Common.SipServerConfigPath = outConfigPath + "SipServerConfig.json";
             }
             var ret = Common.ReadSipServerConfig(out rs);
 
