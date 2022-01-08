@@ -12,6 +12,7 @@ using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebHookResponse;
+using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 
 namespace AKStreamWeb.Services
 {
@@ -207,6 +208,35 @@ namespace AKStreamWeb.Services
                                 channel.PushStatus = PushStatus.IDLE;
                             }
                         }
+
+                        try
+                        {
+                            //gb28181异常断流时，要释放掉原来申请的rtp端口
+                            var mediaServer =
+                                Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
+                            if (mediaServer != null && mediaServer.IsKeeperRunning && mediaServer.IsMediaServerRunning)
+                            {
+                                var rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                                        x.MediaServerId.Equals(videoChannel.MediaServerId) &&
+                                        x.MainId.Equals(videoChannel.MainId))
+                                    .MediaServerStreamInfo!.RptPort;
+                                if (rtpPort != null && rtpPort > 0)
+                                {
+                                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort =
+                                        new ReqZLMediaKitCloseRtpPort()
+                                        {
+                                            Stream_Id = videoChannel.MainId,
+                                        };
+                                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                                    mediaServer.KeeperWebApi.ReleaseRtpPort(
+                                        (ushort) rtpPort,
+                                        out _); //释放rtp端口
+                                }
+                            }
+                        }
+                        catch
+                        {
+                        }
                     }
 
                     GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
@@ -302,10 +332,11 @@ namespace AKStreamWeb.Services
         {
             if (req.Schema.Trim().ToLower().Equals("rtmp") && !IsRecordStream(req.Stream, out _))
             {
+                ServerInstance mediaServer = null;
                 if (req.Regist == true)
                 {
                     Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流接入)->{JsonHelper.ToJson(req)}");
-                    var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
+                    mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
                     if (mediaServer == null)
                     {
                         return new ResToWebHookOnStreamChange()
@@ -397,12 +428,36 @@ namespace AKStreamWeb.Services
                                 channel.PushStatus = PushStatus.IDLE;
                             }
                         }
+
+                        try
+                        {
+                            //gb28181异常断流时，要释放掉原来申请的rtp端口
+                            var rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                                    x.MediaServerId.Equals(videoChannel.MediaServerId) &&
+                                    x.MainId.Equals(videoChannel.MainId))
+                                .MediaServerStreamInfo!.RptPort;
+                            if (rtpPort != null && rtpPort > 0)
+                            {
+                                ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                                {
+                                    Stream_Id = videoChannel.MainId,
+                                };
+                                mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
+                                mediaServer.KeeperWebApi.ReleaseRtpPort(
+                                    (ushort) rtpPort,
+                                    out _); //释放rtp端口
+                            }
+                        }
+                        catch
+                        {
+                        }
                     }
 
                     if (videoChannel.DeviceStreamType != DeviceStreamType.GB28181)
                     {
                         MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out _);
                     }
+
 
                     GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
                         x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
@@ -760,7 +815,7 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.ServerDateTime = req.ServerDateTime;
                     tmpMediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     tmpMediaServer.AccessKey = req.AccessKey;
-                 
+
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {
