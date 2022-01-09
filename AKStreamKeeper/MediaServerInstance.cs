@@ -42,6 +42,12 @@ namespace AKStreamKeeper
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
 
+        public  AKStreamKeeperConfig AkStreamKeeperConfig
+        {
+            get => _akStreamKeeperConfig;
+            set => _akStreamKeeperConfig = value;
+        }
+
         /// <summary>
         /// 构造函数
         /// </summary>

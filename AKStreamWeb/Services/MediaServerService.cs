@@ -22,6 +22,48 @@ namespace AKStreamWeb.Services
 {
     public static class MediaServerService
     {
+        
+        /// <summary>
+        /// 获取rtpServer列表
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static List<ushort> ListRtpServer(string mediaServerId,out ResponseStruct rs)
+        {
+          
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var mediaServer = CheckMediaServer(mediaServerId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
+            {
+                Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取RtpServer服务列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+           var ret= mediaServer.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out rs);
+           if (ret != null && rs.Code.Equals(ErrorNumber.None))
+           {
+               List<ushort> tmpPortList = new List<ushort>();
+               foreach (var d in ret.Data)
+               {
+                   if (d != null && d.Port>0)
+                   {
+                       tmpPortList.Add((ushort)d.Port);
+                   }
+               }
+               
+               return tmpPortList;
+           }
+
+           return null;
+        }
+        
         /// <summary>
         /// 获取需要裁剪合并的文件列表 
         /// </summary>

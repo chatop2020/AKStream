@@ -22,6 +22,29 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("流媒体相关接口")]
     public class MediaServerController : ControllerBase
     {
+        
+        /// <summary>
+        /// 获取当前的开放的rtpServer列表
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("ListRtpServer")]
+        [HttpGet]
+        public List<ushort> ListRtpServer(
+            [FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId )
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.ListRtpServer(mediaServerId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
         /// <summary>
         /// 添加一个裁剪合并任务
         /// </summary>

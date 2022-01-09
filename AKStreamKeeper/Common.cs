@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Timers;
+using AKStreamKeeper.AutoTask;
 using AKStreamKeeper.Misc;
 using AKStreamKeeper.Services;
 using LibCommon;
@@ -41,7 +42,7 @@ namespace AKStreamKeeper
         public static string CutOrMergePath = GCommon.BaseStartPath + "/CutMergeFile/";
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
         public static DateTime StartupDateTime;
-
+        private static AutoRtpPortClean _autoRtpPortClean = null;
        
 
 
@@ -765,6 +766,7 @@ namespace AKStreamKeeper
             Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
+            _autoRtpPortClean = new AutoRtpPortClean();//启动不使用rtp端口自动清理
             if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
             {
                 if (KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
