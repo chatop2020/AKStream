@@ -83,7 +83,7 @@ public class AutoRtpPortClean
         while (true)
         {
             var ports = GetPortRptList();
-            if (ports.Count > 0)
+            if (ports!=null && ports.Count > 0)
             {
                 foreach (var pi in Common.PortInfoList)
                 {
