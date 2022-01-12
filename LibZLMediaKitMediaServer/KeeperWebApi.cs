@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LibCommon;
 using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
+using LibLogger;
 
 namespace LibZLMediaKitMediaServer
 {
@@ -1076,14 +1077,29 @@ namespace LibZLMediaKitMediaServer
                 Dictionary<string, string> headers = new Dictionary<string, string>();
                 headers.Add("AccessKey", _accessKey);
                 var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
-                if (!string.IsNullOrEmpty(httpRet) && httpRet.Trim().ToUpper().Equals("OK"))
+                if (!string.IsNullOrEmpty(httpRet))
                 {
-                    return true;
+                    
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return false;
+                    }
+                    if (httpRet.Trim().ToUpper().Equals("OK"))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+
+               
             }
             catch (Exception ex)
             {

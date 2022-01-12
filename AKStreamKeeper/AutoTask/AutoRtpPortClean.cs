@@ -4,6 +4,7 @@ using System.Security.Policy;
 using System.Threading;
 using AKStreamKeeper.Services;
 using LibCommon;
+using LibLogger;
 
 namespace AKStreamKeeper.AutoTask;
 
@@ -35,10 +36,13 @@ public class AutoRtpPortClean
             Code = ErrorNumber.None,
             Message = ErrorMessage.ErrorDic![ErrorNumber.None],
         };
+      
         var uri = new Uri(Common.MediaServerInstance.AkStreamKeeperConfig.AkStreamWebRegisterUrl, false);
 
         var url =
-            $"{uri.Scheme}://{uri.Host}:{uri.Port}/ListRtpServer?mediaServerId={Common.MediaServerInstance.MediaServerId}";
+            $"{uri.Scheme}://{uri.Host}:{uri.Port}/MediaServer/ListRtpServer?mediaServerId={Common.MediaServerInstance.MediaServerId}";
+      
+     
         var httpRet = NetHelper.HttpGetRequest(url, null, "utf-8", 500);
 
         if (!string.IsNullOrEmpty(httpRet))
@@ -80,28 +84,43 @@ public class AutoRtpPortClean
 
     private void AutoClean()
     {
+        Logger.Debug($"[{Common.LoggerHead}]->创建Rtp端口清理自动任务");
         while (true)
         {
             var ports = GetPortRptList();
-            if (ports!=null && ports.Count > 0)
+            Logger.Debug($"[{Common.LoggerHead}]->获取在用Rtp端口列表->{JsonHelper.ToJson(ports)}");
+            if (ports != null)
             {
-                foreach (var pi in Common.PortInfoList)
+                if (ports.Count == 0)
                 {
-                    if (pi != null && pi.Useed && DateTime.Now >
-                        pi.DateTime.AddSeconds(Common.MediaServerInstance.AkStreamKeeperConfig.RtpPortCdTime))
+                    foreach (var pi in Common.PortInfoList)
                     {
-                        if (!ports.Contains(pi.Port))
+                        Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
+                        ApiService.ReleaseRtpPort(pi.Port);
+                    }
+                }
+                else
+                {
+                    foreach (var pi in Common.PortInfoList)
+                    {
+                        if (pi != null && pi.Useed && DateTime.Now >
+                            pi.DateTime.AddSeconds(Common.MediaServerInstance.AkStreamKeeperConfig.RtpPortCdTime))
                         {
-                            ApiService.ReleaseRtpPort(pi.Port);
-                        }
-                        else
-                        {
-                            lock (Common._getRtpPortLock)
+                            if (!ports.Contains(pi.Port))
                             {
-                                var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
-                                if (portUsed != null)
+                                Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
+                                ApiService.ReleaseRtpPort(pi.Port);
+                            }
+                            else
+                            {
+                                lock (Common._getRtpPortLock)
                                 {
-                                    portUsed.DateTime = DateTime.Now; //更新端口，目前正在使用的时间
+                                    var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
+                                    if (portUsed != null)
+                                    {
+                                        Logger.Debug($"[{Common.LoggerHead}]->更新Rtp端口激活状态时间->{JsonHelper.ToJson(portUsed)}");
+                                        portUsed.DateTime = DateTime.Now; //更新端口，目前正在使用的时间
+                                    }
                                 }
                             }
                         }
@@ -109,7 +128,8 @@ public class AutoRtpPortClean
                 }
             }
 
-            Thread.Sleep(1000 * 60);
+            
+            Thread.Sleep(1000 * 10);
         }
     }
 }

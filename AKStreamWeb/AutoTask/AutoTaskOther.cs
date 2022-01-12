@@ -38,6 +38,21 @@ namespace AKStreamWeb.AutoTask
                 count++;
                 try
                 {
+                    if (count % 5 ==  0)//5秒清理一次为null的MediaServer
+                    {
+                        lock (Common.MediaServerLockObj)
+                        {
+                            for (int i = Common.MediaServerList.Count - 1; i >= 0; i--)
+                            {
+                                if (!Common.MediaServerList[i].IsKeeperRunning && !Common.MediaServerList[i].IsMediaServerRunning)
+                                {
+                                    Common.MediaServerList[i] = null;
+                                }    
+                            }
+                           UtilsHelper.RemoveNull(Common.MediaServerList);
+                          
+                        }
+                    }
                     if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
@@ -56,12 +71,12 @@ namespace AKStreamWeb.AutoTask
                         }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    //
+                  Logger.Debug(ex.Message);
                 }
 
-                Thread.Sleep(10000);
+                Thread.Sleep(1000);
             }
         }
 

@@ -42,7 +42,14 @@ namespace AKStreamWeb.Controllers
                 throw new AkStreamException(rs);
             }
 
-            return ret;
+            if (ret != null && ret.Count > 0)
+            {
+                return ret;
+            }
+            else
+            {
+                return new List<ushort>();
+            }
         }
         
         /// <summary>

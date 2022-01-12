@@ -50,6 +50,10 @@ namespace AKStreamWeb.Services
            if (ret != null && rs.Code.Equals(ErrorNumber.None))
            {
                List<ushort> tmpPortList = new List<ushort>();
+               if (ret.Data == null || ret.Data.Count <= 0)
+               {
+                   return null;
+               }
                foreach (var d in ret.Data)
                {
                    if (d != null && d.Port>0)

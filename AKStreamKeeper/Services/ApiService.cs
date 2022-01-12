@@ -122,94 +122,102 @@ namespace AKStreamKeeper.Services
         /// <returns></returns>
         private static ushort _guessAnRtpPort(ushort minPort, ushort maxPort)
         {
-            lock (Common._getRtpPortLock)
+            try
             {
-                IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-                List<IPEndPoint> tcpIpEndPoints = ipProperties.GetActiveTcpListeners().ToList();
-                List<IPEndPoint> udpIpEndPoints = ipProperties.GetActiveUdpListeners().ToList();
-                if (minPort > maxPort)
+                lock (Common._getRtpPortLock)
                 {
-                    var tmp = minPort;
-                    maxPort = minPort;
-                    minPort = tmp;
-                }
-
-
-                if (minPort == maxPort)
-                {
-                    var tcp = tcpIpEndPoints.FindLast(x => x.Port == minPort);
-                    var udp = udpIpEndPoints.FindLast(x => x.Port == minPort);
-                    var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(minPort));
-                    if (tcp == null && udp == null)
+                    IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+                    List<IPEndPoint> tcpIpEndPoints = ipProperties.GetActiveTcpListeners().ToList();
+                    List<IPEndPoint> udpIpEndPoints = ipProperties.GetActiveUdpListeners().ToList();
+                    if (minPort > maxPort)
                     {
-                        if (portUsed == null)
-                        {
-                            Common.PortInfoList.Add(new PortInfo()
-                            {
-                                DateTime = DateTime.Now,
-                                Port = minPort,
-                                Useed = true,
-                            });
-                            Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
-                            return minPort;
-                        }
+                        var tmp = minPort;
+                        maxPort = minPort;
+                        minPort = tmp;
+                    }
 
-                        if (!portUsed.Useed.Equals(true))
+
+                    if (minPort == maxPort)
+                    {
+                        var tcp = tcpIpEndPoints.FindLast(x => x.Port == minPort);
+                        var udp = udpIpEndPoints.FindLast(x => x.Port == minPort);
+                        var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(minPort));
+                        if (tcp == null && udp == null)
                         {
-                            if ((DateTime.Now - portUsed.DateTime).TotalSeconds >
-                                Common.AkStreamKeeperConfig.RtpPortCdTime)
+                            if (portUsed == null)
                             {
-                                portUsed.DateTime = DateTime.Now;
+                                Common.PortInfoList.Add(new PortInfo()
+                                {
+                                    DateTime = DateTime.Now,
+                                    Port = minPort,
+                                    Useed = true,
+                                });
                                 Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
                                 return minPort;
                             }
-                        }
-                    }
 
-                    Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
-                    return 0;
-                }
-
-                for (ushort port = minPort; port <= maxPort; port++)
-                {
-                    if (UtilsHelper.IsOdd(port)) //如果是奇数则跳过
-                    {
-                        continue;
-                    }
-
-                    var tcp2 = tcpIpEndPoints.FindLast(x => x.Port == port);
-                    var udp2 = udpIpEndPoints.FindLast(x => x.Port == port);
-                    var portUsed2 = Common.PortInfoList.FindLast(x => x.Port.Equals(port));
-                    if (tcp2 == null && udp2 == null)
-                    {
-                        if (portUsed2 == null)
-                        {
-                            Common.PortInfoList.Add(new PortInfo()
+                            if (!portUsed.Useed.Equals(true))
                             {
-                                DateTime = DateTime.Now,
-                                Port = port,
-                                Useed = true,
-                            });
-                            Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
-                            return port;
+                                if ((DateTime.Now - portUsed.DateTime).TotalSeconds >
+                                    Common.AkStreamKeeperConfig.RtpPortCdTime)
+                                {
+                                    portUsed.DateTime = DateTime.Now;
+                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
+                                    return minPort;
+                                }
+                            }
                         }
 
-                        if (!portUsed2.Useed.Equals(true))
+                        Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
+                        return 0;
+                    }
+
+                    for (ushort port = minPort; port <= maxPort; port++)
+                    {
+                        if (UtilsHelper.IsOdd(port)) //如果是奇数则跳过
                         {
-                            if ((DateTime.Now - portUsed2.DateTime).TotalSeconds >
-                                Common.AkStreamKeeperConfig.RtpPortCdTime)
+                            continue;
+                        }
+
+                        var tcp2 = tcpIpEndPoints.FindLast(x => x.Port == port);
+                        var udp2 = udpIpEndPoints.FindLast(x => x.Port == port);
+                        var portUsed2 = Common.PortInfoList.FindLast(x => x.Port.Equals(port));
+                        if (tcp2 == null && udp2 == null)
+                        {
+                            if (portUsed2 == null)
                             {
-                                portUsed2.DateTime = DateTime.Now;
+                                Common.PortInfoList.Add(new PortInfo()
+                                {
+                                    DateTime = DateTime.Now,
+                                    Port = port,
+                                    Useed = true,
+                                });
                                 Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
                                 return port;
+                            }
+
+                            if (!portUsed2.Useed.Equals(true))
+                            {
+                                if ((DateTime.Now - portUsed2.DateTime).TotalSeconds >
+                                    Common.AkStreamKeeperConfig.RtpPortCdTime)
+                                {
+                                    portUsed2.DateTime = DateTime.Now;
+                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
+                                    return port;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
-            return 0;
+                Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
+                return 0;
+            }
         }
 
         
@@ -221,94 +229,102 @@ namespace AKStreamKeeper.Services
         /// <returns></returns>
         private static ushort _guessAnRtpPortForSender(ushort minPort, ushort maxPort)
         {
-            lock (Common._getRtpPortLock)
+            try
             {
-                IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-                List<IPEndPoint> tcpIpEndPoints = ipProperties.GetActiveTcpListeners().ToList();
-                List<IPEndPoint> udpIpEndPoints = ipProperties.GetActiveUdpListeners().ToList();
-                if (minPort > maxPort)
+                lock (Common._getRtpPortLock)
                 {
-                    var tmp = minPort;
-                    maxPort = minPort;
-                    minPort = tmp;
-                }
-
-
-                if (minPort == maxPort)
-                {
-                    var tcp = tcpIpEndPoints.FindLast(x => x.Port == minPort);
-                    var udp = udpIpEndPoints.FindLast(x => x.Port == minPort);
-                    var portUsed = Common.PortInfoListForSender.FindLast(x => x.Port.Equals(minPort));
-                    if (tcp == null && udp == null)
+                    IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+                    List<IPEndPoint> tcpIpEndPoints = ipProperties.GetActiveTcpListeners().ToList();
+                    List<IPEndPoint> udpIpEndPoints = ipProperties.GetActiveUdpListeners().ToList();
+                    if (minPort > maxPort)
                     {
-                        if (portUsed == null)
-                        {
-                            Common.PortInfoListForSender.Add(new PortInfo()
-                            {
-                                DateTime = DateTime.Now,
-                                Port = minPort,
-                                Useed = true,
-                            });
-                            Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
-                            return minPort;
-                        }
+                        var tmp = minPort;
+                        maxPort = minPort;
+                        minPort = tmp;
+                    }
 
-                        if (!portUsed.Useed.Equals(true))
+
+                    if (minPort == maxPort)
+                    {
+                        var tcp = tcpIpEndPoints.FindLast(x => x.Port == minPort);
+                        var udp = udpIpEndPoints.FindLast(x => x.Port == minPort);
+                        var portUsed = Common.PortInfoListForSender.FindLast(x => x.Port.Equals(minPort));
+                        if (tcp == null && udp == null)
                         {
-                            if ((DateTime.Now - portUsed.DateTime).TotalSeconds >
-                                Common.AkStreamKeeperConfig.RtpPortCdTime)
+                            if (portUsed == null)
                             {
-                                portUsed.DateTime = DateTime.Now;
+                                Common.PortInfoListForSender.Add(new PortInfo()
+                                {
+                                    DateTime = DateTime.Now,
+                                    Port = minPort,
+                                    Useed = true,
+                                });
                                 Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
                                 return minPort;
                             }
-                        }
-                    }
 
-                    Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
-                    return 0;
-                }
-
-                for (ushort port = minPort; port <= maxPort; port++)
-                {
-                    if (UtilsHelper.IsOdd(port)) //如果是奇数则跳过
-                    {
-                        continue;
-                    }
-
-                    var tcp2 = tcpIpEndPoints.FindLast(x => x.Port == port);
-                    var udp2 = udpIpEndPoints.FindLast(x => x.Port == port);
-                    var portUsed2 = Common.PortInfoListForSender.FindLast(x => x.Port.Equals(port));
-                    if (tcp2 == null && udp2 == null)
-                    {
-                        if (portUsed2 == null)
-                        {
-                            Common.PortInfoListForSender.Add(new PortInfo()
+                            if (!portUsed.Useed.Equals(true))
                             {
-                                DateTime = DateTime.Now,
-                                Port = port,
-                                Useed = true,
-                            });
-                            Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
-                            return port;
+                                if ((DateTime.Now - portUsed.DateTime).TotalSeconds >
+                                    Common.AkStreamKeeperConfig.RtpPortCdTime)
+                                {
+                                    portUsed.DateTime = DateTime.Now;
+                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
+                                    return minPort;
+                                }
+                            }
                         }
 
-                        if (!portUsed2.Useed.Equals(true))
+                        Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
+                        return 0;
+                    }
+
+                    for (ushort port = minPort; port <= maxPort; port++)
+                    {
+                        if (UtilsHelper.IsOdd(port)) //如果是奇数则跳过
                         {
-                            if ((DateTime.Now - portUsed2.DateTime).TotalSeconds >
-                                Common.AkStreamKeeperConfig.RtpPortCdTime)
+                            continue;
+                        }
+
+                        var tcp2 = tcpIpEndPoints.FindLast(x => x.Port == port);
+                        var udp2 = udpIpEndPoints.FindLast(x => x.Port == port);
+                        var portUsed2 = Common.PortInfoListForSender.FindLast(x => x.Port.Equals(port));
+                        if (tcp2 == null && udp2 == null)
+                        {
+                            if (portUsed2 == null)
                             {
-                                portUsed2.DateTime = DateTime.Now;
+                                Common.PortInfoListForSender.Add(new PortInfo()
+                                {
+                                    DateTime = DateTime.Now,
+                                    Port = port,
+                                    Useed = true,
+                                });
                                 Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
                                 return port;
+                            }
+
+                            if (!portUsed2.Useed.Equals(true))
+                            {
+                                if ((DateTime.Now - portUsed2.DateTime).TotalSeconds >
+                                    Common.AkStreamKeeperConfig.RtpPortCdTime)
+                                {
+                                    portUsed2.DateTime = DateTime.Now;
+                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
+                                    return port;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
-            return 0;
+                Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
+                return 0; 
+            }
         }
 
         /// <summary>

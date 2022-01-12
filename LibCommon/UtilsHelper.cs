@@ -93,6 +93,7 @@ namespace LibCommon
                 || tmp.Contains("operation timed out")
                 || tmp.Contains("network is down")
                 || tmp.Contains("no route")
+                || tmp.Contains("connection refused")
             )
             {
                 return true;
