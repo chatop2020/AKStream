@@ -96,7 +96,16 @@ public class AutoRtpPortClean
                     foreach (var pi in Common.PortInfoList)
                     {
                         Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
-                        ApiService.ReleaseRtpPort(pi.Port);
+                        lock (Common._getRtpPortLock)
+                        {
+                            var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
+                            if (portUsed != null)
+                            {
+                                portUsed.Useed = false;
+                                Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{pi.Port}");
+                            }
+                        }
+
                     }
                 }
                 else
@@ -106,12 +115,13 @@ public class AutoRtpPortClean
                         if (pi != null && pi.Useed && DateTime.Now >
                             pi.DateTime.AddSeconds(Common.MediaServerInstance.AkStreamKeeperConfig.RtpPortCdTime))
                         {
+                            Logger.Debug("到这里了-->"+JsonHelper.ToJson(pi));
                             if (!ports.Contains(pi.Port))
                             {
                                 Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
                                 ApiService.ReleaseRtpPort(pi.Port);
                             }
-                            else
+                            else 
                             {
                                 lock (Common._getRtpPortLock)
                                 {
