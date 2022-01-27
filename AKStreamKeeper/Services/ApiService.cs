@@ -162,6 +162,7 @@ namespace AKStreamKeeper.Services
                                     Common.AkStreamKeeperConfig.RtpPortCdTime)
                                 {
                                     portUsed.DateTime = DateTime.Now;
+                                    portUsed.Useed = true;
                                     Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
                                     return minPort;
                                 }
@@ -202,6 +203,7 @@ namespace AKStreamKeeper.Services
                                     Common.AkStreamKeeperConfig.RtpPortCdTime)
                                 {
                                     portUsed2.DateTime = DateTime.Now;
+                                    portUsed2.Useed = true;
                                     Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
                                     return port;
                                 }

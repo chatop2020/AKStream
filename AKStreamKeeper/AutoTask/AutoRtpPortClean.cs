@@ -115,7 +115,7 @@ public class AutoRtpPortClean
                         if (pi != null && pi.Useed && DateTime.Now >
                             pi.DateTime.AddSeconds(Common.MediaServerInstance.AkStreamKeeperConfig.RtpPortCdTime))
                         {
-                            Logger.Debug("到这里了-->"+JsonHelper.ToJson(pi));
+                          
                             if (!ports.Contains(pi.Port))
                             {
                                 Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
