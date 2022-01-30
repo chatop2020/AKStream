@@ -186,15 +186,20 @@ namespace AKStreamWeb
             {
                 outPath = GCommon.OutConfigPath;
             }
-            SipServer = new SipServer(outPath);
-            SipMsgProcess.OnRegisterReceived += SipServerCallBack.OnRegister;
-            SipMsgProcess.OnUnRegisterReceived += SipServerCallBack.OnUnRegister;
-            SipMsgProcess.OnKeepaliveReceived += SipServerCallBack.OnKeepalive;
-            SipMsgProcess.OnDeviceReadyReceived += SipServerCallBack.OnDeviceReadyReceived;
-            SipMsgProcess.OnDeviceStatusReceived += SipServerCallBack.OnDeviceStatusReceived;
-            SipMsgProcess.OnInviteHistoryVideoFinished += SipServerCallBack.OnInviteHistoryVideoFinished;
-            SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
-            SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
+
+            if (AkStreamWebConfig.EnableGb28181Server == null || AkStreamWebConfig.EnableGb28181Server == true)
+            {
+                SipServer = new SipServer(outPath);
+                SipMsgProcess.OnRegisterReceived += SipServerCallBack.OnRegister;
+                SipMsgProcess.OnUnRegisterReceived += SipServerCallBack.OnUnRegister;
+                SipMsgProcess.OnKeepaliveReceived += SipServerCallBack.OnKeepalive;
+                SipMsgProcess.OnDeviceReadyReceived += SipServerCallBack.OnDeviceReadyReceived;
+                SipMsgProcess.OnDeviceStatusReceived += SipServerCallBack.OnDeviceStatusReceived;
+                SipMsgProcess.OnInviteHistoryVideoFinished += SipServerCallBack.OnInviteHistoryVideoFinished;
+                SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
+                SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
+            }
+            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGb28181Server}");
             if (AkStreamWebConfig.EnableGB28181Client)
             {
                 outPath = "";
@@ -208,25 +213,27 @@ namespace AKStreamWeb
             }
             Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
 
-
-            try
+            if (AkStreamWebConfig.EnableGb28181Server == null || AkStreamWebConfig.EnableGb28181Server == true)
             {
-                ResponseStruct rs;
-                SipServer.Start(out rs);
-                if (!rs.Code.Equals(ErrorNumber.None))
+                try
+                {
+
+                    ResponseStruct rs;
+                    SipServer.Start(out rs);
+                    if (!rs.Code.Equals(ErrorNumber.None))
+                    {
+                        Logger.Error(
+                            $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                        Environment.Exit(0); //退出程序 
+                    }
+                }
+                catch (AkStreamException ex)
                 {
                     Logger.Error(
-                        $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
-                    Environment.Exit(0); //退出程序 
+                        $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
+                    Environment.Exit(0); //退出程序
                 }
             }
-            catch (AkStreamException ex)
-            {
-                Logger.Error(
-                    $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
-                Environment.Exit(0); //退出程序
-            }
-
 
             _autoLive = new AutoLive();
             _autoRecord = new AutoRecord();

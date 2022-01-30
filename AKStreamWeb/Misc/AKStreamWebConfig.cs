@@ -15,6 +15,7 @@ namespace AKStreamWeb.Misc
         private ushort _webApiPort = 5800;
         private ushort _deletedRecordsExpiredDays = 30;
         private bool _enableGB28181Client = false;
+        private bool? _enableGB28181Server = false;
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver
@@ -106,6 +107,15 @@ namespace AKStreamWeb.Misc
         {
             get => _enableGB28181Client;
             set => _enableGB28181Client = value;
+        }
+
+        /// <summary>
+        /// 是否启用gb28181服务
+        /// </summary>
+        public bool? EnableGb28181Server
+        {
+            get => _enableGB28181Server;
+            set => _enableGB28181Server = value;
         }
     }
 }

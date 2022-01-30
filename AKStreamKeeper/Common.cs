@@ -560,15 +560,28 @@ namespace AKStreamKeeper
                     }
 
                     GetDiskSpaceToRecordMap();
-                    return CheckConfig(out rs);
+                    var ret= CheckConfig(out rs);
+                    if (ret)
+                    {
+                        File.Delete(_configPath+"_bak");
+                        File.Copy(_configPath,_configPath+"_bak");
+                    }
+                    return ret;
                 }
                 catch (Exception ex)
                 {
+                    var tmpStr = "";
+                    if (File.Exists(_configPath + "_bak"))
+                    {
+                        File.Delete(_configPath);
+                        File.Copy(_configPath+"_bak",_configPath);
+                        tmpStr = "已经将[" + _configPath + "]文件恢复到上一次正常时的状态，请重新执行尝试解决问题";
+                    }
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.Sys_JsonReadExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_JsonReadExcept],
-                        ExceptMessage = ex.Message,
+                        ExceptMessage = ex.Message+"\r\n"+tmpStr,
                         ExceptStackTrace = ex.StackTrace,
                     };
                 }
