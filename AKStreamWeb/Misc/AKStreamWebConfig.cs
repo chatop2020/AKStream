@@ -112,7 +112,7 @@ namespace AKStreamWeb.Misc
         /// <summary>
         /// 是否启用gb28181服务
         /// </summary>
-        public bool? EnableGb28181Server
+        public bool? EnableGB28181Server
         {
             get => _enableGB28181Server;
             set => _enableGB28181Server = value;

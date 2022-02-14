@@ -187,7 +187,7 @@ namespace AKStreamWeb
                 outPath = GCommon.OutConfigPath;
             }
 
-            if (AkStreamWebConfig.EnableGb28181Server == null || AkStreamWebConfig.EnableGb28181Server == true)
+            if (AkStreamWebConfig.EnableGB28181Server == null || AkStreamWebConfig.EnableGB28181Server == true)
             {
                 SipServer = new SipServer(outPath);
                 SipMsgProcess.OnRegisterReceived += SipServerCallBack.OnRegister;
@@ -199,7 +199,7 @@ namespace AKStreamWeb
                 SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
                 SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
             }
-            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGb28181Server}");
+            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGB28181Server}");
             if (AkStreamWebConfig.EnableGB28181Client)
             {
                 outPath = "";
@@ -213,7 +213,7 @@ namespace AKStreamWeb
             }
             Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
 
-            if (AkStreamWebConfig.EnableGb28181Server == null || AkStreamWebConfig.EnableGb28181Server == true)
+            if (AkStreamWebConfig.EnableGB28181Server == null || AkStreamWebConfig.EnableGB28181Server == true)
             {
                 try
                 {
