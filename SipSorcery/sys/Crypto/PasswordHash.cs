@@ -16,6 +16,7 @@
 // =============================================================================
 
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -62,7 +63,7 @@ namespace SIPSorcery.Sys
         public static string Hash(string value, string salt)
         {
             var i = salt.IndexOf('.');
-            var iters = int.Parse(salt.Substring(0, i), System.Globalization.NumberStyles.HexNumber);
+            var iters = int.Parse(salt.Substring(0, i), NumberStyles.HexNumber);
             salt = salt.Substring(i + 1);
 
             using (var pbkdf2 = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))

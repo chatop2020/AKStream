@@ -74,6 +74,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DnsClient;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Sys;
 
@@ -113,7 +114,7 @@ namespace SIPSorcery.Net
     /// </remarks>
     public class RtpIceChannel : RTPChannel
     {
-        private static DnsClient.LookupClient _dnsLookupClient;
+        private static LookupClient _dnsLookupClient;
 
         private const int ICE_UFRAG_LENGTH = 4;
         private const int ICE_PASSWORD_LENGTH = 24;
@@ -261,7 +262,7 @@ namespace SIPSorcery.Net
         public event Action<RTCIceGatheringState> OnIceGatheringStateChange;
         public event Action<RTCIceCandidate, string> OnIceCandidateError;
 
-        public static List<DnsClient.NameServer> DefaultNameServers { get; set; }
+        public static List<NameServer> DefaultNameServers { get; set; }
 
         /// <summary>
         /// This event gets fired when a STUN message is received by this channel.
@@ -370,11 +371,11 @@ namespace SIPSorcery.Net
                     {
                         if (DefaultNameServers != null)
                         {
-                            _dnsLookupClient = new DnsClient.LookupClient(DefaultNameServers.ToArray());
+                            _dnsLookupClient = new LookupClient(DefaultNameServers.ToArray());
                         }
                         else
                         {
-                            _dnsLookupClient = new DnsClient.LookupClient();
+                            _dnsLookupClient = new LookupClient();
                         }
                     }
                 }
@@ -946,7 +947,7 @@ namespace SIPSorcery.Net
                 else
                 {
                     // The candidate string can be a hostname or an IP address.
-                    var lookupResult = await _dnsLookupClient.QueryAsync(remoteCandidate.address, DnsClient.QueryType.A).ConfigureAwait(false);
+                    var lookupResult = await _dnsLookupClient.QueryAsync(remoteCandidate.address, QueryType.A).ConfigureAwait(false);
 
                     if (lookupResult.Answers.Count > 0)
                     {

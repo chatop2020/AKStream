@@ -15,6 +15,7 @@
 
 using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
@@ -262,7 +263,7 @@ namespace SIPSorcery.SIP
             Scheme = scheme;
             if (address != null)
             {
-                Host = address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6 ? $"[{address}]:{port}" : $"{address}:{port}";
+                Host = address.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{address}]:{port}" : $"{address}:{port}";
             }
         }
 
@@ -397,12 +398,12 @@ namespace SIPSorcery.SIP
                 if (Regex.Match(partialURI, regexSchemePattern + @"\S+").Success)
                 {
                     // The partial uri is already valid.
-                    return SIPURI.ParseSIPURI(partialURI);
+                    return ParseSIPURI(partialURI);
                 }
                 else
                 {
                     // The partial URI is missing the scheme.
-                    return SIPURI.ParseSIPURI(m_defaultSIPScheme.ToString() + SCHEME_ADDR_SEPARATOR.ToString() + partialURI);
+                    return ParseSIPURI(m_defaultSIPScheme.ToString() + SCHEME_ADDR_SEPARATOR.ToString() + partialURI);
                 }
             }
         }
@@ -616,7 +617,7 @@ namespace SIPSorcery.SIP
             if (uri != null && receivedOn != null && IPAddress.TryParse(uri.HostAddress, out var ipv4Host))
             {
 
-                if (ipv4Host.IsPrivate() && !IPAddress.Equals(ipv4Host, receivedOn.Address))
+                if (ipv4Host.IsPrivate() && !Equals(ipv4Host, receivedOn.Address))
                 {
                     var mangledURI = uri.CopyOf();
                     mangledURI.Host = mangledURI.Host.Replace(mangledURI.Host, receivedOn.ToString());

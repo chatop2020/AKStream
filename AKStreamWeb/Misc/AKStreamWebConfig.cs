@@ -16,6 +16,8 @@ namespace AKStreamWeb.Misc
         private ushort _deletedRecordsExpiredDays = 30;
         private bool _enableGB28181Client = false;
         private bool? _enableGB28181Server = false;
+        private string? _ZlmFlvPrefix = "live";
+        
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver
@@ -116,6 +118,15 @@ namespace AKStreamWeb.Misc
         {
             get => _enableGB28181Server;
             set => _enableGB28181Server = value;
+        }
+
+        /// <summary>
+        /// 新的Zlm播放flv时，url规格变了，要加一个live，由于老版本zlm不需要，所以这里多加一个配置项进行控制
+        /// </summary>
+        public string? ZlmFlvPrefix
+        {
+            get => _ZlmFlvPrefix;
+            set => _ZlmFlvPrefix = value;
         }
     }
 }

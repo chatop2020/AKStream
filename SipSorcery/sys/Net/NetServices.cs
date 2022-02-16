@@ -113,7 +113,7 @@ namespace SIPSorcery.Sys
                 // TODO: Reset if the local network interfaces change.
                 if (_localIPAddresses == null)
                 {
-                    _localIPAddresses = NetServices.GetAllLocalIPAddresses();
+                    _localIPAddresses = GetAllLocalIPAddresses();
                 }
 
                 return _localIPAddresses;

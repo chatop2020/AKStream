@@ -55,6 +55,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
+using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -169,9 +170,9 @@ namespace SIPSorcery.Net
             mki = null;
             policy = policyIn;
             masterKey = new byte[policy.EncKeyLength];
-            System.Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
+            Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
             masterSalt = new byte[policy.SaltKeyLength];
-            System.Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
+            Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
 
             switch (policy.EncType)
             {

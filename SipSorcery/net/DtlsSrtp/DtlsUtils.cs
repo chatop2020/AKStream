@@ -58,12 +58,15 @@ using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.IO.Pem;
 using Org.BouncyCastle.X509;
 using SIPSorcery.Sys;
+using PemReader = Org.BouncyCastle.Utilities.IO.Pem.PemReader;
+using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace SIPSorcery.Net
 {
@@ -74,14 +77,14 @@ namespace SIPSorcery.Net
         /// </summary>
         public const int DEFAULT_KEY_SIZE = 2048;
 
-        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private static ILogger logger = Log.Logger;
 
         public static RTCDtlsFingerprint Fingerprint(string hashAlgorithm, X509Certificate2 certificate)
         {
             return Fingerprint(hashAlgorithm, LoadCertificateResource(certificate));
         }
 
-        public static RTCDtlsFingerprint Fingerprint(string hashAlgorithm, Org.BouncyCastle.Asn1.X509.X509CertificateStructure c)
+        public static RTCDtlsFingerprint Fingerprint(string hashAlgorithm, X509CertificateStructure c)
         {
             if (!IsHashSupported(hashAlgorithm))
             {
@@ -110,7 +113,7 @@ namespace SIPSorcery.Net
             return Fingerprint(LoadCertificateResource(certificate));
         }
 
-        public static RTCDtlsFingerprint Fingerprint(Org.BouncyCastle.X509.X509Certificate certificate)
+        public static RTCDtlsFingerprint Fingerprint(X509Certificate certificate)
         {
             var certStruct = X509CertificateStructure.GetInstance(certificate.GetEncoded());
             return Fingerprint(certStruct);
@@ -194,7 +197,7 @@ namespace SIPSorcery.Net
                 SignatureAndHashAlgorithm signatureAndHashAlgorithm)
         {
             Certificate certificate = LoadCertificateChain(certResources);
-            Org.BouncyCastle.Crypto.AsymmetricKeyParameter privateKey = LoadPrivateKeyResource(keyResource);
+            AsymmetricKeyParameter privateKey = LoadPrivateKeyResource(keyResource);
             return LoadSignerCredentials(context, certificate,
                     privateKey, signatureAndHashAlgorithm);
         }
@@ -240,7 +243,7 @@ namespace SIPSorcery.Net
 
         public static Certificate LoadCertificateChain(X509Certificate2[] certificates)
         {
-            var chain = new Org.BouncyCastle.Asn1.X509.X509CertificateStructure[certificates.Length];
+            var chain = new X509CertificateStructure[certificates.Length];
             for (int i = 0; i < certificates.Length; i++)
             {
                 chain[i] = LoadCertificateResource(certificates[i]);
@@ -256,8 +259,8 @@ namespace SIPSorcery.Net
 
         public static Certificate LoadCertificateChain(string[] resources)
         {
-            Org.BouncyCastle.Asn1.X509.X509CertificateStructure[]
-            chain = new Org.BouncyCastle.Asn1.X509.X509CertificateStructure[resources.Length];
+            X509CertificateStructure[]
+            chain = new X509CertificateStructure[resources.Length];
             for (int i = 0; i < resources.Length; ++i)
             {
                 chain[i] = LoadCertificateResource(resources[i]);
@@ -313,7 +316,7 @@ namespace SIPSorcery.Net
 
         public static PemObject LoadPemResource(string path)
         {
-            using (var s = new System.IO.StreamReader(path))
+            using (var s = new StreamReader(path))
             {
                 PemReader p = new PemReader(s);
                 PemObject o = p.ReadPemObject();
@@ -405,7 +408,7 @@ namespace SIPSorcery.Net
             try
             {
                 // corresponding private key
-                var info = Org.BouncyCastle.Pkcs.PrivateKeyInfoFactory.CreatePrivateKeyInfo(subjectKeyPair.Private);
+                var info = PrivateKeyInfoFactory.CreatePrivateKeyInfo(subjectKeyPair.Private);
 
                 // merge into X509Certificate2
                 var x509 = new X509Certificate2(certificate.GetEncoded());
@@ -413,7 +416,7 @@ namespace SIPSorcery.Net
                 var seq = (Asn1Sequence)Asn1Object.FromByteArray(info.ParsePrivateKey().GetDerEncoded());
                 if (seq.Count != 9)
                 {
-                    throw new Org.BouncyCastle.OpenSsl.PemException("malformed sequence in RSA private key");
+                    throw new PemException("malformed sequence in RSA private key");
                 }
 
                 var rsa = RsaPrivateKeyStructure.GetInstance(seq); //new RsaPrivateKeyStructure(seq);
@@ -432,12 +435,12 @@ namespace SIPSorcery.Net
             }
         }
 
-        public static (Org.BouncyCastle.Crypto.Tls.Certificate crtificate, AsymmetricKeyParameter privateKey) CreateSelfSignedTlsCert()
+        public static (Certificate crtificate, AsymmetricKeyParameter privateKey) CreateSelfSignedTlsCert()
         {
             return CreateSelfSignedTlsCert("CN=localhost", "CN=root", null);
         }
 
-        public static (Org.BouncyCastle.Crypto.Tls.Certificate crtificate, AsymmetricKeyParameter privateKey) CreateSelfSignedTlsCert(string subjectName, string issuerName, AsymmetricKeyParameter issuerPrivateKey)
+        public static (Certificate crtificate, AsymmetricKeyParameter privateKey) CreateSelfSignedTlsCert(string subjectName, string issuerName, AsymmetricKeyParameter issuerPrivateKey)
         {
             const int keyStrength = DEFAULT_KEY_SIZE;
             if (issuerPrivateKey == null)
@@ -483,8 +486,8 @@ namespace SIPSorcery.Net
             // self sign certificate
             var certificate = certificateGenerator.Generate(signatureFactory);
 
-            var chain = new Org.BouncyCastle.Asn1.X509.X509CertificateStructure[] { X509CertificateStructure.GetInstance(certificate.GetEncoded()) };
-            var tlsCertificate = new Org.BouncyCastle.Crypto.Tls.Certificate(chain);
+            var chain = new X509CertificateStructure[] { X509CertificateStructure.GetInstance(certificate.GetEncoded()) };
+            var tlsCertificate = new Certificate(chain);
 
             return (tlsCertificate, subjectKeyPair.Private);
         }
@@ -492,7 +495,7 @@ namespace SIPSorcery.Net
         /// <remarks>Plagiarised from https://github.com/CryptLink/CertBuilder/blob/master/CertBuilder.cs.
         /// NOTE: netstandard2.1+ and netcoreapp3.1+ have x509.CopyWithPrivateKey which will avoid the need to
         /// use the serialize/deserialize from pfx to get from bouncy castle to .NET Core X509 certificates.</remarks>
-        public static X509Certificate2 ConvertBouncyCert(Org.BouncyCastle.X509.X509Certificate bouncyCert, AsymmetricCipherKeyPair keyPair)
+        public static X509Certificate2 ConvertBouncyCert(X509Certificate bouncyCert, AsymmetricCipherKeyPair keyPair)
         {
             var pkcs12Store = new Pkcs12Store();
             var certEntry = new X509CertificateEntry(bouncyCert);

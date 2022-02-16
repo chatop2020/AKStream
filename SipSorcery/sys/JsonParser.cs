@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -190,7 +191,7 @@ namespace TinyJson
                         if (json[i + 1] == 'u' && i + 5 < json.Length - 1)
                         {
                             UInt32 c = 0;
-                            if (UInt32.TryParse(json.Substring(i + 2, 4), System.Globalization.NumberStyles.AllowHexSpecifier, null, out c))
+                            if (UInt32.TryParse(json.Substring(i + 2, 4), NumberStyles.AllowHexSpecifier, null, out c))
                             {
                                 parseStringBuilder.Append((char)c);
                                 i += 5;
@@ -204,13 +205,13 @@ namespace TinyJson
             }
             if (type.IsPrimitive)
             {
-                var result = Convert.ChangeType(json, type, System.Globalization.CultureInfo.InvariantCulture);
+                var result = Convert.ChangeType(json, type, CultureInfo.InvariantCulture);
                 return result;
             }
             if (type == typeof(decimal))
             {
                 decimal result;
-                decimal.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
+                decimal.TryParse(json, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
                 return result;
             }
             if (json == "null")
@@ -367,7 +368,7 @@ namespace TinyJson
                 if (json.Contains("."))
                 {
                     double result;
-                    double.TryParse(json, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out result);
+                    double.TryParse(json, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
                     return result;
                 }
                 else

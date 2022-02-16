@@ -19,8 +19,8 @@
 using System;
 using System.Linq;
 using System.Management;
-using SystemInfoLibrary.Hardware;
 using Microsoft.Win32;
+using SystemInfoLibrary.Hardware;
 
 namespace SystemInfoLibrary.OperatingSystem
 {

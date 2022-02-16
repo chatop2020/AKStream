@@ -61,6 +61,7 @@
  * @author Werner Dittmann <werner.dittmann@t-online.de>
  */
 
+using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -99,7 +100,7 @@ namespace SIPSorcery.Net
              * First copy the salt into the mask field, then fill with 0x55 to get a
              * full key.
              */
-            System.Array.Copy(salt, 0, saltMask, 0, salt.Length);
+            Array.Copy(salt, 0, saltMask, 0, salt.Length);
             for (int i = salt.Length; i < saltMask.Length; ++i)
             {
                 saltMask[i] = 0x55;

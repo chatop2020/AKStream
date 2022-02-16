@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using LibGB28181SipClient;
-using SIPSorcery.SIP;
+﻿using LibGB28181SipClient;
 
 namespace Test_GB28181Client
 {

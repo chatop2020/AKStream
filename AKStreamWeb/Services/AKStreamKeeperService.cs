@@ -3,7 +3,6 @@ using LibCommon;
 using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibLogger;
-using log4net.Core;
 using Newtonsoft.Json;
 
 namespace AKStreamWeb.Services

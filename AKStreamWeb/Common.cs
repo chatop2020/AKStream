@@ -13,7 +13,6 @@ using LibLogger;
 using LibSystemInfo;
 using LibZLMediaKitMediaServer;
 using Newtonsoft.Json;
-using SIPSorcery.SIP;
 using JsonHelper = LibCommon.JsonHelper;
 
 namespace AKStreamWeb
@@ -65,11 +64,11 @@ namespace AKStreamWeb
         public static SipClient SipClient=null;
         
 
-        private static List<LibCommon.Structs.ShareInviteInfo> _shareInviteChannels = new List<LibCommon.Structs.ShareInviteInfo>();
+        private static List<ShareInviteInfo> _shareInviteChannels = new List<ShareInviteInfo>();
         /// <summary>
         /// 共享流列表
         /// </summary>
-        public static List<LibCommon.Structs.ShareInviteInfo> ShareInviteChannels
+        public static List<ShareInviteInfo> ShareInviteChannels
         {
             get => _shareInviteChannels;
             set => _shareInviteChannels = value;

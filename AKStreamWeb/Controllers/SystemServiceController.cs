@@ -1,11 +1,9 @@
-using System;
 using AKStreamWeb.Attributes;
 using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
-using log4net.Core;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 

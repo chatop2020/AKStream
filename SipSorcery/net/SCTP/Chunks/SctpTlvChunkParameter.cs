@@ -19,8 +19,6 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Net;
-using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Sys;
 
@@ -106,7 +104,7 @@ namespace SIPSorcery.Net
     {
         public const int SCTP_PARAMETER_HEADER_LENGTH = 4;
 
-        private static ILogger logger = SIPSorcery.LogFactory.CreateLogger<SctpTlvChunkParameter>();
+        private static ILogger logger = LogFactory.CreateLogger<SctpTlvChunkParameter>();
 
         /// <summary>
         /// The type of the chunk parameter.

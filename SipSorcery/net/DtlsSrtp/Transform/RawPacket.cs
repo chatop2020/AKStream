@@ -40,6 +40,7 @@
 * 
 */
 
+using System;
 using System.IO;
 
 namespace SIPSorcery.Net
@@ -115,7 +116,7 @@ namespace SIPSorcery.Net
         {
             if (data == null || len <= 0 || len > data.Length)
             {
-                throw new System.Exception("Invalid combination of parameters data and length to append()");
+                throw new Exception("Invalid combination of parameters data and length to append()");
             }
 
             long oldLimit = buffer.Length;

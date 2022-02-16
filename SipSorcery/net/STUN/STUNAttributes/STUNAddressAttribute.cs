@@ -82,7 +82,7 @@ namespace SIPSorcery.Net
             }
             Buffer.BlockCopy(Address.GetAddressBytes(), 0, buffer, startIndex + 8, 4);
 
-            return STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH + ADDRESS_ATTRIBUTE_LENGTH;
+            return STUNATTRIBUTE_HEADER_LENGTH + ADDRESS_ATTRIBUTE_LENGTH;
         }
 
         public override string ToString()

@@ -139,7 +139,7 @@ namespace SIPSorcery.SIP
             try
             {
                 SIPMessageBuffer sipMessageBuffer = SIPMessageBuffer.ParseSIPMessage(sipMessageStr, sipEncoding,sipBodyEncoding, null, null);
-                return SIPRequest.ParseSIPRequest(sipMessageBuffer,sipEncoding,sipBodyEncoding);
+                return ParseSIPRequest(sipMessageBuffer,sipEncoding,sipBodyEncoding);
             }
             catch (SIPValidationException)
             {

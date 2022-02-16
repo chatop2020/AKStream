@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using LibLogger;
 using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
@@ -12,8 +11,8 @@ using LibCommon.Structs.GB28181.Net.SDP;
 using LibCommon.Structs.GB28181.Net.SIP;
 using LibCommon.Structs.GB28181.Sys;
 using LibCommon.Structs.GB28181.XML;
+using LibLogger;
 using SIPSorcery.SIP;
-
 
 namespace LibGB28181SipClient
 {
@@ -139,8 +138,8 @@ namespace LibGB28181SipClient
             req.Header.CallId = _registerCallId;
             RegisterCallid = req.Header.CallId;
             req.Header.CSeq = CSeq;
-            var HA1 = LibCommon.UtilsHelper.Md5($"{username}:{realm}:{password}");
-            var HA2 = LibCommon.UtilsHelper.Md5($"REGISTER:{fromSipUri}");
+            var HA1 = UtilsHelper.Md5($"{username}:{realm}:{password}");
+            var HA2 = UtilsHelper.Md5($"REGISTER:{fromSipUri}");
             var response = UtilsHelper.Md5($"{HA1}:{nonce}:{HA2}");
             req.Header.AuthenticationHeaders = new List<SIPAuthenticationHeader>();
             var authHeader = new SIPAuthenticationHeader(

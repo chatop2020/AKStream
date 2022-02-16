@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Security;
@@ -72,7 +73,7 @@ namespace SIPSorcery.Net
         /// </summary>
         public event Action<AlertLevelsEnum, AlertTypesEnum, string> OnAlert;
 
-        private System.DateTime _startTime = System.DateTime.MinValue;
+        private DateTime _startTime = DateTime.MinValue;
         private bool _isClosed = false;
 
         // Network properties
@@ -89,8 +90,8 @@ namespace SIPSorcery.Net
         {
             // Network properties
             this._mtu = mtu;
-            this._receiveLimit = System.Math.Max(0, mtu - MIN_IP_OVERHEAD - UDP_OVERHEAD);
-            this._sendLimit = System.Math.Max(0, mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD);
+            this._receiveLimit = Math.Max(0, mtu - MIN_IP_OVERHEAD - UDP_OVERHEAD);
+            this._sendLimit = Math.Max(0, mtu - MAX_IP_OVERHEAD - UDP_OVERHEAD);
             this.connection = connection;
 
             connection.OnAlert += (level, type, description) => OnAlert?.Invoke(level, type, description);
@@ -169,7 +170,7 @@ namespace SIPSorcery.Net
             if (!_handshaking && !_handshakeComplete)
             {
                 this._waitMillis = RetransmissionMilliseconds;
-                this._startTime = System.DateTime.Now;
+                this._startTime = DateTime.Now;
                 this._handshaking = true;
                 SecureRandom secureRandom = new SecureRandom();
                 DtlsClientProtocol clientProtocol = new DtlsClientProtocol(secureRandom);
@@ -198,7 +199,7 @@ namespace SIPSorcery.Net
 
                     return true;
                 }
-                catch (System.Exception excp)
+                catch (Exception excp)
                 {
                     if (excp.InnerException is TimeoutException)
                     {
@@ -208,9 +209,9 @@ namespace SIPSorcery.Net
                     else
                     {
                         handshakeError = "unknown";
-                        if (excp is Org.BouncyCastle.Crypto.Tls.TlsFatalAlert)
+                        if (excp is TlsFatalAlert)
                         {
-                            handshakeError = (excp as Org.BouncyCastle.Crypto.Tls.TlsFatalAlert).Message;
+                            handshakeError = (excp as TlsFatalAlert).Message;
                         }
 
                         logger.LogWarning(excp, $"DTLS handshake as client failed. {excp.Message}");
@@ -236,7 +237,7 @@ namespace SIPSorcery.Net
             if (!_handshaking && !_handshakeComplete)
             {
                 this._waitMillis = RetransmissionMilliseconds;
-                this._startTime = System.DateTime.Now;
+                this._startTime = DateTime.Now;
                 this._handshaking = true;
                 SecureRandom secureRandom = new SecureRandom();
                 DtlsServerProtocol serverProtocol = new DtlsServerProtocol(secureRandom);
@@ -264,7 +265,7 @@ namespace SIPSorcery.Net
                     //UnityEngine.Debug.Log("DTLS Handshake Completed");
                     return true;
                 }
-                catch (System.Exception excp)
+                catch (Exception excp)
                 {
                     if (excp.InnerException is TimeoutException)
                     {
@@ -274,9 +275,9 @@ namespace SIPSorcery.Net
                     else
                     {
                         handshakeError = "unknown";
-                        if (excp is Org.BouncyCastle.Crypto.Tls.TlsFatalAlert)
+                        if (excp is TlsFatalAlert)
                         {
-                            handshakeError = (excp as Org.BouncyCastle.Crypto.Tls.TlsFatalAlert).Message;
+                            handshakeError = (excp as TlsFatalAlert).Message;
                         }
 
                         logger.LogWarning(excp, $"DTLS handshake as server failed. {excp.Message}");
@@ -391,7 +392,7 @@ namespace SIPSorcery.Net
                 return -1;
             }
 
-            System.Buffer.BlockCopy(result, 0, payload, 0, result.Length);
+            Buffer.BlockCopy(result, 0, payload, 0, result.Length);
             outLength = result.Length;
 
             return 0; //No Errors
@@ -415,7 +416,7 @@ namespace SIPSorcery.Net
                 return -1;
             }
 
-            System.Buffer.BlockCopy(result, 0, payload, 0, result.Length);
+            Buffer.BlockCopy(result, 0, payload, 0, result.Length);
             outLength = result.Length;
 
             return 0; //No Errors
@@ -438,7 +439,7 @@ namespace SIPSorcery.Net
                 return -1;
             }
 
-            System.Buffer.BlockCopy(result, 0, payload, 0, result.Length);
+            Buffer.BlockCopy(result, 0, payload, 0, result.Length);
             outLength = result.Length;
 
             return 0; //No Errors
@@ -461,7 +462,7 @@ namespace SIPSorcery.Net
                 return -1;
             }
 
-            System.Buffer.BlockCopy(result, 0, payload, 0, result.Length);
+            Buffer.BlockCopy(result, 0, payload, 0, result.Length);
             outLength = result.Length;
 
             return 0; //No Errors
@@ -472,7 +473,7 @@ namespace SIPSorcery.Net
         /// </summary>
         private int GetMillisecondsRemaining()
         {
-            return TimeoutMilliseconds - (int)(System.DateTime.Now - this._startTime).TotalMilliseconds;
+            return TimeoutMilliseconds - (int)(DateTime.Now - this._startTime).TotalMilliseconds;
         }
 
         public int GetReceiveLimit()
@@ -499,7 +500,7 @@ namespace SIPSorcery.Net
             {
                 if(_isClosed)
                 {
-                    throw new System.Net.Sockets.SocketException((int)System.Net.Sockets.SocketError.NotConnected);
+                    throw new SocketException((int)SocketError.NotConnected);
                     //return DTLS_RECEIVE_ERROR_CODE;
                 }
                 else if (_chunks.TryTake(out var item, timeout))
@@ -553,7 +554,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    throw new System.Net.Sockets.SocketException((int)System.Net.Sockets.SocketError.NotConnected);
+                    throw new SocketException((int)SocketError.NotConnected);
                     //return DTLS_RECEIVE_ERROR_CODE;
                 }
             }
@@ -563,7 +564,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                throw new System.Net.Sockets.SocketException((int)System.Net.Sockets.SocketError.NotConnected);
+                throw new SocketException((int)SocketError.NotConnected);
                 //return DTLS_RECEIVE_ERROR_CODE;
             }
         }
@@ -584,7 +585,7 @@ namespace SIPSorcery.Net
         public virtual void Close()
         {
             _isClosed = true;
-            this._startTime = System.DateTime.MinValue;
+            this._startTime = DateTime.MinValue;
             this._chunks?.Dispose();
         }
 
@@ -611,7 +612,7 @@ namespace SIPSorcery.Net
         /// <returns></returns>
         protected virtual int BackOff(int currentWaitMillis)
         {
-            return System.Math.Min(currentWaitMillis * 2, 6000);
+            return Math.Min(currentWaitMillis * 2, 6000);
         }
     }
 }

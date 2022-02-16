@@ -19,6 +19,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -116,7 +117,7 @@ namespace SIPSorcery.SIP
             //DisplayCertificateInformation(sslStream);
 
             var timeoutTask = Task.Delay(TLS_ATTEMPT_CONNECT_TIMEOUT);
-            var sslStreamTask = m_clientCertificates != null ? sslStream.AuthenticateAsClientAsync(serverCertificateName, m_clientCertificates, System.Security.Authentication.SslProtocols.None, false) : sslStream.AuthenticateAsClientAsync(serverCertificateName);
+            var sslStreamTask = m_clientCertificates != null ? sslStream.AuthenticateAsClientAsync(serverCertificateName, m_clientCertificates, SslProtocols.None, false) : sslStream.AuthenticateAsClientAsync(serverCertificateName);
             await Task.WhenAny(sslStreamTask, timeoutTask).ConfigureAwait(false);
 
             if(sslStreamTask.IsCompleted)

@@ -34,7 +34,7 @@ namespace SIPSorcery.Net
     {
         public const ushort DEFAULT_UDP_MTU = 1300;
 
-        private static ILogger logger = SIPSorcery.LogFactory.CreateLogger<SctpUdpTransport>();
+        private static ILogger logger = LogFactory.CreateLogger<SctpUdpTransport>();
 
         /// <summary>
         /// The UDP encapsulation socket if the instance is managing its own transport layer.

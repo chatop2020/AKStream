@@ -15,12 +15,14 @@
 
 using System;
 using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using SIPSorcery.Sys;
+using CertificateRequest = Org.BouncyCastle.Crypto.Tls.CertificateRequest;
 
 namespace SIPSorcery.Net
 {
@@ -110,7 +112,7 @@ namespace SIPSorcery.Net
         {
         }
 
-        public DtlsSrtpClient(System.Security.Cryptography.X509Certificates.X509Certificate2 certificate) :
+        public DtlsSrtpClient(X509Certificate2 certificate) :
             this(DtlsUtils.LoadCertificateChain(certificate), DtlsUtils.LoadPrivateKeyResource(certificate))
         {
         }

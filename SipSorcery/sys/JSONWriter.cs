@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -89,15 +90,15 @@ namespace TinyJson
             }
             else if (type == typeof(float))
             {
-                stringBuilder.Append(((float)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((float)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(double))
             {
-                stringBuilder.Append(((double)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((double)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(decimal))
             {
-                stringBuilder.Append(((decimal)item).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                stringBuilder.Append(((decimal)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(bool))
             {

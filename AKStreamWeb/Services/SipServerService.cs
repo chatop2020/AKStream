@@ -14,7 +14,6 @@ using LibLogger;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
-using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 
 namespace AKStreamWeb.Services
 {
@@ -782,12 +781,24 @@ namespace AKStreamWeb.Services
                  !onPublishWebhook.Vhost.Trim().ToLower().Equals("__defaultvhost__"))
                     ? $"?vhost={onPublishWebhook.Vhost}"
                     : "";
+            var prefix = Common.AkStreamWebConfig.ZlmFlvPrefix;
+            if (string.IsNullOrEmpty(prefix))
+            {
+                prefix = "";
+            }
+
+            prefix = prefix.Trim();
+            if (!prefix.EndsWith(".") && !string.IsNullOrEmpty(prefix))
+            {
+                prefix += ".";
+            }
             if (mediaServer.UseSsl)
             {
+               
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
                     $"rtsps://{mediaServer.IpV4Address}:{mediaServer.RtspsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
@@ -805,9 +816,9 @@ namespace AKStreamWeb.Services
             }
 
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
                 $"rtsp://{mediaServer.IpV4Address}:{mediaServer.RtspPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
@@ -1167,12 +1178,23 @@ namespace AKStreamWeb.Services
                  !onPublishWebhook.Vhost.Trim().ToLower().Equals("__defaultvhost__"))
                     ? $"?vhost={onPublishWebhook.Vhost}"
                     : "";
+            var prefix = Common.AkStreamWebConfig.ZlmFlvPrefix;
+            if (string.IsNullOrEmpty(prefix))
+            {
+                prefix = "";
+            }
+
+            prefix = prefix.Trim();
+            if (!prefix.EndsWith(".") && !string.IsNullOrEmpty(prefix))
+            {
+                prefix += ".";
+            }
             if (mediaServer.UseSsl)
             {
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                    $"wss://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                    $"https://{mediaServer.IpV4Address}:{mediaServer.HttpsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
                     $"rtsps://{mediaServer.IpV4Address}:{mediaServer.RtspsPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
                 videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
@@ -1190,9 +1212,9 @@ namespace AKStreamWeb.Services
             }
 
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                $"ws://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
-                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.flv{exInfo}");
+                $"http://{mediaServer.IpV4Address}:{mediaServer.HttpPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}.{prefix}flv{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(
                 $"rtsp://{mediaServer.IpV4Address}:{mediaServer.RtspPort}/{onPublishWebhook.App}/{onPublishWebhook.Stream}{exInfo}");
             videoChannelMediaInfo.MediaServerStreamInfo.PlayUrl.Add(

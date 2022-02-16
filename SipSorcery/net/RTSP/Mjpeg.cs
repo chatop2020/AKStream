@@ -46,6 +46,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Sys;
@@ -346,7 +348,7 @@ namespace SIPSorcery.Net
             result[4] = (byte)(precision << 4 | 0); // Precision and TableId
 
             //First table. Type - Luminance usually when two
-            System.Array.Copy(tables.Array, tables.Offset, result, 5, tableSize);
+            Array.Copy(tables.Array, tables.Offset, result, 5, tableSize);
 
             if (tableCount > 1)
             {
@@ -357,7 +359,7 @@ namespace SIPSorcery.Net
                 result[tableSize + 9] = (byte)(precision << 4 | 1);//Precision 0, and table Id
 
                 //Second Table. Type - Chrominance usually when two
-                System.Array.Copy(tables.Array, tables.Offset + tableSize, result, 10 + tableSize, tableSize);
+                Array.Copy(tables.Array, tables.Offset + tableSize, result, 10 + tableSize, tableSize);
             }
 
             return result;
@@ -394,7 +396,7 @@ namespace SIPSorcery.Net
             ArraySegment<byte> tables = default;
 
             //Using a new MemoryStream for a Buffer
-            using (System.IO.MemoryStream Buffer = new System.IO.MemoryStream())
+            using (MemoryStream Buffer = new MemoryStream())
             {
                 //Loop each packet
                 foreach (RTPPacket packet in framePackets.OrderBy(x => x.Header.SequenceNumber))
@@ -542,9 +544,9 @@ namespace SIPSorcery.Net
                             if ((packet.Payload[offset++]) != 0)
                             {
                                 //Must Be Zero is Not Zero
-                                if (System.Diagnostics.Debugger.IsAttached)
+                                if (Debugger.IsAttached)
                                 {
-                                    System.Diagnostics.Debugger.Break();
+                                    Debugger.Break();
                                 }
                             }
 
@@ -615,7 +617,7 @@ namespace SIPSorcery.Net
                 }
 
                 //Check for EOI Marker
-                Buffer.Seek(-1, System.IO.SeekOrigin.Current);
+                Buffer.Seek(-1, SeekOrigin.Current);
 
                 if (Buffer.ReadByte() != Tags.EndOfInformation)
                 {

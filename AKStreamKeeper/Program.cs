@@ -1,4 +1,5 @@
 using LibCommon;
+using LibLogger;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -34,7 +35,7 @@ namespace AKStreamKeeper
               {
                   GCommon.OutLogPath +=  "/";
               }
-              LibLogger.Logger.logxmlPath = GCommon.OutLogPath;
+              Logger.logxmlPath = GCommon.OutLogPath;
           }
             Common.Init();
 

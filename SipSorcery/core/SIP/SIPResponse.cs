@@ -157,7 +157,7 @@ namespace SIPSorcery.SIP
             try
             {
                 SIPMessageBuffer sipMessage = SIPMessageBuffer.ParseSIPMessage(sipMessageStr, sipEncoding, sipBodyEncoding, null, null);
-                return SIPResponse.ParseSIPResponse(sipMessage, sipEncoding,sipBodyEncoding);
+                return ParseSIPResponse(sipMessage, sipEncoding,sipBodyEncoding);
             }
             catch (SIPValidationException)
             {

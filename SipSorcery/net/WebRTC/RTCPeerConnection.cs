@@ -38,12 +38,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Tls;
 using SIPSorcery.SIP.App;
 using SIPSorcery.Sys;
+using TinyJson;
 
 namespace SIPSorcery.Net
 {
@@ -87,7 +89,7 @@ namespace SIPSorcery.Net
             //    $"  \"sdp\": \"{sdp.Replace(SDP.CRLF, @"\\n").Replace("\"", "\\\"")}\"" +
             //    "}";
 
-            return TinyJson.JSONWriter.ToJson(this);
+            return JSONWriter.ToJson(this);
         }
 
         public static bool TryParse(string json, out RTCSessionDescriptionInit init)
@@ -100,7 +102,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                init = TinyJson.JSONParser.FromJson<RTCSessionDescriptionInit>(json);
+                init = JSONParser.FromJson<RTCSessionDescriptionInit>(json);
 
                 // To qualify as parsed all required fields must be set.
                 return init != null &&
@@ -181,8 +183,8 @@ namespace SIPSorcery.Net
 
         public List<RTCDataChannel> DataChannels { get; private set; } = new List<RTCDataChannel>();
 
-        private Org.BouncyCastle.Crypto.Tls.Certificate _dtlsCertificate;
-        private Org.BouncyCastle.Crypto.AsymmetricKeyParameter _dtlsPrivateKey;
+        private Certificate _dtlsCertificate;
+        private AsymmetricKeyParameter _dtlsPrivateKey;
         private DtlsSrtpTransport _dtlsHandle;
         private Task _iceGatheringTask;
 

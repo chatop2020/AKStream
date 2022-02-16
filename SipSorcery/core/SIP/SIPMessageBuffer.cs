@@ -307,8 +307,8 @@ namespace SIPSorcery.SIP
             }
             else
             {
-                byte[] contentHeaderBytes = sipEncoding.GetBytes(m_CRLF + SIPSorcery.SIP.SIPHeaders.SIP_HEADER_CONTENTLENGTH.ToUpper());
-                byte[] compactContentHeaderBytes = sipEncoding.GetBytes(m_CRLF + SIPSorcery.SIP.SIPHeaders.SIP_COMPACTHEADER_CONTENTLENGTH.ToUpper());
+                byte[] contentHeaderBytes = sipEncoding.GetBytes(m_CRLF + SIP.SIPHeaders.SIP_HEADER_CONTENTLENGTH.ToUpper());
+                byte[] compactContentHeaderBytes = sipEncoding.GetBytes(m_CRLF + SIP.SIPHeaders.SIP_COMPACTHEADER_CONTENTLENGTH.ToUpper());
 
                 int inContentHeaderPosn = 0;
                 int inCompactContentHeaderPosn = 0;

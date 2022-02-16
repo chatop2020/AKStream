@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Net;
 using SIPSorcery.SIP.App;
+using SIPSorcery.Sys;
 using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
@@ -15,7 +16,7 @@ namespace SIPSorcery.Media
     /// </summary>
     public class AudioSendOnlyMediaSession : RTPSession, IMediaSession
     {
-        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private static ILogger logger = Log.Logger;
 
         public AudioExtrasSource AudioExtrasSource { get; private set; }
 

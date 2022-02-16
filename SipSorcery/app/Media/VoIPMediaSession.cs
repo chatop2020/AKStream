@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Net;
 using SIPSorcery.SIP.App;
+using SIPSorcery.Sys;
 using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
@@ -48,7 +49,7 @@ namespace SIPSorcery.Media
         private const int TEST_PATTERN_FPS = 30;
         private const int TEST_PATTERN_ONHOLD_FPS = 3;
 
-        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private static ILogger logger = Log.Logger;
 
         private VideoTestPatternSource _videoTestPatternSource;
         private AudioExtrasSource _audioExtrasSource;

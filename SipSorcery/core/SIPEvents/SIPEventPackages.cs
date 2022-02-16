@@ -187,19 +187,19 @@ namespace SIPSorcery.SIP
                 switch (trimmedValue)
                 {
                     case "cancelled":
-                        return SIPEventDialogStateEvent.Cancelled;
+                        return Cancelled;
                     case "error":
-                        return SIPEventDialogStateEvent.Error;
+                        return Error;
                     case "local-bye":
-                        return SIPEventDialogStateEvent.LocalBye;
+                        return LocalBye;
                     case "rejected":
-                        return SIPEventDialogStateEvent.Rejected;
+                        return Rejected;
                     case "replaced":
-                        return SIPEventDialogStateEvent.Replaced;
+                        return Replaced;
                     case "remote-bye":
-                        return SIPEventDialogStateEvent.RemoteBye;
+                        return RemoteBye;
                     case "timeout":
-                        return SIPEventDialogStateEvent.Timeout;
+                        return Timeout;
                     default:
                         throw new ArgumentException("The value is not valid for a SIPEventDialogStateEvent.");
                 }

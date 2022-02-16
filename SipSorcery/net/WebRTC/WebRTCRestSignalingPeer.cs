@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
@@ -44,7 +45,7 @@ namespace SIPSorcery.Net
         private const int REST_SERVER_POLL_PERIOD = 2000;   // Period in milliseconds to poll the HTTP server to check for new messages.
         private const int CONNECTION_RETRY_PERIOD = 5000;   // Period in milliseconds to retry if the initial HTTP connection attempt fails.
 
-        private ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private ILogger logger = Log.Logger;
 
         private Uri _restServerUri;
         private string _ourID;

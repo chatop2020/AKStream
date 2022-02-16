@@ -18,7 +18,6 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
@@ -72,7 +71,7 @@ namespace SIPSorcery.Net
         /// </summary>
         public const int DEFAULT_COOKIE_LIFETIME_SECONDS = 60;
 
-        private static ILogger logger = SIPSorcery.LogFactory.CreateLogger<SctpTransport>();
+        private static ILogger logger = LogFactory.CreateLogger<SctpTransport>();
 
         /// <summary>
         /// Ephemeral secret key to use for generating cookie HMAC's. The purpose of the HMAC is

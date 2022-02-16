@@ -9,9 +9,7 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
 using LibLogger;
-using log4net.Core;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Math.EC;
 
 namespace AKStreamKeeper.Services
 {

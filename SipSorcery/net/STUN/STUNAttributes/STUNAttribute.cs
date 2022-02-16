@@ -246,7 +246,7 @@ namespace SIPSorcery.Net
                 Buffer.BlockCopy(Value, 0, buffer, startIndex + 4, Value.Length);
             }
 
-            return STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH + PaddedLength;
+            return STUNATTRIBUTE_HEADER_LENGTH + PaddedLength;
         }
 
         public new virtual string ToString()

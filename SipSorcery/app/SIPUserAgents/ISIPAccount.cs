@@ -17,8 +17,6 @@
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 // ============================================================================
 
-using System;
-
 namespace SIPSorcery.SIP.App
 {
     /// <remarks>

@@ -58,7 +58,7 @@ namespace SIPSorcery.Net
             byte[] reasonPhraseBytes = Encoding.UTF8.GetBytes(ReasonPhrase);
             Buffer.BlockCopy(reasonPhraseBytes, 0, buffer, startIndex + 4, reasonPhraseBytes.Length);
 
-            return STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH + 4 + reasonPhraseBytes.Length;
+            return STUNATTRIBUTE_HEADER_LENGTH + 4 + reasonPhraseBytes.Length;
         }
 
         public override string ToString()

@@ -13,6 +13,7 @@
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //-----------------------------------------------------------------------------
 
+using System;
 using System.IO;
 using System.Threading;
 
@@ -48,7 +49,7 @@ namespace SIPSorcery.Sys
                         _ms.Seek(_readPos, SeekOrigin.Begin);
                     }
 
-                    int len = (int)System.Math.Min(count, _writePos - _readPos);
+                    int len = (int)Math.Min(count, _writePos - _readPos);
                     int bytesRead = _ms.Read(buffer, offset, len);
                     _readPos += bytesRead;
                     return bytesRead;

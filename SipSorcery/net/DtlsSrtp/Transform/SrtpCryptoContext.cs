@@ -80,6 +80,7 @@
  * @author Bing SU (nova.su@gmail.com)
  */
 
+using System;
 using System.IO;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -273,10 +274,10 @@ namespace SIPSorcery.Net
             policy = policyIn;
 
             masterKey = new byte[policy.EncKeyLength];
-            System.Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
+            Array.Copy(masterK, 0, masterKey, 0, masterK.Length);
 
             masterSalt = new byte[policy.SaltKeyLength];
-            System.Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
+            Array.Copy(masterS, 0, masterSalt, 0, masterS.Length);
 
             mac = new HMac(new Sha1Digest());
 

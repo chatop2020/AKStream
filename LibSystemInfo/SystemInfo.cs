@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using SystemInfoLibrary.OperatingSystem;
 using LibCommon.Structs;
 using Newtonsoft.Json;
+using SystemInfoLibrary.OperatingSystem;
 
 namespace LibSystemInfo
 {

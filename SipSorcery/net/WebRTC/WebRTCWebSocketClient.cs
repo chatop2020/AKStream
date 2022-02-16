@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
@@ -37,7 +38,7 @@ namespace SIPSorcery.Net
         private const int MAX_SEND_BUFFER = 8192;
         private const int WEB_SOCKET_CONNECTION_TIMEOUT_MS = 10000;
 
-        private ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private ILogger logger = Log.Logger;
 
         private Uri _webSocketServerUri;
         private Func<Task<RTCPeerConnection>> _createPeerConnection;

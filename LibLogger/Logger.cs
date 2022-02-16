@@ -2,8 +2,8 @@
 using System.IO;
 using log4net;
 using log4net.Config;
-using log4net.Core;
 using log4net.Repository;
+using log4net.Repository.Hierarchy;
 
 namespace LibLogger
 {
@@ -60,7 +60,7 @@ namespace LibLogger
         /// <returns></returns>
         public static string GetLogLevel()
         {
-           return ((log4net.Repository.Hierarchy.Hierarchy) LogManager.GetRepository()).Root.Level.ToString();
+           return ((Hierarchy) LogManager.GetRepository()).Root.Level.ToString();
         }
     }
 }

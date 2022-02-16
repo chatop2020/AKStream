@@ -13,6 +13,8 @@
 // BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //-----------------------------------------------------------------------------
 
+using TinyJson;
+
 namespace SIPSorcery.Net
 {
     /// <summary>
@@ -107,7 +109,7 @@ namespace SIPSorcery.Net
             //     $"  \"candidate\": \"{candidate}\"" +
             //     "}";
 
-            return TinyJson.JSONWriter.ToJson(this);
+            return JSONWriter.ToJson(this);
         }
 
         public static bool TryParse(string json, out RTCIceCandidateInit init)
@@ -122,7 +124,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                init = TinyJson.JSONParser.FromJson<RTCIceCandidateInit>(json);
+                init = JSONParser.FromJson<RTCIceCandidateInit>(json);
 
                 // To qualify as parsed all required fields must be set.
                 return init != null &&

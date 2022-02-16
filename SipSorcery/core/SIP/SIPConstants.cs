@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using SIPSorcery.Sys;
+
 // ReSharper disable InconsistentNaming
 
 namespace SIPSorcery.SIP
@@ -93,15 +94,15 @@ namespace SIPSorcery.SIP
             switch (protocol)
             {
                 case SIPProtocolsEnum.udp:
-                    return SIPConstants.DEFAULT_SIP_PORT;
+                    return DEFAULT_SIP_PORT;
                 case SIPProtocolsEnum.tcp:
-                    return SIPConstants.DEFAULT_SIP_PORT;
+                    return DEFAULT_SIP_PORT;
                 case SIPProtocolsEnum.tls:
-                    return SIPConstants.DEFAULT_SIP_TLS_PORT;
+                    return DEFAULT_SIP_TLS_PORT;
                 case SIPProtocolsEnum.ws:
-                    return SIPConstants.DEFAULT_SIP_WEBSOCKET_PORT;
+                    return DEFAULT_SIP_WEBSOCKET_PORT;
                 case SIPProtocolsEnum.wss:
-                    return SIPConstants.DEFAULT_SIPS_WEBSOCKET_PORT;
+                    return DEFAULT_SIPS_WEBSOCKET_PORT;
                 default:
                     throw new ApplicationException($"Protocol {protocol} was not recognised in GetDefaultPort.");
             }

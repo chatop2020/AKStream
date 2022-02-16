@@ -18,8 +18,6 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using SIPSorcery.Sys;
@@ -103,7 +101,7 @@ namespace SIPSorcery.Net
     {
         public const int SCTP_CHUNK_HEADER_LENGTH = 4;
 
-        protected static ILogger logger = SIPSorcery.LogFactory.CreateLogger<SctpChunk>();
+        protected static ILogger logger = LogFactory.CreateLogger<SctpChunk>();
 
         /// <summary>
         /// This field identifies the type of information contained in the
@@ -391,7 +389,7 @@ namespace SIPSorcery.Net
         /// <returns>A new buffer containing a copy of the chunk.</returns>
         public static byte[] CopyUnrecognisedChunk(byte[] buffer, int posn)
         {
-            byte[] unrecognised = new byte[SctpChunk.GetChunkLengthFromHeader(buffer, posn, true)];
+            byte[] unrecognised = new byte[GetChunkLengthFromHeader(buffer, posn, true)];
             Buffer.BlockCopy(buffer, posn, unrecognised, 0, unrecognised.Length);
             return unrecognised;
         }

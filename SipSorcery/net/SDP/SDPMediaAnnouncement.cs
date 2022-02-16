@@ -32,6 +32,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using SIPSorcery.Sys;
 using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Net
@@ -82,7 +83,7 @@ namespace SIPSorcery.Net
 
         public const string m_CRLF = "\r\n";
 
-        private static ILogger logger = SIPSorcery.Sys.Log.Logger;
+        private static ILogger logger = Log.Logger;
 
         public SDPConnectionInformation Connection;
 
