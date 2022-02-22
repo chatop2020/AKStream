@@ -139,7 +139,7 @@ namespace LibGB28181SipServer
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error(
+                            GCommon.Logger.Error(
                                 $"[{Common.LoggerHead}]->插入历史回放文件信息时发生异常->{ex.Message}\r\n{ex.StackTrace}");
                         }
                     }
@@ -169,7 +169,7 @@ namespace LibGB28181SipServer
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error(
+                            GCommon.Logger.Error(
                                 $"[{Common.LoggerHead}]->插入设备目录时发生异常->{ex.Message}\r\n{ex.StackTrace}");
                         }
                     }
@@ -236,7 +236,7 @@ namespace LibGB28181SipServer
 
 
                                     Task.Run(() => { OnCatalogReceived?.Invoke(newSipChannel); }); //抛线程出去处理
-                                    Logger.Info(
+                                    GCommon.Logger.Info(
                                         $"[{Common.LoggerHead}]->Sip设备通道信息->{tmpSipDevice.DeviceId}->增加Sip通道成功->({newSipChannel.SipChannelType.ToString()})->{newSipChannel.SipChannelDesc.DeviceID}->此设备当前通道数量:{tmpSipDevice.SipChannels.Count}条");
                                 }
                                 else
@@ -272,7 +272,7 @@ namespace LibGB28181SipServer
                                             ExceptMessage = ex.Message,
                                             ExceptStackTrace = ex.StackTrace
                                         };
-                                        Logger.Warn(
+                                        GCommon.Logger.Warn(
                                             $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                                     }
                                 }
@@ -284,7 +284,7 @@ namespace LibGB28181SipServer
                 }
                 else
                 {
-                    Logger.Warn(
+                    GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->处理添加时出现异常情况->Sip设备{catalog.DeviceID}不在系统列表中，已跳过处理");
                 }
             }
@@ -367,12 +367,12 @@ namespace LibGB28181SipServer
                                 tmpSipDevice.RemoteEndPoint = remoteEndPoint;
                             }
 
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的心跳->{sipRequest}");
                         }
                         else
                         {
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的心跳->{sipRequest}->但是Sip设备不存在，发送BadRequest消息,使设备重新注册");
                             await SendKeepAliveExcept(sipRequest);
                         }
@@ -381,7 +381,7 @@ namespace LibGB28181SipServer
                     case "CATALOG": //处理设备目录
                         await SendOkMessage(sipRequest);
                         Common.TmpCatalogs.Enqueue(UtilsHelper.XMLToObject<Catalog>(bodyXml));
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}设备目录信息->{sipRequest}");
 
                         break;
@@ -400,7 +400,7 @@ namespace LibGB28181SipServer
                                 }); //抛线程出去处理
                                 tmpSipDeviceFind.DeviceInfo = tmpDeviceInfo;
                                 tmpSipDeviceFind.DeviceInfo.Channel = tmpSipDeviceFind.SipChannels.Count;
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}设备信息->{sipRequest}");
                             }
                         }
@@ -421,7 +421,7 @@ namespace LibGB28181SipServer
                                 }); //抛线程出去处理
 
                                 tmpSipDeviceFind.DeviceStatus = tmpDeviceStatus;
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}设备状态信息->{sipRequest}");
                             }
                         }
@@ -442,7 +442,7 @@ namespace LibGB28181SipServer
                                     tmpDev.SipChannels.FindLast(x => x.DeviceId.Equals(recObj.RecordInfo.DeviceID));
                                 if (tmpChannel != null)
                                 {
-                                    Logger.Debug(
+                                    GCommon.Logger.Debug(
                                         $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的录像查询结果->{recObj.DeviceId}->{recObj.ChannelId}->录像结果总数为:{recObj.TatolNum}->包体:{JsonHelper.ToJson(recObj.RecordInfo, Formatting.Indented)}");
                                     recObj.ChannelId = tmpChannel.DeviceId;
                                     Common.TmpRecItems.Enqueue(recObj);
@@ -464,7 +464,7 @@ namespace LibGB28181SipServer
                                                 ExceptMessage = ex.Message,
                                                 ExceptStackTrace = ex.StackTrace
                                             };
-                                            Logger.Warn(
+                                            GCommon.Logger.Warn(
                                                 $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                                         }
                                     }
@@ -491,7 +491,7 @@ namespace LibGB28181SipServer
                                     OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem) _task.Obj);
                                 }); //抛线程出去处理
 
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的点播结束消息->{_task.SipDevice.DeviceId}->{_task.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem) _task.Obj).SsrcId}:{((RecordInfo.RecItem) _task.Obj).Stream}");
                             }
                         }
@@ -517,11 +517,11 @@ namespace LibGB28181SipServer
                 Common.SipDevices.Remove(sipDevice);
                 sipDevice.SipChannels = null!;
                 sipDevice.Dispose();
-                Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->Sip设备心跳丢失超过限制，已经注销->{tmpSipDeviceStr}");
             }
 
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->当前Sip设备列表数量:->{Common.SipDevices.Count}");
         }
 
@@ -584,7 +584,7 @@ namespace LibGB28181SipServer
             SIPEndPoint remoteEndPoint,
             SIPRequest sipRequest)
         {
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册信息->{sipRequest}");
 
             string sipDeviceId = sipRequest.Header.From.FromURI.User;
@@ -612,7 +612,7 @@ namespace LibGB28181SipServer
                                 OnUnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice));
                             }); //抛线程出去处理
 
-                            Logger.Info(
+                            GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注销请求->{tmpSipDevice.DeviceId}->已经注销，当前Sip设备数量:{Common.SipDevices.Count}个");
 
                             lock (Common.SipDevicesLock)
@@ -683,7 +683,7 @@ namespace LibGB28181SipServer
                           
                             if (!ha3.Equals(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Response))
                             {
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->鉴权失败,注册失败");
                                 SIPRequest req = SIPRequest.GetRequest(SIPMethodsEnum.BYE, sipRequest.URI);
                                 req.Header.CallId = sipRequest.Header.CallId;
@@ -729,12 +729,12 @@ namespace LibGB28181SipServer
                                         OnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice));
                                     }); //抛线程出去处理
 
-                                    Logger.Info(
+                                    GCommon.Logger.Info(
                                         $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->注册完成，当前Sip设备数量:{Common.SipDevices.Count}个");
                                 }
                                 else
                                 {
-                                    Logger.Debug(
+                                    GCommon.Logger.Debug(
                                         $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->注册请求重复已经忽略，当前Sip设备数量:{Common.SipDevices.Count}个");
                                 }
                             }
@@ -761,12 +761,12 @@ namespace LibGB28181SipServer
                             Task.Run(() => { OnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice)); }); //抛线程出去处理
 
 
-                            Logger.Info(
+                            GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->已经更新注册时间，当前Sip设备数量:{Common.SipDevices.Count}个");
                         }
                         else
                         {
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备异常注册请求->已忽略，当前Sip设备数量:{Common.SipDevices.Count}个");
                         }
                     }
@@ -831,7 +831,7 @@ namespace LibGB28181SipServer
             req.Header.CallId = callId;
             req.Header.CSeq = sipResponse.Header.CSeq;
 
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->回复终止实时流请求状态Bye{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
         }
@@ -859,7 +859,7 @@ namespace LibGB28181SipServer
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
             req.Header.CSeq = sipResponse.Header.CSeq;
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->回复终止实时流请求状态Bye{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
         }
@@ -888,7 +888,7 @@ namespace LibGB28181SipServer
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
             req.Header.CSeq = sipResponse.Header.CSeq;
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->回复实时流请求状态ACK{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
         }
@@ -935,7 +935,7 @@ namespace LibGB28181SipServer
             req.Header.Vias = sipResponse.Header.Vias;
             req.Header.CallId = callId;
             req.Header.CSeq = sipResponse.Header.CSeq;
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->回复回放流请求状态ACK{sipResponse.RemoteSIPEndPoint}->{req}");
             await Common.SipServer.SipTransport.SendRequestAsync(sipResponse.RemoteSIPEndPoint, req);
         }
@@ -992,7 +992,7 @@ namespace LibGB28181SipServer
             SIPEndPoint remoteEndPoint,
             SIPResponse sipResponse)
         {
-            Logger.Debug($"收到的回复信息:\r\n远端端点：{remoteEndPoint.ToString()}\r\n内容：{sipResponse}");
+            GCommon.Logger.Debug($"收到的回复信息:\r\n远端端点：{remoteEndPoint.ToString()}\r\n内容：{sipResponse}");
             var status = sipResponse.Status;
             SIPMethodsEnum method;
             bool ret;
@@ -1051,7 +1051,7 @@ namespace LibGB28181SipServer
                                         {
                                             OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem) _task1.Obj);
                                         }); //抛线程出去处理
-                                        Logger.Debug(
+                                        GCommon.Logger.Debug(
                                             $"[{Common.LoggerHead}]->结束点播->{_task1.SipDevice.DeviceId}->{_task1.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem) _task1.Obj).SsrcId}:{((RecordInfo.RecItem) _task1.Obj).Stream}");
                                     }
                                 }
@@ -1085,18 +1085,18 @@ namespace LibGB28181SipServer
                                     break;
                             }
 
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的SipResponse->{sipResponse}");
                             _task.AutoResetEvent.Set(); //通知调用者任务完成,凋用者后续要做dispose操作
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error(ex.Message + "\r\n" + ex.StackTrace);
+                            GCommon.Logger.Error(ex.Message + "\r\n" + ex.StackTrace);
                         }
                     }
                     else
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的SipResponse->{sipResponse}");
                     }
 

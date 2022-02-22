@@ -28,7 +28,7 @@ namespace AKStreamKeeper.Attributes
                     {
                         info =
                             $@"{info}->Body: {JsonHelper.ToJson(((context.Result as ObjectResult)!).Value)}";
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $@"[{Common.LoggerHead}]->HTTP-OUTPUT->{remoteIpAddr}->{context.HttpContext.Request.Method}->{context.HttpContext.Request.Path}->" +
                             info);
                     }
@@ -36,7 +36,7 @@ namespace AKStreamKeeper.Attributes
             }
             catch (Exception ex)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $@"[{Common.LoggerHead}]->HTTP-OUTPUT->{remoteIpAddr}->{context.HttpContext.Request.Method}->{context.HttpContext.Request.Path}->" +
                     info + "->" + ex.Message + "->" + ex.StackTrace);
             }
@@ -55,7 +55,7 @@ namespace AKStreamKeeper.Attributes
                 {
                     if (!context.HttpContext.Request.Path.Equals("/WebHook/MediaServerRegister"))
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $@"[{Common.LoggerHead}]->HTTP-INPUT->{remoteIpAddr}->{context.HttpContext.Request.Method}->{context.HttpContext.Request.Path}->" +
                             $@"{JsonHelper.ToJson(context.ActionArguments)}");
                     }
@@ -64,7 +64,7 @@ namespace AKStreamKeeper.Attributes
                 {
                     if (!context.HttpContext.Request.Path.Equals("/WebHook/MediaServerRegister"))
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $@"[{Common.LoggerHead}]->HTTP-INPUT->{remoteIpAddr}->{context.HttpContext.Request.Method}->{context.HttpContext.Request.Path}->" +
                             $@"{JsonHelper.ToJson(context.ActionArguments)}");
                     }
@@ -72,7 +72,7 @@ namespace AKStreamKeeper.Attributes
             }
             catch (Exception ex)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $@"[{Common.LoggerHead}]->HTTP-INPUT->{remoteIpAddr}->{context.HttpContext.Request.Method}->{context.HttpContext.Request.Path}->" +
                     remoteIpAddr + "->" + ex.Message + "->" + ex.StackTrace);
             }

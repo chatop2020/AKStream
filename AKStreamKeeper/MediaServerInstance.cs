@@ -1031,7 +1031,7 @@ namespace AKStreamKeeper
                 tmpPro.RunProcess("/bin/bash",
                     $"-c 'killall -1 {Path.GetFileNameWithoutExtension(_process.StartInfo.FileName)}'", 1000, out _,
                     out _);
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->重新加载流媒体服务器配置文件(热加载)->{_pid}");
                 return _process.Id;
             }
@@ -1047,7 +1047,7 @@ namespace AKStreamKeeper
         {
             if (_isRunning)
             {
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->启动流媒体服务器(当前正在运行)->{_pid}");
                 return _pid;
             }
@@ -1086,12 +1086,12 @@ namespace AKStreamKeeper
                 _process = ret;
                 _pid = _process.Id;
                 _isSelfClose = false;
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->启动流媒体服务器成功->{_pid}");
                 return _process.Id;
             }
 
-            Logger.Error(
+             GCommon.Logger.Error(
                 $"[{Common.LoggerHead}]->启动流媒体服务器失败");
             return -1;
         }
@@ -1105,7 +1105,7 @@ namespace AKStreamKeeper
             _pid = -1;
             _isSelfClose = true;
             var r = _mediaServerProcessHelper.KillProcess(_process);
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->终止流媒体服务器运行->{r}");
             return r;
         }
@@ -1136,7 +1136,7 @@ namespace AKStreamKeeper
         {
             if (e.Data != null)
             {
-                Logger.Debug(
+                 GCommon.Logger.Debug(
                     $"[{Common.LoggerHead}]->[ZLMediaKit]->{e.Data}");
             }
         }
@@ -1145,7 +1145,7 @@ namespace AKStreamKeeper
         {
             if (e.Data != null)
             {
-                Logger.Error(
+                 GCommon.Logger.Error(
                     $"[{Common.LoggerHead}]->[ZLMediaKit]->{e.Data}");
             }
         }

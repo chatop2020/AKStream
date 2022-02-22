@@ -62,7 +62,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备状态信息失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备状态信息失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -89,7 +89,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备信息失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备信息失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -123,7 +123,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return -1;
                 }
 
@@ -134,7 +134,7 @@ namespace LibGB28181SipServer
                     return (int) queryRecordFile.TaskId;
                 }
 
-                Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");
                 return -1;
             }
             finally
@@ -160,7 +160,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理PTZ控制失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理PTZ控制失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -189,7 +189,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理结束推流失败(历史视频)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理结束推流失败(历史视频)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -221,7 +221,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理结束推流失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理结束推流失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -252,7 +252,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     sipChannel.PushStatus = PushStatus.IDLE;
                     return false;
                 }
@@ -270,7 +270,7 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常->{JsonHelper.ToJson(rs)}");
                 return false;
             }
             finally
@@ -296,7 +296,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败(历史视频)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败(历史视频)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -312,7 +312,7 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
                 return false;
             }
             finally
@@ -338,7 +338,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备目录失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备目录失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
 
@@ -348,7 +348,7 @@ namespace LibGB28181SipServer
                     return true;
                 }
 
-                Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备目录失败->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取设备目录失败->{JsonHelper.ToJson(rs)}");
                 return false;
             }
             finally
@@ -375,7 +375,7 @@ namespace LibGB28181SipServer
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时("+_timeout+"ms)" : "未知错误";
-                    Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败(历史视频随机拖拽)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理推流失败(历史视频随机拖拽)->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
                 }
                 return true;
@@ -389,7 +389,7 @@ namespace LibGB28181SipServer
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->Sip代理推流异常(历史视频)->{JsonHelper.ToJson(rs)}");
                 return false;
             }
             finally

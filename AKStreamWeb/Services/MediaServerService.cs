@@ -40,7 +40,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取RtpServer服务列表失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -618,7 +618,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取在线音视频列表信息失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -631,7 +631,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取在线音视频列表信息失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -1019,7 +1019,7 @@ namespace AKStreamWeb.Services
             result.Request = req;
             result.Total = count;
             result.VideoChannelMediaInfo = new List<VideoChannelMediaInfo>(retList);
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->获取在线音视频列表信息成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(result)}");
 
             return result;
@@ -1042,7 +1042,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -1058,7 +1058,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -1089,7 +1089,7 @@ namespace AKStreamWeb.Services
                                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept] +
                                               JsonHelper.ToJson(rs),
                                 };
-                                Logger.Warn(
+                                 GCommon.Logger.Warn(
                                     $"[{Common.LoggerHead}]->停止视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                                 return false;
@@ -1097,14 +1097,14 @@ namespace AKStreamWeb.Services
 
                             if (ret != null && ret.Code == 0 && !ret.Data.Flag.Trim().ToLower().Equals("true"))
                             {
-                                Logger.Warn(
+                                 GCommon.Logger.Warn(
                                     $"[{Common.LoggerHead}]->停止视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret, Formatting.Indented)}");
 
                                 return false;
                             }
                             else
                             {
-                                Logger.Info(
+                                 GCommon.Logger.Info(
                                     $"[{Common.LoggerHead}]->停止视频流操作成功，等待ZLMediaKit回调后处理->{mediaServerId}->{mainId}");
 
                                 return true;
@@ -1127,7 +1127,7 @@ namespace AKStreamWeb.Services
                                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept] +
                                               JsonHelper.ToJson(rs),
                                 };
-                                Logger.Warn(
+                                 GCommon.Logger.Warn(
                                     $"[{Common.LoggerHead}]->停止视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                                 return false;
@@ -1135,14 +1135,14 @@ namespace AKStreamWeb.Services
 
                             if (ret2 != null && ret2.Code == 0 && !ret2.Data.Flag.Trim().ToLower().Equals("true"))
                             {
-                                Logger.Warn(
+                                 GCommon.Logger.Warn(
                                     $"[{Common.LoggerHead}]->停止视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret2, Formatting.Indented)}");
 
                                 return false;
                             }
                             else
                             {
-                                Logger.Info(
+                                 GCommon.Logger.Info(
                                     $"[{Common.LoggerHead}]->停止视频流操作成功，等待ZLMediaKit回调后处理->{mediaServerId}->{mainId}");
 
                                 return true;
@@ -1153,7 +1153,7 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->停止视频流操作失败，在线列表中不存在此流->{mediaServerId}->{mainId}");
                     return false;
                 }
@@ -1165,11 +1165,11 @@ namespace AKStreamWeb.Services
                 var r = SipServerService.StopLiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
                 if (r == true)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->停止视频流操作成功->{mediaServerId}->{mainId}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->停止视频流操作成功->{mediaServerId}->{mainId}");
                 }
                 else
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->停止视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                 }
 
@@ -1182,7 +1182,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.Other,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
             };
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->停止视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
             return false;
@@ -1205,7 +1205,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1220,7 +1220,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1234,7 +1234,7 @@ namespace AKStreamWeb.Services
 
                 if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
 
                     return mediaInfo.MediaServerStreamInfo;
                 }
@@ -1245,12 +1245,12 @@ namespace AKStreamWeb.Services
                         var r1 = AddStreamProxy(mediaServerId, mainId, out rs, videoChannel);
                         if (r1 == null || !rs.Code.Equals(ErrorNumber.None))
                         {
-                            Logger.Warn(
+                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                         }
                         else
                         {
-                            Logger.Info(
+                             GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->请求视频流操作成功，等待ZLMediaKit回调处理->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r1)}");
                         }
 
@@ -1260,12 +1260,12 @@ namespace AKStreamWeb.Services
                         var r2 = AddFFmpegStreamProxy(mediaServerId, mainId, out rs, videoChannel);
                         if (r2 == null || !rs.Code.Equals(ErrorNumber.None))
                         {
-                            Logger.Warn(
+                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                         }
                         else
                         {
-                            Logger.Info(
+                             GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->请求视频流操作成功，等待ZLMediaKit回调处理->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r2)}");
                         }
 
@@ -1277,7 +1277,7 @@ namespace AKStreamWeb.Services
                             Code = ErrorNumber.MediaServer_StreamTypeExcept,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StreamTypeExcept],
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return null;
@@ -1289,7 +1289,7 @@ namespace AKStreamWeb.Services
                 var r3 = SipServerService.LiveVideo(videoChannel.DeviceId, videoChannel.ChannelId, out rs);
                 if (r3 == null || !rs.Code.Equals(ErrorNumber.None))
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     var sipDevice =
@@ -1298,7 +1298,7 @@ namespace AKStreamWeb.Services
                     {
                         try
                         {
-                            Logger.Warn(
+                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求视频流操作失败时重新刷新一次Sip设备->{videoChannel.DeviceId}");
 
                             SipServerCallBack.OnDeviceReadyReceived(sipDevice);
@@ -1310,7 +1310,7 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
-                    Logger.Debug(
+                     GCommon.Logger.Debug(
                         $"[{Common.LoggerHead}]->请求视频流操作成功，等待ZLMediaKit回调处理->{mediaServerId}->{mainId}->{JsonHelper.ToJson(r3)}");
                 }
 
@@ -1323,7 +1323,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.Other,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Other] + ",音视频通道实例在数据库中的参数可能有误",
             };
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->请求视频流操作失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
             return null;
@@ -1348,7 +1348,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求获取视频帧失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1357,7 +1357,7 @@ namespace AKStreamWeb.Services
           var tmpBase64=  mediaServer.WebApiHelper.GetSnap(req, out rs);
           if (!rs.Code.Equals(ErrorNumber.None))
           {
-              Logger.Warn(
+               GCommon.Logger.Warn(
                   $"[{Common.LoggerHead}]->请求获取视频帧失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
               return null;
@@ -1384,7 +1384,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1401,7 +1401,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -1415,7 +1415,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_StreamTypeExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StreamTypeExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1428,7 +1428,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_GetStreamTypeExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_GetStreamTypeExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1441,7 +1441,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_VideoSrcExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_VideoSrcExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1502,7 +1502,7 @@ namespace AKStreamWeb.Services
                 }
 
 
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1529,7 +1529,7 @@ namespace AKStreamWeb.Services
                 {
                     Key = ret.Data.Key,
                 }, out _);
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1666,7 +1666,7 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->请求FFMPEG代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
@@ -1690,7 +1690,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1707,7 +1707,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -1721,7 +1721,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_StreamTypeExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StreamTypeExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1734,7 +1734,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_GetStreamTypeExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_GetStreamTypeExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1747,7 +1747,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_VideoSrcExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_VideoSrcExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1761,7 +1761,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_VideoSrcExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_VideoSrcExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1791,7 +1791,7 @@ namespace AKStreamWeb.Services
                     };
                 }
 
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1818,7 +1818,7 @@ namespace AKStreamWeb.Services
                 {
                     Key = ret.Data.Key,
                 }, out _);
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求内置代理视频流失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -1954,7 +1954,7 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->请求内置代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
@@ -2024,7 +2024,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求录制文件失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2039,7 +2039,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求录制文件失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2080,13 +2080,13 @@ namespace AKStreamWeb.Services
             var ret = mediaServer.WebApiHelper.StartRecord(reqZLMediaKitStartRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求录制文件失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
             }
 
-            Logger.Info($"[{Common.LoggerHead}]->请求录制文件成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->请求录制文件成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret)}");
 
             var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MediaServerId.Equals(videoChannel.MediaServerId)
                                                                   && x.MainId.Equals(videoChannel.MainId));
@@ -2117,7 +2117,7 @@ namespace AKStreamWeb.Services
             var mediaServer = CheckMediaServer(mediaServerId, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2130,7 +2130,7 @@ namespace AKStreamWeb.Services
                     mediaServer.KeeperWebApi.GuessAnRtpPort(out rs, mediaServer.RtpPortMin, mediaServer.RtpPortMax);
                 if (rtpPortGuess <= 0 || !rs.Code.Equals(ErrorNumber.None))
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2156,7 +2156,7 @@ namespace AKStreamWeb.Services
             var zlRet = mediaServer.WebApiHelper.OpenRtpPort(reqZlMediaKitOpenRtpPort, out rs);
             if (zlRet == null || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2169,7 +2169,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_OpenRtpPortExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_OpenRtpPortExcept],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求开放rtp端口失败->{mediaServerId}->{stream}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2180,7 +2180,7 @@ namespace AKStreamWeb.Services
                 Port = (ushort) zlRet.Port,
                 Stream = stream,
             };
-            Logger.Info($"[{Common.LoggerHead}]->请求开放rtp端口成功->{mediaServerId}->{stream}->{JsonHelper.ToJson(result)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->请求开放rtp端口成功->{mediaServerId}->{stream}->{JsonHelper.ToJson(result)}");
 
             return result;
         }
@@ -2246,7 +2246,7 @@ namespace AKStreamWeb.Services
                     Thread.Sleep(10);
                 }
 
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件成功->{JsonHelper.ToJson(result, Formatting.Indented)}");
 
                 return result;
@@ -2260,7 +2260,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->批量删除(硬删除)录制文件失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2298,7 +2298,7 @@ namespace AKStreamWeb.Services
                     Thread.Sleep(10);
                 }
 
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->批量删除(软删除)录制文件成功->{JsonHelper.ToJson(dbIdList, Formatting.Indented)}->{JsonHelper.ToJson(result, Formatting.Indented)}");
 
                 return result;
@@ -2312,7 +2312,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->批量删除(软删除)录制文件失败->{JsonHelper.ToJson(dbIdList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2346,7 +2346,7 @@ namespace AKStreamWeb.Services
                             Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning] +
                                       ",相关流媒体治理程序没有运行，无法继续操作",
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return false;
@@ -2355,7 +2355,7 @@ namespace AKStreamWeb.Services
                     var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, row.VideoPath);
                     if (!rs.Code.Equals(ErrorNumber.None) || !deleted)
                     {
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                     }
 
@@ -2370,7 +2370,7 @@ namespace AKStreamWeb.Services
                             Code = ErrorNumber.None,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.None],
                         };
-                        Logger.Info($"[{Common.LoggerHead}]->删除(硬删除)录制文件成功->{dbId}");
+                         GCommon.Logger.Info($"[{Common.LoggerHead}]->删除(硬删除)录制文件成功->{dbId}");
 
                         return true;
                     }
@@ -2380,7 +2380,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept] + $",数据库执行未成功，原因不明",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return false;
@@ -2391,7 +2391,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_RecordNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2405,7 +2405,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2439,7 +2439,7 @@ namespace AKStreamWeb.Services
                             Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning] +
                                       ",相关流媒体治理程序没有运行，无法继续操作",
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return false;
@@ -2448,7 +2448,7 @@ namespace AKStreamWeb.Services
                     var findFile = mediaServer.KeeperWebApi.FileExists(out rs, row.VideoPath);
                     if (!rs.Code.Equals(ErrorNumber.None))
                     {
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return false;
@@ -2462,7 +2462,7 @@ namespace AKStreamWeb.Services
                             Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_SpecifiedFileNotExists] +
                                       $",服务器中不存在此文件->{row.VideoPath}",
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                         return false;
@@ -2479,7 +2479,7 @@ namespace AKStreamWeb.Services
                             Code = ErrorNumber.None,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.None],
                         };
-                        Logger.Info($"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}");
+                         GCommon.Logger.Info($"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}");
 
                         return true;
                     }
@@ -2489,7 +2489,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept] + $",数据库执行未成功，原因不明",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return false;
@@ -2500,7 +2500,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_RecordNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2514,7 +2514,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->恢复被软件删除的录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2542,12 +2542,12 @@ namespace AKStreamWeb.Services
                     .Where(x => x.Id.Equals(dbId)).ExecuteAffrows();
                 if (ret > 0)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->删除(软删除)录制文件成功->{dbId}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->删除(软删除)录制文件成功->{dbId}");
 
                     return true;
                 }
 
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除(软删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2561,7 +2561,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除(软删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2588,7 +2588,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除音视频通道实例失败->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2604,7 +2604,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->删除音视频通道实例失败->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return false;
@@ -2615,11 +2615,11 @@ namespace AKStreamWeb.Services
                     : false;
                 if (ret == true)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->删除音视频通道实例成功->{mainId}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->删除音视频通道实例成功->{mainId}");
                 }
                 else
                 {
-                    Logger.Warn($"[{Common.LoggerHead}]->删除音视频通道实例失败->{mainId}");
+                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->删除音视频通道实例失败->{mainId}");
                 }
 
                 return ret;
@@ -2633,7 +2633,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除音视频通道实例失败->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return false;
@@ -2660,7 +2660,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2676,7 +2676,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   "DeviceStreamType为GB28181时，DeviceId,ChannelId不能为空",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2695,7 +2695,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   "DeviceStreamType不为GB28181时，VideoSrcUrl不能为空",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2712,7 +2712,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   "MethodByGetStream不为空时，DeviceStreamType不能是GB28181",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2732,7 +2732,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   "VideoSrcUrl不为空时，MethodByGetStream不能为None,DeviceId,ChannelId必须为空，DeviceStreamType不能为GB28181",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2747,7 +2747,7 @@ namespace AKStreamWeb.Services
                     Message =
                         ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] + "IPV4Address,MediaServerId不能为空",
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2761,7 +2761,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2785,7 +2785,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsNotEnough,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsNotEnough] + "App不能为空",
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2806,7 +2806,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_VideoChannelAlRedayExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelAlRedayExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2821,7 +2821,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2838,7 +2838,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_RecordPlanNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordPlanNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2899,7 +2899,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -2913,12 +2913,12 @@ namespace AKStreamWeb.Services
                         .Where(x => x.MainId.Equals(mainId)).First();
                     if (r1 != null)
                     {
-                        Logger.Info(
+                         GCommon.Logger.Info(
                             $"[{Common.LoggerHead}]->新增音视频通道实例成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(r1)}");
                     }
                     else
                     {
-                        Logger.Warn($"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}");
+                         GCommon.Logger.Warn($"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}");
                     }
 
                     return r1;
@@ -2932,7 +2932,7 @@ namespace AKStreamWeb.Services
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace,
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -2944,7 +2944,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.Sys_DataBaseExcept,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
             };
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
             return null;
@@ -2974,7 +2974,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -2987,7 +2987,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -3141,7 +3141,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3163,7 +3163,7 @@ namespace AKStreamWeb.Services
 
             result.Total = total;
             result.Request = req;
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->获取录制文件列表成功->{JsonHelper.ToJson(req)}->{result.RecordFileList.Count}/{result.Total}");
 
             return result;
@@ -3227,7 +3227,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_ParamsIsNotRight,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] + ",条件中要求包含子部门,但条件中部门代码为空",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取音视频通道列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -3250,7 +3250,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取音视频通道列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -3263,7 +3263,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取音视频通道列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -3470,7 +3470,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取音视频通道列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3492,7 +3492,7 @@ namespace AKStreamWeb.Services
 
             result.Total = total;
             result.Request = req;
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->获取音视频通道列表成功->{JsonHelper.ToJson(req)}->{result.VideoChannelList.Count}/{result.Total}");
 
             return result;
@@ -3520,7 +3520,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3536,7 +3536,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.MediaServer_InstanceIsNull,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3553,7 +3553,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   ",VideoSrcUrl不为空时，DeviceStreamtype不应该是GB28181",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3571,7 +3571,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   ",MethodByGetStream不为None时VideoSrcUrl不能为空，并且DeviceStreamtype不应该是GB28181",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3588,7 +3588,7 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight] +
                                   ",当DeviceId及ChannleId不为空时,表示此通道为GB28181通道，则DeviceStreamType必须为GB28181",
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3616,7 +3616,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_RecordPlanNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordPlanNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3638,7 +3638,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3651,7 +3651,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3718,14 +3718,14 @@ namespace AKStreamWeb.Services
                     var r = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                         .First();
                     
-                    Logger.Info(
+                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->修改音视频通道实例成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(r)}");
 
                     return r;
                 }
                 else
                 {
-                    Logger.Warn($"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}");
+                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}");
                 }
             }
             catch (Exception ex)
@@ -3737,7 +3737,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3749,7 +3749,7 @@ namespace AKStreamWeb.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
                 ExceptMessage = "数据库可能异常，具体原因不明"
             };
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
             return null;
@@ -3778,7 +3778,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3791,7 +3791,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3804,7 +3804,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3826,7 +3826,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3839,7 +3839,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_DB_VideoChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_VideoChannelNotExists] + ",此设备可能已激活",
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3857,7 +3857,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DB_RecordPlanNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordPlanNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
@@ -3908,14 +3908,14 @@ namespace AKStreamWeb.Services
                 {
                     var r = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                         .First();
-                    Logger.Info(
+                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->激活音视频通道实例成功->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(r)}");
 
                     return r;
                 }
                 else
                 {
-                    Logger.Warn($"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}");
+                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}");
                 }
             }
             catch (Exception ex)
@@ -3927,7 +3927,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -3939,7 +3939,7 @@ namespace AKStreamWeb.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
                 ExceptMessage = "数据库可能异常，具体原因不明"
             };
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
             return null;
@@ -3970,7 +3970,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取未激活的音视频通道实例列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -3983,7 +3983,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sys_DataBaseLimited,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取未激活的音视频通道实例列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null!;
@@ -4034,7 +4034,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取未激活的音视频通道实例列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                 return null;
@@ -4056,7 +4056,7 @@ namespace AKStreamWeb.Services
 
             result.Total = total;
             result.Request = req;
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->获取未激活的音视频通道实例列表成功->{JsonHelper.ToJson(req)}->{result.VideoChannelList.Count}/{result.Total}");
 
             return result;
@@ -4078,11 +4078,11 @@ namespace AKStreamWeb.Services
             var r = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
             if (r == null)
             {
-                Logger.Warn($"[{Common.LoggerHead}]->获取流媒体服务器失败->{mediaServerId}->结果为空");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取流媒体服务器失败->{mediaServerId}->结果为空");
             }
             else
             {
-                Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器成功->{mediaServerId}->{JsonHelper.ToJson(r)}");
+                 GCommon.Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器成功->{mediaServerId}->{JsonHelper.ToJson(r)}");
             }
 
             return r;
@@ -4101,7 +4101,7 @@ namespace AKStreamWeb.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器列表成功->{Common.MediaServerList.Count}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器列表成功->{Common.MediaServerList.Count}");
 
             return Common.MediaServerList;
         }
@@ -4127,7 +4127,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -4139,7 +4139,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -4151,12 +4151,12 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_NotRunning,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查流媒体服务器状态失败->{mediaServerId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
 
-            Logger.Debug($"[{Common.LoggerHead}]->检查流媒体服务器状态成功->{mediaServerId}->{JsonHelper.ToJson(mediaServer)}");
+             GCommon.Logger.Debug($"[{Common.LoggerHead}]->检查流媒体服务器状态成功->{mediaServerId}->{JsonHelper.ToJson(mediaServer)}");
 
             return mediaServer;
         }

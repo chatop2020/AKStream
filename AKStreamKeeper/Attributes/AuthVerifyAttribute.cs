@@ -58,7 +58,7 @@ namespace AKStreamKeeper.Attributes
                 Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_InvalidAccessKey],
             };
             string remoteIpAddr = context.HttpContext.Connection.RemoteIpAddress.ToString();
-            Logger.Error(
+            GCommon.Logger.Error(
                 $@"[{Common.LoggerHead}]->HTTP-AuthVerify    {remoteIpAddr}    {context.HttpContext.Request.Method}    {context.HttpContext.Request.Path} ->授权访问失败，访问密钥不正确");
             var result = new JsonResult(rs);
             result.StatusCode = (int) HttpStatusCode.BadRequest;

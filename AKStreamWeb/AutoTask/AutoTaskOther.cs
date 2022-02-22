@@ -73,7 +73,7 @@ namespace AKStreamWeb.AutoTask
                 }
                 catch(Exception ex)
                 {
-                  Logger.Debug(ex.Message);
+                   GCommon.Logger.Debug(ex.Message);
                 }
 
                 Thread.Sleep(1000);
@@ -133,7 +133,7 @@ namespace AKStreamWeb.AutoTask
             }
             catch (Exception ex)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除被软删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
             }
         }

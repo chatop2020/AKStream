@@ -31,6 +31,7 @@ namespace AKStreamKeeper
         private static object _performanceInfoLock = new object();
         private static Timer _perFormanceInfoTimer;
         private static string _loggerHead = "AKStreamKeeper";
+      
 
         private static List<KeyValuePair<double, string>> _akStreamDiskInfoOfRecordMap =
             new List<KeyValuePair<double, string>>();
@@ -43,6 +44,7 @@ namespace AKStreamKeeper
         public static string CutOrMergeTempPath = GCommon.BaseStartPath + "/CutMergeTempDir/";
         public static DateTime StartupDateTime;
         public static AutoRtpPortClean AutoRtpPortClean;
+
        
 
 
@@ -136,17 +138,17 @@ namespace AKStreamKeeper
         {
             if (!self)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->流媒体服务器进程被意外关闭->1秒后重新尝试启动流媒体服务器");
                 Thread.Sleep(1000);
                 while (StartupMediaServer() <= 0)
                 {
-                    Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{LoggerHead}]->尝试重新启动流媒体服务器启动失败，开始循环尝试，直至启动成功");
                     Thread.Sleep(1000);
                 }
 
-                Logger.Info(
+                GCommon.Logger.Info(
                     $"[{LoggerHead}]->尝试重新启动流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
             }
         }
@@ -685,7 +687,7 @@ namespace AKStreamKeeper
                     {
                         if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
                         {
-                            Logger.Error(
+                            GCommon.Logger.Error(
                                 $"[{LoggerHead}]->访问控制服务器时Http客户端超时或服务不可达");
                             return;
                         }
@@ -695,27 +697,27 @@ namespace AKStreamKeeper
                         {
                             if (resMediaServerKeepAlive.NeedRestartMediaServer)
                             {
-                                Logger.Info(
+                                GCommon.Logger.Info(
                                     $"[{LoggerHead}]->控制服务器反馈，要求重启流媒体服务器,马上重启");
                                 MediaServerInstance.Restart();
                             }
 
                             if (resMediaServerKeepAlive.RecommendTimeSynchronization)
                             {
-                                Logger.Warn(
+                                GCommon.Logger.Warn(
                                     $"[{LoggerHead}]->控制服务器反馈，流媒体服务器与控制服务器时间一致性过差，建议手工同步时间->控制服务器当前时间->{resMediaServerKeepAlive.ServerDateTime.ToString("yyyy-MM-dd HH:mm:ss")}");
                             }
                         }
                         else
                         {
-                            Logger.Warn(
+                            GCommon.Logger.Warn(
                                 $"[{LoggerHead}]->访问控制服务器异常->\r\n{httpRet}");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{LoggerHead}]->与控制服务器保持心跳时异常->\r\n{ex.Message}\r\n{ex.StackTrace}");
                 }
             }
@@ -727,6 +729,7 @@ namespace AKStreamKeeper
         /// </summary>
         public static void Init()
         {
+         
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
                 if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
@@ -736,7 +739,7 @@ namespace AKStreamKeeper
                 _configPath= GCommon.OutConfigPath + "AKStreamKeeper.json";
             }
             
-            Logger.Info(
+            GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
 #if (DEBUG)
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
@@ -755,7 +758,7 @@ namespace AKStreamKeeper
             var ret = ReadConfig(out rs);
             if (!ret || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->获取AKStreamKeeper配置文件时异常,系统无法运行->\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序 
             }
@@ -763,7 +766,7 @@ namespace AKStreamKeeper
             ret = UtilsHelper.CheckFFmpegBin(_akStreamKeeperConfig.FFmpegPath);
             if (!ret)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->检测发现FFmpeg可执行文件{_akStreamKeeperConfig.FFmpegPath}不存在或者无法正常运行,系统无法运行");
                 Environment.Exit(0); //退出程序 
             }
@@ -771,12 +774,12 @@ namespace AKStreamKeeper
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath); //启动前先删除掉所有流媒体进程
             while (StartupMediaServer() <= 0)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->流媒体服务器启动失败->1秒后重试");
                 Thread.Sleep(1000);
             }
 
-            Logger.Info(
+            GCommon.Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
             AutoRtpPortClean = new AutoRtpPortClean();//启动不使用rtp端口自动清理

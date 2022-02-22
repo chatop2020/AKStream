@@ -17,43 +17,6 @@ namespace AKStreamKeeper.Services
     {
 
 
-        /*/// <summary>
-        /// 修改一个ffmpeg模板
-        /// </summary>
-        /// <param name="tmplate"></param>
-        /// <returns></returns>
-        public static bool ModifyFFmpegTemplate(KeyValuePair<string, string> tmplate)
-        {
-            
-        }
-        /// <summary>
-        /// 删除一个ffmpeg模板
-        /// </summary>
-        /// <param name="tmplateName"></param>
-        /// <returns></returns>
-        public static bool DelFFmpegTemplate(string tmplateName)
-        {
-            
-        }
-
-        /// <summary>
-        /// 添加一个ffmpeg模板
-        /// </summary>
-        /// <param name="tmplate"></param>
-        /// <returns></returns>
-        public static bool AddFFmpegTemplate(KeyValuePair<string, string> tmplate)
-        {
-            
-        }
-
-        /// <summary>
-        /// 获取ffmpeg模板列表
-        /// </summary>
-        /// <returns></returns>
-        public static List<KeyValuePair<string, string>> GetFFmpegTempleteList()
-        {
-            Common.ConfigPath
-        }*/
        
         /// <summary>
         /// 获取日志级别
@@ -69,7 +32,7 @@ namespace AKStreamKeeper.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            return Logger.GetLogLevel();
+            return  GCommon.Logger.GetLogLevel();
         }
         
         /// <summary>
@@ -85,7 +48,7 @@ namespace AKStreamKeeper.Services
                 {
                     portUsed.Useed = false;
                     portUsed.DateTime = DateTime.Now; //更新冷却时间，在这个时间后的60秒内，此端口不允许使用
-                    Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{port}");
+                    GCommon.Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{port}");
                 }
             }
 
@@ -105,7 +68,7 @@ namespace AKStreamKeeper.Services
                 {
                     portUsed.Useed = false;
                     portUsed.DateTime = DateTime.Now; //更新冷却时间，在这个时间后的60秒内，此端口不允许使用
-                    Logger.Info($"[{Common.LoggerHead}]->释放rtp(发送)端口成功:{port}");
+                    GCommon.Logger.Info($"[{Common.LoggerHead}]->释放rtp(发送)端口成功:{port}");
                 }
             }
 
@@ -150,7 +113,7 @@ namespace AKStreamKeeper.Services
                                     Port = minPort,
                                     Useed = true,
                                 });
-                                Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
+                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
                                 return minPort;
                             }
 
@@ -161,13 +124,13 @@ namespace AKStreamKeeper.Services
                                 {
                                     portUsed.DateTime = DateTime.Now;
                                     portUsed.Useed = true;
-                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
+                                    GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{minPort}");
                                     return minPort;
                                 }
                             }
                         }
 
-                        Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
+                         GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
                         return 0;
                     }
 
@@ -191,7 +154,7 @@ namespace AKStreamKeeper.Services
                                     Port = port,
                                     Useed = true,
                                 });
-                                Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
+                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
                                 return port;
                             }
 
@@ -202,7 +165,7 @@ namespace AKStreamKeeper.Services
                                 {
                                     portUsed2.DateTime = DateTime.Now;
                                     portUsed2.Useed = true;
-                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
+                                     GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp端口:{port}");
                                     return port;
                                 }
                             }
@@ -210,12 +173,12 @@ namespace AKStreamKeeper.Services
                     }
                 }
 
-                Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp端口失败");
                 return 0;
             }
             catch (Exception ex)
             {
-                Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
+                 GCommon.Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
                 return 0;
             }
         }
@@ -259,7 +222,7 @@ namespace AKStreamKeeper.Services
                                     Port = minPort,
                                     Useed = true,
                                 });
-                                Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
+                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
                                 return minPort;
                             }
 
@@ -269,13 +232,13 @@ namespace AKStreamKeeper.Services
                                     Common.AkStreamKeeperConfig.RtpPortCdTime)
                                 {
                                     portUsed.DateTime = DateTime.Now;
-                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
+                                     GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{minPort}");
                                     return minPort;
                                 }
                             }
                         }
 
-                        Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
+                         GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
                         return 0;
                     }
 
@@ -299,7 +262,7 @@ namespace AKStreamKeeper.Services
                                     Port = port,
                                     Useed = true,
                                 });
-                                Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
+                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
                                 return port;
                             }
 
@@ -309,7 +272,7 @@ namespace AKStreamKeeper.Services
                                     Common.AkStreamKeeperConfig.RtpPortCdTime)
                                 {
                                     portUsed2.DateTime = DateTime.Now;
-                                    Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
+                                     GCommon.Logger.Info($"[{Common.LoggerHead}]->获取可用rtp(发送)端口:{port}");
                                     return port;
                                 }
                             }
@@ -317,12 +280,12 @@ namespace AKStreamKeeper.Services
                     }
                 }
 
-                Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取可用rtp(发送)端口失败");
                 return 0;
             }
             catch (Exception ex)
             {
-                Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
+                 GCommon.Logger.Error($"[{Common.LoggerHead}]->获取可用rtp端口失败->"+ex.Message+"\r\n"+ex.StackTrace);
                 return 0; 
             }
         }
@@ -344,15 +307,15 @@ namespace AKStreamKeeper.Services
                 if (Common.MediaServerInstance.IsRunning)
                 {
                     var pid = Common.MediaServerInstance.GetPid();
-                    Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器运行状态成功:pid:{pid}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->获取流媒体服务器运行状态成功:pid:{pid}");
                     return pid;
                 }
 
-                Logger.Error($"[{Common.LoggerHead}]->获取流媒体服务器运行状态失败");
+                 GCommon.Logger.Error($"[{Common.LoggerHead}]->获取流媒体服务器运行状态失败");
                 return -1;
             }
 
-            Logger.Error($"[{Common.LoggerHead}]->获取流媒体服务器运行状态失败");
+             GCommon.Logger.Error($"[{Common.LoggerHead}]->获取流媒体服务器运行状态失败");
             return -1;
         }
 
@@ -375,7 +338,7 @@ namespace AKStreamKeeper.Services
                     var ret = Common.MediaServerInstance.Reload();
                     if (ret > 0)
                     {
-                        Logger.Info($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件成功");
+                         GCommon.Logger.Info($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件成功");
                         return true;
                     }
 
@@ -384,7 +347,7 @@ namespace AKStreamKeeper.Services
                         Code = ErrorNumber.MediaServer_ReloadExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ReloadExcept],
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败");
+                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败");
                     return false;
                 }
 
@@ -393,7 +356,7 @@ namespace AKStreamKeeper.Services
                     Code = ErrorNumber.MediaServer_NotRunning,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败->流媒体服务器没有运行");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败->流媒体服务器没有运行");
                 return false;
             }
 
@@ -402,7 +365,7 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.MediaServer_InstanceIsNull,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
             };
-            Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败->流媒体服务器实例为空");
+             GCommon.Logger.Warn($"[{Common.LoggerHead}]->热加载流媒体服务器配置文件失败->流媒体服务器实例为空");
             return false;
         }
 
@@ -423,7 +386,7 @@ namespace AKStreamKeeper.Services
                 var ret = Common.MediaServerInstance.Restart();
                 if (ret > 0)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->重启流媒体服务器成功->PID:{ret}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->重启流媒体服务器成功->PID:{ret}");
                     return ret;
                 }
 
@@ -432,7 +395,7 @@ namespace AKStreamKeeper.Services
                     Code = ErrorNumber.MediaServer_RestartExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RestartExcept],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->重启流媒体服务器失败");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->重启流媒体服务器失败");
                 return -1;
             }
 
@@ -441,7 +404,7 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.MediaServer_InstanceIsNull,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
             };
-            Logger.Warn($"[{Common.LoggerHead}]->重启流媒体服务器失败->流媒体服务实例为空");
+             GCommon.Logger.Warn($"[{Common.LoggerHead}]->重启流媒体服务器失败->流媒体服务实例为空");
             return -1;
         }
 
@@ -461,14 +424,14 @@ namespace AKStreamKeeper.Services
             {
                 if (!Common.MediaServerInstance.IsRunning)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->关闭流媒体服务器->流媒体不在运行状态");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->关闭流媒体服务器->流媒体不在运行状态");
                     return true;
                 }
 
                 var ret = Common.MediaServerInstance.Shutdown();
                 if (ret)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->关闭流媒体服务器成功");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->关闭流媒体服务器成功");
                     return ret;
                 }
 
@@ -477,7 +440,7 @@ namespace AKStreamKeeper.Services
                     Code = ErrorNumber.MediaServer_ShutdownExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ShutdownExcept],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->关闭流媒体服务器失败");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->关闭流媒体服务器失败");
                 return false;
             }
 
@@ -486,7 +449,7 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.MediaServer_InstanceIsNull,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
             };
-            Logger.Warn($"[{Common.LoggerHead}]->关闭流媒体服务器失败->流媒体服务器实例为空");
+             GCommon.Logger.Warn($"[{Common.LoggerHead}]->关闭流媒体服务器失败->流媒体服务器实例为空");
             return false;
         }
 
@@ -507,14 +470,14 @@ namespace AKStreamKeeper.Services
                 if (Common.MediaServerInstance.IsRunning)
                 {
                     var pid = Common.MediaServerInstance.GetPid();
-                    Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务器->流媒体服务器处于启动状态->PID:{pid}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务器->流媒体服务器处于启动状态->PID:{pid}");
                     return pid;
                 }
 
                 var ret = Common.MediaServerInstance.Startup();
                 if (ret > 0)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务器成功->PID:{ret}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务器成功->PID:{ret}");
                     return ret;
                 }
 
@@ -523,7 +486,7 @@ namespace AKStreamKeeper.Services
                     Code = ErrorNumber.MediaServer_StartUpExcept,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_StartUpExcept],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->启动流媒体服务器失败");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->启动流媒体服务器失败");
                 return -1;
             }
 
@@ -532,7 +495,7 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.MediaServer_InstanceIsNull,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
             };
-            Logger.Warn($"[{Common.LoggerHead}]->启动流媒体服务器失败->流媒体服务实例为空");
+             GCommon.Logger.Warn($"[{Common.LoggerHead}]->启动流媒体服务器失败->流媒体服务实例为空");
             return -1;
         }
 
@@ -572,12 +535,12 @@ namespace AKStreamKeeper.Services
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error($@"[{Common.LoggerHead}]->清理空目录时发生异常->{ex.Message}\r\n{ex.StackTrace}");
+                             GCommon.Logger.Error($@"[{Common.LoggerHead}]->清理空目录时发生异常->{ex.Message}\r\n{ex.StackTrace}");
                         }
 
                         if (!string.IsNullOrEmpty(dirList))
                         {
-                            Logger.Info($@"[{Common.LoggerHead}]->{dirList}");
+                             GCommon.Logger.Info($@"[{Common.LoggerHead}]->{dirList}");
                         }
                     }
                 }
@@ -604,12 +567,12 @@ namespace AKStreamKeeper.Services
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error($@"[{Common.LoggerHead}]->清理空目录时发生异常->{ex.Message}\r\n{ex.StackTrace}");
+                         GCommon.Logger.Error($@"[{Common.LoggerHead}]->清理空目录时发生异常->{ex.Message}\r\n{ex.StackTrace}");
                     }
 
                     if (!string.IsNullOrEmpty(dirList))
                     {
-                        Logger.Info($@"[{Common.LoggerHead}]->{dirList}");
+                         GCommon.Logger.Info($@"[{Common.LoggerHead}]->{dirList}");
                     }
                 }
             }
@@ -652,7 +615,7 @@ namespace AKStreamKeeper.Services
 
                 if (result.Count > 0)
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->批量删除文件时有部分文件没有被删除->{JsonHelper.ToJson(result, Formatting.Indented)}");
                 }
 
@@ -684,7 +647,7 @@ namespace AKStreamKeeper.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
             var found = File.Exists(filePath);
-            Logger.Debug($"[{Common.LoggerHead}]->检查文件是否存在:{filePath}:{found}");
+             GCommon.Logger.Debug($"[{Common.LoggerHead}]->检查文件是否存在:{filePath}:{found}");
             return found;
         }
 
@@ -706,7 +669,7 @@ namespace AKStreamKeeper.Services
                 try
                 {
                     File.Delete(filePath);
-                    Logger.Info($"[{Common.LoggerHead}]->删除文件:{filePath}成功");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->删除文件:{filePath}成功");
                     return true;
                 }
                 catch (Exception ex)
@@ -718,7 +681,7 @@ namespace AKStreamKeeper.Services
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace,
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->删除文件:{filePath}失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                     return false;
                 }
@@ -730,7 +693,7 @@ namespace AKStreamKeeper.Services
                     Code = ErrorNumber.Sys_SpecifiedFileNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_SpecifiedFileNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->删除文件:{filePath}失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->删除文件:{filePath}失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                 return false;
             }
         }

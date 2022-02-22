@@ -6,6 +6,7 @@ using System.Text;
 using LibCommon.Structs;
 using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.XML;
+using LibLogger;
 using SIPSorcery.SIP;
 
 namespace LibCommon
@@ -26,6 +27,14 @@ namespace LibCommon
         public static string? CommandLine = Environment.CommandLine; //程序启动命令
         public static string ConfigPath = BaseStartPath + "/Config/";
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
+        private static Logger _logger = null;
+
+        public static Logger Logger
+        {
+            get => _logger;
+            set => _logger = value;
+        }
+
 
         /// <summary>
         /// 外部传入的配置文件所在目录路径
@@ -46,8 +55,22 @@ namespace LibCommon
         }
 
 
+        public static void InitLogger()
+        {
+            Logger.logxmlPath = OutLogPath;
+            _logger = new Logger();
+        }
         static GCommon()
         {
+            if (!string.IsNullOrEmpty(OutLogPath))
+            {
+                if (!OutLogPath.Trim().EndsWith('/'))
+                {
+                    OutLogPath +=  "/";
+                }
+                Logger.logxmlPath = OutLogPath;
+            }
+
             //使用CodePagesEncodingProvider去注册扩展编码,以支持utf-x以外的字符集
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (!Directory.Exists(ConfigPath)) //如果配置文件目录不存在，则创建目录

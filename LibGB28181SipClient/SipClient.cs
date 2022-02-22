@@ -239,7 +239,7 @@ namespace LibGB28181SipClient
 
                 if (_keepaliveLostTimes > Common.SipClientConfig.KeepAliveLostNumber)
                 {
-                    Logger.Warn(
+                    GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->与Sip服务器的心跳丢失超过{Common.SipClientConfig.KeepAliveLostNumber}次->系统重新进入设备注册模式");
                     _isRegister = false;
                     _wantAuthorization = false;
@@ -264,7 +264,7 @@ namespace LibGB28181SipClient
                     new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                     req);
                 _oldSipRequest = req;
-                Logger.Debug(
+                GCommon.Logger.Debug(
                     $"[{Common.LoggerHead}]->发送心跳数据->{req.RemoteSIPEndPoint}->{req}");
                 _keepaliveSendDatetime = DateTime.Now;
                 Thread.Sleep(Common.SipClientConfig.KeepAliveInterval * 1000);
@@ -272,7 +272,7 @@ namespace LibGB28181SipClient
 
             if ((DateTime.Now - _registerDateTime).TotalSeconds > Common.SipClientConfig.Expiry)
             {
-                Logger.Warn(
+                GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->超过注册有效期:{Common.SipClientConfig.Expiry}->系统重新进入设备注册模式");
 
                 _isRegister = false;
@@ -308,7 +308,7 @@ namespace LibGB28181SipClient
                     SipClientInstance.SendRequestAsync(
                         new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                         req);
-                    Logger.Debug(
+                    GCommon.Logger.Debug(
                         $"[{Common.LoggerHead}]->发送首次注册数据->{req.RemoteSIPEndPoint}->{req}");
                 }
                 else if (!_isRegister && _wantAuthorization)
@@ -318,7 +318,7 @@ namespace LibGB28181SipClient
                     SipClientInstance.SendRequestAsync(
                         new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                         req);
-                    Logger.Debug(
+                    GCommon.Logger.Debug(
                         $"[{Common.LoggerHead}]->发送验证注册数据->{req.RemoteSIPEndPoint}->{req}");
                 }
 
@@ -336,7 +336,7 @@ namespace LibGB28181SipClient
             SIPResponseStatusCodesEnum messaageResponse = SIPResponseStatusCodesEnum.Ok;
             SIPResponse okResponse = SIPResponse.GetResponse(sipRequest, messaageResponse, null);
             await _sipTransport.SendResponseAsync(okResponse);
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->发送确认数据->{okResponse.RemoteSIPEndPoint}->{okResponse}");
         }
 
@@ -399,7 +399,7 @@ namespace LibGB28181SipClient
             await SipClientInstance.SendRequestAsync(
                 new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                 req);
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->发送设备信息数据->{req.RemoteSIPEndPoint}->{req}");
             _oldSipRequest = req;
         }
@@ -456,7 +456,7 @@ namespace LibGB28181SipClient
             await SipClientInstance.SendRequestAsync(
                 new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                 req);
-            Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->发送设备状态数据->{req.RemoteSIPEndPoint}->{req}");
             _oldSipRequest = req;
         }
@@ -542,7 +542,7 @@ namespace LibGB28181SipClient
                         await SipClientInstance.SendRequestAsync(
                             new SIPEndPoint(SIPProtocolsEnum.udp, _remoteIpEndPoint.Address, _remoteIpEndPoint.Port),
                             req);
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->发送目录查询结果数据->{req.RemoteSIPEndPoint}->{req}");
                         _oldSipRequest = req;
                         _catalogThread.WaitOne(5000);
@@ -653,14 +653,14 @@ namespace LibGB28181SipClient
                             Is_Udp = true,
                         };
 
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->获取sdp协商信息成功->{JsonHelper.ToJson(info)}");
                         return true;
                     }
                 }
                 else
                 {
-                    Logger.Warn(
+                    GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->获取共享流列表失败->{JsonHelper.ToJson(rs)}");
                 }
             }
@@ -735,7 +735,7 @@ namespace LibGB28181SipClient
                 return true;
             }
 
-            Logger.Warn(
+            GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->申请rtp(发送)端口失败->{JsonHelper.ToJson(rs)}");
             return false;
         }
@@ -792,26 +792,26 @@ namespace LibGB28181SipClient
                     if (retok == true)
                     {
                        
-                        Logger.Info(
+                        GCommon.Logger.Info(
                             $"[{Common.LoggerHead}]->终止共享推流成功->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(info)}");
                         
                         var b=WebApiHelper.ReleaseRtpPortForSender(info.MediaServerId, info.LocalRtpPort,out rs);
                        
                         if (!b || !rs.Code.Equals(ErrorNumber.None))
                         {
-                            Logger.Warn(
+                            GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->Rtp(发送)端口释放失败->{JsonHelper.ToJson(info.LocalRtpPort)}");
 
                         }
                         else
                         {
-                            Logger.Info(
+                            GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->Rtp(发送)端口释放成功->{JsonHelper.ToJson(info.LocalRtpPort)}");
                         }
                     }
                     else
                     {
-                        Logger.Warn(
+                        GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->终止共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(info)}->{JsonHelper.ToJson(rs)}");
                     }
 
@@ -832,24 +832,24 @@ namespace LibGB28181SipClient
                             retok = OnInviteChannel?.Invoke(shareinfo, out rs);
                             if (retok == true && rs.Code.Equals(ErrorNumber.None))
                             {
-                                Logger.Info(
+                                GCommon.Logger.Info(
                                     $"[{Common.LoggerHead}]->共享推流成功->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}");
                             }
                             else
                             {
-                                Logger.Warn(
+                                GCommon.Logger.Warn(
                                     $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}->{JsonHelper.ToJson(rs)}");
                             }
                         }
                         else
                         {
-                            Logger.Warn(
+                            GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}->{JsonHelper.ToJson(rs)}");
                         }
                     }
                     else
                     {
-                        Logger.Warn(
+                        GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->共享推流失败->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(shareinfo)}");
                     }
 
@@ -864,20 +864,20 @@ namespace LibGB28181SipClient
                         {
                             case "DEVICEINFO":
                                 //查询设备信息
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到设备信息查询信令->{sipRequest.RemoteSIPEndPoint}->{sipRequest}");
                                 await SendOkMessage(sipRequest);
                                 await ProcessDeviceInfo();
                                 break;
                             case "DEVICESTATUS":
                                 //查询设备状态
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到设备状态查询信令->{sipRequest.RemoteSIPEndPoint}->{sipRequest}");
                                 await SendOkMessage(sipRequest);
                                 await ProcessDeviceStatus();
                                 break;
                             case "CATALOG":
-                                Logger.Debug(
+                                GCommon.Logger.Debug(
                                     $"[{Common.LoggerHead}]->收到设备目录查询信令->{sipRequest.RemoteSIPEndPoint}->{sipRequest}");
                                 await SendOkMessage(sipRequest);
                                 Task.Run(() => { ProcessCatalog(); }); //抛线程出去处理
@@ -913,13 +913,13 @@ namespace LibGB28181SipClient
                     {
                         if (status == SIPResponseStatusCodesEnum.Ok)
                         {
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到设备心跳确认回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
                             _keeperaliveDateTime = DateTime.Now;
                         }
                         else if (status == SIPResponseStatusCodesEnum.BadRequest)
                         {
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到设备心跳异常回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
                             _isRegister = false;
                             _wantAuthorization = false;
@@ -942,13 +942,13 @@ namespace LibGB28181SipClient
 
                     if (sipResponse.Header.CallId.Equals(_lastCallId))
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->收到设备信息确认回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
                     }
 
                     if (sipResponse.Header.CallId.Equals(_catalogCallId))
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->收到设备目录确认回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
 
                         _catalogThread.Set();
@@ -959,7 +959,7 @@ namespace LibGB28181SipClient
 
                     if (status == SIPResponseStatusCodesEnum.Unauthorised)
                     {
-                        Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->收到要求注册验证回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
 
                         _wantAuthorization = true;
@@ -971,7 +971,7 @@ namespace LibGB28181SipClient
                     {
                         if (sipResponse.Header.CallId.Equals(_registerCallId))
                         {
-                            Logger.Debug(
+                            GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到注册完成回复->{sipResponse.RemoteSIPEndPoint}->{sipResponse}");
 
                             _wantAuthorization = false;
@@ -1013,30 +1013,30 @@ namespace LibGB28181SipClient
             var ret = Common.ReadSipClientConfig(out rs);
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipClientConfigPath}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipClientConfigPath}");
                 throw new AkStreamException(rs);
             }
 
 
             Common.SipClient = this;
-            Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipClientConfigPath}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipClientConfigPath}");
 
             try
             {
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地IP地址->{Common.SipClientConfig.LocalIpAddress}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地端口->{Common.SipClientConfig.LocalPort}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器IP地址->{Common.SipClientConfig.SipServerIpAddress}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器端口->{Common.SipClientConfig.SipServerPort}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器设备ID->{Common.SipClientConfig.SipServerDeviceId}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端设备ID->{Common.SipClientConfig.SipDeviceId}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端域(REALM)->{Common.SipClientConfig.Realm}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端注册有效时间->{Common.SipClientConfig.Expiry}秒");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端用户名->{Common.SipClientConfig.SipUsername}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端密码->{Common.SipClientConfig.SipPassword}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳间隔周期->{Common.SipClientConfig.KeepAliveInterval}秒/次");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端字符集->{Common.SipClientConfig.EncodingType}");
-                Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地IP地址->{Common.SipClientConfig.LocalIpAddress}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地端口->{Common.SipClientConfig.LocalPort}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器IP地址->{Common.SipClientConfig.SipServerIpAddress}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器端口->{Common.SipClientConfig.SipServerPort}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器设备ID->{Common.SipClientConfig.SipServerDeviceId}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端设备ID->{Common.SipClientConfig.SipDeviceId}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端域(REALM)->{Common.SipClientConfig.Realm}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端注册有效时间->{Common.SipClientConfig.Expiry}秒");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端用户名->{Common.SipClientConfig.SipUsername}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端密码->{Common.SipClientConfig.SipPassword}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳间隔周期->{Common.SipClientConfig.KeepAliveInterval}秒/次");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端字符集->{Common.SipClientConfig.EncodingType}");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
                 _sipTransport = new SIPTransport();
                 _sipTransport.SIPTransportResponseReceived += RecvSipMessageOfResponse;
                 _sipTransport.SIPTransportRequestReceived += RecvSipMessageOfRequest;
@@ -1059,7 +1059,7 @@ namespace LibGB28181SipClient
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Error($"[{Common.LoggerHead}]->初始化SipClient异常->{JsonHelper.ToJson(rs)}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->初始化SipClient异常->{JsonHelper.ToJson(rs)}");
             }
         }
     }

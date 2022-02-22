@@ -50,12 +50,12 @@ namespace AKStreamWeb.AutoTask
                                             out ResponseStruct rs);
                                         if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
                                         {
-                                            Logger.Warn(
+                                             GCommon.Logger.Warn(
                                                 $"[{Common.LoggerHead}]->自动推流失败->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                         else
                                         {
-                                            Logger.Info(
+                                             GCommon.Logger.Info(
                                                 $"[{Common.LoggerHead}]->自动推流成功->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                     }
@@ -74,12 +74,12 @@ namespace AKStreamWeb.AutoTask
                                             out ResponseStruct rs);
                                         if (!rs.Code.Equals(ErrorNumber.None) || streamLiveRet == null)
                                         {
-                                            Logger.Warn(
+                                             GCommon.Logger.Warn(
                                                 $"[{Common.LoggerHead}]->自动结束推流失败->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                         else
                                         {
-                                            Logger.Info(
+                                             GCommon.Logger.Info(
                                                 $"[{Common.LoggerHead}]->自动结束推流成功->{obj.MediaServerId}->{obj.MainId}");
                                         }
                                     }

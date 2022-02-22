@@ -32,11 +32,13 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
-
+      
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
         public static DateTime StartupDateTime;
+
+    
 
         /// <summary>
         /// 流媒体服务器列表
@@ -76,7 +78,8 @@ namespace AKStreamWeb
 
         static Common()
         {
-            
+
+          
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
                 if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
@@ -122,17 +125,17 @@ namespace AKStreamWeb
                 var ret = ReadConfigFile(out rs);
                 if (!ret || !rs.Code.Equals(ErrorNumber.None))
                 {
-                    Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{LoggerHead}]->获取AKStream配置文件时异常,系统无法运行->\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
                     Environment.Exit(0); //退出程序 
                 }
 
-                Logger.Info(
+                GCommon.Logger.Info(
                     $"[{LoggerHead}]->AKStreamWeb配置文件加完成");
             }
             catch (AkStreamException ex)
             {
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->获取AKStream配置文件时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex.ResponseStruct, Formatting.Indented)}");
                 Environment.Exit(0); //退出程序
             }
@@ -161,7 +164,7 @@ namespace AKStreamWeb
                     Code = ErrorNumber.Sys_DataBaseNotReady,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseNotReady] + ",请检查配置文件中的数据库相关配置信息",
                 };
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->数据库连接异常,系统无法运行->\r\n{JsonHelper.ToJson(rsa, Formatting.Indented)}\r\n系统支持以下数据库连接,请根据下表正确设置dBType字段->\r\n{supportDataBaseList}");
                 Environment.Exit(0); //退出程序
             }
@@ -174,7 +177,7 @@ namespace AKStreamWeb
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseNotReady] + ",请检查配置文件中的数据库相关配置信息" +
                               "\r\n",
                 };
-                Logger.Error(
+                GCommon.Logger.Error(
                     $"[{LoggerHead}]->数据库连接异常,系统无法运行->\r\n{JsonHelper.ToJson(rsa, Formatting.Indented)}\r\n系统支持以下数据库连接,请根据下表正确设置dBType字段->\r\n{supportDataBaseList}");
                 Environment.Exit(0); //退出程序
             }
@@ -198,7 +201,7 @@ namespace AKStreamWeb
                 SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
                 SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
             }
-            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGB28181Server}");
+            GCommon.Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGB28181Server}");
             if (AkStreamWebConfig.EnableGB28181Client)
             {
                 outPath = "";
@@ -210,7 +213,7 @@ namespace AKStreamWeb
                 SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
                 SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             }
-            Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
+            GCommon.Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
 
             if (AkStreamWebConfig.EnableGB28181Server == null || AkStreamWebConfig.EnableGB28181Server == true)
             {
@@ -221,14 +224,14 @@ namespace AKStreamWeb
                     SipServer.Start(out rs);
                     if (!rs.Code.Equals(ErrorNumber.None))
                     {
-                        Logger.Error(
+                        GCommon.Logger.Error(
                             $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
                         Environment.Exit(0); //退出程序 
                     }
                 }
                 catch (AkStreamException ex)
                 {
-                    Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{LoggerHead}]->启动Sip服务时异常,系统无法运行->\r\n{JsonHelper.ToJson(ex, Formatting.Indented)}");
                     Environment.Exit(0); //退出程序
                 }
@@ -301,7 +304,7 @@ namespace AKStreamWeb
         /// </summary>
         public static void Init()
         {
-            Logger.Info(
+            GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
 
             startTimer();

@@ -83,25 +83,25 @@ public class AutoRtpPortClean
 
     private void AutoClean()
     {
-        Logger.Debug($"[{Common.LoggerHead}]->创建Rtp端口清理自动任务");
+        GCommon.Logger.Debug($"[{Common.LoggerHead}]->创建Rtp端口清理自动任务");
         while (true)
         {
             var ports = GetPortRptList();
-            Logger.Debug($"[{Common.LoggerHead}]->获取在用Rtp端口列表->{JsonHelper.ToJson(ports)}");
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->获取在用Rtp端口列表->{JsonHelper.ToJson(ports)}");
             if (ports != null)
             {
                 if (ports.Count == 0)
                 {
                     foreach (var pi in Common.PortInfoList)
                     {
-                        Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
+                        GCommon.Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
                         lock (Common._getRtpPortLock)
                         {
                             var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
                             if (portUsed != null)
                             {
                                 portUsed.Useed = false;
-                                Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{pi.Port}");
+                                GCommon.Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{pi.Port}");
                             }
                         }
 
@@ -117,7 +117,7 @@ public class AutoRtpPortClean
                           
                             if (!ports.Contains(pi.Port))
                             {
-                                Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
+                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
                                 ApiService.ReleaseRtpPort(pi.Port);
                             }
                             else 
@@ -127,7 +127,7 @@ public class AutoRtpPortClean
                                     var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
                                     if (portUsed != null)
                                     {
-                                        Logger.Debug($"[{Common.LoggerHead}]->更新Rtp端口激活状态时间->{JsonHelper.ToJson(portUsed)}");
+                                        GCommon.Logger.Debug($"[{Common.LoggerHead}]->更新Rtp端口激活状态时间->{JsonHelper.ToJson(portUsed)}");
                                         portUsed.DateTime = DateTime.Now; //更新端口，目前正在使用的时间
                                         
                                     }

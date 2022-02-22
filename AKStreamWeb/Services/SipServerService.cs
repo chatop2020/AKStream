@@ -76,7 +76,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
 
                 return -1;
@@ -86,13 +86,13 @@ namespace AKStreamWeb.Services
             var got = sipMethodProxy.QueryRecordFileList(sipChannel, queryRecordFile, out rs); //获取历史文件
             if (!rs.Code.Equals(ErrorNumber.None) || got < 0)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->获取Sip设备历史录制文件失败->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->{JsonHelper.ToJson(rs)}");
 
                 return -1;
             }
 
-            Logger.Warn(
+             GCommon.Logger.Warn(
                 $"[{Common.LoggerHead}]->获取Sip设备历史录制文件成功->{deviceId}-{channelId}-{JsonHelper.ToJson(queryRecordFile)}->加载可能较慢，请使用返回值定期调用查询GetHistroyRecordFileStatus接口以获取最终结果");
 
             return got;
@@ -260,7 +260,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                 return false;
@@ -274,7 +274,7 @@ namespace AKStreamWeb.Services
 
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
 
                 return true;
@@ -316,14 +316,14 @@ namespace AKStreamWeb.Services
 
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                     return false;
                 }
 
 
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->停止Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{retDeInvite}");
 
                 return true;
@@ -363,7 +363,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn($"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
@@ -377,7 +377,7 @@ namespace AKStreamWeb.Services
 
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
-                Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
+                 GCommon.Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
 
                 return true;
             }
@@ -412,14 +412,14 @@ namespace AKStreamWeb.Services
 
                 if (!rs.Code.Equals(ErrorNumber.None))
                 {
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                     return false;
                 }
 
 
-                Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
+                 GCommon.Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
 
                 return true;
             }
@@ -478,7 +478,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                 return null;
@@ -491,7 +491,7 @@ namespace AKStreamWeb.Services
 
             if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
             {
-                Logger.Info(
+                 GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->请求Sip推回放流成功(此回放流本身就处于推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
 
                 return mediaInfo.MediaServerStreamInfo;
@@ -509,7 +509,7 @@ namespace AKStreamWeb.Services
                                 out rs);
                         if (openRtpPort == null || !rs.Code.Equals(ErrorNumber.None))
                         {
-                            Logger.Warn(
+                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                             return null;
@@ -524,7 +524,7 @@ namespace AKStreamWeb.Services
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                         return null;
@@ -583,7 +583,7 @@ namespace AKStreamWeb.Services
                 };
 
 
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                 return null;
@@ -615,7 +615,7 @@ namespace AKStreamWeb.Services
                             out _); //释放rtp端口
                     }
 
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                     return null;
@@ -685,7 +685,7 @@ namespace AKStreamWeb.Services
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(
+                     GCommon.Logger.Error(
                         $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
                 }
 
@@ -709,7 +709,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_WaitWebHookTimeOut,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WaitWebHookTimeOut]
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->请求Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
 
@@ -841,7 +841,7 @@ namespace AKStreamWeb.Services
             GCommon.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
 
 
-            Logger.Debug(
+             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->请求Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
@@ -871,7 +871,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -885,7 +885,7 @@ namespace AKStreamWeb.Services
 
             if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
             {
-                Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
+                 GCommon.Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
 
                 return mediaInfo.MediaServerStreamInfo;
             }
@@ -903,7 +903,7 @@ namespace AKStreamWeb.Services
                                 out rs);
                         if (openRtpPort == null || !rs.Code.Equals(ErrorNumber.None))
                         {
-                            Logger.Warn(
+                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                             return null;
@@ -918,7 +918,7 @@ namespace AKStreamWeb.Services
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                         return null;
@@ -977,7 +977,7 @@ namespace AKStreamWeb.Services
                 };
 
 
-                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -1006,7 +1006,7 @@ namespace AKStreamWeb.Services
                             out _); //释放rtp端口
                     }
 
-                    Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                     return null;
                 }
@@ -1076,7 +1076,7 @@ namespace AKStreamWeb.Services
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(
+                     GCommon.Logger.Error(
                         $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
                 }
 
@@ -1108,7 +1108,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.MediaServer_WaitWebHookTimeOut,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WaitWebHookTimeOut]
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->请求Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
 
                 GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
@@ -1237,7 +1237,7 @@ namespace AKStreamWeb.Services
             GCommon.Ldb.VideoOnlineInfo.Insert(videoChannelMediaInfo);
 
 
-            Logger.Debug(
+             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
             return videoChannelMediaInfo.MediaServerStreamInfo;
@@ -1264,7 +1264,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
@@ -1278,7 +1278,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
@@ -1291,12 +1291,12 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_ChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_ChannelNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->检查Sip推流状态失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
 
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->检查Sip推流状态成功->{deviceId}-{channelId}->{JsonHelper.ToJson(tmpSipChannel.PushStatus)}");
 
             var obj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MainId.Equals(tmpSipChannel.Stream));
@@ -1330,7 +1330,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
@@ -1346,7 +1346,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
@@ -1363,7 +1363,7 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.Sip_ChannelNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_ChannelNotExists],
                     };
-                    Logger.Warn(
+                     GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}-{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                     return false;
@@ -1379,13 +1379,13 @@ namespace AKStreamWeb.Services
             var ptz = sipMethodProxy.PtzMove(ptzCtrl, out rs);
             if (!rs.Code.Equals(ErrorNumber.None) || ptz == false)
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->PTZ控制失败->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}->{JsonHelper.ToJson(rs)}");
 
                 return false;
             }
 
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->PTZ控制成功->{ptzCmd.DeviceId}-{ptzCmd.ChannelId}{JsonHelper.ToJson(ptzCmd)}");
 
             return true;
@@ -1412,7 +1412,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -1426,7 +1426,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_DeviceNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_DeviceNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -1439,12 +1439,12 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sip_ChannelNotExists,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_ChannelNotExists],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取Sip通道失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
 
-            Logger.Debug(
+             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->获取Sip通道成功->{deviceId}-{channelId}->{JsonHelper.ToJson(tmpSipChannel)}");
 
             return tmpSipChannel;
@@ -1470,7 +1470,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备失败->{deviceId}->{JsonHelper.ToJson(rs)}");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备失败->{deviceId}->{JsonHelper.ToJson(rs)}");
 
                 return null;
             }
@@ -1478,11 +1478,11 @@ namespace AKStreamWeb.Services
             var ret = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId.Equals(deviceId));
             if (ret == null)
             {
-                Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备失败->{deviceId}->结果为空");
+                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->获取Sip设备失败->{deviceId}->结果为空");
             }
             else
             {
-                Logger.Debug($"[{Common.LoggerHead}]->获取Sip设备成功->{deviceId}->{JsonHelper.ToJson(ret)}");
+                 GCommon.Logger.Debug($"[{Common.LoggerHead}]->获取Sip设备成功->{deviceId}->{JsonHelper.ToJson(ret)}");
             }
 
             return ret;
@@ -1500,7 +1500,7 @@ namespace AKStreamWeb.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->获取Sip设备列表成功->{JsonHelper.ToJson(LibGB28181SipServer.Common.SipDevices.Count)}");
             return LibGB28181SipServer.Common.SipDevices;
         }
@@ -1547,7 +1547,7 @@ namespace AKStreamWeb.Services
                 out sipDevice);
             if (ret == false || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->拖拽Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
 
                 return false;
@@ -1594,7 +1594,7 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
-            Logger.Debug(
+             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->拖拽Sip回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
 
             return true;

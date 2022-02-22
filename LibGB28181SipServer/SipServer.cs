@@ -49,7 +49,7 @@ namespace LibGB28181SipServer
         public SipServer(string outConfigPath="")
         {
             ResponseStruct rs;
-            Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
             if (!string.IsNullOrEmpty(outConfigPath))
             {
                 Common.SipServerConfigPath = outConfigPath + "SipServerConfig.json";
@@ -58,12 +58,12 @@ namespace LibGB28181SipServer
 
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
             {
-                Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipServerConfigPath}");
+                GCommon.Logger.Error($"[{Common.LoggerHead}]->加载配置文件失败->{Common.SipServerConfigPath}");
                 throw new AkStreamException(rs);
             }
 
             Common.SipServer = this;
-            Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipServerConfigPath}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->加载配置文件成功->{Common.SipServerConfigPath}");
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace LibGB28181SipServer
                 }
 
                 sipChannel.LastSipRequest = req;
-                Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
+                GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
                 await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -248,7 +248,7 @@ namespace LibGB28181SipServer
                 }
 
                 sipDevice.LastSipRequest = req;
-                Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
+                GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
              
                 await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
             }
@@ -341,7 +341,7 @@ namespace LibGB28181SipServer
                 }
 
                 sipChannel.LastSipRequest = req;
-                Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
+                GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
                 await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -744,7 +744,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
 
                 return;
@@ -822,7 +822,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -882,7 +882,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = exex.Message,
                             ExceptStackTrace = exex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
                 }
             }
@@ -906,7 +906,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -944,7 +944,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
 
                 return;
@@ -995,7 +995,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1055,7 +1055,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = exex.Message,
                             ExceptStackTrace = exex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
                 }
             }
@@ -1079,7 +1079,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1218,7 +1218,7 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1245,7 +1245,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1271,7 +1271,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
 
                     return;
@@ -1310,7 +1310,7 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1337,7 +1337,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1372,7 +1372,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
 
                     return;
@@ -1412,7 +1412,7 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1439,7 +1439,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1467,7 +1467,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
 
                     return;
@@ -1520,7 +1520,7 @@ namespace LibGB28181SipServer
                     Obj = record,
                 };
                 Common.NeedResponseRequests.TryAdd(req.Header.CallId, nrt);
-                Logger.Debug($"[{Common.LoggerHead}]->发送结束回放流请求->{req}");
+                GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送结束回放流请求->{req}");
                 _sipTransport.SendRequestAsync(tmpSipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -1545,7 +1545,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1577,7 +1577,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
 
                     return;
@@ -1603,7 +1603,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
 
                     return;
@@ -1659,7 +1659,7 @@ namespace LibGB28181SipServer
                 };
 
                 Common.NeedResponseRequests.TryAdd(req.Header.CallId, nrt);
-                Logger.Debug($"[{Common.LoggerHead}]->发送终止时实流请求->{req}");
+                GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送终止时实流请求->{req}");
                 _sipTransport.SendRequestAsync(tmpSipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -1684,7 +1684,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = exex.Message,
                         ExceptStackTrace = exex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1743,7 +1743,7 @@ namespace LibGB28181SipServer
                             ExceptMessage = exex.Message,
                             ExceptStackTrace = exex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                        GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
                 }
             }
@@ -1768,7 +1768,7 @@ namespace LibGB28181SipServer
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace
                     };
-                    Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                 }
             }
         }
@@ -1823,29 +1823,29 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         public void Start(out ResponseStruct rs)
         {
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务ID->{Common.SipServerConfig.ServerSipDeviceId}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->本机IP地址->{Common.SipServerConfig.SipIpAddress}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务ID->{Common.SipServerConfig.ServerSipDeviceId}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->本机IP地址->{Common.SipServerConfig.SipIpAddress}");
             if (Common.SipServerConfig.IpV6Enable)
             {
-                Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->配置情况->本机IPV6地址->{Common.SipServerConfig.SipIpV6Address}");
             }
 
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->启用IPV6->{Common.SipServerConfig.IpV6Enable}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务端口->{Common.SipServerConfig.SipPort}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务协议->{Common.SipServerConfig.MsgProtocol}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->GB28181协议版本->{Common.SipServerConfig.GbVersion}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务是否启用鉴权->{Common.SipServerConfig.Authentication}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务鉴权用户名->{Common.SipServerConfig.SipUsername}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务鉴权密码->{Common.SipServerConfig.SipPassword}");
-            Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务域ID->{Common.SipServerConfig.Realm}");
-            Logger.Info(
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->启用IPV6->{Common.SipServerConfig.IpV6Enable}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务端口->{Common.SipServerConfig.SipPort}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务协议->{Common.SipServerConfig.MsgProtocol}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->GB28181协议版本->{Common.SipServerConfig.GbVersion}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务是否启用鉴权->{Common.SipServerConfig.Authentication}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务鉴权用户名->{Common.SipServerConfig.SipUsername}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务鉴权密码->{Common.SipServerConfig.SipPassword}");
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip服务域ID->{Common.SipServerConfig.Realm}");
+            GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->配置情况->Sip服务心跳周期（秒）->{Common.SipServerConfig.KeepAliveInterval}");
-            Logger.Info(
+            GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->配置情况->Sip服务允许心跳丢失次数->{Common.SipServerConfig.KeepAliveLostNumber}");
             try
             {
-                Logger.Info($"[{Common.LoggerHead}]->启动Sip服务.");
+                GCommon.Logger.Info($"[{Common.LoggerHead}]->启动Sip服务.");
 
                 //创建sip传输层
                 _sipTransport = new SIPTransport();
@@ -1859,13 +1859,13 @@ namespace LibGB28181SipServer
                     _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.Any,
                         Common.SipServerConfig.SipPort));
                     _sipTransport.AddSIPChannel(_sipTcpIpV4Channel);
-                    Logger.Info(
+                    GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipTcpIpV4Channel.ListeningEndPoint.Address}:{_sipTcpIpV4Channel.ListeningEndPoint.Port}(TCP via IPV4)");
                 }
 
                 _sipTransport.AddSIPChannel(_sipUdpIpV4Channel);
 
-                Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipUdpIpV4Channel.ListeningEndPoint.Address}:{_sipUdpIpV4Channel.ListeningEndPoint.Port}(UDP via IPV4)");
 
                 // 创建ipv6 udp传输层
@@ -1879,12 +1879,12 @@ namespace LibGB28181SipServer
                         _sipTcpIpV6Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.IPv6Any,
                             Common.SipServerConfig.SipPort));
                         _sipTransport.AddSIPChannel(_sipTcpIpV6Channel);
-                        Logger.Info(
+                        GCommon.Logger.Info(
                             $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipTcpIpV6Channel.ListeningEndPoint.Address}:{_sipTcpIpV6Channel.ListeningEndPoint.Port}(TCP via IPV6)");
                     }
 
                     _sipTransport.AddSIPChannel(_sipUdpIpV6Channel);
-                    Logger.Info(
+                    GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipUdpIpV6Channel.ListeningEndPoint.Address}:{_sipUdpIpV6Channel.ListeningEndPoint.Port}(UDP via IPV6)");
                 }
 

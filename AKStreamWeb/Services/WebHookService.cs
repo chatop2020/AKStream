@@ -45,7 +45,7 @@ namespace AKStreamWeb.Services
 
         public static ResToWebHookOnRecordMP4 OnRecordMp4(ReqForWebHookOnRecordMP4 req)
         {
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRecordMp4回调->{JsonHelper.ToJson(req)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRecordMp4回调->{JsonHelper.ToJson(req)}");
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
             if (mediaServer == null)
@@ -147,7 +147,7 @@ namespace AKStreamWeb.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                Logger.Warn(
+                 GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->将Mp4录制文件写入数据库时异常->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
             }
 
@@ -174,7 +174,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnFlowReport OnFlowReport(ReqForWebHookOnFlowReport req)
         {
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}");
             if (req.Player == true)
             {
                 var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
@@ -267,7 +267,7 @@ namespace AKStreamWeb.Services
         {
             VideoChannelRecordInfo outobj = null;
             var b = IsRecordStream(req.Stream, out outobj);
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
             if (b == false)
             {
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
@@ -278,12 +278,12 @@ namespace AKStreamWeb.Services
                         out ResponseStruct rs);
                     if (!rs.Code.Equals(ErrorNumber.None) || ret == false)
                     {
-                        Logger.Warn(
+                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->无人观看时断流失败->{videoChannel.MainId}->{JsonHelper.ToJson(rs)}");
                     }
                     else
                     {
-                        Logger.Info($"[{Common.LoggerHead}]->无人观看时断流成功->{videoChannel.MainId}");
+                         GCommon.Logger.Info($"[{Common.LoggerHead}]->无人观看时断流成功->{videoChannel.MainId}");
                     }
                 }
             }
@@ -300,16 +300,16 @@ namespace AKStreamWeb.Services
                         {
                             if (ret)
                             {
-                                Logger.Info($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流成功");
+                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流成功");
                             }
                             else
                             {
-                                Logger.Warn($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流失败");
+                                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流失败");
                             }
                         }
                         else
                         {
-                            Logger.Error($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流时出现异常->{JsonHelper.ToJson(rs)}");
+                             GCommon.Logger.Error($"[{Common.LoggerHead}]->无人观看回调发生时断开回放流时出现异常->{JsonHelper.ToJson(rs)}");
                         }
                     }
                 }
@@ -335,7 +335,7 @@ namespace AKStreamWeb.Services
                 ServerInstance mediaServer = null;
                 if (req.Regist == true)
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流接入)->{JsonHelper.ToJson(req)}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流接入)->{JsonHelper.ToJson(req)}");
                     mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
                     if (mediaServer == null)
                     {
@@ -398,19 +398,19 @@ namespace AKStreamWeb.Services
                                     ExceptMessage = ex.Message,
                                     ExceptStackTrace = ex.StackTrace
                                 };
-                                Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                             }
                         }
                         else
                         {
-                            Logger.Error(
+                             GCommon.Logger.Error(
                                 $"[{Common.LoggerHead}]->WebHookNeedReturnTask异常->没有找到{videoChannel.MainId}的推拉流信息，任务异常");
                         }
                     }
                 }
                 else
                 {
-                    Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流移除)->{JsonHelper.ToJson(req)}");
+                     GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流移除)->{JsonHelper.ToJson(req)}");
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
@@ -487,7 +487,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnPlay OnPlay(ReqForWebHookOnPlay req)
         {
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPlay回调->{JsonHelper.ToJson(req)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPlay回调->{JsonHelper.ToJson(req)}");
 
             if (!IsRecordStream(req.Stream, out _))
             {
@@ -563,7 +563,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnPublish OnPublish(ReqForWebHookOnPublish req)
         {
-            Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPublish回调->{JsonHelper.ToJson(req)}");
+             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnPublish回调->{JsonHelper.ToJson(req)}");
 
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
             if (mediaServer == null)
@@ -639,7 +639,7 @@ namespace AKStreamWeb.Services
                             ExceptMessage = ex.Message,
                             ExceptStackTrace = ex.StackTrace
                         };
-                        Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                         GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                     }
                 }
 
@@ -669,7 +669,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResMediaServerKeepAlive MediaServerKeepAlive(ReqMediaServerKeepAlive req, out ResponseStruct rs)
         {
-            Logger.Info(
+             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->收到WebHook-MediaServerKeepAlive回调->{JsonHelper.ToJson(req.MediaServerId)}");
 
             ResMediaServerKeepAlive result;
@@ -736,7 +736,7 @@ namespace AKStreamWeb.Services
                         };
                         mediaServer.Dispose();
                         Common.MediaServerList.Remove(mediaServer);
-                        Logger.Debug(
+                         GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->清理MediaServerList中的的流媒体服务器实例,要求重启流媒体服务器->当前流媒体服务器数量:{Common.MediaServerList.Count}");
                         return result;
                     }

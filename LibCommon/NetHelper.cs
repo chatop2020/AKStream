@@ -681,7 +681,7 @@ namespace LibCommon
 
                 if (startPosition >= remoteFileLength)
                 {
-                    Logger.Debug("本地文件长度" + startPosition + "已经大于等于远程文件长度" + remoteFileLength + "。下载完成。");
+                    GCommon.Logger.Debug("本地文件长度" + startPosition + "已经大于等于远程文件长度" + remoteFileLength + "。下载完成。");
                     writeStream.Close();
 
                     return false;

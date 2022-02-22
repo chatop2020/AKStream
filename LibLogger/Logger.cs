@@ -7,14 +7,14 @@ using log4net.Repository.Hierarchy;
 
 namespace LibLogger
 {
-    public static class Logger
+    public  class Logger
     {
-        private static readonly ILog _instance = null;
+        private  readonly ILog _instance = null;
         public static bool init = true;
         private static object lockobj = new object();
         public static string logxmlPath = Environment.CurrentDirectory + "/Config/";
 
-        static Logger()
+        public Logger()
         {
             lock (lockobj)
             {
@@ -27,27 +27,27 @@ namespace LibLogger
         }
 
 
-        public static void Info(string msg)
+        public  void Info(string msg)
         {
             _instance.Info(msg);
         }
 
-        public static void Debug(string msg)
+        public  void Debug(string msg)
         {
             _instance.Debug(msg);
         }
 
-        public static void Error(string msg)
+        public  void Error(string msg)
         {
             _instance.Error(msg);
         }
 
-        public static void Warn(string msg)
+        public  void Warn(string msg)
         {
             _instance.Warn(msg);
         }
 
-        public static void Fatal(string msg)
+        public  void Fatal(string msg)
         {
             _instance.Fatal(msg);
         }
@@ -58,7 +58,7 @@ namespace LibLogger
         /// 获取日志级别
         /// </summary>
         /// <returns></returns>
-        public static string GetLogLevel()
+        public  string GetLogLevel()
         {
            return ((Hierarchy) LogManager.GetRepository()).Root.Level.ToString();
         }
