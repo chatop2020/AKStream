@@ -57,7 +57,11 @@ namespace LibCommon
 
         public static void InitLogger()
         {
-            Logger.logxmlPath = OutLogPath;
+            if (!string.IsNullOrEmpty(OutLogPath))
+            {
+                Logger.logxmlPath = OutLogPath;
+            }
+
             _logger = new Logger();
         }
         static GCommon()
