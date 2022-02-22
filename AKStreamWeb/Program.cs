@@ -31,10 +31,10 @@ namespace AKStreamWeb
                 {
                     GCommon.OutLogPath +=  "/";
                 }
-                GCommon.InitLogger();
+              
             }
          
-         
+            GCommon.InitLogger();
             Common.Init();
             CreateHostBuilder(args).Build().Run();
         }
