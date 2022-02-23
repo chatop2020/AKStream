@@ -23,6 +23,15 @@ namespace LibCommon
     {
 
         /// <summary>
+        /// 为字符串添加引号
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static string AddQuote(string str)
+        {
+            return $"\"{str.Trim()}\"";
+        }
+        /// <summary>
         /// 获取启动时传入参数列表
         /// </summary>
         /// <param name="args"></param>

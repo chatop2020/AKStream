@@ -3001,7 +3001,7 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        orderBy += order.FieldName + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
@@ -3277,7 +3277,7 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        orderBy += order.FieldName + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
@@ -3997,7 +3997,7 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        orderBy += order.FieldName + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName)  + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
