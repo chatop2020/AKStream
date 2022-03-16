@@ -2845,6 +2845,23 @@ namespace AKStreamWeb.Services
                 }
             }
 
+            if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
+            {
+                var channels = ORMHelper.Db.Select<VideoChannel>()
+                    .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
+                if (channels != null && channels.Count > 0)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists],
+                    };
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->新增音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return null; 
+                }
+            }
             int result = 0;
             try
             {
@@ -3657,6 +3674,24 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
+            {
+                var channels = ORMHelper.Db.Select<VideoChannel>()
+                    .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
+                if (channels != null && channels.Count > 0)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists],
+                    };
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return null; 
+                }
+            }
+            
             try
             {
                 var rAffrows = ORMHelper.Db.Update<VideoChannel>()
@@ -3796,6 +3831,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+           
 
             if (Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(req.MediaServerId.Trim())) == null)
             {
@@ -3858,12 +3894,29 @@ namespace AKStreamWeb.Services
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordPlanNotExists],
                     };
                      GCommon.Logger.Warn(
-                        $"[{Common.LoggerHead}]->修改音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                        $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
 
                     return null;
                 }
             }
 
+            if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
+            {
+                var channels = ORMHelper.Db.Select<VideoChannel>()
+                    .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
+                if (channels != null && channels.Count > 0)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists],
+                    };
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->激活音视频通道实例失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return null; 
+                }
+            }
             try
             {
                 var rAffrows = ORMHelper.Db.Update<VideoChannel>()
@@ -3899,6 +3952,9 @@ namespace AKStreamWeb.Services
                     .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
                     .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
                     .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
+                    .SetIf(req.IsShareChannel!=null ,x=>x.IsShareChannel,req.IsShareChannel)
+                    .SetIf(!UtilsHelper.StringIsNullEx(req.ShareUrl),x=>x.ShareUrl,req.ShareUrl)
+                    .SetIf(!UtilsHelper.StringIsNullEx(req.ShareDeviceId),x=>x.ShareDeviceId,req.ShareDeviceId)
                     .Set(x => x.MediaServerId, req.MediaServerId)
                     .Set(x => x.UpdateTime, DateTime.Now)
                     .Set(x => x.Enabled, true)

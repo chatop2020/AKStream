@@ -29,6 +29,9 @@ namespace LibCommon.Structs.WebRequest
         private string? _vhost;
         private VideoDeviceType? _videoDeviceType;
         private string? _fFmpegTemplate;
+        private bool? _isShareChannel;
+        private string? _shareUrl;
+        private string? _shareDeviceId;
 
         /// <summary>
         /// 流媒体服务器id
@@ -224,6 +227,24 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _fFmpegTemplate;
             set => _fFmpegTemplate = value;
+        }
+
+        public bool? IsShareChannel
+        {
+            get => _isShareChannel;
+            set => _isShareChannel = value;
+        }
+
+        public string? ShareUrl
+        {
+            get => _shareUrl;
+            set => _shareUrl = value;
+        }
+
+        public string? ShareDeviceId
+        {
+            get => _shareDeviceId;
+            set => _shareDeviceId = value;
         }
     }
 }

@@ -60,6 +60,7 @@ namespace LibCommon
         Sip_VideoLiveExcept = -2013, //Sip通道推流请求异常
         Sip_CallBackExcept = -2014, //sip回调时异常
         Sip_SipClient_InitExcept=-2015,//sip客户端启动异常
+        Sip_SipClient_ShareDeviceIdAlRedayExists=-2016,//SIP共享通道设备ID已经存在,ShareDeviceId不能重复
         MediaServer_WebApiExcept = -3000, //访问流媒体服务器WebApi时异常
         MediaServer_WebApiDataExcept = -3001, //访问流媒体服务器WebApi接口返回数据异常
         MediaServer_TimeExcept = -3002, //服务器时间异常，建议同步
@@ -145,6 +146,7 @@ namespace LibCommon
             ErrorDic[ErrorNumber.Sip_VideoLiveExcept] = "Sip通道推流请求异常";
             ErrorDic[ErrorNumber.Sip_CallBackExcept] = "sip回调时异常";
             ErrorDic[ErrorNumber.Sip_SipClient_InitExcept] = "sip客户端启动异常";
+            ErrorDic[ErrorNumber.Sip_SipClient_ShareDeviceIdAlRedayExists] = "sip共享通道设备ID已经存在";
             ErrorDic[ErrorNumber.MediaServer_WebApiExcept] = "访问流媒体服务器WebApi接口时异常";
             ErrorDic[ErrorNumber.MediaServer_WebApiDataExcept] = "访问流媒体服务器WebApi接口返回数据异常";
             ErrorDic[ErrorNumber.MediaServer_TimeExcept] = "流媒体服务器时间异常，建议同步";
