@@ -263,6 +263,10 @@ namespace AKStreamKeeper.Services
                 out string std,
                 out string err);
             task.ProcessPercentage += 40f;
+            
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->FFMPEG命令->{Common.AkStreamKeeperConfig.FFmpegPath}{args}");
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(mergePath+"files.txt")}");
+            
             if (retRun && (!string.IsNullOrEmpty(std) || !string.IsNullOrEmpty(err)) &&
                 File.Exists(newFilePath))
             {
