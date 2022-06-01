@@ -170,7 +170,7 @@ namespace LibCommon
             ProcessHelper tmpProcessHelper = new ProcessHelper(null, null, null);
             try
             {
-                tmpProcessHelper.RunProcess(ffpath, "", 1000, out string std, out string err);
+                tmpProcessHelper.RunProcess(ffpath, "", 5000, out string std, out string err);
 
                 if (!string.IsNullOrEmpty(std))
                 {
