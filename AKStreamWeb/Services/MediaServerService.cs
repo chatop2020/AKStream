@@ -1455,7 +1455,7 @@ namespace AKStreamWeb.Services
                     mediaServer.Config.Data[0] != null &&
                     !UtilsHelper.StringIsNullEx(mediaServer.Config.Data[0].Ffmpeg_Templete_RtspTcp2Flv))
                 {
-                    req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
+                    req.Dst_Url = $"rtmp://127.0.0.1:{mediaServer.RtmpPort}/{videoChannel.App}/{videoChannel.MainId}";
                     req.Enable_Hls = 1;
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
@@ -1464,7 +1464,7 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
-                    req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
+                    req.Dst_Url = $"rtmp://127.0.0.1:{mediaServer.RtmpPort}/{videoChannel.App}/{videoChannel.MainId}";
                     req.Enable_Hls = 1;
                     req.Enable_Mp4 = 0;
                     req.Src_Url = videoChannel.VideoSrcUrl;
@@ -1477,7 +1477,7 @@ namespace AKStreamWeb.Services
             }
             else
             {
-                req.Dst_Url = $"rtmp://127.0.0.1/{videoChannel.App}/{videoChannel.MainId}";
+                req.Dst_Url = $"rtmp://127.0.0.1:{mediaServer.RtmpPort}/{videoChannel.App}/{videoChannel.MainId}";
                 req.Enable_Hls = 1;
                 req.Enable_Mp4 = 0;
                 req.Src_Url = videoChannel.VideoSrcUrl;
