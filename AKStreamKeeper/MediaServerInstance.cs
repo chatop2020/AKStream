@@ -963,6 +963,11 @@ namespace AKStreamKeeper
                 }
                 catch (Exception ex)
                 {
+                    if (!File.Exists(_configPath + "_bak"))
+                    {
+                        File.Delete(_configPath);
+                        File.Move(_configPath + "_bak",_configPath,true);
+                    }
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.Sys_ReadIniFileExcept,
@@ -973,6 +978,15 @@ namespace AKStreamKeeper
                     throw new AkStreamException(rs);
                 }
 
+                try
+                {
+                    File.Copy(_configPath, _configPath + "_bak",true);
+                }
+                catch
+                {
+                    
+                }
+                
                 return true;
             }
 
