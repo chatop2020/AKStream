@@ -963,10 +963,10 @@ namespace AKStreamKeeper
                 }
                 catch (Exception ex)
                 {
-                    if (!File.Exists(_configPath + "_bak"))
+                    if (File.Exists(_configPath + "_bak"))
                     {
                         File.Delete(_configPath);
-                        File.Move(_configPath + "_bak",_configPath,true);
+                        File.Copy(_configPath + "_bak",_configPath,true);
                     }
                     rs = new ResponseStruct()
                     {
