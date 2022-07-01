@@ -780,6 +780,11 @@ namespace LibGB28181SipServer
             SIPNonInviteTransaction registerTransaction =
                 new SIPNonInviteTransaction(Common.SipServer.SipTransport, sipRequest, null);
             SIPResponse retResponse = SIPResponse.GetResponse(sipRequest, registerResponse, null);
+            /*增加tplink 摄像头支持*/
+            retResponse.Header.Contact = sipRequest.Header.Contact;
+            retResponse.Header.Expires = sipRequest.Header.Expires;
+            retResponse.Header.SetDateHeader();
+            /*增加tplink 摄像头支持*/
             registerTransaction.SendResponse(retResponse);
         }
 

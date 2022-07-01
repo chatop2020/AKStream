@@ -973,7 +973,7 @@ namespace LibGB28181SipServer
                         Task>
                     request =
                         SendRequestViaSipChannel;
-                request(tmpSipDevice, sipChannel, method, ConstString.Application_SDP, xmlBody, subject, body.CmdType,
+                request(tmpSipDevice, sipChannel, method, ConstString.Application_MANSCDP, xmlBody, subject, body.CmdType,
                     true,
                     evnt, evnt2, sipQueryRecordFile,
                     timeout);
