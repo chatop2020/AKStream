@@ -2086,6 +2086,14 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            if (ret.Code != 0 || ret.Result != true)
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->请求录制文件失败->{mediaServerId}->{mainId}->{JsonHelper.ToJson(rs, Formatting.Indented)}->{JsonHelper.ToJson(ret)}");
+
+                return null;
+            }
+
              GCommon.Logger.Info($"[{Common.LoggerHead}]->请求录制文件成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(ret)}");
 
             var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MediaServerId.Equals(videoChannel.MediaServerId)

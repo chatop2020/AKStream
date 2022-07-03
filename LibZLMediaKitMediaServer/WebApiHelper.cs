@@ -1034,6 +1034,9 @@ namespace LibZLMediaKitMediaServer
             {
                 req.Secret = this._secret;
                 string reqData = JsonHelper.ToJson(req);
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->请求录制接口->{reqData}");
+
                 var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout);
                 if (!string.IsNullOrEmpty(httpRet))
                 {

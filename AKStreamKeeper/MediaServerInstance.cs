@@ -558,14 +558,14 @@ namespace AKStreamKeeper
                     }
 
                     data["hook"].RemoveAllKeys();
-                    if (Common.IsDebug)
+                    /*if (Common.IsDebug)
                     {
                         data["api"]["apiDebug"] = "1";
                     }
                     else
                     {
                         data["api"]["apiDebug"] = "0";
-                    }
+                    }*/
 
 
                     data["hook"]["enable"] = "1";
