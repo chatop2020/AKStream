@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using log4net;
 using log4net.Config;
 using log4net.Repository;
@@ -13,19 +17,25 @@ namespace LibLogger
         public static bool init = true;
         private static object lockobj = new object();
         public static string logxmlPath = Environment.CurrentDirectory + "/Config/";
+     
 
+       
         public Logger()
         {
-            lock (lockobj)
+            
+
+           lock (lockobj)
             {
                 ILoggerRepository repository = LogManager.CreateRepository("NETCoreRepository");
                 
                 XmlConfigurator.Configure(repository,
                     new FileInfo(logxmlPath+"logconfig.xml")); //程序启动目录下
                 _instance = LogManager.GetLogger(repository.Name, "AKStream");
+                
             }
         }
 
+        
 
         public  void Info(string msg)
         {

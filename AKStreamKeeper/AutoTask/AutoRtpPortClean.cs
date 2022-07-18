@@ -24,6 +24,11 @@ public class AutoRtpPortClean
     }
 
 
+    private void DeleteExpiredLogFiles()
+    {
+     
+    }
+
     /// <summary>
     /// 获取rtpserver列表 
     /// </summary>

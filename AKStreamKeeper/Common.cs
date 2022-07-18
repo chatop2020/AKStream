@@ -31,6 +31,7 @@ namespace AKStreamKeeper
         private static object _performanceInfoLock = new object();
         private static Timer _perFormanceInfoTimer;
         private static string _loggerHead = "AKStreamKeeper";
+ 
       
 
         private static List<KeyValuePair<double, string>> _akStreamDiskInfoOfRecordMap =
