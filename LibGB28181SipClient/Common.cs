@@ -111,7 +111,7 @@ namespace LibGB28181SipClient
                     sipClientConfig.SipServerIpAddress = "Sip服务器的ip地址";
                     sipClientConfig.Expiry = 3600;//注册有效期 3600秒
                     sipClientConfig.EncodingType = EncodingType.UTF8;
-                    sipClientConfig.Encoding=Encoding.UTF8;
+                    //sipClientConfig.Encoding=Encoding.UTF8;
                     sipClientConfig.AkstreamWebHttpUrl = "http://127.0.0.1:5800/SipClient";
                     return sipClientConfig;
                 }
@@ -175,6 +175,10 @@ namespace LibGB28181SipClient
                         (UtilsHelper.ReadJsonConfig<SipClientConfig>(_sipClientConfigPath) as SipClientConfig)!;
                     if (_sipClientConfig != null)
                     {
+                        
+                        
+                        
+                        /*
                         switch (_sipClientConfig.EncodingType)
                         {
                            case EncodingType.UTF8:
@@ -189,7 +193,7 @@ namespace LibGB28181SipClient
                            default:
                                _sipClientConfig.Encoding=Encoding.UTF8;
                                break;
-                        }
+                        }*/
                         rs = new ResponseStruct()
                         {
                             Code = ErrorNumber.None,

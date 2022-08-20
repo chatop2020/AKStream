@@ -29,6 +29,46 @@ namespace AKStreamWeb.Misc
         public static void OnRegister(string sipDeviceJson)
         {
             //设备注册时
+             var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
+
+            GCommon.Logger.Debug(
+                $"[{Common.LoggerHead}]->设备就绪(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}");
+            ResponseStruct rs;
+            SipMethodProxy sipMethodProxy2 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+            if (sipMethodProxy2.GetSipDeviceInfo(sipDevice, out rs))
+            {
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->获取设备信息成功(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(sipDevice.DeviceInfo, Formatting.Indented)}");
+            }
+            else
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取设备信息失败(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
+            }
+
+            SipMethodProxy sipMethodProxy3 = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+            if (sipMethodProxy3.GetSipDeviceStatus(sipDevice, out rs))
+            {
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->获取设备状态信息成功(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(sipDevice.DeviceStatus, Formatting.Indented)}");
+            }
+            else
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取设备状态信息失败(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
+            }
+
+            SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+            if (sipMethodProxy.DeviceCatalogQuery(sipDevice, out rs))
+            {
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->设备目录获取成功(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(sipDevice.SipChannels, Formatting.Indented)}");
+            }
+            else
+            {
+                GCommon.Logger.Error(
+                    $"[{Common.LoggerHead}]->设备目录获取失败(OnRegister)->{sipDevice.IpAddress.ToString()}-{sipDevice.DeviceId}\r\n{JsonHelper.ToJson(rs, Formatting.Indented)}");
+            }
         }
 
         public static void OnUnRegister(string sipDeviceJson)

@@ -1037,7 +1037,8 @@ namespace LibGB28181SipClient
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端字符集->{Common.SipClientConfig.EncodingType}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
-                _sipTransport = new SIPTransport();
+                _sipTransport = new SIPTransport(false, Common.SipClientConfig.Encoding, Common.SipClientConfig.Encoding);
+                //_sipTransport = new SIPTransport();
                 _sipTransport.SIPTransportResponseReceived += RecvSipMessageOfResponse;
                 _sipTransport.SIPTransportRequestReceived += RecvSipMessageOfRequest;
                 _localIpEndPoint = new IPEndPoint(IPAddress.Parse(Common.SipClientConfig.LocalIpAddress),

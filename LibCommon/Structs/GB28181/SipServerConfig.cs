@@ -1,5 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using LibCommon.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LibCommon.Structs.GB28181
 {
@@ -23,6 +27,8 @@ namespace LibCommon.Structs.GB28181
         private string? _sipPassword;
         private ushort _sipPort;
         private string? _sipUsername;
+        private EncodingType _encodingType;
+        private Encoding _encoding;
 
 
         /// <summary>
@@ -151,5 +157,49 @@ namespace LibCommon.Structs.GB28181
             get => _noAuthenticationRequireds;
             set => _noAuthenticationRequireds = value;
         }
+        /// <summary>
+        /// 字符集类型
+        /// UTF8
+        /// GBK
+        /// GB2312
+        /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
+        public EncodingType EncodingType
+        {
+            get => _encodingType;
+            set => _encodingType = value;
+        }
+
+        /// <summary>
+        /// 执行的字符集
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        [JsonIgnore]
+        public Encoding Encoding
+        {
+            get
+            {
+                Encoding _en = null;
+                switch (_encodingType)
+                {
+                    case EncodingType.GB2312:
+                        _en= Encoding.GetEncoding("gb2312");
+                        break;
+                    case EncodingType.UTF8:
+                        _en=Encoding.GetEncoding("utf-8");
+                        break;
+                    case EncodingType.GBK:
+                        _en= Encoding.GetEncoding("GBK");
+                        break;
+                    default:
+                        _en=Encoding.GetEncoding("utf-8");
+                        break;
+                }
+
+                return _en;
+            }
+           
+        }
+
     }
 }

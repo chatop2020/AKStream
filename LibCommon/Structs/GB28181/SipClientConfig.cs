@@ -161,8 +161,28 @@ namespace LibCommon.Structs.GB28181
         [JsonIgnore]
         public Encoding Encoding
         {
-            get => _encoding;
-            set => _encoding = value ?? throw new ArgumentNullException(nameof(value));
+            get
+            {
+                Encoding _en = null;
+                switch (_encodingType)
+                {
+                    case EncodingType.GB2312:
+                        _en= Encoding.GetEncoding("gb2312");
+                        break;
+                    case EncodingType.UTF8:
+                        _en=Encoding.GetEncoding("utf-8");
+                        break;
+                    case EncodingType.GBK:
+                        _en= Encoding.GetEncoding("GBK");
+                        break;
+                    default:
+                        _en=Encoding.GetEncoding("utf-8");
+                        break;
+                }
+
+                return _en;
+            }
+           
         }
 
         public string AkstreamWebHttpUrl

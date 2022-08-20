@@ -12,6 +12,7 @@
   "KeepAliveInterval": 30,
   "KeepAliveLostNumber": 3,
   "IpV6Enable": true,
+  "EncodingType": "UTF8",
   "NoAuthenticationRequireds": [
     {
       "IpV4Address": "192.168.2.92",

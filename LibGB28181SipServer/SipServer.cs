@@ -1848,7 +1848,9 @@ namespace LibGB28181SipServer
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->启动Sip服务.");
 
                 //创建sip传输层
-                _sipTransport = new SIPTransport();
+                _sipTransport = new SIPTransport(false, Common.SipServerConfig.Encoding, Common.SipServerConfig.Encoding);
+
+               // _sipTransport = new SIPTransport();
 
                 // 创建ipv4 udp传输层
                 _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Any,
