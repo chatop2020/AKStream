@@ -11,8 +11,10 @@ namespace AKStreamWeb.AutoTask
 {
     public class AutoTaskOther
     {
-        private long count = 0;
-
+        private  DateTime _nullMediaServerCheckTick=DateTime.Now;
+        private DateTime _deleteOldVideoTick=DateTime.Now;
+        private DateTime _cleanUpEmptyDirTick=DateTime.Now;
+        private DateTime _mediaListCleanTick=DateTime.Now;
         public AutoTaskOther()
         {
             new Thread(new ThreadStart(delegate
@@ -31,15 +33,10 @@ namespace AKStreamWeb.AutoTask
         {
             while (true)
             {
-                if (count > 90000000000)
-                {
-                    count = 0;
-                }
-
-                count++;
+             
                 try
                 {
-                    if (count % 5 == 0) //5秒清理一次为null的MediaServer
+                    if((DateTime.Now-_nullMediaServerCheckTick).TotalMilliseconds>-5000)//5秒清理一次为null的MediaServer
                     {
                         lock (Common.MediaServerLockObj)
                         {
@@ -54,16 +51,21 @@ namespace AKStreamWeb.AutoTask
 
                             UtilsHelper.RemoveNull(Common.MediaServerList);
                         }
+                        _nullMediaServerCheckTick=DateTime.Now;
+                        
                     }
-
-                    if (count % 3600 == 0) //3600秒一次
+                    
+                    if((DateTime.Now-_deleteOldVideoTick).TotalMilliseconds>=3600000)//3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
                         doDeleteLostRecored(); //删除失效的数据库录像数据
                         GCommon.VideoChannelRecordInfo.RemoveAll(x => x.Expires < DateTime.Now);
+                        _deleteOldVideoTick=DateTime.Now;
+                        
                     }
 
-                    if (count % 3600 == 0) //3600秒一次
+                   
+                    if((DateTime.Now-_cleanUpEmptyDirTick).TotalMilliseconds>=360000)//3600秒一次
                     {
                         foreach (var mediaServer in Common.MediaServerList)
                         {
@@ -72,9 +74,11 @@ namespace AKStreamWeb.AutoTask
                                 mediaServer.KeeperWebApi.CleanUpEmptyDir(out _);
                             }
                         }
+                        _cleanUpEmptyDirTick=DateTime.Now;
                     }
 
-                    if (count % 30 == 0) //30秒请求一次zlm的流列表,查看自己的列表中是否存在流列表中不存的流
+                    
+                    if((DateTime.Now-_mediaListCleanTick).TotalMilliseconds>=30000)//30秒请求一次zlm的流列表,查看自己的列表中是否存在流列表中不存的流
                     {
                         lock (GCommon.Ldb.LiteDBLockObj)
                         {
@@ -120,6 +124,8 @@ namespace AKStreamWeb.AutoTask
                                 }
                             }
                         }
+                        _mediaListCleanTick=DateTime.Now;
+                        
                     }
                 }
                 catch (Exception ex)
