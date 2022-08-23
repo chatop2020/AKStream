@@ -14,11 +14,34 @@ namespace LibCommon.Structs
     {
         private MediaServerStreamInfo? _mediaServerStreamInfo;
         private StreamSourceType? _streamSourceType;
+        private long? _lostCount = 0;
+        private byte? _timesToDelete = 2;
 
         public MediaServerStreamInfo? MediaServerStreamInfo
         {
             get => _mediaServerStreamInfo;
             set => _mediaServerStreamInfo = value;
+        }
+        
+        /// <summary>
+        /// 丢了多少次
+        /// </summary>
+
+        [JsonIgnore]
+        public long? LostCount
+        {
+            get => _lostCount;
+            set => _lostCount = value;
+        }
+
+        /// <summary>
+        /// 丢多少次以后删掉
+        /// </summary>
+        [JsonIgnore]
+        public byte? TimesToDelete
+        {
+            get => _timesToDelete;
+            set => _timesToDelete = value;
         }
 
         /// <summary>
