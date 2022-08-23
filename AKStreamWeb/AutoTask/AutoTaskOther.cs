@@ -39,25 +39,27 @@ namespace AKStreamWeb.AutoTask
                 count++;
                 try
                 {
-                    if (count % 5 ==  0)//5秒清理一次为null的MediaServer
+                    if (count % 5 == 0) //5秒清理一次为null的MediaServer
                     {
                         lock (Common.MediaServerLockObj)
                         {
                             for (int i = Common.MediaServerList.Count - 1; i >= 0; i--)
                             {
-                                if (!Common.MediaServerList[i].IsKeeperRunning && !Common.MediaServerList[i].IsMediaServerRunning)
+                                if (!Common.MediaServerList[i].IsKeeperRunning &&
+                                    !Common.MediaServerList[i].IsMediaServerRunning)
                                 {
                                     Common.MediaServerList[i] = null;
-                                }    
+                                }
                             }
-                           UtilsHelper.RemoveNull(Common.MediaServerList);
-                          
+
+                            UtilsHelper.RemoveNull(Common.MediaServerList);
                         }
                     }
+
                     if (count % 3600 == 0) //3600秒一次
                     {
                         doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
-                        doDeleteLostRecored();//删除失效的数据库录像数据
+                        doDeleteLostRecored(); //删除失效的数据库录像数据
                         GCommon.VideoChannelRecordInfo.RemoveAll(x => x.Expires < DateTime.Now);
                     }
 
@@ -72,45 +74,56 @@ namespace AKStreamWeb.AutoTask
                         }
                     }
 
-                    if (count % 30 == 0)//30秒请求一次zlm的流列表,查看自己的列表中是否存在流列表中不存的流
+                    if (count % 30 == 0) //30秒请求一次zlm的流列表,查看自己的列表中是否存在流列表中不存的流
                     {
-                        var selfMediaList= GCommon.Ldb.VideoOnlineInfo.FindAll();
-                        foreach (var mediaServer in Common.MediaServerList)
+                        var selfMediaList = GCommon.Ldb.VideoOnlineInfo.FindAll();
+                        if (selfMediaList != null || selfMediaList.Count() > 0)
                         {
-                            if (mediaServer != null && mediaServer.KeeperWebApi != null && mediaServer.IsKeeperRunning)
+                            foreach (var mediaServer in Common.MediaServerList)
                             {
-                                ResponseStruct rs = null;
-                                var mediaList =
-                                    mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                                if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null && mediaList.Data.Count>0 )
+                                if (mediaServer != null && mediaServer.KeeperWebApi != null &&
+                                    mediaServer.IsKeeperRunning)
                                 {
-                                    foreach (var media in selfMediaList)
-                                   {
-                                       if (media != null && mediaList.Data.FindLast(x =>
-                                               x.Stream.Equals(media.MainId) && x.App.Equals(media.App)) == null  && media.MediaServerStreamInfo.MediaServerId.Equals(mediaServer.MediaServerId))
-                                       {
-                                           GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                                               x.MainId.Equals(media.MainId) && x.App.Equals(media.App) && x.MediaServerId.Equals(mediaServer.MediaServerId));
-                                           GCommon.Logger.Info(
-                                               $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}][{media.App}][{media.MainId}]->流在流媒体服务器中不存在，删除VideoOnlineInfo中相应流数据...");
-                                       }
-                                   }
+                                    ResponseStruct rs = null;
+                                    var mediaList =
+                                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
+                                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null &&
+                                        mediaList.Data.Count > 0)
+                                    {
+                                        foreach (var media in selfMediaList)
+                                        {
+                                            if (media != null && mediaList.Data.FindLast(x =>
+                                                    x.Stream.Equals(media.MainId) && x.App.Equals(media.App)) == null &&
+                                                media.MediaServerStreamInfo.MediaServerId.Equals(mediaServer
+                                                    .MediaServerId))
+                                            {
+                                                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                                                    x.MainId.Equals(media.MainId) && x.App.Equals(media.App) &&
+                                                    x.MediaServerId.Equals(mediaServer.MediaServerId));
+                                                GCommon.Logger.Info(
+                                                    $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}][{media.App}][{media.MainId}]->流在流媒体服务器中不存在，删除VideoOnlineInfo中相应流数据...");
+                                            }
+                                        }
+                                    }
+                                    else if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count <= 0)
+                                    {
+                                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                                            x.MediaServerId.Equals(mediaServer.MediaServerId));
+                                        GCommon.Logger.Info(
+                                            $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}]流媒体服务器中不存在任何，删除VideoOnlineInfo中所有关于[{mediaServer.MediaServerId}]的流数据...");
+                                    }
                                 }
-                                else if(mediaList != null && mediaList.Code == 0 && mediaList.Data.Count<=0)
-                                {
-                                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x=>x.MediaServerId.Equals(mediaServer.MediaServerId));
-                                    GCommon.Logger.Info(
-                                        $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}]流媒体服务器中不存在任何，删除VideoOnlineInfo中所有关于[{mediaServer.MediaServerId}]的流数据...");
-                                }
+
+                                Thread.Sleep(100);
                             }
-                            Thread.Sleep(100);
                         }
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                   GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
+                    GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
                 }
+
                 Thread.Sleep(1000);
             }
         }
@@ -146,7 +159,7 @@ namespace AKStreamWeb.AutoTask
                 retList = ORMHelper.Db.Select<RecordFile>()
                     .Where(x => x.Deleted == true)
                     .Where(x => x.Undo == true)
-                    .Where(x => ((DateTime)x.UpdateTime!).AddHours(24) <= DateTime.Now)
+                    .Where(x => ((DateTime) x.UpdateTime!).AddHours(24) <= DateTime.Now)
                     .ToList();
 
                 if (retList != null && retList.Count > 0)
@@ -168,7 +181,7 @@ namespace AKStreamWeb.AutoTask
             }
             catch (Exception ex)
             {
-                 GCommon.Logger.Warn(
+                GCommon.Logger.Warn(
                     $"[{Common.LoggerHead}]->删除被软删除记录文件时发生异常->{ex.Message}->{ex.StackTrace}");
             }
         }
