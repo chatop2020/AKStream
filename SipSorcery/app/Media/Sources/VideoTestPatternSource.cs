@@ -21,7 +21,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SIPSorcery.Sys;
 using SIPSorceryMedia.Abstractions;
 
 namespace SIPSorcery.Media
@@ -42,7 +41,7 @@ namespace SIPSorcery.Media
         private const int VP8_SUGGESTED_FORMAT_ID = 96;
         private const int H264_SUGGESTED_FORMAT_ID = 100;
 
-        public static ILogger logger = Log.Logger;
+        public static ILogger logger = Sys.Log.Logger;
 
         public static readonly List<VideoFormat> SupportedFormats = new List<VideoFormat>
         {
@@ -65,6 +64,7 @@ namespace SIPSorcery.Media
         /// Unencoded test pattern samples.
         /// </summary>
         public event RawVideoSampleDelegate OnVideoSourceRawSample;
+        public event RawVideoSampleFasterDelegate OnVideoSourceRawSampleFaster;
 
         /// <summary>
         /// If a video encoder has been set then this event contains the encoded video
@@ -107,8 +107,13 @@ namespace SIPSorcery.Media
 
         public void ForceKeyFrame() => _videoEncoder?.ForceKeyFrame();
         public bool HasEncodedVideoSubscribers() => OnVideoSourceEncodedSample != null;
-        public void ExternalVideoSourceRawSample(uint durationMilliseconds, int width, int height, byte[] sample, VideoPixelFormatsEnum pixlFormat) =>
+        
+        public void ExternalVideoSourceRawSample(uint durationMilliseconds, int width, int height, byte[] sample, VideoPixelFormatsEnum pixelFormat) =>
             throw new NotImplementedException("The test pattern video source does not offer any encoding services for external sources.");
+        
+        public void ExternalVideoSourceRawSampleFaster(uint durationMilliseconds, RawImage rawImage) =>
+            throw new NotImplementedException("The test pattern video source does not offer any encoding services for external sources.");
+
         public Task<bool> InitialiseVideoSourceDevice() =>
             throw new NotImplementedException("The test pattern video source does not use a device.");
         public bool IsVideoSourcePaused() => _isPaused;
@@ -254,7 +259,7 @@ namespace SIPSorcery.Media
         private void GenerateRawSample(int width, int height, byte[] i420Buffer)
         {
             var bgr = PixelConverter.I420toBGR(i420Buffer, width, height, out _);
-            OnVideoSourceRawSample?.Invoke((uint)_frameSpacing, width, height,bgr, VideoPixelFormatsEnum.Bgr);
+            OnVideoSourceRawSample?.Invoke((uint)_frameSpacing, width, height, bgr, VideoPixelFormatsEnum.Bgr);
         }
 
         /// <summary>
