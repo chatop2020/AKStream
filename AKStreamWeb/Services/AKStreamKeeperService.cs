@@ -1330,8 +1330,11 @@ namespace AKStreamWeb.Services
             }
 
              GCommon.Logger.Info($"[{Common.LoggerHead}]->启动流媒体服务成功->{mediaServerId}->{JsonHelper.ToJson(ret)}");
-
-            var retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+             int retint;
+             lock (GCommon.Ldb.LiteDBLockObj)
+             {
+                  retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+             }
 
              GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->启动流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
@@ -1405,7 +1408,11 @@ namespace AKStreamWeb.Services
 
              GCommon.Logger.Info($"[{Common.LoggerHead}]->终止流媒体服务成功->{mediaServerId}->{ret}");
 
-            var retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+             int retint;
+             lock (GCommon.Ldb.LiteDBLockObj)
+             {
+                 retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+             }
 
              GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->终止流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
@@ -1476,9 +1483,13 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            var retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+            int retint;
+            lock (GCommon.Ldb.LiteDBLockObj)
+            {
+                retint = GCommon.Ldb.VideoOnlineInfo.DeleteMany(d => d.MediaServerId.Equals(mediaServerId));
+            }
 
-             GCommon.Logger.Debug(
+            GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->重启流媒体服务成功->{mediaServerId}->清理此流媒体下媒体流数量:{retint}");
 
 

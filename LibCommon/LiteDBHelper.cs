@@ -3,6 +3,7 @@ using System.Net;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LiteDB;
+using NetTaste;
 
 namespace LibCommon
 {
@@ -12,6 +13,8 @@ namespace LibCommon
         /// 核心的LiteDatabase数据库操作对象，这个对象私有只在类内使用。
         /// </summary>
         private LiteDatabase _liteDb;
+
+        public object LiteDBLockObj = new object();
 
         /// <summary>
         /// 创建一个LiteDB对象，有一个参数表明对应的文件路径。

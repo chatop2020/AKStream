@@ -75,9 +75,12 @@ namespace AKStreamWeb.Misc
         {
             //设备注销时，要清掉在线流
             var sipDevice = JsonHelper.FromJson<SipDevice>(sipDeviceJson);
+            lock (GCommon.Ldb.LiteDBLockObj)
+            {
+                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x => x.DeviceId.Equals(sipDevice.DeviceId));
+            }
 
-            GCommon.Ldb.VideoOnlineInfo.DeleteMany(x => x.DeviceId.Equals(sipDevice.DeviceId));
-             GCommon.Logger.Info(
+            GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->设备注销->{sipDevice.RemoteEndPoint.Address.MapToIPv4().ToString()}-{sipDevice.DeviceId}->所有通道-->注销成功");
         }
 

@@ -154,7 +154,11 @@ namespace AKStreamWeb
 #endif
             try
             {
-                GCommon.Ldb.VideoOnlineInfo.DeleteAll();
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                    GCommon.Ldb.VideoOnlineInfo.DeleteAll();
+                }
+
                 OrmHelper = new ORMHelper(AkStreamWebConfig.OrmConnStr, AkStreamWebConfig.DbType);
             }
             catch (Exception ex)

@@ -76,45 +76,48 @@ namespace AKStreamWeb.AutoTask
 
                     if (count % 30 == 0) //30秒请求一次zlm的流列表,查看自己的列表中是否存在流列表中不存的流
                     {
-                        var selfMediaList = GCommon.Ldb.VideoOnlineInfo.FindAll();
-                        if (selfMediaList != null || selfMediaList.Count() > 0)
+                        lock (GCommon.Ldb.LiteDBLockObj)
                         {
-                            foreach (var mediaServer in Common.MediaServerList)
+                            var selfMediaList = GCommon.Ldb.VideoOnlineInfo.FindAll().ToList();
+                            if (selfMediaList != null || selfMediaList.Count() > 0)
                             {
-                                if (mediaServer != null && mediaServer.KeeperWebApi != null &&
-                                    mediaServer.IsKeeperRunning)
+                                foreach (var mediaServer in Common.MediaServerList)
                                 {
-                                    ResponseStruct rs = null;
-                                    var mediaList =
-                                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
-                                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null &&
-                                        mediaList.Data.Count > 0)
+                                    if (mediaServer != null && mediaServer.KeeperWebApi != null &&
+                                        mediaServer.IsKeeperRunning)
                                     {
-                                        foreach (var media in selfMediaList)
+                                        ResponseStruct rs = null;
+                                        var mediaList =
+                                            mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(),
+                                                out rs);
+                                        if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null &&
+                                            mediaList.Data.Count > 0)
                                         {
-                                            if (media != null && mediaList.Data.FindLast(x =>
-                                                    x.Stream.Equals(media.MainId) && x.App.Equals(media.App)) == null &&
-                                                media.MediaServerStreamInfo.MediaServerId.Equals(mediaServer
-                                                    .MediaServerId))
+                                            foreach (var media in selfMediaList)
                                             {
-                                                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                                                    x.MainId.Equals(media.MainId) && x.App.Equals(media.App) &&
-                                                    x.MediaServerId.Equals(mediaServer.MediaServerId));
-                                                GCommon.Logger.Info(
-                                                    $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}][{media.App}][{media.MainId}]->流在流媒体服务器中不存在，删除VideoOnlineInfo中相应流数据...");
+                                                if (media != null && mediaList.Data.FindLast(x =>
+                                                        x.Stream.Equals(media.MainId) && x.App.Equals(media.App)) ==
+                                                    null &&
+                                                    media.MediaServerStreamInfo.MediaServerId.Equals(mediaServer
+                                                        .MediaServerId))
+                                                {
+                                                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                                                        x.MainId.Equals(media.MainId) && x.App.Equals(media.App) &&
+                                                        x.MediaServerId.Equals(mediaServer.MediaServerId));
+                                                    GCommon.Logger.Info(
+                                                        $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}][{media.App}][{media.MainId}]->流在流媒体服务器中不存在，删除VideoOnlineInfo中相应流数据...");
+                                                }
                                             }
                                         }
-                                    }
-                                    else if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count <= 0)
-                                    {
-                                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                                            x.MediaServerId.Equals(mediaServer.MediaServerId));
-                                        GCommon.Logger.Info(
-                                            $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}]流媒体服务器中不存在任何，删除VideoOnlineInfo中所有关于[{mediaServer.MediaServerId}]的流数据...");
+                                        else if (mediaList != null && mediaList.Code == 0 && mediaList.Data.Count <= 0)
+                                        {
+                                            GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                                                x.MediaServerId.Equals(mediaServer.MediaServerId));
+                                            GCommon.Logger.Info(
+                                                $"[{Common.LoggerHead}]->30秒任务->发现[{mediaServer.MediaServerId}]流媒体服务器中不存在任何，删除VideoOnlineInfo中所有关于[{mediaServer.MediaServerId}]的流数据...");
+                                        }
                                     }
                                 }
-
-                                Thread.Sleep(100);
                             }
                         }
                     }

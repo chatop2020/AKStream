@@ -331,9 +331,12 @@ namespace LibZLMediaKitMediaServer
 
             if (!_isKeeperRunning && !_isMediaServerRunning)
             {
-                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                  x.MediaServerId.Equals(this.MediaServerId)); //清除所有在线视频流
-                
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                        x.MediaServerId.Equals(this.MediaServerId)); //清除所有在线视频流
+                }
+
                 Dispose();
               
             }

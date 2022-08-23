@@ -151,12 +151,20 @@ namespace AKStreamWeb.Services
                     $"[{Common.LoggerHead}]->将Mp4录制文件写入数据库时异常->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
             }
 
-            var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+            VideoChannelMediaInfo retobj = null;
+            lock (GCommon.Ldb.LiteDBLockObj)
+            {
+                 retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                    x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+            }
+
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
                 retobj.MediaServerStreamInfo.IsRecorded = true;
-                GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                    GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                }
             }
 
 
@@ -177,15 +185,23 @@ namespace AKStreamWeb.Services
              GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnFlowReport回调->{JsonHelper.ToJson(req)}");
             if (req.Player == true)
             {
-                var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(req.Stream) && x.MediaServerId.Equals(req.MediaServerId));
+                VideoChannelMediaInfo retobj = null;
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                     retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                        x.MainId.Equals(req.Stream) && x.MediaServerId.Equals(req.MediaServerId));
+                }
+
                 if (retobj != null && retobj.MediaServerStreamInfo != null &&
                     retobj.MediaServerStreamInfo.PlayerList != null &&
                     retobj.MediaServerStreamInfo.PlayerList.Count > 0)
                 {
                     retobj.MediaServerStreamInfo.PlayerList.Remove(
                         retobj.MediaServerStreamInfo.PlayerList.FindLast(x => x.PlayerId.Equals(req.Id)));
-                    GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
                 }
             }
             else if (req.Player == false)
@@ -216,10 +232,15 @@ namespace AKStreamWeb.Services
                                 Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
                             if (mediaServer != null && mediaServer.IsKeeperRunning && mediaServer.IsMediaServerRunning)
                             {
-                                var rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                                        x.MediaServerId.Equals(videoChannel.MediaServerId) &&
-                                        x.MainId.Equals(videoChannel.MainId))
-                                    .MediaServerStreamInfo!.RptPort;
+                                ushort? rtpPort;
+                                lock (GCommon.Ldb.LiteDBLockObj)
+                                {
+                                     rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                                            x.MediaServerId.Equals(videoChannel.MediaServerId) &&
+                                            x.MainId.Equals(videoChannel.MainId))
+                                        .MediaServerStreamInfo!.RptPort;
+                                }
+
                                 if (rtpPort != null && rtpPort > 0)
                                 {
                                     ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort =
@@ -239,13 +260,19 @@ namespace AKStreamWeb.Services
                         }
                     }
 
-                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                        x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                            x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
+                    }
                 }
                 else
                 {
-                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                        x.MainId.Equals(req.Stream));
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                            x.MainId.Equals(req.Stream));
+                    }
                 }
             }
 
@@ -432,10 +459,15 @@ namespace AKStreamWeb.Services
                         try
                         {
                             //gb28181异常断流时，要释放掉原来申请的rtp端口
-                            var rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                                    x.MediaServerId.Equals(videoChannel.MediaServerId) &&
-                                    x.MainId.Equals(videoChannel.MainId))
-                                .MediaServerStreamInfo!.RptPort;
+                            ushort? rtpPort;
+                            lock (GCommon.Ldb.LiteDBLockObj)
+                            {
+                                 rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                                        x.MediaServerId.Equals(videoChannel.MediaServerId) &&
+                                        x.MainId.Equals(videoChannel.MainId))
+                                    .MediaServerStreamInfo!.RptPort;
+                            }
+
                             if (rtpPort != null && rtpPort > 0)
                             {
                                 ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
@@ -458,17 +490,22 @@ namespace AKStreamWeb.Services
                         MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId, out _);
                     }
 
-
-                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                        x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                            x.MediaServerId.Equals(videoChannel.MediaServerId) && x.MainId.Equals(videoChannel.MainId));
+                    }
                 }
             }
             else if (req.Schema.Trim().ToLower().Equals("rtmp") && IsRecordStream(req.Stream, out _))
             {
                 if (req.Regist == false)
                 {
-                    GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                        x.MediaServerId.Equals(req.MediaServerId) && x.MainId.Equals(req.Stream));
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
+                            x.MediaServerId.Equals(req.MediaServerId) && x.MainId.Equals(req.Stream));
+                    }
                 }
             }
 
@@ -504,8 +541,13 @@ namespace AKStreamWeb.Services
                 }
 
 
-                var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+                VideoChannelMediaInfo retobj = null;
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                     retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                        x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
+                }
+
                 if (retobj != null && retobj.MediaServerStreamInfo != null)
                 {
                     if (retobj.MediaServerStreamInfo.PlayerList == null)
@@ -521,13 +563,21 @@ namespace AKStreamWeb.Services
                         Port = (ushort) req.Port,
                         StartTime = DateTime.Now,
                     });
-                    GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
                 }
             }
             else
             {
-                var retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(req.Stream));
+                VideoChannelMediaInfo retobj = null;
+                lock (GCommon.Ldb.LiteDBLockObj)
+                {
+                     retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                        x.MainId.Equals(req.Stream));
+                }
+
                 if (retobj != null && retobj.MediaServerStreamInfo != null)
                 {
                     if (retobj.MediaServerStreamInfo.PlayerList == null)
@@ -543,7 +593,10 @@ namespace AKStreamWeb.Services
                         Port = (ushort) req.Port,
                         StartTime = DateTime.Now,
                     });
-                    GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
                 }
             }
 
@@ -712,9 +765,13 @@ namespace AKStreamWeb.Services
                     {
                         //已经存在的mediaserver被要求重启前要停掉此流媒体所有流信息
 
-                        var removeList = GCommon.Ldb.VideoOnlineInfo
-                            .Find(x => x.MediaServerId.Equals(req.MediaServerId))
-                            .ToList();
+                        List<VideoChannelMediaInfo> removeList = null;
+                        lock (GCommon.Ldb.LiteDBLockObj)
+                        {
+                             removeList = GCommon.Ldb.VideoOnlineInfo
+                                .Find(x => x.MediaServerId.Equals(req.MediaServerId))
+                                .ToList();
+                        }
 
                         if (removeList != null && removeList.Count > 0)
                         {
