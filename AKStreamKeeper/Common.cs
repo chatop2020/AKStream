@@ -11,7 +11,6 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
-using LibLogger;
 using LibSystemInfo;
 using Newtonsoft.Json;
 using JsonHelper = LibCommon.JsonHelper;
@@ -31,6 +30,8 @@ namespace AKStreamKeeper
         private static object _performanceInfoLock = new object();
         private static Timer _perFormanceInfoTimer;
         private static string _loggerHead = "AKStreamKeeper";
+        private static DateTime _getDiskSpaceToRecordMapTick = DateTime.Now;
+        private static DateTime _sendDataTick= DateTime.Now;
  
       
 
@@ -616,22 +617,19 @@ namespace AKStreamKeeper
                 KeeperPerformanceInfo.UpTimeSec = ts.TotalSeconds;
             }
 
-            _counter1++;
-            if (_counter1 % 60 == 0) //1分钟一次获取磁盘用量情况
+           
+            if((DateTime.Now-_getDiskSpaceToRecordMapTick).TotalMilliseconds>=60000)//每60秒获取一次磁盘占用情况
             {
                 lock (_akStreamDiskInfoOfRecordMapLock)
                 {
                     GetDiskSpaceToRecordMap();
                 }
-
-                if (_counter1 > 10000000)
-                {
-                    _counter1 = 0;
-                }
+                _getDiskSpaceToRecordMapTick=DateTime.Now;
             }
-
-            if (_counter1 % 5 == 0 && MediaServerInstance != null) //发心跳给服务器
+            
+            if((DateTime.Now-_sendDataTick).TotalMilliseconds>=5000 &&  MediaServerInstance != null)//发心跳给服务器
             {
+              
                 ReqMediaServerKeepAlive tmpKeepAlive = new ReqMediaServerKeepAlive();
 
                 if (_firstPost)
@@ -680,10 +678,12 @@ namespace AKStreamKeeper
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
+                
                 try
                 {
                     var httpRet = NetHelper.HttpPostRequest(_akStreamKeeperConfig.AkStreamWebRegisterUrl, null, reqData,
                         "utf-8", _akStreamKeeperConfig.HttpClientTimeoutSec * 1000);
+                    _sendDataTick = DateTime.Now;
                     if (!string.IsNullOrEmpty(httpRet))
                     {
                         if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))

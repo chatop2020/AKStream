@@ -3,7 +3,6 @@ using System.Net;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LiteDB;
-using NetTaste;
 
 namespace LibCommon
 {

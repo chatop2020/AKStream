@@ -7,7 +7,6 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
-using LibLogger;
 
 namespace AKStreamWeb.AutoTask
 {

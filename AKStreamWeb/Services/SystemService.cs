@@ -4,7 +4,6 @@ using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
-using LibLogger;
 
 namespace AKStreamWeb.Services
 {

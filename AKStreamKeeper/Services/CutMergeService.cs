@@ -11,7 +11,6 @@ using LibCommon;
 using LibCommon.Structs;
 using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
-using LibLogger;
 
 namespace AKStreamKeeper.Services
 {

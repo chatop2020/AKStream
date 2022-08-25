@@ -1,5 +1,4 @@
 using LibCommon;
-using LibLogger;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 

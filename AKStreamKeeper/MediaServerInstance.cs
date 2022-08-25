@@ -8,7 +8,6 @@ using AKStreamKeeper.Misc;
 using IniParser;
 using IniParser.Model;
 using LibCommon;
-using LibLogger;
 
 namespace AKStreamKeeper
 {

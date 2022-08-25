@@ -1,7 +1,6 @@
 using System;
 using System.Net;
 using LibCommon;
-using LibLogger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

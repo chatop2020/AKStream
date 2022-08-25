@@ -11,7 +11,6 @@ using LibCommon.Structs.GB28181.Net.SDP;
 using LibCommon.Structs.GB28181.Net.SIP;
 using LibCommon.Structs.GB28181.Sys;
 using LibCommon.Structs.GB28181.XML;
-using LibLogger;
 using SIPSorcery.SIP;
 
 namespace LibGB28181SipClient

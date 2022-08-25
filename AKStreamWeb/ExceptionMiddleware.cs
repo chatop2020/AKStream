@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using LibCommon;
-using LibLogger;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
