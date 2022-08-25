@@ -29,7 +29,7 @@ namespace LibCommon
         /// <returns></returns>
         public static string AddQuote(string str)
         {
-            return $"\"{str.Trim()}\"";
+            return $"`{str.Trim()}`";
         }
         /// <summary>
         /// 获取启动时传入参数列表
