@@ -32,6 +32,7 @@ namespace AKStreamKeeper
         private static string _loggerHead = "AKStreamKeeper";
         private static DateTime _getDiskSpaceToRecordMapTick = DateTime.Now;
         private static DateTime _sendDataTick= DateTime.Now;
+        private static ulong _timerCount = 0;
  
       
 
@@ -609,6 +610,9 @@ namespace AKStreamKeeper
 
         private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
+            _timerCount++;
+            GCommon.Logger.Debug(
+                $"[{LoggerHead}]->Common.OnTimedEvent运行中...({_timerCount})");
             TimeSpan ts = DateTime.Now.Subtract(StartupDateTime);
           
             lock (_performanceInfoLock)
