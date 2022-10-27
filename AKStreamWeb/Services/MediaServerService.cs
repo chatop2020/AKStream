@@ -3125,6 +3125,228 @@ namespace AKStreamWeb.Services
 
             return null;
         }
+        
+        
+        
+        /// <summary>
+        /// 获取录像文件（支持分页，全表条件）
+        /// 查询所有视频时长落在开始与结束时间内的视频文件
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static ResGetRecordFileList GetRecordFileListEx(ReqGetRecordFileList req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            bool isPageQuery = req.PageIndex != null;
+            bool haveOrderBy = req.OrderBy != null;
+            if (isPageQuery)
+            {
+                if (req.PageSize > 10000)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseLimited,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
+                    };
+                     GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return null!;
+                }
+
+                if (req.PageIndex <= 0)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseLimited,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseLimited],
+                    };
+                     GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                    return null!;
+                }
+            }
+
+            string orderBy = "";
+            if (haveOrderBy)
+            {
+                foreach (var order in req.OrderBy!)
+                {
+                    if (order != null)
+                    {
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " + Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                    }
+                }
+
+                orderBy = orderBy.TrimEnd(',');
+            }
+
+            long total = -1;
+            List<RecordFile> retList = null;
+
+            try
+            {
+                if (isPageQuery)
+                {
+                    retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                        .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                        .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                        .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                        .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                        .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                        .WhereIf((req.StartTime !=null && req.EndTime!=null),x=>x.EndTime>=req.StartTime )
+                        .WhereIf((req.StartTime !=null && req.EndTime!=null),x=>x.StartTime<=req.EndTime )
+                        .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                        .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                            x => x.App.Equals(req.App))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                            x => x.Streamid.Equals(req.Streamid))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                            x => x.Vhost.Equals(req.Vhost))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.ChannelId),
+                            x => x.ChannelId.Equals(req.ChannelId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.ChannelName),
+                            x => x.ChannelName.Equals(req.ChannelName))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                            x => x.DepartmentId.Equals(req.DepartmentId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                            x => x.DepartmentName.Equals(req.DepartmentName))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                            x => x.DeviceId.Equals(req.DeviceId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                            x => x.DownloadUrl.Equals(req.DownloadUrl))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                            x => x.MainId.Equals(req.MainId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.RecordDate),
+                            x => x.RecordDate.Equals(req.RecordDate))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.VideoPath),
+                            x => x.VideoPath.Equals(req.VideoPath))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                            x => x.MediaServerId.Equals(req.MediaServerId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                            x => x.MediaServerIp.Equals(req.MediaServerIp))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                            x => x.PDepartmentId.Equals(req.PDepartmentId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                            x => x.PDepartmentName.Equals(req.PDepartmentName))
+                        .OrderBy(orderBy)
+                        .Count(out total)
+                        .Page((int) req.PageIndex!, (int) req.PageSize!)
+                        .ToList();
+                }
+                else
+                {
+                    retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                        .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                        .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                        .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                        .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                        .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                        .WhereIf((req.StartTime !=null && req.EndTime!=null),x=>x.EndTime>=req.StartTime )
+                        .WhereIf((req.StartTime !=null && req.EndTime!=null),x=>x.StartTime<=req.EndTime )
+                        .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                        .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                            x => x.App.Equals(req.App))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                            x => x.Streamid.Equals(req.Streamid))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                            x => x.Vhost.Equals(req.Vhost))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.ChannelId),
+                            x => x.ChannelId.Equals(req.ChannelId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.ChannelName),
+                            x => x.ChannelName.Equals(req.ChannelName))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                            x => x.DepartmentId.Equals(req.DepartmentId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                            x => x.DepartmentName.Equals(req.DepartmentName))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                            x => x.DeviceId.Equals(req.DeviceId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                            x => x.DownloadUrl.Equals(req.DownloadUrl))
+                        .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                            x => x.MainId.Equals(req.MainId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.RecordDate),
+                            x => x.RecordDate.Equals(req.RecordDate))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.VideoPath),
+                            x => x.VideoPath.Equals(req.VideoPath))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                            x => x.MediaServerId.Equals(req.MediaServerId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                            x => x.MediaServerIp.Equals(req.MediaServerIp))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                            x => x.PDepartmentId.Equals(req.PDepartmentId))
+                        .WhereIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                            x => x.PDepartmentName.Equals(req.PDepartmentName))
+                        .OrderBy(orderBy)
+                        .ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DataBaseExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+                 GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取录制文件列表失败->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            ResGetRecordFileList result = new ResGetRecordFileList();
+            result.RecordFileList = retList;
+            if (!isPageQuery)
+            {
+                if (retList != null)
+                {
+                    total = retList.Count;
+                }
+                else
+                {
+                    total = 0;
+                }
+            }
+
+            result.Total = total;
+            result.Request = req;
+             GCommon.Logger.Info(
+                $"[{Common.LoggerHead}]->获取录制文件列表成功->{JsonHelper.ToJson(req)}->{result.RecordFileList.Count}/{result.Total}");
+
+            return result;
+        }
 
         /// <summary>
         /// 获取录像文件（支持分页，全表条件）
@@ -3199,6 +3421,7 @@ namespace AKStreamWeb.Services
                         .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
                         .WhereIf(req.StartTime != null, x => x.StartTime >= req.StartTime)
                         .WhereIf(req.EndTime != null, x => x.EndTime <= req.EndTime)
+                       
                         .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
                         .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
                         .WhereIf(!UtilsHelper.StringIsNullEx(req.App),

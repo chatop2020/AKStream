@@ -183,7 +183,7 @@ namespace AKStreamWeb.AutoTask
                                     $"[{Common.LoggerHead}]->删除一个录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->DBId:{ret.Id}->FilePath:{ret.VideoPath}");
                             }
 
-                            Thread.Sleep(20);
+                            Thread.Sleep(500);
                         }
 
                         if ((videoSize - deleteSize) < plan.LimitSpace)
@@ -223,7 +223,7 @@ namespace AKStreamWeb.AutoTask
                         $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(500);
             }
         }
 
