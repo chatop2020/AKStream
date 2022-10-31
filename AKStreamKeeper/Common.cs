@@ -615,6 +615,23 @@ namespace AKStreamKeeper
                 $"[{LoggerHead}]->Common.OnTimedEvent运行中...({_timerCount})");
             TimeSpan ts = DateTime.Now.Subtract(StartupDateTime);
           
+            if (MediaServerInstance == null || !MediaServerInstance.IsRunning)
+            {
+                GCommon.Logger.Warn(
+                    $"[{LoggerHead}]->流媒体服务器(MediaServer)未启动或流媒体实例不存在，立即创建或启动...");
+               var _pid= StartupMediaServer();
+               if (_pid > 0)
+               {
+                   GCommon.Logger.Warn(
+                       $"[{LoggerHead}]->流媒体服务器(MediaServer)实例创建并启动成功...{_pid}");
+               }
+               else
+               {
+                   GCommon.Logger.Warn(
+                       $"[{LoggerHead}]->流媒体服务器(MediaServer)创建或启动失败...下个循环再试");
+               }
+            }
+            
             lock (_performanceInfoLock)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
@@ -633,7 +650,8 @@ namespace AKStreamKeeper
             
             if((DateTime.Now-_sendDataTick).TotalMilliseconds>=5000 &&  MediaServerInstance != null)//发心跳给服务器
             {
-              
+
+               
                 ReqMediaServerKeepAlive tmpKeepAlive = new ReqMediaServerKeepAlive();
 
                 if (_firstPost)
