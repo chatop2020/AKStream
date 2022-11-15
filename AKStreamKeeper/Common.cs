@@ -22,7 +22,7 @@ namespace AKStreamKeeper
     {
         public delegate void MediaServerKilled(bool self = false);
 
-     
+
         private static string _configPath = GCommon.ConfigPath + "AKStreamKeeper.json";
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
         private static SystemInfo _keeperSystemInfo = new SystemInfo();
@@ -31,10 +31,9 @@ namespace AKStreamKeeper
         private static Timer _perFormanceInfoTimer;
         private static string _loggerHead = "AKStreamKeeper";
         private static DateTime _getDiskSpaceToRecordMapTick = DateTime.Now;
-        private static DateTime _sendDataTick= DateTime.Now;
+        private static DateTime _sendDataTick = DateTime.Now;
         private static ulong _timerCount = 0;
- 
-      
+
 
         private static List<KeyValuePair<double, string>> _akStreamDiskInfoOfRecordMap =
             new List<KeyValuePair<double, string>>();
@@ -48,13 +47,12 @@ namespace AKStreamKeeper
         public static DateTime StartupDateTime;
         public static AutoRtpPortClean AutoRtpPortClean;
 
-       
-
 
         /// <summary>
         /// 申请的rtp端口放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
         /// </summary>
         public static List<PortInfo> PortInfoList = new List<PortInfo>();
+
         /// <summary>
         /// 申请的rtp端口(发送)放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
         /// </summary>
@@ -75,7 +73,7 @@ namespace AKStreamKeeper
             IsDebug = true;
 #endif
 
-            StartupDateTime=DateTime.Now;
+            StartupDateTime = DateTime.Now;
             CutMergeService.start = true;
             MediaServerInstance.OnMediaKilled += OnMediaServerKilled;
         }
@@ -127,7 +125,8 @@ namespace AKStreamKeeper
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath);
             if (MediaServerInstance == null)
             {
-                MediaServerInstance = new MediaServerInstance(_akStreamKeeperConfig.MediaServerPath,AkStreamKeeperConfig);
+                MediaServerInstance =
+                    new MediaServerInstance(_akStreamKeeperConfig.MediaServerPath, AkStreamKeeperConfig);
             }
 
             return MediaServerInstance.Startup();
@@ -261,8 +260,8 @@ namespace AKStreamKeeper
             UtilsHelper.RemoveNull(_akStreamDiskInfoOfRecordMap); //去null
             _akStreamDiskInfoOfRecordMap = _akStreamDiskInfoOfRecordMap.Distinct().ToList(); //去重
             for (int i = _akStreamKeeperConfig.CustomRecordPathList.Count - 1;
-                i >= 0;
-                i--)
+                 i >= 0;
+                 i--)
             {
                 //保证去除完全不存在的目录
                 string dir = _akStreamKeeperConfig.CustomRecordPathList[i];
@@ -565,12 +564,13 @@ namespace AKStreamKeeper
                     }
 
                     GetDiskSpaceToRecordMap();
-                    var ret= CheckConfig(out rs);
+                    var ret = CheckConfig(out rs);
                     if (ret)
                     {
-                        File.Delete(_configPath+"_bak");
-                        File.Copy(_configPath,_configPath+"_bak");
+                        File.Delete(_configPath + "_bak");
+                        File.Copy(_configPath, _configPath + "_bak");
                     }
+
                     return ret;
                 }
                 catch (Exception ex)
@@ -579,14 +579,15 @@ namespace AKStreamKeeper
                     if (File.Exists(_configPath + "_bak"))
                     {
                         File.Delete(_configPath);
-                        File.Copy(_configPath+"_bak",_configPath);
+                        File.Copy(_configPath + "_bak", _configPath);
                         tmpStr = "已经将[" + _configPath + "]文件恢复到上一次正常时的状态，请重新执行尝试解决问题";
                     }
+
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.Sys_JsonReadExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_JsonReadExcept],
-                        ExceptMessage = ex.Message+"\r\n"+tmpStr,
+                        ExceptMessage = ex.Message + "\r\n" + tmpStr,
                         ExceptStackTrace = ex.StackTrace,
                     };
                 }
@@ -614,44 +615,47 @@ namespace AKStreamKeeper
             GCommon.Logger.Debug(
                 $"[{LoggerHead}]->Common.OnTimedEvent运行中...({_timerCount})");
             TimeSpan ts = DateTime.Now.Subtract(StartupDateTime);
-          
+
             if (MediaServerInstance == null || !MediaServerInstance.IsRunning)
             {
                 GCommon.Logger.Warn(
                     $"[{LoggerHead}]->流媒体服务器(MediaServer)未启动或流媒体实例不存在，立即创建或启动...");
-               var _pid= StartupMediaServer();
-               if (_pid > 0)
-               {
-                   GCommon.Logger.Warn(
-                       $"[{LoggerHead}]->流媒体服务器(MediaServer)实例创建并启动成功...{_pid}");
-               }
-               else
-               {
-                   GCommon.Logger.Warn(
-                       $"[{LoggerHead}]->流媒体服务器(MediaServer)创建或启动失败...下个循环再试");
-               }
+                _perFormanceInfoTimer.Stop();//防止timer重入
+                var _pid = StartupMediaServer();
+                
+                if (_pid > 0)
+                {
+                    GCommon.Logger.Warn(
+                        $"[{LoggerHead}]->流媒体服务器(MediaServer)实例创建并启动成功...{_pid}");
+                }
+                else
+                {
+                    GCommon.Logger.Warn(
+                        $"[{LoggerHead}]->流媒体服务器(MediaServer)创建或启动失败...下个循环再试");
+                }
+                _perFormanceInfoTimer.Start();
+                return;
             }
-            
+
             lock (_performanceInfoLock)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
                 KeeperPerformanceInfo.UpTimeSec = ts.TotalSeconds;
             }
 
-           
-            if((DateTime.Now-_getDiskSpaceToRecordMapTick).TotalMilliseconds>=60000)//每60秒获取一次磁盘占用情况
+
+            if ((DateTime.Now - _getDiskSpaceToRecordMapTick).TotalMilliseconds >= 60000) //每60秒获取一次磁盘占用情况
             {
                 lock (_akStreamDiskInfoOfRecordMapLock)
                 {
                     GetDiskSpaceToRecordMap();
                 }
-                _getDiskSpaceToRecordMapTick=DateTime.Now;
-            }
-            
-            if((DateTime.Now-_sendDataTick).TotalMilliseconds>=5000 &&  MediaServerInstance != null)//发心跳给服务器
-            {
 
-               
+                _getDiskSpaceToRecordMapTick = DateTime.Now;
+            }
+
+            if ((DateTime.Now - _sendDataTick).TotalMilliseconds >= 5000 && MediaServerInstance != null) //发心跳给服务器
+            {
                 ReqMediaServerKeepAlive tmpKeepAlive = new ReqMediaServerKeepAlive();
 
                 if (_firstPost)
@@ -700,7 +704,7 @@ namespace AKStreamKeeper
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
-                
+
                 try
                 {
                     var httpRet = NetHelper.HttpPostRequest(_akStreamKeeperConfig.AkStreamWebRegisterUrl, null, reqData,
@@ -752,16 +756,16 @@ namespace AKStreamKeeper
         /// </summary>
         public static void Init()
         {
-         
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
                 if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
                 {
-                    GCommon.OutConfigPath +=  "/";
+                    GCommon.OutConfigPath += "/";
                 }
-                _configPath= GCommon.OutConfigPath + "AKStreamKeeper.json";
+
+                _configPath = GCommon.OutConfigPath + "AKStreamKeeper.json";
             }
-            
+
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
 #if (DEBUG)
@@ -805,7 +809,7 @@ namespace AKStreamKeeper
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
-            AutoRtpPortClean = new AutoRtpPortClean();//启动不使用rtp端口自动清理
+            AutoRtpPortClean = new AutoRtpPortClean(); //启动不使用rtp端口自动清理
             if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
             {
                 if (KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
