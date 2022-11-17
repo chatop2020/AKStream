@@ -2140,6 +2140,7 @@ namespace AKStreamWeb.Services
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
                 retobj.MediaServerStreamInfo.IsRecorded = false;
+                retobj.MediaServerStreamInfo.StopRecordWithUser = true;
                 lock (GCommon.Ldb.LiteDBLockObj)
                 {
                     GCommon.Ldb.VideoOnlineInfo.Update(retobj);

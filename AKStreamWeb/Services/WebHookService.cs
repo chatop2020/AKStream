@@ -159,10 +159,22 @@ namespace AKStreamWeb.Services
 
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
-                retobj.MediaServerStreamInfo.IsRecorded = true;
-                lock (GCommon.Ldb.LiteDBLockObj)
+                if (retobj.MediaServerStreamInfo.StopRecordWithUser == false)//判断是否因为手工停止录制，如果手工停止录制就不需要再改变录制状态
                 {
-                    GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    retobj.MediaServerStreamInfo.IsRecorded = true;
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
+                    
+                }
+                else//如果是手工停止，则把手工停止属性重置到false
+                {
+                    retobj.MediaServerStreamInfo.StopRecordWithUser = false;
+                    lock (GCommon.Ldb.LiteDBLockObj)
+                    {
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
                 }
             }
 

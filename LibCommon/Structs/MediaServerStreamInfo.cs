@@ -86,6 +86,7 @@ namespace LibCommon.Structs
         private string? _streamTcpId = null;
         private string _vhost = null!;
         private uint? ssrc;
+        private bool? _StopRecordWithUser = false;
 
 
         /// <summary>
@@ -244,6 +245,15 @@ namespace LibCommon.Structs
         {
             get => _playerList;
             set => _playerList = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
+        /// <summary>
+        /// 是否手工停止录制，如果手工停止录制，在收到最后一次录制文件时，不能再改变录制状态
+        /// </summary>
+        public bool? StopRecordWithUser
+        {
+            get => _StopRecordWithUser;
+            set => _StopRecordWithUser = value;
         }
     }
 }
