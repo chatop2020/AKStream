@@ -84,7 +84,7 @@ namespace AKStreamWeb.AutoTask
                             lock (GCommon.Ldb.LiteDBLockObj)
                             {
                                 var selfMediaList = GCommon.Ldb.VideoOnlineInfo.FindAll().ToList();
-                                if (selfMediaList != null || selfMediaList.Count() > 0)
+                                if (selfMediaList != null && selfMediaList.Count() > 0)
                                 {
                                     foreach (var mediaServer in Common.MediaServerList)
                                     {
