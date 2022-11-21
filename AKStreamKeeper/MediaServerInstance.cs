@@ -575,7 +575,7 @@ namespace AKStreamKeeper
                     {
                         IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
                         Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
-                        string h = AKStreamWebUri.Host.ToString();
+                        string h = AKStreamWebUri.Host.Trim();
                         string p = AKStreamWebUri.Port.ToString();
 
                         var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
@@ -708,6 +708,8 @@ namespace AKStreamKeeper
                             _zlmNewConfig.Protocol.Enable_Mp4 = 1;
                             _zlmNewConfig.Protocol.Mp4_Max_Second = Common.AkStreamKeeperConfig.RecordSec;
                         }
+                        
+                        
 
                         var ok = _zlmNewConfig.SetConfig(_configPath);
                         var parser = new FileIniDataParser();

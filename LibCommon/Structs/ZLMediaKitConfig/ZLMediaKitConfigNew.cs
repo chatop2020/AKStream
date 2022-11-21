@@ -131,6 +131,12 @@ public class ZLMediaKitConfigNew
     }
 
 
+    /// <summary>
+    /// 写ini文件
+    /// </summary>
+    /// <param name="configPath"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public bool SetConfig(string configPath)
     {
         try
@@ -932,7 +938,7 @@ public class ZLMediaKitConfigNew
     }
 
     /// <summary>
-    /// 初始化
+    /// 初始化，读取ini文件
     /// </summary>
     /// <param name="configPath"></param>
     /// <exception cref="FileNotFoundException"></exception>
@@ -962,6 +968,10 @@ public class ZLMediaKitConfigNew
 
             #region api部分
 
+            if (Api == null)
+            {
+                Api = new ZLMediaKitConfigNew_API();
+            }
             var apiDebug = data["api"]["apiDebug"];
             if (apiDebug != null && !string.IsNullOrEmpty(apiDebug) && UtilsHelper.IsInteger(apiDebug))
             {
@@ -990,6 +1000,10 @@ public class ZLMediaKitConfigNew
 
             #region ffmpeg部分
 
+            if (FFmpeg == null)
+            {
+                FFmpeg = new ZLMediaKitConfigNew_FFMPEG();
+            }
             var bin = data["ffmpeg"]["bin"];
             if (bin != null && !string.IsNullOrEmpty(bin))
             {
@@ -1024,6 +1038,10 @@ public class ZLMediaKitConfigNew
 
             #region protocol部分
 
+            if (Protocol == null)
+            {
+                Protocol = new ZLMediaKitConfigNew_Protocol();
+            }
             var modify_stamp = data["protocol"]["modify_stamp"];
             if (modify_stamp != null && !string.IsNullOrEmpty(modify_stamp) &&
                 UtilsHelper.IsInteger(modify_stamp))
@@ -1148,6 +1166,10 @@ public class ZLMediaKitConfigNew
 
             #region general部分
 
+            if (General == null)
+            {
+                General = new ZLMediaKitConfigNew_General();
+            }
             var enableVhost = data["general"]["enableVhost"];
             if (enableVhost != null && !string.IsNullOrEmpty(enableVhost) && UtilsHelper.IsInteger(enableVhost))
             {
@@ -1220,6 +1242,10 @@ public class ZLMediaKitConfigNew
 
             #region hls部分
 
+            if (Hls == null)
+            {
+                Hls = new ZLMediaKitConfigNew_HLS();
+            }
             var fileBufSize = data["hls"]["fileBufSize"];
             if (fileBufSize != null && !string.IsNullOrEmpty(fileBufSize) && UtilsHelper.IsInteger(fileBufSize))
             {
@@ -1268,6 +1294,10 @@ public class ZLMediaKitConfigNew
 
             #region hook部分
 
+            if (Hook == null)
+            {
+                Hook = new ZLMediaKitConfigNew_Hook();
+            }
             var admin_params = data["hook"]["admin_params"];
             if (admin_params != null && !string.IsNullOrEmpty(admin_params))
             {
@@ -1405,6 +1435,10 @@ public class ZLMediaKitConfigNew
 
             #region cluster部分
 
+            if (Cluster == null)
+            {
+                Cluster = new ZLMediaKitConfigNew_Cluster();
+            }
             var origin_url = data["cluster"]["origin_url"];
             if (origin_url != null && !string.IsNullOrEmpty(origin_url))
             {
@@ -1427,6 +1461,10 @@ public class ZLMediaKitConfigNew
 
             #region http部分
 
+            if (Http == null)
+            {
+                Http = new ZLMediaKitConfigNew_Http();
+            }
             var charSet = data["http"]["charSet"];
             if (charSet != null && !string.IsNullOrEmpty(charSet))
             {
@@ -1504,6 +1542,10 @@ public class ZLMediaKitConfigNew
 
             #region multicast 部分
 
+            if (Multicast == null)
+            {
+                Multicast = new ZLMediaKitConfigNew_Multicast();
+            }
             var addrMax = data["multicast"]["addrMax"];
             if (addrMax != null && !string.IsNullOrEmpty(addrMax))
             {
@@ -1526,6 +1568,10 @@ public class ZLMediaKitConfigNew
 
             #region record部分
 
+            if (Record == null)
+            {
+                Record = new ZLMediaKitConfigNew_Record();
+            }
             var appName = data["record"]["appName"];
             if (appName != null && !string.IsNullOrEmpty(appName))
             {
@@ -1561,6 +1607,10 @@ public class ZLMediaKitConfigNew
 
             #region rtmp部分
 
+            if (Rtmp == null)
+            {
+                Rtmp = new ZLMediaKitConfigNew_RTMP();
+            }
             var handshakeSecond = data["rtmp"]["handshakeSecond"];
             if (handshakeSecond != null && !string.IsNullOrEmpty(handshakeSecond) &&
                 UtilsHelper.IsInteger(handshakeSecond))
@@ -1598,6 +1648,10 @@ public class ZLMediaKitConfigNew
 
             #region rtp部分
 
+            if (Rtp == null)
+            {
+                Rtp = new ZLMediaKitConfigNew_RTP();
+            }
             var audioMtuSize = data["rtp"]["audioMtuSize"];
             if (audioMtuSize != null && !string.IsNullOrEmpty(audioMtuSize) &&
                 UtilsHelper.IsInteger(audioMtuSize))
@@ -1628,6 +1682,10 @@ public class ZLMediaKitConfigNew
 
             #region rtp_proxy 部分
 
+            if (Rtp_Proxy == null)
+            {
+                Rtp_Proxy = new ZLMediaKitConfigNew_Rtp_Proxy();
+            }
             var dumpDir = data["rtp_proxy"]["dumpDir"];
             if (dumpDir != null && !string.IsNullOrEmpty(dumpDir))
             {
@@ -1700,6 +1758,10 @@ public class ZLMediaKitConfigNew
 
             #region rtc部分
 
+            if (Rtc == null)
+            {
+                Rtc = new ZLMediaKitConfigNew_RTC();
+            }
             var rtc_timeoutSec = data["rtc"]["timeoutSec"];
             if (rtc_timeoutSec != null && !string.IsNullOrEmpty(rtc_timeoutSec) &&
                 UtilsHelper.IsInteger(rtc_timeoutSec))
@@ -1747,6 +1809,10 @@ public class ZLMediaKitConfigNew
 
             #region srt部分
 
+            if (Srt == null)
+            {
+                Srt = new ZLMediaKitConfigNew_SRT();
+            }
             var srt_timeoutSec = data["srt"]["timeoutSec"];
             if (srt_timeoutSec != null && !string.IsNullOrEmpty(srt_timeoutSec) &&
                 UtilsHelper.IsInteger(srt_timeoutSec))
@@ -1776,6 +1842,10 @@ public class ZLMediaKitConfigNew
 
             #region rtsp部分
 
+            if (Rtsp == null)
+            {
+                Rtsp = new ZLMediaKitConfigNew_RTSP();
+            }
             var authBasic = data["rtsp"]["authBasic"];
             if (authBasic != null && !string.IsNullOrEmpty(authBasic) && UtilsHelper.IsInteger(authBasic))
             {
@@ -1826,6 +1896,10 @@ public class ZLMediaKitConfigNew
 
             #region shell部分
 
+            if (Shell == null)
+            {
+                Shell = new ZLMediaKitConfigNew_Shell();
+            }
             var shell_maxReqSize = data["shell"]["maxReqSize"];
             if (shell_maxReqSize != null && !string.IsNullOrEmpty(shell_maxReqSize) &&
                 UtilsHelper.IsInteger(shell_maxReqSize))
