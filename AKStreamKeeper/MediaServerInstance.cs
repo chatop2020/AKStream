@@ -559,6 +559,12 @@ namespace AKStreamKeeper
         }
 
 
+        /// <summary>
+        /// 设置zlm config.ini文件
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
         public bool SetConfig(out ResponseStruct rs)
         {
             rs = new ResponseStruct()
@@ -1281,7 +1287,7 @@ namespace AKStreamKeeper
                             {
                                 Code = ErrorNumber.Sys_ConfigNotReady,
                                 Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "record.fileSecond=null，fileSecond录制时长不能为空或小于0，建议120秒",
+                                ExceptMessage = "protocol.mp4_max_second=null，mp4_max_second录制时长不能为空或小于0，建议120秒",
                             };
                             return false;
                         }
