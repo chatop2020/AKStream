@@ -21,7 +21,56 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+        
+        
+        /// <summary>
+        /// 是否为ushort类型
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsUShort(string str)
+        {
+            try
+            {
+                int i = Convert.ToUInt16(str);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// 是否整数
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsInteger(string str)
+        {
+            try
+            {
+                int i = Convert.ToInt32(str);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
+        /// <summary>
+        /// 是否浮点数
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsFloat(string str)
+        {
+            string regextext = @"^\d+\.\d+$";
+            Regex regex = new Regex(regextext, RegexOptions.None);
+            return regex.IsMatch(str);
+        }
+      
         /// <summary>
         /// 为字符串添加引号
         /// </summary>

@@ -8,6 +8,7 @@ using AKStreamKeeper.Misc;
 using IniParser;
 using IniParser.Model;
 using LibCommon;
+using LibCommon.Structs.ZLMediaKitConfig;
 
 namespace AKStreamKeeper
 {
@@ -21,6 +22,7 @@ namespace AKStreamKeeper
         private static bool _isSelfClose = false;
 
         private static AKStreamKeeperConfig _akStreamKeeperConfig;
+
         private static ProcessHelper _mediaServerProcessHelper =
             new ProcessHelper(p_StdOutputDataReceived, p_ErrOutputDataReceived, p_Process_Exited!);
 
@@ -39,11 +41,61 @@ namespace AKStreamKeeper
         private ushort _zlmRtpProxyPort;
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
+        private ZLMediaKitConfigNew _zlmNewConfig;
+        private bool _useNewZLMediaKit = false;
 
-        public  AKStreamKeeperConfig AkStreamKeeperConfig
+        /// <summary>
+        /// 新的zlm配置文件实例
+        /// </summary>
+        public ZLMediaKitConfigNew ZlmNewConfig
+        {
+            get => _zlmNewConfig;
+            set => _zlmNewConfig = value;
+        }
+
+        public AKStreamKeeperConfig AkStreamKeeperConfig
         {
             get => _akStreamKeeperConfig;
             set => _akStreamKeeperConfig = value;
+        }
+
+        /// <summary>
+        /// 是否使用新版zlmediakit
+        /// </summary>
+        public bool UseNewZlMediaKit
+        {
+            get => _useNewZLMediaKit;
+            set => _useNewZLMediaKit = value;
+        }
+
+
+        /// <summary>
+        /// 检查是否为新版zlm配置文件
+        /// </summary>
+        /// <param name="configPath"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        private bool checkNewZLMConfig(string configPath)
+        {
+            if (!string.IsNullOrEmpty(configPath))
+            {
+                throw new FileNotFoundException("配置文件路径不能为空");
+            }
+
+            if (!File.Exists(configPath))
+            {
+                throw new FileNotFoundException("检查ZLMediaKit配置文件时发现" + configPath + "文件不存在");
+            }
+
+            var parser = new FileIniDataParser();
+            IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+            var check = data["protocol"];
+            if (check == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -227,21 +279,21 @@ namespace AKStreamKeeper
         }
 
         public static event Common.MediaServerKilled OnMediaKilled = null!;
-        
-        
+
+
         /// <summary>
         /// 修改一个ffmpeg模板
         /// </summary>
         /// <param name="tmplate"></param>
         /// <returns></returns>
-        public  bool ModifyFFmpegTemplate(KeyValuePair<string, string> tmplate,out ResponseStruct rs)
+        public bool ModifyFFmpegTemplate(KeyValuePair<string, string> tmplate, out ResponseStruct rs)
         {
-               rs = new ResponseStruct()
+            rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-           
+
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
                 var parser = new FileIniDataParser();
@@ -264,33 +316,28 @@ namespace AKStreamKeeper
                         if (found)
                         {
                             data["ffmpeg_templete"][tmplate.Key] =
-                               tmplate.Value;
+                                tmplate.Value;
                             parser.WriteFile(_configPath, data);
                             Reload();
                             return true;
-
                         }
 
                         rs = new ResponseStruct()
                         {
                             Code = ErrorNumber.MediaServer_ObjectNotExists,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ObjectNotExists],
-                         
                         };
                         return false;
-
                     }
 
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.MediaServer_ObjectNotExists,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ObjectNotExists],
-                         
                     };
                     return false;
-
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     rs = new ResponseStruct()
                     {
@@ -307,23 +354,23 @@ namespace AKStreamKeeper
             {
                 Code = ErrorNumber.MediaServer_ConfigNotFound,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
-                 
             };
             throw new AkStreamException(rs);
         }
+
         /// <summary>
         /// 删除一个ffmpeg模板
         /// </summary>
         /// <param name="tmplateName"></param>
         /// <returns></returns>
-        public  bool DelFFmpegTemplate(string tmplateName,out ResponseStruct rs)
+        public bool DelFFmpegTemplate(string tmplateName, out ResponseStruct rs)
         {
-             rs = new ResponseStruct()
+            rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-           
+
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
                 var parser = new FileIniDataParser();
@@ -350,10 +397,10 @@ namespace AKStreamKeeper
                             Reload();
                         }
                     }
-                    return true;
 
+                    return true;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     rs = new ResponseStruct()
                     {
@@ -370,7 +417,6 @@ namespace AKStreamKeeper
             {
                 Code = ErrorNumber.MediaServer_ConfigNotFound,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
-                 
             };
             throw new AkStreamException(rs);
         }
@@ -380,15 +426,14 @@ namespace AKStreamKeeper
         /// </summary>
         /// <param name="tmplate"></param>
         /// <returns></returns>
-        public  bool AddFFmpegTemplate(KeyValuePair<string, string> tmplate,out ResponseStruct rs)
+        public bool AddFFmpegTemplate(KeyValuePair<string, string> tmplate, out ResponseStruct rs)
         {
-           
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-           
+
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
                 var parser = new FileIniDataParser();
@@ -417,6 +462,7 @@ namespace AKStreamKeeper
                             };
                             return false;
                         }
+
                         SectionData ff = new SectionData("ffmpeg_templete");
                         KeyData ffkey = new KeyData(tmplate.Key);
                         ffkey.Value = tmplate.Value;
@@ -437,9 +483,8 @@ namespace AKStreamKeeper
                         Reload();
                         return true;
                     }
-                   
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     rs = new ResponseStruct()
                     {
@@ -456,7 +501,6 @@ namespace AKStreamKeeper
             {
                 Code = ErrorNumber.MediaServer_ConfigNotFound,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
-                 
             };
             throw new AkStreamException(rs);
         }
@@ -465,7 +509,7 @@ namespace AKStreamKeeper
         /// 获取ffmpeg模板列表
         /// </summary>
         /// <returns></returns>
-        public  List<KeyValuePair<string, string>> GetFFmpegTempleteList(out ResponseStruct rs)
+        public List<KeyValuePair<string, string>> GetFFmpegTempleteList(out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -486,13 +530,14 @@ namespace AKStreamKeeper
                         {
                             if (temp != null)
                             {
-                                result.Add(new KeyValuePair<string, string>(temp.KeyName,temp.Value));
+                                result.Add(new KeyValuePair<string, string>(temp.KeyName, temp.Value));
                             }
                         }
                     }
+
                     return result;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     rs = new ResponseStruct()
                     {
@@ -509,7 +554,6 @@ namespace AKStreamKeeper
             {
                 Code = ErrorNumber.MediaServer_ConfigNotFound,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ConfigNotFound],
-                 
             };
             throw new AkStreamException(rs);
         }
@@ -524,103 +568,189 @@ namespace AKStreamKeeper
             };
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
-                var parser = new FileIniDataParser();
-                try
+                if (!_useNewZLMediaKit)
                 {
-                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
-                    Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
-                    string h = AKStreamWebUri.Host.ToString();
-                    string p = AKStreamWebUri.Port.ToString();
-
-                    var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
-                    if (ffmpeg_temp == null)
+                    var parser = new FileIniDataParser();
+                    try
                     {
-                        SectionData ff = new SectionData("ffmpeg_templete");
-                        KeyData ffkey = new KeyData("rtsp_tcp2flv");
-                        ffkey.Value = $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
-                        ff.Keys.AddKey(ffkey);
-                        data.Sections.Add(ff);
+                        IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+                        Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
+                        string h = AKStreamWebUri.Host.ToString();
+                        string p = AKStreamWebUri.Port.ToString();
+
+                        var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
+                        if (ffmpeg_temp == null)
+                        {
+                            SectionData ff = new SectionData("ffmpeg_templete");
+                            KeyData ffkey = new KeyData("rtsp_tcp2flv");
+                            ffkey.Value = $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                            ff.Keys.AddKey(ffkey);
+                            data.Sections.Add(ff);
+                        }
+
+                        var ffkey_temp = data["ffmpeg_templete"]["rtsp_tcp2flv"];
+                        if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                        {
+                            data["ffmpeg_templete"]["rtsp_tcp2flv"] =
+                                $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        }
+
+                        ffkey_temp = data["ffmpeg_templete"]["ffmpeg2flv"];
+                        if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                        {
+                            data["ffmpeg_templete"]["ffmpeg2flv"] =
+                                $"%s -re  -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        }
+
+                        data["hook"].RemoveAllKeys();
+                        data["hook"]["enable"] = "1";
+                        data["hook"]["on_flow_report"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
+                        data["hook"]["on_http_access"] = "";
+                        data["hook"]["on_play"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnPlay"; //有流被客户端播放时
+                        data["hook"]["on_publish"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnPublish"; //有流发布时
+                        data["hook"]["on_record_mp4"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnRecordMp4"; //当录制mp4完成时
+                        data["hook"]["on_record_ts"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
+                        data["hook"]["on_rtsp_auth"] = "";
+                        data["hook"]["on_rtsp_realm"] = "";
+                        data["hook"]["on_shell_login"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
+                        data["hook"]["on_stream_changed"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnStreamChanged"; //流注册或注销时
+                        data["hook"]["on_stream_none_reader"] =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnStreamNoneReader"; //流无人观看时
+                        data["hook"]["on_stream_not_found"] = "";
+                        data["hook"]["on_server_started"] = "";
+                        data["hook"]["timeoutSec"] = "20"; //httpclient超时时间20秒
+                        data["general"]["flowThreshold"] =
+                            "0"; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
+                        data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;
+                        data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
+                        if (Common.AkStreamKeeperConfig.DisableShell == true)
+                        {
+                            data["shell"]["port"] = "0";
+                        }
+                        else
+                        {
+                            data["shell"]["port"] = "9000";
+                        }
+
+                        if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
+                        {
+                            data["record"]["fileSecond"] = Common.AkStreamKeeperConfig.RecordSec.ToString();
+                        }
+
+                        parser.WriteFile(_configPath, data);
+                        return true;
                     }
-
-                    var ffkey_temp = data["ffmpeg_templete"]["rtsp_tcp2flv"];
-                    if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                    catch (Exception ex)
                     {
-                        data["ffmpeg_templete"]["rtsp_tcp2flv"] =
-                            $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_WriteIniFileExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_WriteIniFileExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace,
+                        };
+                        throw new AkStreamException(rs);
                     }
-
-                    ffkey_temp = data["ffmpeg_templete"]["ffmpeg2flv"];
-                    if (UtilsHelper.StringIsNullEx(ffkey_temp))
-                    {
-                        data["ffmpeg_templete"]["ffmpeg2flv"] =
-                            $"%s -re  -i %s -vcodec copy -acodec copy -f flv -y  %s";
-                    }
-
-                    data["hook"].RemoveAllKeys();
-                    /*if (Common.IsDebug)
-                    {
-                        data["api"]["apiDebug"] = "1";
-                    }
-                    else
-                    {
-                        data["api"]["apiDebug"] = "0";
-                    }*/
-
-
-                    data["hook"]["enable"] = "1";
-                    data["hook"]["on_flow_report"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
-                    data["hook"]["on_http_access"] = "";
-                    data["hook"]["on_play"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnPlay"; //有流被客户端播放时
-                    data["hook"]["on_publish"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnPublish"; //有流发布时
-                    data["hook"]["on_record_mp4"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnRecordMp4"; //当录制mp4完成时
-                    data["hook"]["on_record_ts"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
-                    data["hook"]["on_rtsp_auth"] = "";
-                    data["hook"]["on_rtsp_realm"] = "";
-                    data["hook"]["on_shell_login"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
-                    data["hook"]["on_stream_changed"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnStreamChanged"; //流注册或注销时
-                    data["hook"]["on_stream_none_reader"] =
-                        $"http://{h}:{p}/MediaServer/WebHook/OnStreamNoneReader"; //流无人观看时
-                    data["hook"]["on_stream_not_found"] = "";
-                    data["hook"]["on_server_started"] = "";
-                    data["hook"]["timeoutSec"] = "20"; //httpclient超时时间20秒
-                    data["general"]["flowThreshold"] = "0"; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
-                    data["ffmpeg"]["bin"] = Common.AkStreamKeeperConfig.FFmpegPath;
-                    data["ffmpeg"]["cmd"] = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
-                    data["ffmpeg"]["snap"] = "%s -i %s -y -f mjpeg -t 0.001 %s";
-                    if (Common.AkStreamKeeperConfig.DisableShell == true)
-                    {
-                        data["shell"]["port"] = "0";
-                    }
-                    else
-                    {
-                        data["shell"]["port"] = "9000";
-                    }
-
-                    if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
-                    {
-                        data["record"]["fileSecond"] = Common.AkStreamKeeperConfig.RecordSec.ToString();
-                    }
-
-                    parser.WriteFile(_configPath, data);
-                    return true;
                 }
-                catch (Exception ex)
+
+                if (_useNewZLMediaKit)
                 {
-                    rs = new ResponseStruct()
+                    try
                     {
-                        Code = ErrorNumber.Sys_WriteIniFileExcept,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_WriteIniFileExcept],
-                        ExceptMessage = ex.Message,
-                        ExceptStackTrace = ex.StackTrace,
-                    };
-                    throw new AkStreamException(rs);
+                        Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
+                        string h = AKStreamWebUri.Host.Trim();
+                        string p = AKStreamWebUri.Port.ToString();
+
+                        _zlmNewConfig.Hook.Enable = 1;
+
+                        _zlmNewConfig.Hook.On_Flow_Report = $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
+                        _zlmNewConfig.Hook.On_Http_Access = "";
+                        _zlmNewConfig.Hook.On_Play = $"http://{h}:{p}/MediaServer/WebHook/OnPlay"; //有流被客户端播放时
+                        _zlmNewConfig.Hook.On_Publish = $"http://{h}:{p}/MediaServer/WebHook/OnPublish"; //有流发布时
+                        _zlmNewConfig.Hook.On_Record_Mp4 =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnRecordMp4"; //当录制mp4完成时
+                        _zlmNewConfig.Hook.On_Record_Ts = $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
+                        _zlmNewConfig.Hook.On_Rtsp_Auth = "";
+                        _zlmNewConfig.Hook.On_Rtsp_Realm = "";
+                        _zlmNewConfig.Hook.On_Shell_Login =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
+                        _zlmNewConfig.Hook.On_Stream_Changed =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnStreamChanged"; //流注册或注销时
+                        _zlmNewConfig.Hook.On_Stream_None_Reader =
+                            $"http://{h}:{p}/MediaServer/WebHook/OnStreamNoneReader"; //流无人观看时
+                        _zlmNewConfig.Hook.On_Stream_Not_Found = "";
+                        _zlmNewConfig.Hook.On_Server_Started = "";
+                        _zlmNewConfig.Hook.TimeoutSec = 20;
+                        _zlmNewConfig.General.FlowThreshold =
+                            0; //当用户超过1byte流量时，将触发on_flow_report的webhook(/WebHook/OnStop)
+                        _zlmNewConfig.FFmpeg.Bin = Common.AkStreamKeeperConfig.FFmpegPath;
+                        _zlmNewConfig.FFmpeg.Cmd = "%s -re -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        _zlmNewConfig.FFmpeg.Snap = "%s -i %s -y -f mjpeg -t 0.001 %s";
+                        if (Common.AkStreamKeeperConfig.DisableShell)
+                        {
+                            _zlmNewConfig.Shell.Port = 0;
+                        }
+                        else
+                        {
+                            _zlmNewConfig.Shell.Port = 9000;
+                        }
+
+                        if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
+                        {
+                            _zlmNewConfig.Protocol.Enable_Mp4 = 1;
+                            _zlmNewConfig.Protocol.Mp4_Max_Second = Common.AkStreamKeeperConfig.RecordSec;
+                        }
+
+                        var ok = _zlmNewConfig.SetConfig(_configPath);
+                        var parser = new FileIniDataParser();
+                        IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+
+                        var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
+                        if (ffmpeg_temp == null)
+                        {
+                            SectionData ff = new SectionData("ffmpeg_templete");
+                            KeyData ffkey = new KeyData("rtsp_tcp2flv");
+                            ffkey.Value = $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                            ff.Keys.AddKey(ffkey);
+                            data.Sections.Add(ff);
+                        }
+
+                        var ffkey_temp = data["ffmpeg_templete"]["rtsp_tcp2flv"];
+                        if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                        {
+                            data["ffmpeg_templete"]["rtsp_tcp2flv"] =
+                                $"%s -re -rtsp_transport tcp -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        }
+
+                        ffkey_temp = data["ffmpeg_templete"]["ffmpeg2flv"];
+                        if (UtilsHelper.StringIsNullEx(ffkey_temp))
+                        {
+                            data["ffmpeg_templete"]["ffmpeg2flv"] =
+                                $"%s -re  -i %s -vcodec copy -acodec copy -f flv -y  %s";
+                        }
+
+                        parser.WriteFile(_configPath, data);
+                        return ok;
+                    }
+                    catch (Exception ex)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_WriteIniFileExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_WriteIniFileExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace,
+                        };
+                        throw new AkStreamException(rs);
+                    }
                 }
             }
 
@@ -647,326 +777,16 @@ namespace AKStreamKeeper
             };
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
-                var parser = new FileIniDataParser();
-
                 try
                 {
-                    string[] fileIniStrings = File.ReadAllLines(_configPath);
-                    for (int i = 0; i <= fileIniStrings.Length - 1; i++)
+                    _useNewZLMediaKit = checkNewZLMConfig(_configPath);
+                    if (_useNewZLMediaKit)
                     {
-                        if (fileIniStrings[i].Trim().StartsWith('#') || fileIniStrings[i].Trim().StartsWith(';'))
-                        {
-                            fileIniStrings[i] = fileIniStrings[i].TrimStart('#');
-                            fileIniStrings[i] = ";" + fileIniStrings[i];
-                        }
+                        _zlmNewConfig = new ZLMediaKitConfigNew(_configPath);
                     }
-
-                    File.WriteAllLines(_configPath, fileIniStrings);
-                    IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
-
-                    #region 检查MediaServerId
-
-                    var _tmpStr = data["general"]["mediaServerId"];
-                    if (string.IsNullOrEmpty(_tmpStr) || _tmpStr.ToUpper().Equals("your_server_id"))
-                    {
-                        data["general"]["mediaServerId"] = UtilsHelper.generalGuid();
-                        try
-                        {
-                            parser.WriteFile(_configPath, data);
-                        }
-                        catch (Exception ex)
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_WriteIniFileExcept,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_WriteIniFileExcept],
-                                ExceptMessage = ex.Message,
-                                ExceptStackTrace = ex.StackTrace,
-                            };
-                            throw new AkStreamException(rs);
-                        }
-                    }
-
-                    _mediaServerId = data["general"]["mediaServerId"];
-                    _tmpStr = "";
-                    _tmpStr = data["api"]["secret"];
-                    if (!string.IsNullOrEmpty(_tmpStr))
-                    {
-                        _secret = _tmpStr;
-                    }
-                    else
-                    {
-                        _secret = "";
-                    }
-
-                    #endregion
-
-                    #region 检查httpPort
-
-                    _tmpStr = "";
-                    _tmpStr = data["http"]["port"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_ConfigNotReady,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                            ExceptMessage = "http.port=null，http端口不能为空",
-                        };
-                        return false;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmHttpPort = tmpUshort;
-                        }
-                        else
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_ConfigNotReady,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "http.port不是可接受端口，http端口设置异常",
-                            };
-                            return false;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 检查https端口
-
-                    _tmpStr = "";
-                    _tmpStr = data["http"]["sslport"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        _zlmHttpsPort = 0;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmHttpsPort = tmpUshort;
-                        }
-                        else
-                        {
-                            _zlmHttpsPort = 0;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 检查rtsp端口
-
-                    _tmpStr = "";
-                    _tmpStr = data["rtsp"]["port"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_ConfigNotReady,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                            ExceptMessage = "rtsp.port=null，rtsp端口不能为空",
-                        };
-                        return false;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRtspPort = tmpUshort;
-                        }
-                        else
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_ConfigNotReady,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "rtsp.port不是可接受端口，rtsp端口设置异常",
-                            };
-                            return false;
-                        }
-                    }
-
-                    #endregion
-
-                    #region rtsps端口检查
-
-                    _tmpStr = "";
-                    _tmpStr = data["rtsp"]["sslport"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        _zlmRtspsPort = 0;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRtspsPort = tmpUshort;
-                        }
-                        else
-                        {
-                            _zlmRtspsPort = 0;
-                        }
-                    }
-
-                    #endregion
-
-                    #region rtmp端口检查
-
-                    _tmpStr = "";
-                    _tmpStr = data["rtmp"]["port"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_ConfigNotReady,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                            ExceptMessage = "rtmp.port=null，rtmp端口不能为空",
-                        };
-                        return false;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRtmpPort = tmpUshort;
-                        }
-                        else
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_ConfigNotReady,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "rtmp.port不是可接受端口，rtmp端口设置异常",
-                            };
-                            return false;
-                        }
-                    }
-
-                    #endregion
-
-                    #region rtmps端口检查
-
-                    _tmpStr = "";
-                    _tmpStr = data["rtmp"]["sslport"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        _zlmRtmpsPort = 0;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRtmpsPort = tmpUshort;
-                        }
-                        else
-                        {
-                            _zlmRtmpsPort = 0;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 检查rtpProxy端口
-
-                    _tmpStr = "";
-                    _tmpStr = data["rtp_proxy"]["port"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_ConfigNotReady,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                            ExceptMessage = "rtp.port=null，rtp端口不能为空",
-                        };
-                        return false;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRtpProxyPort = tmpUshort;
-                        }
-                        else
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_ConfigNotReady,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "rtp.port不是可接受端口，rtp端口设置异常",
-                            };
-                            return false;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 检查录制文件时长（秒）
-
-                    _tmpStr = "";
-                    _tmpStr = data["record"]["fileSecond"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        rs = new ResponseStruct()
-                        {
-                            Code = ErrorNumber.Sys_ConfigNotReady,
-                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                            ExceptMessage = "record.fileSecond=null，fileSecond录制时长不能为空，建议120秒",
-                        };
-                        return false;
-                    }
-                    else
-                    {
-                        ushort tmpUshort;
-                        if (ushort.TryParse(_tmpStr, out tmpUshort))
-                        {
-                            _zlmRecordFileSec = tmpUshort;
-                        }
-                        else
-                        {
-                            rs = new ResponseStruct()
-                            {
-                                Code = ErrorNumber.Sys_ConfigNotReady,
-                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
-                                ExceptMessage = "record.fileSecond不可接受，fileSecond录制时长不能为空，建议120秒",
-                            };
-                            return false;
-                        }
-                    }
-
-                    #endregion
-
-                    #region 获取ffmpeg命令
-
-                    _tmpStr = "";
-                    _tmpStr = data["ffmpeg"]["cmd"];
-                    if (string.IsNullOrEmpty(_tmpStr))
-                    {
-                        _zlmFFMPEGCmd = "";
-                    }
-                    else
-                    {
-                        _zlmFFMPEGCmd = _tmpStr.Trim();
-                    }
-
-                    #endregion
                 }
                 catch (Exception ex)
                 {
-                    if (File.Exists(_configPath + "_bak"))
-                    {
-                        File.Delete(_configPath);
-                        File.Copy(_configPath + "_bak",_configPath,true);
-                    }
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.Sys_ReadIniFileExcept,
@@ -977,17 +797,544 @@ namespace AKStreamKeeper
                     throw new AkStreamException(rs);
                 }
 
+
+                if (!_useNewZLMediaKit)
+                {
+                    var parser = new FileIniDataParser();
+
+                    try
+                    {
+                        string[] fileIniStrings = File.ReadAllLines(_configPath);
+                        for (int i = 0; i <= fileIniStrings.Length - 1; i++)
+                        {
+                            if (fileIniStrings[i].Trim().StartsWith('#') || fileIniStrings[i].Trim().StartsWith(';'))
+                            {
+                                fileIniStrings[i] = fileIniStrings[i].TrimStart('#');
+                                fileIniStrings[i] = ";" + fileIniStrings[i];
+                            }
+                        }
+
+                        File.WriteAllLines(_configPath, fileIniStrings);
+                        IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
+
+                        #region 检查MediaServerId
+
+                        var _tmpStr = data["general"]["mediaServerId"];
+                        if (string.IsNullOrEmpty(_tmpStr) || _tmpStr.ToLower().Equals("your_server_id"))
+                        {
+                            data["general"]["mediaServerId"] = UtilsHelper.generalGuid();
+                            try
+                            {
+                                parser.WriteFile(_configPath, data);
+                            }
+                            catch (Exception ex)
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_WriteIniFileExcept,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_WriteIniFileExcept],
+                                    ExceptMessage = ex.Message,
+                                    ExceptStackTrace = ex.StackTrace,
+                                };
+                                throw new AkStreamException(rs);
+                            }
+                        }
+
+                        _mediaServerId = data["general"]["mediaServerId"];
+                        _tmpStr = "";
+                        _tmpStr = data["api"]["secret"];
+                        if (!string.IsNullOrEmpty(_tmpStr))
+                        {
+                            _secret = _tmpStr;
+                        }
+                        else
+                        {
+                            _secret = "";
+                        }
+
+                        #endregion
+
+                        #region 检查httpPort
+
+                        _tmpStr = "";
+                        _tmpStr = data["http"]["port"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "http.port=null，http端口不能为空",
+                            };
+                            return false;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmHttpPort = tmpUshort;
+                            }
+                            else
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_ConfigNotReady,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                    ExceptMessage = "http.port不是可接受端口，http端口设置异常",
+                                };
+                                return false;
+                            }
+                        }
+
+                        #endregion
+
+                        #region 检查https端口
+
+                        _tmpStr = "";
+                        _tmpStr = data["http"]["sslport"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            _zlmHttpsPort = 0;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmHttpsPort = tmpUshort;
+                            }
+                            else
+                            {
+                                _zlmHttpsPort = 0;
+                            }
+                        }
+
+                        #endregion
+
+                        #region 检查rtsp端口
+
+                        _tmpStr = "";
+                        _tmpStr = data["rtsp"]["port"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtsp.port=null，rtsp端口不能为空",
+                            };
+                            return false;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRtspPort = tmpUshort;
+                            }
+                            else
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_ConfigNotReady,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                    ExceptMessage = "rtsp.port不是可接受端口，rtsp端口设置异常",
+                                };
+                                return false;
+                            }
+                        }
+
+                        #endregion
+
+                        #region rtsps端口检查
+
+                        _tmpStr = "";
+                        _tmpStr = data["rtsp"]["sslport"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            _zlmRtspsPort = 0;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRtspsPort = tmpUshort;
+                            }
+                            else
+                            {
+                                _zlmRtspsPort = 0;
+                            }
+                        }
+
+                        #endregion
+
+                        #region rtmp端口检查
+
+                        _tmpStr = "";
+                        _tmpStr = data["rtmp"]["port"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtmp.port=null，rtmp端口不能为空",
+                            };
+                            return false;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRtmpPort = tmpUshort;
+                            }
+                            else
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_ConfigNotReady,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                    ExceptMessage = "rtmp.port不是可接受端口，rtmp端口设置异常",
+                                };
+                                return false;
+                            }
+                        }
+
+                        #endregion
+
+                        #region rtmps端口检查
+
+                        _tmpStr = "";
+                        _tmpStr = data["rtmp"]["sslport"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            _zlmRtmpsPort = 0;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRtmpsPort = tmpUshort;
+                            }
+                            else
+                            {
+                                _zlmRtmpsPort = 0;
+                            }
+                        }
+
+                        #endregion
+
+                        #region 检查rtpProxy端口
+
+                        _tmpStr = "";
+                        _tmpStr = data["rtp_proxy"]["port"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtp.port=null，rtp端口不能为空",
+                            };
+                            return false;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRtpProxyPort = tmpUshort;
+                            }
+                            else
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_ConfigNotReady,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                    ExceptMessage = "rtp.port不是可接受端口，rtp端口设置异常",
+                                };
+                                return false;
+                            }
+                        }
+
+                        #endregion
+
+                        #region 检查录制文件时长（秒）
+
+                        _tmpStr = "";
+                        _tmpStr = data["record"]["fileSecond"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "record.fileSecond=null，fileSecond录制时长不能为空，建议120秒",
+                            };
+                            return false;
+                        }
+                        else
+                        {
+                            ushort tmpUshort;
+                            if (ushort.TryParse(_tmpStr, out tmpUshort))
+                            {
+                                _zlmRecordFileSec = tmpUshort;
+                            }
+                            else
+                            {
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.Sys_ConfigNotReady,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                    ExceptMessage = "record.fileSecond不可接受，fileSecond录制时长不能为空，建议120秒",
+                                };
+                                return false;
+                            }
+                        }
+
+                        #endregion
+
+                        #region 获取ffmpeg命令
+
+                        _tmpStr = "";
+                        _tmpStr = data["ffmpeg"]["cmd"];
+                        if (string.IsNullOrEmpty(_tmpStr))
+                        {
+                            _zlmFFMPEGCmd = "";
+                        }
+                        else
+                        {
+                            _zlmFFMPEGCmd = _tmpStr.Trim();
+                        }
+
+                        #endregion
+                    }
+                    catch (Exception ex)
+                    {
+                        if (File.Exists(_configPath + "_bak"))
+                        {
+                            File.Delete(_configPath);
+                            File.Copy(_configPath + "_bak", _configPath, true);
+                        }
+
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_ReadIniFileExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace,
+                        };
+                        throw new AkStreamException(rs);
+                    }
+                }
+
+                if (_useNewZLMediaKit)
+                {
+                    try
+                    {
+                        #region 检查MediaServerId
+
+                        if (string.IsNullOrEmpty(ZlmNewConfig.General.MediaServerId) ||
+                            ZlmNewConfig.General.MediaServerId.ToLower().Equals("your_server_id"))
+                        {
+                            ZlmNewConfig.General.MediaServerId = UtilsHelper.generalGuid();
+                        }
+
+                        _mediaServerId = ZlmNewConfig.General.MediaServerId;
+                        if (!string.IsNullOrEmpty(ZlmNewConfig.Api.Secret))
+                        {
+                            _secret = ZlmNewConfig.Api.Secret;
+                        }
+                        else
+                        {
+                            _secret = "";
+                        }
+
+                        #endregion
+
+                        #region 检查httpport
+
+                        if (_zlmNewConfig.Http.Port == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Http.Port.ToString()))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "http.port=null，http端口不能为空,并且端口值要大于0小于65535",
+                            };
+                            return false;
+                        }
+
+                        _zlmHttpPort = (ushort) _zlmNewConfig.Http.Port;
+
+                        #endregion
+
+                        #region 检查httpsport
+
+                        if (_zlmNewConfig.Http.SSLport == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Http.SSLport.ToString()))
+                        {
+                            _zlmHttpsPort = 0;
+                        }
+                        else
+                        {
+                            _zlmHttpsPort = (ushort) _zlmNewConfig.Http.SSLport;
+                        }
+
+                        #endregion
+
+                        #region 检查rtsp port
+
+                        if (_zlmNewConfig.Rtsp.Port == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Rtsp.Port.ToString()))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtsp.port=null，rtsp端口不能为空,并且端口值要大于0小于65535",
+                            };
+                            return false;
+                        }
+
+                        _zlmRtspPort = (ushort) _zlmNewConfig.Rtsp.Port;
+
+                        #endregion
+
+                        #region 检查rtsps port
+
+                        if (_zlmNewConfig.Rtsp.Sslport == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Rtsp.Sslport.ToString()))
+                        {
+                            _zlmRtspsPort = 0;
+                        }
+                        else
+                        {
+                            _zlmRtspsPort = (ushort) _zlmNewConfig.Rtsp.Sslport;
+                        }
+
+                        #endregion
+
+                        #region 检查rtmp port
+
+                        if (_zlmNewConfig.Rtmp.Port == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Rtmp.Port.ToString()))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtmp.port=null，rtmp端口不能为空,并且端口值要大于0小于65535",
+                            };
+                            return false;
+                        }
+
+                        _zlmRtmpPort = (ushort) _zlmNewConfig.Rtmp.Port;
+
+                        #endregion
+
+                        #region 检查rtmps port
+
+                        if (_zlmNewConfig.Rtmp.Sslport == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Rtmp.Sslport.ToString()))
+                        {
+                            _zlmRtmpsPort = 0;
+                        }
+                        else
+                        {
+                            _zlmRtmpsPort = (ushort) _zlmNewConfig.Rtsp.Sslport;
+                        }
+
+                        #endregion
+
+                        #region 检查rtpProxy port
+
+                        if (_zlmNewConfig.Rtp_Proxy.Port == null ||
+                            !UtilsHelper.IsUShort(_zlmNewConfig.Rtp_Proxy.Port.ToString()))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "rtp.port=null，rtp端口不能为空,并且端口值要大于0小于65535",
+                            };
+                            return false;
+                        }
+
+                        _zlmRtpProxyPort = (ushort) _zlmNewConfig.Rtp_Proxy.Port;
+
+                        #endregion
+
+                        #region 检查录制文件时长（秒）
+
+                        if (_zlmNewConfig.Protocol.Mp4_Max_Second == null &&
+                            _zlmNewConfig.Protocol.Mp4_Max_Second < 0)
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_ConfigNotReady,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ConfigNotReady],
+                                ExceptMessage = "record.fileSecond=null，fileSecond录制时长不能为空或小于0，建议120秒",
+                            };
+                            return false;
+                        }
+
+                        if (UtilsHelper.IsInteger(_zlmNewConfig.Protocol.Mp4_Max_Second.ToString()))
+                        {
+                            _zlmRecordFileSec = (uint) _zlmNewConfig.Protocol.Mp4_Max_Second;
+                        }
+
+                        #endregion
+
+                        #region 获取ffmpeg
+
+                        if (string.IsNullOrEmpty(_zlmNewConfig.FFmpeg.Cmd))
+                        {
+                            _zlmFFMPEGCmd = "";
+                        }
+                        else
+                        {
+                            _zlmFFMPEGCmd = _zlmNewConfig.FFmpeg.Cmd;
+                        }
+
+                        #endregion
+                    }
+                    catch (Exception ex)
+                    {
+                        if (File.Exists(_configPath + "_bak"))
+                        {
+                            File.Delete(_configPath);
+                            File.Copy(_configPath + "_bak", _configPath, true);
+                        }
+
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_ReadIniFileExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ReadIniFileExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace,
+                        };
+                        throw new AkStreamException(rs);
+                    }
+                }
+
+
                 try
                 {
-                    File.Copy(_configPath, _configPath + "_bak",true);
+                    File.Copy(_configPath, _configPath + "_bak", true);
                 }
                 catch
                 {
-                    
                 }
-                
+
                 return true;
             }
+
 
             rs = new ResponseStruct()
             {
@@ -1044,7 +1391,7 @@ namespace AKStreamKeeper
                 tmpPro.RunProcess("/bin/bash",
                     $"-c 'killall -1 {Path.GetFileNameWithoutExtension(_process.StartInfo.FileName)}'", 1000, out _,
                     out _);
-                 GCommon.Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->重新加载流媒体服务器配置文件(热加载)->{_pid}");
                 return _process.Id;
             }
@@ -1060,7 +1407,7 @@ namespace AKStreamKeeper
         {
             if (_isRunning)
             {
-                 GCommon.Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->启动流媒体服务器(当前正在运行)->{_pid}");
                 return _pid;
             }
@@ -1073,7 +1420,8 @@ namespace AKStreamKeeper
                 if (_akStreamKeeperConfig != null && _akStreamKeeperConfig.UseSsl &&
                     !string.IsNullOrEmpty(_akStreamKeeperConfig.ZLMediakitSSLFilePath))
                 {
-                    ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath,
+                        $"-s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
                 }
                 else
                 {
@@ -1085,13 +1433,13 @@ namespace AKStreamKeeper
                 if (_akStreamKeeperConfig != null && _akStreamKeeperConfig.UseSsl &&
                     !string.IsNullOrEmpty(_akStreamKeeperConfig.ZLMediakitSSLFilePath))
                 {
-                    ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-c {_configPath} -s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
+                    ret = _mediaServerProcessHelper.RunProcess(_binPath,
+                        $"-c {_configPath} -s {_akStreamKeeperConfig.ZLMediakitSSLFilePath}");
                 }
                 else
                 {
                     ret = _mediaServerProcessHelper.RunProcess(_binPath, $"-c {_configPath}");
                 }
-               
             }
 
             if (ret != null && !ret.HasExited)
@@ -1099,12 +1447,12 @@ namespace AKStreamKeeper
                 _process = ret;
                 _pid = _process.Id;
                 _isSelfClose = false;
-                 GCommon.Logger.Info(
+                GCommon.Logger.Info(
                     $"[{Common.LoggerHead}]->启动流媒体服务器成功->{_pid}");
                 return _process.Id;
             }
 
-             GCommon.Logger.Error(
+            GCommon.Logger.Error(
                 $"[{Common.LoggerHead}]->启动流媒体服务器失败");
             return -1;
         }
@@ -1118,7 +1466,7 @@ namespace AKStreamKeeper
             _pid = -1;
             _isSelfClose = true;
             var r = _mediaServerProcessHelper.KillProcess(_process);
-             GCommon.Logger.Info(
+            GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->终止流媒体服务器运行->{r}");
             return r;
         }
@@ -1149,7 +1497,7 @@ namespace AKStreamKeeper
         {
             if (e.Data != null)
             {
-                 GCommon.Logger.Debug(
+                GCommon.Logger.Debug(
                     $"[{Common.LoggerHead}]->[ZLMediaKit]->{e.Data}");
             }
         }
@@ -1158,7 +1506,7 @@ namespace AKStreamKeeper
         {
             if (e.Data != null)
             {
-                 GCommon.Logger.Error(
+                GCommon.Logger.Error(
                     $"[{Common.LoggerHead}]->[ZLMediaKit]->{e.Data}");
             }
         }
