@@ -596,7 +596,7 @@ namespace AKStreamKeeper
             return false;
         }
 
-        private static void startTimer()
+        private static void initTimer()
         {
             if (_perFormanceInfoTimer == null)
             {
@@ -604,7 +604,7 @@ namespace AKStreamKeeper
                 _perFormanceInfoTimer.Enabled = true; //启动Elapsed事件触发
                 _perFormanceInfoTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
                 _perFormanceInfoTimer.AutoReset = true; //需要自动reset
-                _perFormanceInfoTimer.Start(); //启动计时器
+                _perFormanceInfoTimer.Stop();//防止timer重入
             }
         }
 
@@ -768,6 +768,8 @@ namespace AKStreamKeeper
 
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
+            GCommon.Logger.Info(
+                $"[{LoggerHead}]->程序版本标识:{Version}");
 #if (DEBUG)
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
             Console.WriteLine("[Debug]\t程序启动路径:" + GCommon.BaseStartPath);
@@ -775,13 +777,10 @@ namespace AKStreamKeeper
             Console.WriteLine("[Debug]\t程序运行路径:" + GCommon.WorkSpacePath);
             Console.WriteLine("[Debug]\t程序运行全路径:" + GCommon.WorkSpaceFullPath);
             Console.WriteLine("[Debug]\t程序启动命令:" + GCommon.CommandLine);
-            Console.WriteLine("[Debug]\t程序版本标识:" + Version);
             IsDebug = true;
-
-
 #endif
             ResponseStruct rs;
-            startTimer();
+            initTimer();
             var ret = ReadConfig(out rs);
             if (!ret || !rs.Code.Equals(ErrorNumber.None))
             {
@@ -805,6 +804,7 @@ namespace AKStreamKeeper
                     $"[{LoggerHead}]->流媒体服务器启动失败->1秒后重试");
                 Thread.Sleep(1000);
             }
+            _perFormanceInfoTimer.Start(); //启动计时器
 
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");

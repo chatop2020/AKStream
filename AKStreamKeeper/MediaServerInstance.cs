@@ -77,7 +77,7 @@ namespace AKStreamKeeper
         /// <exception cref="FileNotFoundException"></exception>
         private bool checkNewZLMConfig(string configPath)
         {
-            if (!string.IsNullOrEmpty(configPath))
+            if (string.IsNullOrEmpty(configPath))
             {
                 throw new FileNotFoundException("配置文件路径不能为空");
             }
@@ -828,7 +828,7 @@ namespace AKStreamKeeper
                         #region 检查MediaServerId
 
                         var _tmpStr = data["general"]["mediaServerId"];
-                        if (string.IsNullOrEmpty(_tmpStr) || _tmpStr.ToLower().Equals("your_server_id"))
+                        if (string.IsNullOrEmpty(_tmpStr) )
                         {
                             data["general"]["mediaServerId"] = UtilsHelper.generalGuid();
                             try
@@ -1146,8 +1146,7 @@ namespace AKStreamKeeper
                     {
                         #region 检查MediaServerId
 
-                        if (string.IsNullOrEmpty(ZlmNewConfig.General.MediaServerId) ||
-                            ZlmNewConfig.General.MediaServerId.ToLower().Equals("your_server_id"))
+                        if (string.IsNullOrEmpty(ZlmNewConfig.General.MediaServerId))
                         {
                             ZlmNewConfig.General.MediaServerId = UtilsHelper.generalGuid();
                         }

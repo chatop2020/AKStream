@@ -140,6 +140,8 @@ namespace AKStreamWeb
                 Environment.Exit(0); //退出程序
             }
 
+           
+
 #if (DEBUG)
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
             Console.WriteLine("[Debug]\t程序启动路径:" + GCommon.BaseStartPath);
@@ -147,10 +149,7 @@ namespace AKStreamWeb
             Console.WriteLine("[Debug]\t程序运行路径:" + GCommon.WorkSpacePath);
             Console.WriteLine("[Debug]\t程序运行全路径:" + GCommon.WorkSpaceFullPath);
             Console.WriteLine("[Debug]\t程序启动命令:" + GCommon.CommandLine);
-            Console.WriteLine("[Debug]\t程序版本标识:" + Version);
             IsDebug = true;
-
-
 #endif
             try
             {
@@ -310,7 +309,8 @@ namespace AKStreamWeb
         {
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
-
+            GCommon.Logger.Info(
+                $"[{LoggerHead}]->程序版本标识:{Version}");
             startTimer();
         }
 
