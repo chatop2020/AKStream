@@ -39,17 +39,18 @@ public class AutoRtpPortClean
             Code = ErrorNumber.None,
             Message = ErrorMessage.ErrorDic![ErrorNumber.None],
         };
-      
+        
         var uri = new Uri(Common.MediaServerInstance.AkStreamKeeperConfig.AkStreamWebRegisterUrl, false);
 
         var url =
             $"{uri.Scheme}://{uri.Host}:{uri.Port}/MediaServer/ListRtpServer?mediaServerId={Common.MediaServerInstance.MediaServerId}";
-      
+        
      
         var httpRet = NetHelper.HttpGetRequest(url, null, "utf-8", 500);
-
+        
         if (!string.IsNullOrEmpty(httpRet))
         {
+          
             if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
             {
                 rs = new ResponseStruct()
@@ -59,13 +60,25 @@ public class AutoRtpPortClean
                 };
                 return null;
             }
-
+           
+            try
+            {
+                var ret = JsonHelper.FromJson<ResponseStruct>(httpRet);
+           
+                return null;
+            }
+            catch
+            {
+               
+            }
+            
             var ports = JsonHelper.FromJson<List<ushort>>(httpRet);
+         
             if (ports != null)
             {
                 return ports;
             }
-
+            
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.MediaServer_WebApiDataExcept,
@@ -75,21 +88,25 @@ public class AutoRtpPortClean
         }
         else
         {
+       
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.MediaServer_WebApiDataExcept,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
             };
         }
-
+      
         return null;
     }
 
     private void AutoClean()
     {
+     
         GCommon.Logger.Debug($"[{Common.LoggerHead}]->创建Rtp端口清理自动任务");
         while (true)
         {
+          
+            
             var ports = GetPortRptList();
             GCommon.Logger.Debug($"[{Common.LoggerHead}]->获取在用Rtp端口列表->{JsonHelper.ToJson(ports)}");
             if (ports != null)
@@ -141,7 +158,7 @@ public class AutoRtpPortClean
                 }
             }
 
-            
+           
             Thread.Sleep(1000 * 10);
         }
     }

@@ -2,12 +2,11 @@
   "IpV4Address": "192.168.2.94",
   "IpV6Address": "fe80::8:807:2143:28a1%5",
   "WebApiPort": 6880,
-  "MediaServerPath": "/Users/chatop/Projects/Clion/ZLMediaKit/release/mac/Debug/MediaServer",
+  "MediaServerPath": "/Users/qiuzhouwei/SourceTemp/ZLMediaKit/release/darwin/Debug/MediaServer",
   "AkStreamWebRegisterUrl": "http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive",
-  "CutMergeFilePath": "/User/chatop/Projects/CutMergeFile",
+  "CutMergeFilePath": "/Users/qiuzhouwei/Downloads/CutMergeFile",
   "CustomRecordPathList": [
-    "/Users/chatop/Downloads/record1",
-    "/Users/chatop/Downloads/record2"
+    "/Users/qiuzhouwei/Downloads"
   ],
   "UseSsl": false,
   "MinRtpPort": 10001,

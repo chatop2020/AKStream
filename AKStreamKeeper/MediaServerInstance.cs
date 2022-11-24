@@ -88,6 +88,17 @@ namespace AKStreamKeeper
             }
 
             var parser = new FileIniDataParser();
+            string[] fileIniStrings = File.ReadAllLines(_configPath);
+            for (int i = 0; i <= fileIniStrings.Length - 1; i++)
+            {
+                if (fileIniStrings[i].Trim().StartsWith('#') || fileIniStrings[i].Trim().StartsWith(';'))
+                {
+                    fileIniStrings[i] = fileIniStrings[i].TrimStart('#');
+                    fileIniStrings[i] = ";" + fileIniStrings[i];
+                }
+            }
+
+            File.WriteAllLines(_configPath, fileIniStrings);
             IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
             var check = data["protocol"];
             if (check == null)
