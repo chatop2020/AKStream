@@ -61,6 +61,11 @@ public class AutoRtpPortClean
 
             if (httpRet.Contains(ErrorMessage.ErrorDic[ErrorNumber.MediaServer_InstanceIsNull]))
             {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_ObjectNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_ObjectNotExists],
+                };
                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->流媒体服务器还未就绪,无法提供RtpServer列表,下次循环继续尝试...");
                 return null;
             }
