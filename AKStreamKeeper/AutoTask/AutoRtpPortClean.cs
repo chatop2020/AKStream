@@ -98,11 +98,10 @@ public class AutoRtpPortClean
                 {
                     foreach (var pi in Common.PortInfoList)
                     {
-                        GCommon.Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
                         lock (Common._getRtpPortLock)
                         {
-                            var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
-                            if (portUsed != null)
+                            var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port) && x.Useed);
+                            if (portUsed != null )
                             {
                                 portUsed.Useed = false;
                                 GCommon.Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{pi.Port}");
