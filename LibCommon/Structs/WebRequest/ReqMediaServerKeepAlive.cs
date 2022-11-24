@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 
 namespace LibCommon.Structs.WebRequest
 {
@@ -33,6 +34,8 @@ namespace LibCommon.Structs.WebRequest
         private ushort _zlmRtmpsPort;
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
+        private int? _recordSec;
+      
      
 
 
@@ -226,6 +229,13 @@ namespace LibCommon.Structs.WebRequest
             set => _version = value ?? throw new ArgumentNullException(nameof(value));
         }
 
-       
+        /// <summary>
+        /// 录制文件时长
+        /// </summary>
+        public int? RecordSec
+        {
+            get => _recordSec;
+            set => _recordSec = value;
+        }
     }
 }

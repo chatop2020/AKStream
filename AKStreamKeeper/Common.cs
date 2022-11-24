@@ -668,6 +668,7 @@ namespace AKStreamKeeper
                     tmpKeepAlive.FirstPost = false;
                 }
 
+                tmpKeepAlive.RecordSec = MediaServerInstance.AkStreamKeeperConfig.RecordSec;
                 tmpKeepAlive.Secret = MediaServerInstance.Secret;
                 tmpKeepAlive.PerformanceInfo = KeeperPerformanceInfo;
                 tmpKeepAlive.UseSsl = _akStreamKeeperConfig.UseSsl;

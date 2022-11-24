@@ -50,6 +50,7 @@ namespace LibZLMediaKitMediaServer
         private WebApiHelper _webApiHelper;
         private int _zlmediakitPid;
         private uint _zlmRecordFileSec;
+        private int? _recordSec;
       
 
         public ServerInstance()
@@ -261,8 +262,16 @@ namespace LibZLMediaKitMediaServer
             set => _mediaServerPlayerList = value;
         }
 
-        
-  
+        /// <summary>
+        /// 录制文件时长
+        /// </summary>
+        public int? RecordSec
+        {
+            get => _recordSec;
+            set => _recordSec = value;
+        }
+
+
         public void Dispose()
         {
             if (_keepAliveCheckTimer != null)

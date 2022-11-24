@@ -844,6 +844,8 @@ namespace AKStreamWeb.Services
                     mediaServer.ServerDateTime = req.ServerDateTime;
                     mediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     mediaServer.AccessKey = req.AccessKey;
+                    mediaServer.RecordSec = req.RecordSec;
+                    
                     if (req.PerformanceInfo != null) //更新性能信息
                     {
                         mediaServer.PerformanceInfo = req.PerformanceInfo;
