@@ -87,26 +87,17 @@ namespace AKStreamKeeper
                 throw new FileNotFoundException("检查ZLMediaKit配置文件时发现" + configPath + "文件不存在");
             }
 
-            var parser = new FileIniDataParser();
-            string[] fileIniStrings = File.ReadAllLines(_configPath);
-            for (int i = 0; i <= fileIniStrings.Length - 1; i++)
+            var configLines=File.ReadAllLines(configPath);
+            foreach (var line in configLines)
             {
-                if (fileIniStrings[i].Trim().StartsWith('#') || fileIniStrings[i].Trim().StartsWith(';'))
+                if (!string.IsNullOrEmpty(line) && !line.StartsWith(';') && !line.StartsWith('#') &&
+                    line.ToLower().Contains("[protocol]"))
                 {
-                    fileIniStrings[i] = fileIniStrings[i].TrimStart('#');
-                    fileIniStrings[i] = ";" + fileIniStrings[i];
+                    return true;
                 }
             }
 
-            File.WriteAllLines(_configPath, fileIniStrings);
-            IniData data = parser.ReadFile(_configPath, Encoding.UTF8);
-            var check = data["protocol"];
-            if (check == null)
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         /// <summary>
