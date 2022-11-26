@@ -585,8 +585,10 @@ namespace AKStreamKeeper
             };
             if (!string.IsNullOrEmpty(_configPath) && File.Exists(_configPath))
             {
-                if (!_useNewZLMediaKit)
+                if (!UseNewZlMediaKit)
                 {
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->发现老版流媒体服务器，执行老版流媒体服务器配置设置计划");
                     var parser = new FileIniDataParser();
                     try
                     {
@@ -678,8 +680,10 @@ namespace AKStreamKeeper
                     }
                 }
 
-                if (_useNewZLMediaKit)
+                if (UseNewZlMediaKit)
                 {
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->发现新版流媒体服务器，执行新版流媒体服务器配置设置计划");
                     try
                     {
                         Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
@@ -798,9 +802,11 @@ namespace AKStreamKeeper
             {
                 try
                 {
-                    _useNewZLMediaKit = checkNewZLMConfig(_configPath);
-                    if (_useNewZLMediaKit)
+                    UseNewZlMediaKit = checkNewZLMConfig(_configPath);
+                    if (UseNewZlMediaKit)
                     {
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->发现新版流媒体服务器，执行新版流媒体服务器配置读取计划");
                         _zlmNewConfig = new ZLMediaKitConfigNew(_configPath);
                     }
                 }
@@ -819,6 +825,8 @@ namespace AKStreamKeeper
 
                 if (!_useNewZLMediaKit)
                 {
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->发现老版流媒体服务器，执行老版流媒体服务器配置读取计划");
                     var parser = new FileIniDataParser();
 
                     try
