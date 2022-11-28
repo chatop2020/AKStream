@@ -72,7 +72,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         private float? _fps;
         private float? _loss;
         private int? _height;
-        private string? _ready;
+        private bool? _ready;
         private int? _sample_bit;
         private int? _sample_rate;
         private int? _width;
@@ -107,7 +107,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         }
 
         [JsonProperty("ready")]
-        public string? Ready
+        public bool? Ready
         {
             get => _ready;
             set => _ready = value;

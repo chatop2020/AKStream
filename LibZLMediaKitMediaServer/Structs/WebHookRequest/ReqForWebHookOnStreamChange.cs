@@ -11,6 +11,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _app;
         private long? _bytesSpeed;
         private long? _createStamp;
+        private bool? _isRecordingHLS;
+        private bool? _isRecordingMP4;
         private string? _mediaServerId;
         private OriginSock? _originSock;
         private OriginType? _originType;
@@ -25,6 +27,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _vhost;
 
 
+     
         public string? MediaServerId
         {
             get => _mediaServerId;
@@ -119,6 +122,18 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         {
             get => _tracks;
             set => _tracks = value;
+        }
+
+        public bool? IsRecordingHLS
+        {
+            get => _isRecordingHLS;
+            set => _isRecordingHLS = value;
+        }
+
+        public bool? IsRecordingMP4
+        {
+            get => _isRecordingMP4;
+            set => _isRecordingMP4 = value;
         }
     }
 }
