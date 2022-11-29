@@ -78,7 +78,7 @@ namespace AKStreamWeb.Services
             tmpDvrVideo.VideoPath = req.File_Path;
             tmpDvrVideo.StartTime = st;
             tmpDvrVideo.EndTime = st.AddSeconds((int) req.Time_Len);
-            tmpDvrVideo.Duration = req.Time_Len;
+            tmpDvrVideo.Duration = (int) req.Time_Len;
             tmpDvrVideo.Undo = false;
             tmpDvrVideo.Deleted = false;
             tmpDvrVideo.MediaServerId = req.MediaServerId;

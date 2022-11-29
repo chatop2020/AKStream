@@ -719,6 +719,7 @@ namespace AKStreamKeeper
                         {
                            // _zlmNewConfig.Protocol.Enable_Mp4 = 1;//这个是开启自动录制
                             _zlmNewConfig.Protocol.Mp4_Max_Second = Common.AkStreamKeeperConfig.RecordSec;
+                            _zlmNewConfig.Record.FastStart = 1;
                         }
                         
                         

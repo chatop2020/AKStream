@@ -27,7 +27,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _vhost;
 
 
-     
+
         public string? MediaServerId
         {
             get => _mediaServerId;
