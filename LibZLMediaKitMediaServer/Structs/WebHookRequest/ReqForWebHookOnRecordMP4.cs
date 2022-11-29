@@ -10,7 +10,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
         private string? _mediaServerId;
         private long? _start_Time;
         private string? _stream;
-        private float? _time_len;
+        private decimal? _time_len;
         private string? _url;
         private string? _vhost;
 
@@ -74,7 +74,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
             set => _vhost = value;
         }
 
-        public float? Time_Len
+        public decimal? Time_Len
         {
             get => _time_len;
             set => _time_len = value;
