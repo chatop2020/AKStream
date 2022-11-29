@@ -653,6 +653,7 @@ namespace AKStreamKeeper
                         if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
                         {
                             data["record"]["fileSecond"] = Common.AkStreamKeeperConfig.RecordSec.ToString();
+                            data["record"]["fastStart"] = "1";
                         }
 
                         parser.WriteFile(_configPath, data);
