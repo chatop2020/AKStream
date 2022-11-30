@@ -67,6 +67,25 @@ namespace AKStreamWeb.Services
                 };
             }
 
+            var recordInfo = ORMHelper.Db.Select<RecordFile>().Where(x => x.Streamid.Equals(req.Stream) &&
+                                                                          x.VideoPath.Equals(req.File_Path) &&
+                                                                          x.FileSize.Equals(req.File_Size) &&
+                                                                          x.Vhost.Equals(req.Vhost) &&
+                                                                          x.Deleted.Equals(false) &&
+                                                                          x.App.Equals(req.App) &&
+                                                                          x.MediaServerId.Equals(req.MediaServerId)).First();
+            if(recordInfo!=null)//重复传了
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->ZLMediaKit_OnRecordMp4回调重复传送，被忽略->{JsonHelper.ToJson(req)}");
+
+                return new ResToWebHookOnRecordMP4()
+                {
+                    Code = 0,
+                    Msg = "success"
+                };
+            }
+
             var st = UtilsHelper.ConvertDateTimeToInt((long) req.Start_Time);
             DateTime currentTime = DateTime.Now;
             RecordFile tmpDvrVideo = new RecordFile();

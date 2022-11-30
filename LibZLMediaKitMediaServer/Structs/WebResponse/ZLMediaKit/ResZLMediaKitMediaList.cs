@@ -59,7 +59,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
         pull = 4,
         ffmpeg_pull = 5,
         mp4_vod = 6,
-        device_chn = 7
+        device_chn = 7,
+        rtc_push = 8
     }
 
     [Serializable]
