@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Timers;
 using AKStreamKeeper.AutoTask;
@@ -75,7 +76,7 @@ namespace AKStreamKeeper
 
             StartupDateTime = DateTime.Now;
             CutMergeService.start = true;
-           // MediaServerInstance.OnMediaKilled += OnMediaServerKilled;//貌似这里会造成timer中的启动冲突，所以先去掉这里
+            // MediaServerInstance.OnMediaKilled += OnMediaServerKilled;//貌似这里会造成timer中的启动冲突，所以先去掉这里
         }
 
         public static string Version // 版本号
@@ -550,6 +551,25 @@ namespace AKStreamKeeper
                 try
                 {
                     _akStreamKeeperConfig = JsonHelper.FromJson<AKStreamKeeperConfig>(File.ReadAllText(_configPath));
+                    if (_akStreamKeeperConfig.RecordSec == null || _akStreamKeeperConfig.RecordSec == 0) //用于补前面没有的配置项
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
+                        {
+                            var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
+                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            {
+                                _akStreamKeeperConfig.RecordSec = 120;
+                                var _jsonText = JsonHelper.ToJson(_akStreamKeeperConfig, Formatting.Indented);
+                                if (!string.IsNullOrEmpty(_jsonText))
+                                {
+                                    File.WriteAllText(_configPath, _jsonText);
+                                    _akStreamKeeperConfig =
+                                        JsonHelper.FromJson<AKStreamKeeperConfig>(File.ReadAllText(_configPath));
+                                }
+                            }
+                        }
+                    }
+
                     _akStreamKeeperConfig.CustomRecordPathList =
                         _akStreamKeeperConfig.CustomRecordPathList.Distinct().ToList(); //去重
 
@@ -570,6 +590,7 @@ namespace AKStreamKeeper
                         File.Delete(_configPath + "_bak");
                         File.Copy(_configPath, _configPath + "_bak");
                     }
+
 
                     return ret;
                 }
@@ -604,28 +625,25 @@ namespace AKStreamKeeper
                 _perFormanceInfoTimer.Enabled = true; //启动Elapsed事件触发
                 _perFormanceInfoTimer.Elapsed += OnTimedEvent; //添加触发事件的函数
                 _perFormanceInfoTimer.AutoReset = true; //需要自动reset
-                _perFormanceInfoTimer.Stop();//防止timer重入
+                _perFormanceInfoTimer.Stop(); //防止timer重入
             }
         }
 
 
         private static void OnTimedEvent(object source, ElapsedEventArgs e)
         {
-         
-            
             _timerCount++;
             GCommon.Logger.Debug(
                 $"[{LoggerHead}]->Common.OnTimedEvent运行中...({_timerCount})");
             TimeSpan ts = DateTime.Now.Subtract(StartupDateTime);
-           
+
             if (MediaServerInstance == null || !MediaServerInstance.IsRunning)
             {
-               
                 GCommon.Logger.Warn(
                     $"[{LoggerHead}]->流媒体服务器(MediaServer)未启动或流媒体实例不存在，立即创建或启动...");
-                _perFormanceInfoTimer.Stop();//防止timer重入
+                _perFormanceInfoTimer.Stop(); //防止timer重入
                 var _pid = StartupMediaServer();
-               
+
                 if (_pid > 0)
                 {
                     GCommon.Logger.Warn(
@@ -636,9 +654,9 @@ namespace AKStreamKeeper
                     GCommon.Logger.Warn(
                         $"[{LoggerHead}]->流媒体服务器(MediaServer)创建或启动失败...下个循环再试");
                 }
-              
+
                 _perFormanceInfoTimer.Start();
-              
+
                 return;
             }
 
@@ -647,7 +665,7 @@ namespace AKStreamKeeper
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
                 KeeperPerformanceInfo.UpTimeSec = ts.TotalSeconds;
             }
-        
+
 
             if ((DateTime.Now - _getDiskSpaceToRecordMapTick).TotalMilliseconds >= 60000) //每60秒获取一次磁盘占用情况
             {
@@ -659,10 +677,9 @@ namespace AKStreamKeeper
                 _getDiskSpaceToRecordMapTick = DateTime.Now;
             }
 
-        
+
             if ((DateTime.Now - _sendDataTick).TotalMilliseconds >= 5000 && MediaServerInstance != null) //发心跳给服务器
             {
-             
                 ReqMediaServerKeepAlive tmpKeepAlive = new ReqMediaServerKeepAlive();
 
                 if (_firstPost)
@@ -674,7 +691,7 @@ namespace AKStreamKeeper
                 {
                     tmpKeepAlive.FirstPost = false;
                 }
-                
+
                 tmpKeepAlive.RecordSec = MediaServerInstance.AkStreamKeeperConfig.RecordSec;
                 tmpKeepAlive.Secret = MediaServerInstance.Secret;
                 tmpKeepAlive.PerformanceInfo = KeeperPerformanceInfo;
@@ -692,7 +709,7 @@ namespace AKStreamKeeper
                         ? _akStreamKeeperConfig.IpV6Address
                         : "";
                 }
-               
+
                 tmpKeepAlive.MediaServerId = MediaServerInstance.MediaServerId;
                 tmpKeepAlive.MediaServerPid = MediaServerInstance.GetPid();
                 tmpKeepAlive.RecordPathList = _akStreamDiskInfoOfRecordMap;
@@ -711,36 +728,33 @@ namespace AKStreamKeeper
                 tmpKeepAlive.AccessKey = _akStreamKeeperConfig.AccessKey;
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
-               
+
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
-                
+
                 try
                 {
-                   
                     var httpRet = NetHelper.HttpPostRequest(_akStreamKeeperConfig.AkStreamWebRegisterUrl, null, reqData,
                         "utf-8", _akStreamKeeperConfig.HttpClientTimeoutSec * 1000);
                     _sendDataTick = DateTime.Now;
                     if (!string.IsNullOrEmpty(httpRet))
                     {
-                      
                         if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
                         {
                             GCommon.Logger.Error(
                                 $"[{LoggerHead}]->访问控制服务器时Http客户端超时或服务不可达");
                             return;
                         }
-                       
+
                         var resMediaServerKeepAlive = JsonHelper.FromJson<ResMediaServerKeepAlive>(httpRet);
                         if (resMediaServerKeepAlive != null)
                         {
-                          
                             if (resMediaServerKeepAlive.NeedRestartMediaServer)
                             {
                                 GCommon.Logger.Info(
                                     $"[{LoggerHead}]->控制服务器反馈，要求重启流媒体服务器,马上重启");
                                 MediaServerInstance.Restart();
                             }
-                            
+
                             if (resMediaServerKeepAlive.RecommendTimeSynchronization)
                             {
                                 GCommon.Logger.Warn(
@@ -756,7 +770,6 @@ namespace AKStreamKeeper
                 }
                 catch (Exception ex)
                 {
-                
                     GCommon.Logger.Error(
                         $"[{LoggerHead}]->与控制服务器保持心跳时异常->\r\n{ex.Message}\r\n{ex.StackTrace}");
                 }
@@ -810,23 +823,23 @@ namespace AKStreamKeeper
                 Environment.Exit(0); //退出程序 
             }
 
-          
+
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath); //启动前先删除掉所有流媒体进程
-           
+
             while (StartupMediaServer() <= 0)
             {
                 GCommon.Logger.Error(
                     $"[{LoggerHead}]->流媒体服务器启动失败->1秒后重试");
                 Thread.Sleep(1000);
             }
-           
+
             _perFormanceInfoTimer.Start(); //启动计时器
-          
+
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
             AutoRtpPortClean = new AutoRtpPortClean(); //启动不使用rtp端口自动清理
-           
+
             if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
             {
                 if (KeeperPerformanceInfo.SystemType.Trim().ToUpper().Equals("WINDOWS"))
