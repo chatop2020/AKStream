@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using AKStreamKeeper.Misc;
@@ -43,6 +46,11 @@ namespace AKStreamKeeper
         private ushort _zlmRtspsPort;
         private ZLMediaKitConfigNew _zlmNewConfig;
         private bool _useNewZLMediaKit = false;
+        private static bool _checkedVersion = false;
+        private static int _checklines = 0;
+        private static bool _useNewZLMediKitStatic = false;
+        private static string _configPathStatic;
+        private static string _binPathStatic;
 
         /// <summary>
         /// 新的zlm配置文件实例
@@ -66,6 +74,7 @@ namespace AKStreamKeeper
         {
             get => _useNewZLMediaKit;
             set => _useNewZLMediaKit = value;
+            
         }
 
 
@@ -87,7 +96,7 @@ namespace AKStreamKeeper
                 throw new FileNotFoundException("检查ZLMediaKit配置文件时发现" + configPath + "文件不存在");
             }
 
-            var configLines=File.ReadAllLines(configPath);
+            var configLines = File.ReadAllLines(configPath);
             foreach (var line in configLines)
             {
                 if (!string.IsNullOrEmpty(line) && !line.StartsWith(';') && !line.StartsWith('#') &&
@@ -109,14 +118,17 @@ namespace AKStreamKeeper
         {
             _akStreamKeeperConfig = keeperConfig;
             _binPath = binPath;
+            _binPathStatic = binPath;
             if (string.IsNullOrEmpty(configPath) || !File.Exists(configPath))
             {
                 _workPath = Path.GetDirectoryName(binPath);
                 _configPath = _workPath + "/config.ini";
+                _configPathStatic = _configPath;
             }
             else
             {
                 _configPath = configPath;
+                _configPathStatic = _configPath;
             }
 
             ResponseStruct rs;
@@ -588,6 +600,19 @@ namespace AKStreamKeeper
                         string h = AKStreamWebUri.Host.Trim();
                         string p = AKStreamWebUri.Port.ToString();
 
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
+                        {
+                            //用于定制gdn的特定端口
+                            var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
+                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            {
+                                if (string.IsNullOrEmpty(data["http"]["port"]) || data["http"]["port"].Equals("80"))
+                                {
+                                    data["http"]["port"] = "81";
+                                }
+                            }
+                        }
+
                         var ffmpeg_temp = data["ffmpeg_templete"]; //启用ffmpeg_templete
                         if (ffmpeg_temp == null)
                         {
@@ -682,6 +707,19 @@ namespace AKStreamKeeper
                         string h = AKStreamWebUri.Host.Trim();
                         string p = AKStreamWebUri.Port.ToString();
 
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
+                        {
+                            //用于定制gdn的特定端口
+                            var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
+                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            {
+                                if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port == 80)
+                                {
+                                    _zlmNewConfig.Http.Port = 81;
+                                }
+                            }
+                        }
+
                         _zlmNewConfig.Hook.Enable = 1;
 
                         _zlmNewConfig.Hook.On_Flow_Report = $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
@@ -718,12 +756,11 @@ namespace AKStreamKeeper
 
                         if (Common.AkStreamKeeperConfig.RecordSec != null && Common.AkStreamKeeperConfig.RecordSec > 0)
                         {
-                           // _zlmNewConfig.Protocol.Enable_Mp4 = 1;//这个是开启自动录制
+                            // _zlmNewConfig.Protocol.Enable_Mp4 = 1;//这个是开启自动录制
                             _zlmNewConfig.Protocol.Mp4_Max_Second = Common.AkStreamKeeperConfig.RecordSec;
                             _zlmNewConfig.Record.FastStart = 1;
                         }
-                        
-                        
+
 
                         var ok = _zlmNewConfig.SetConfig(_configPath);
                         var parser = new FileIniDataParser();
@@ -795,7 +832,9 @@ namespace AKStreamKeeper
             {
                 try
                 {
-                    UseNewZlMediaKit = checkNewZLMConfig(_configPath);
+                    var bnew = checkNewZLMConfig(_configPath);
+                    UseNewZlMediaKit = bnew;
+                    _useNewZLMediKitStatic = bnew;
                     if (UseNewZlMediaKit)
                     {
                         GCommon.Logger.Debug(
@@ -840,7 +879,7 @@ namespace AKStreamKeeper
                         #region 检查MediaServerId
 
                         var _tmpStr = data["general"]["mediaServerId"];
-                        if (string.IsNullOrEmpty(_tmpStr) )
+                        if (string.IsNullOrEmpty(_tmpStr))
                         {
                             data["general"]["mediaServerId"] = UtilsHelper.generalGuid();
                             try
@@ -1518,6 +1557,45 @@ namespace AKStreamKeeper
             {
                 GCommon.Logger.Debug(
                     $"[{Common.LoggerHead}]->[ZLMediaKit]->{e.Data}");
+                if (!_checkedVersion && _checklines < 100)
+                {
+                    _checklines++;
+                    if (e.Data.Contains("ZLMediaKit(git hash"))
+                    {
+                        _checkedVersion = true;
+                        var buildTime = UtilsHelper.GetValue(e.Data, "build time:", ")").Trim();
+                        //2022-11-29T10:58:23
+                        DateTime buildTimeDt;
+                        DateTime checkTime = DateTime.Parse("2022-12-01T12:12:12");
+                        var got = DateTime.TryParse(buildTime, out buildTimeDt);
+                        if (got)
+                        {
+                            if (buildTimeDt > checkTime)//如果检查的版本时间小于要检查的时间，则要看mediaserver的配置文件是否正常问题
+                            
+                            {
+                                if (!_useNewZLMediKitStatic)
+                                {
+                                    if (File.Exists(_configPathStatic))
+                                    {
+                                        File.Delete(_configPathStatic);
+                                    }
+                                    if (File.Exists(_configPathStatic+"_bak"))
+                                    {
+                                        File.Delete(_configPathStatic+"_bak");
+                                    }
+                                    _pid = -1;
+                                    _isSelfClose = false;
+                                    ProcessHelper.KillProcess(_binPathStatic);
+                                    GCommon.Logger.Info(
+                                        $"[{Common.LoggerHead}]->终止流媒体服务器运行->因为调整config.ini文件到最新版本");
+                                   
+                                }
+                            }
+                        }
+                    }
+                }
+
+               
             }
         }
 
