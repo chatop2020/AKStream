@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -48,6 +49,11 @@ namespace AKStreamKeeper
         public static DateTime StartupDateTime;
         public static AutoRtpPortClean AutoRtpPortClean;
 
+        public static Timer PerFormanceInfoTimer
+        {
+            get => _perFormanceInfoTimer;
+            set => _perFormanceInfoTimer = value;
+        }
 
         /// <summary>
         /// 申请的rtp端口放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
@@ -121,9 +127,10 @@ namespace AKStreamKeeper
         /// 启动流媒体服务器
         /// </summary>
         /// <returns></returns>
-        private static int StartupMediaServer()
+        public static int StartupMediaServer()
         {
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath);
+            
             if (MediaServerInstance == null)
             {
                 MediaServerInstance =

@@ -74,7 +74,6 @@ namespace AKStreamKeeper
         {
             get => _useNewZLMediaKit;
             set => _useNewZLMediaKit = value;
-            
         }
 
 
@@ -606,7 +605,7 @@ namespace AKStreamKeeper
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
                             if (text.Contains("gdn") || text.Contains("guardian"))
                             {
-                                if (string.IsNullOrEmpty(data["http"]["port"]) || data["http"]["port"].Equals("80"))
+                                if (string.IsNullOrEmpty(data["http"]["port"]) || !data["http"]["port"].Equals("81"))
                                 {
                                     data["http"]["port"] = "81";
                                 }
@@ -713,7 +712,7 @@ namespace AKStreamKeeper
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
                             if (text.Contains("gdn") || text.Contains("guardian"))
                             {
-                                if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port == 80)
+                                if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port != 81)
                                 {
                                     _zlmNewConfig.Http.Port = 81;
                                 }
@@ -721,7 +720,6 @@ namespace AKStreamKeeper
                         }
 
                         _zlmNewConfig.Hook.Enable = 1;
-
                         _zlmNewConfig.Hook.On_Flow_Report = $"http://{h}:{p}/MediaServer/WebHook/OnFlowReport"; //流量统计
                         _zlmNewConfig.Hook.On_Http_Access = "";
                         _zlmNewConfig.Hook.On_Play = $"http://{h}:{p}/MediaServer/WebHook/OnPlay"; //有流被客户端播放时
@@ -1563,15 +1561,15 @@ namespace AKStreamKeeper
                     if (e.Data.Contains("ZLMediaKit(git hash"))
                     {
                         _checkedVersion = true;
-                        var buildTime = UtilsHelper.GetValue(e.Data, "build time:", ")").Trim();
+                        var buildTime = UtilsHelper.GetValue(e.Data, "build time:", "\\)").Trim();
                         //2022-11-29T10:58:23
                         DateTime buildTimeDt;
                         DateTime checkTime = DateTime.Parse("2022-12-01T12:12:12");
                         var got = DateTime.TryParse(buildTime, out buildTimeDt);
                         if (got)
                         {
-                            if (buildTimeDt > checkTime)//如果检查的版本时间小于要检查的时间，则要看mediaserver的配置文件是否正常问题
-                            
+                            if (buildTimeDt > checkTime) //如果检查的版本时间小于要检查的时间，则要看mediaserver的配置文件是否正常问题
+
                             {
                                 if (!_useNewZLMediKitStatic)
                                 {
@@ -1579,23 +1577,38 @@ namespace AKStreamKeeper
                                     {
                                         File.Delete(_configPathStatic);
                                     }
-                                    if (File.Exists(_configPathStatic+"_bak"))
+
+                                    if (File.Exists(_configPathStatic + "_bak"))
                                     {
-                                        File.Delete(_configPathStatic+"_bak");
+                                        File.Delete(_configPathStatic + "_bak");
                                     }
-                                    _pid = -1;
-                                    _isSelfClose = false;
+
+                                    Common.PerFormanceInfoTimer.Stop();
                                     ProcessHelper.KillProcess(_binPathStatic);
                                     GCommon.Logger.Info(
                                         $"[{Common.LoggerHead}]->终止流媒体服务器运行->因为调整config.ini文件到最新版本");
-                                   
+                                    try
+                                    {
+                                        Process process = new Process();
+                                        process.StartInfo.FileName = _binPathStatic;
+                                        process.StartInfo.UseShellExecute = false; //不使用shell以免出现操作系统shell出错
+                                        process.StartInfo.CreateNoWindow = true; //不显示窗口
+                                        process.Start();
+                                        process.Kill();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        GCommon.Logger.Error(
+                                            $"[{Common.LoggerHead}]->执行流媒体服务器时出现问题->{ex.Message}->{ex.StackTrace}");
+                                    }
+                                    Common.PerFormanceInfoTimer.Start();
+                                    Common.MediaServerInstance = null;
+                                    
                                 }
                             }
                         }
                     }
                 }
-
-               
             }
         }
 
