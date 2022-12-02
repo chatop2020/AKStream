@@ -1569,7 +1569,6 @@ namespace AKStreamKeeper
                         if (got)
                         {
                             if (buildTimeDt > checkTime) //如果检查的版本时间小于要检查的时间，则要看mediaserver的配置文件是否正常问题
-
                             {
                                 if (!_useNewZLMediKitStatic)
                                 {
@@ -1585,6 +1584,8 @@ namespace AKStreamKeeper
 
                                     Common.PerFormanceInfoTimer.Stop();
                                     ProcessHelper.KillProcess(_binPathStatic);
+                                    ProcessHelper.KillProcess(_binPathStatic);
+                                    ProcessHelper.KillProcess(_binPathStatic);
                                     GCommon.Logger.Info(
                                         $"[{Common.LoggerHead}]->终止流媒体服务器运行->因为调整config.ini文件到最新版本");
                                     try
@@ -1594,16 +1595,20 @@ namespace AKStreamKeeper
                                         process.StartInfo.UseShellExecute = false; //不使用shell以免出现操作系统shell出错
                                         process.StartInfo.CreateNoWindow = true; //不显示窗口
                                         process.Start();
-                                        process.Kill();
                                     }
                                     catch (Exception ex)
                                     {
                                         GCommon.Logger.Error(
                                             $"[{Common.LoggerHead}]->执行流媒体服务器时出现问题->{ex.Message}->{ex.StackTrace}");
                                     }
+
+                                    Thread.Sleep(3000);
+                                    ProcessHelper.KillProcess(_binPathStatic);
+                                    ProcessHelper.KillProcess(_binPathStatic);
+                                    ProcessHelper.KillProcess(_binPathStatic);
+                                    Thread.Sleep(1000);
                                     Common.PerFormanceInfoTimer.Start();
                                     Common.MediaServerInstance = null;
-                                    
                                 }
                             }
                         }

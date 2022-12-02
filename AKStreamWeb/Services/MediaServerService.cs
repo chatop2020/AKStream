@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using AKStreamWeb.Misc;
 using LibCommon;
@@ -3067,6 +3069,23 @@ namespace AKStreamWeb.Services
                 tmpVideoChannel.ShareUrl = UtilsHelper.StringIsNullEx(req.ShareUrl) ? null : req.ShareUrl;
                 tmpVideoChannel.ShareDeviceId =
                     UtilsHelper.StringIsNullEx(req.ShareDeviceId) ? null : req.ShareDeviceId;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
+                {
+                    //用于定制gdn的特定端口
+                    var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
+                    if (text.Contains("gdn") || text.Contains("guardian"))
+                    {
+                        if (mediaServer.RecordSec == null || mediaServer.RecordSec <= 0)
+                        {
+                            tmpVideoChannel.RecordSecs = 120;
+                        }
+                        else
+                        {
+                            tmpVideoChannel.RecordSecs = mediaServer.RecordSec;
+                        }
+                    }
+                }
+
                 result = ORMHelper.Db.Insert(tmpVideoChannel).ExecuteAffrows();
             }
             catch (Exception ex)
