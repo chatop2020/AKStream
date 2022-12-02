@@ -20,7 +20,7 @@ namespace AKStreamWeb.AutoTask
             {
                 try
                 {
-                    run();
+                    Run();
                 }
                 catch
                 {
@@ -28,7 +28,7 @@ namespace AKStreamWeb.AutoTask
             })).Start();
         }
 
-        private void run()
+        private void Run()
         {
             while (true)
             {
@@ -56,8 +56,8 @@ namespace AKStreamWeb.AutoTask
                     
                     if((DateTime.Now-_deleteOldVideoTick).TotalMilliseconds>=3600000)//3600秒一次
                     {
-                        doDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
-                        doDeleteLostRecored(); //删除失效的数据库录像数据
+                        DoDeleteFor24HourAgo(); //删除24小时前被软删除的过期失效的文件
+                        DoDeleteLostRecored(); //删除失效的数据库录像数据
                         GCommon.VideoChannelRecordInfo.RemoveAll(x => x.Expires < DateTime.Now);
                         _deleteOldVideoTick=DateTime.Now;
                         
@@ -182,7 +182,7 @@ namespace AKStreamWeb.AutoTask
         /// 删除已经过了期限的失效记录（录像文件已经被删除，数据库记录并没有实际删除，这个方法是为了删除已经删除但数据库中还存在的数据记录）
         /// 为了优化数据库性能，将超过有效期的失效数据删除，如果配置文件中DeletedRecordsExpiredDays字段<=0则不做处理
         /// </summary>
-        private void doDeleteLostRecored()
+        private void DoDeleteLostRecored()
         {
             try
             {
@@ -201,7 +201,7 @@ namespace AKStreamWeb.AutoTask
             }
         }
 
-        private void doDeleteFor24HourAgo()
+        private void DoDeleteFor24HourAgo()
         {
             try
             {

@@ -33,7 +33,7 @@ namespace AKStreamWeb.AutoTask
         /// </summary>
         /// <param name="plan"></param>
         /// <returns></returns>
-        private List<string> getRecordFileDataList(string mainId)
+        private List<string> GetRecordFileDataList(string mainId)
         {
             List<string?> ret = null!;
             ret = ORMHelper.Db.Select<RecordFile>()
@@ -56,7 +56,7 @@ namespace AKStreamWeb.AutoTask
         /// </summary>
         /// <param name="mainId"></param>
         /// <returns></returns>
-        private decimal getRecordFileSize(string mainId)
+        private decimal GetRecordFileSize(string mainId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace AKStreamWeb.AutoTask
         /// </summary>
         /// <param name="sdp"></param>
         /// <returns></returns>
-        private bool checkTimeRange(RecordPlan sdp)
+        private bool CheckTimeRange(RecordPlan sdp)
         {
             if (sdp.TimeRangeList != null && sdp.TimeRangeList.Count > 0)
             {
@@ -85,13 +85,13 @@ namespace AKStreamWeb.AutoTask
                 foreach (var sdpTimeRange in sdp.TimeRangeList)
                 {
                     if (sdpTimeRange != null && sdpTimeRange.WeekDay == DateTime.Now.DayOfWeek &&
-                        isTimeRange(sdpTimeRange))
+                        IsTimeRange(sdpTimeRange))
                     {
                         return true; //有当天计划并在时间反问内返回true
                     }
 
                     if (sdpTimeRange != null && sdpTimeRange.WeekDay == DateTime.Now.DayOfWeek &&
-                        !isTimeRange(sdpTimeRange))
+                        !IsTimeRange(sdpTimeRange))
                     {
                         haveFalse = true; //当天计划存在，但不在范围，先做个标记，因为也许会有多个星期n的情况
                     }
@@ -112,7 +112,7 @@ namespace AKStreamWeb.AutoTask
         /// </summary>
         /// <param name="d"></param>
         /// <returns></returns>
-        private bool isTimeRange(RecordPlanRange d)
+        private bool IsTimeRange(RecordPlanRange d)
         {
             TimeSpan nowDt = DateTime.Now.TimeOfDay;
             string start = d.StartTime.ToString("HH:mm:ss");
@@ -143,7 +143,7 @@ namespace AKStreamWeb.AutoTask
         /// </summary>
         /// <param name="videoSize"></param>
         /// <param name="sdp"></param>
-        private void deleteFileOneByOne(decimal videoSize, MediaServerStreamInfo mediaInfo, RecordPlan plan)
+        private void DeleteFileOneByOne(decimal videoSize, MediaServerStreamInfo mediaInfo, RecordPlan plan)
         {
             ReqGetRecordFileList req = new ReqGetRecordFileList();
             req.MainId = mediaInfo.Stream;
@@ -261,14 +261,14 @@ namespace AKStreamWeb.AutoTask
                                         if (recordPlan != null && recordPlan.Enable == true)
                                         {
                                             //说明绑定了录制模板
-                                            var fileSize = getRecordFileSize(videoChannel.MainId); //得到文件总长度
-                                            var fileDateList = getRecordFileDataList(videoChannel.MainId); //得到记录天数列表
+                                            var fileSize = GetRecordFileSize(videoChannel.MainId); //得到文件总长度
+                                            var fileDateList = GetRecordFileDataList(videoChannel.MainId); //得到记录天数列表
                                             if (fileDateList == null)
                                             {
                                                 fileDateList = new List<string>();
                                             }
 
-                                            var inRange = checkTimeRange(recordPlan);
+                                            var inRange = CheckTimeRange(recordPlan);
                                             bool stopIt = false;
                                             if (!inRange)
                                             {
@@ -345,13 +345,13 @@ namespace AKStreamWeb.AutoTask
 
                                                             if (p)
                                                             {
-                                                                fileSize = getRecordFileSize(videoChannel
+                                                                fileSize = GetRecordFileSize(videoChannel
                                                                     .MainId); //删除完一天以后再取一下文件总长度
                                                             }
 
                                                             if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
                                                             {
-                                                                deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
                                                                     recordPlan);
                                                             }
                                                         }
@@ -407,20 +407,20 @@ namespace AKStreamWeb.AutoTask
 
                                                             if (p)
                                                             {
-                                                                fileSize = getRecordFileSize(videoChannel
+                                                                fileSize = GetRecordFileSize(videoChannel
                                                                     .MainId); //删除完一天以后再取一下文件总长度
                                                             }
 
                                                             if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
                                                             {
-                                                                deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
                                                                     recordPlan);
                                                             }
                                                         }
                                                         else if (recordPlan.LimitSpace < fileSize)
                                                         {
                                                             //如果文件天数不足，则删除一个文件
-                                                            deleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                            DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
                                                                 recordPlan);
                                                         }
                                                     }

@@ -55,7 +55,7 @@ namespace LibZLMediaKitMediaServer
 
         public ServerInstance()
         {
-            startTimer();
+            StartTimer();
         }
 
 
@@ -351,7 +351,7 @@ namespace LibZLMediaKitMediaServer
             }
         }
 
-        private void startTimer()
+        private void StartTimer()
         {
             if (_keepAliveCheckTimer == null)
             {

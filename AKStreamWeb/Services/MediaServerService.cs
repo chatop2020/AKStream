@@ -74,7 +74,7 @@ namespace AKStreamWeb.Services
         /// <param name="rcmv"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        private static List<CutMergeStruct> analysisVideoFile(ReqKeeperCutOrMergeVideoFile rcmv, out ResponseStruct rs)
+        private static List<CutMergeStruct> AnalysisVideoFile(ReqKeeperCutOrMergeVideoFile rcmv, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -436,7 +436,7 @@ namespace AKStreamWeb.Services
             }
 
             //异步回调
-            var mergeList = analysisVideoFile(rcmv, out rs);
+            var mergeList = AnalysisVideoFile(rcmv, out rs);
             if (mergeList != null && mergeList.Count > 0)
             {
                 ReqKeeperCutMergeTask task = new ReqKeeperCutMergeTask()

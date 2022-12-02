@@ -6,7 +6,7 @@ namespace AKStreamKeeper.Misc
 {
     public static class FFmpegGetDuration
     {
-        private static bool ifNotMp4(string ffmpegBinPath, string videoFilePath, out string videoPath)
+        private static bool IfNotMp4(string ffmpegBinPath, string videoFilePath, out string videoPath)
         {
             string ext = Path.GetExtension(videoFilePath);
             string newFileName = videoFilePath.Replace(ext, ".mp4");
@@ -55,7 +55,7 @@ namespace AKStreamKeeper.Misc
             if (File.Exists(ffmpegBinPath) && File.Exists(videoFilePath))
             {
                 string newPath = "";
-                var ret = ifNotMp4(ffmpegBinPath, videoFilePath, out newPath);
+                var ret = IfNotMp4(ffmpegBinPath, videoFilePath, out newPath);
                 if (ret)
                 {
                     videoFilePath = newPath;

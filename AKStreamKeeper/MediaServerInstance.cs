@@ -83,7 +83,7 @@ namespace AKStreamKeeper
         /// <param name="configPath"></param>
         /// <returns></returns>
         /// <exception cref="FileNotFoundException"></exception>
-        private bool checkNewZLMConfig(string configPath)
+        private bool CheckNewZLMConfig(string configPath)
         {
             if (string.IsNullOrEmpty(configPath))
             {
@@ -830,7 +830,7 @@ namespace AKStreamKeeper
             {
                 try
                 {
-                    var bnew = checkNewZLMConfig(_configPath);
+                    var bnew = CheckNewZLMConfig(_configPath);
                     UseNewZlMediaKit = bnew;
                     _useNewZLMediKitStatic = bnew;
                     if (UseNewZlMediaKit)
@@ -879,7 +879,7 @@ namespace AKStreamKeeper
                         var _tmpStr = data["general"]["mediaServerId"];
                         if (string.IsNullOrEmpty(_tmpStr))
                         {
-                            data["general"]["mediaServerId"] = UtilsHelper.generalGuid();
+                            data["general"]["mediaServerId"] = UtilsHelper.GeneralGuid();
                             try
                             {
                                 parser.WriteFile(_configPath, data);
@@ -1197,7 +1197,7 @@ namespace AKStreamKeeper
 
                         if (string.IsNullOrEmpty(ZlmNewConfig.General.MediaServerId))
                         {
-                            ZlmNewConfig.General.MediaServerId = UtilsHelper.generalGuid();
+                            ZlmNewConfig.General.MediaServerId = UtilsHelper.GeneralGuid();
                         }
 
                         _mediaServerId = ZlmNewConfig.General.MediaServerId;

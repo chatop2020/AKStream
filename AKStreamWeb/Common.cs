@@ -280,7 +280,7 @@ namespace AKStreamWeb
         }
 
 
-        private static void startTimer()
+        private static void StartTimer()
         {
             if (_perFormanceInfoTimer == null)
             {
@@ -311,7 +311,7 @@ namespace AKStreamWeb
                 $"[{LoggerHead}]->Let's Go...");
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->程序版本标识:{Version}");
-            startTimer();
+            StartTimer();
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace AKStreamWeb
                     DbType = "请配置正确的数据库类型如 MySql、Sqlite等",
                     WebApiPort = 5800,
                     HttpClientTimeoutSec = 20,
-                    AccessKey = UtilsHelper.generalGuid(),
+                    AccessKey = UtilsHelper.GeneralGuid(),
                     DeletedRecordsExpiredDays = 0,
                     EnableGB28181Client = false
                 };

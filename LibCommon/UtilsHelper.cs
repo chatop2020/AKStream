@@ -725,7 +725,7 @@ namespace LibCommon
         /// 获取随机字符串
         /// </summary>
         /// <returns></returns>
-        public static string generalGuid()
+        public static string GeneralGuid()
         {
             Random rand = new Random((int) DateTime.Now.Ticks);
             string random_str = "";

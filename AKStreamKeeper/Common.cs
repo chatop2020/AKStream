@@ -340,7 +340,7 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.FFmpegPath = "./ffmpeg";
                 _akStreamKeeperConfig.RtpPortCdTime = 3600;
                 _akStreamKeeperConfig.HttpClientTimeoutSec = 20;
-                _akStreamKeeperConfig.AccessKey = UtilsHelper.generalGuid();
+                _akStreamKeeperConfig.AccessKey = UtilsHelper.GeneralGuid();
                 _akStreamKeeperConfig.AkStreamWebRegisterUrl =
                     $"http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive";
                 _akStreamKeeperConfig.CutMergeFilePath = "/disk1/record";
@@ -624,7 +624,7 @@ namespace AKStreamKeeper
             return false;
         }
 
-        private static void initTimer()
+        private static void InitTimer()
         {
             if (_perFormanceInfoTimer == null)
             {
@@ -813,7 +813,7 @@ namespace AKStreamKeeper
             IsDebug = true;
 #endif
             ResponseStruct rs;
-            initTimer();
+            InitTimer();
             var ret = ReadConfig(out rs);
             if (!ret || !rs.Code.Equals(ErrorNumber.None))
             {
