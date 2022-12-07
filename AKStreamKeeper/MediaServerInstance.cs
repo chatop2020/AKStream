@@ -1656,6 +1656,7 @@ namespace AKStreamKeeper
                     if (e.Data.Contains("ZLMediaKit(git hash"))
                     {
                         _checkedVersion = true;
+                        
                         var buildTime = UtilsHelper.GetValue(e.Data, "build time:", "\\)").Trim();
                         //2022-11-29T10:58:23
                         DateTime buildTimeDt;
@@ -1667,6 +1668,12 @@ namespace AKStreamKeeper
                             {
                                 if (!_useNewZLMediKitStatic)
                                 {
+                                    if (Common.MediaServerInstance != null &&
+                                        !string.IsNullOrEmpty(Common.MediaServerInstance._mediaServerId))
+                                    {
+                                        Common.OldMediaServerId = Common.MediaServerInstance._mediaServerId.Trim();
+                                    }
+                                    
                                     if (File.Exists(_configPathStatic))
                                     {
                                         File.Delete(_configPathStatic);
@@ -1702,6 +1709,28 @@ namespace AKStreamKeeper
                                     ProcessHelper.KillProcess(_binPathStatic);
                                     ProcessHelper.KillProcess(_binPathStatic);
                                     Thread.Sleep(1000);
+                                    if (!string.IsNullOrEmpty(Common.OldMediaServerId.Trim()) &&
+                                        File.Exists(_configPathStatic))
+                                    {
+                                        var lines = File.ReadAllLines(_configPathStatic);
+                                        var newLines = new List<string>();
+                                        foreach (var line in lines)
+                                        {
+                                            if (line.Trim().ToLower().StartsWith("mediaserverid"))
+                                            {
+                                                var arrStr = line.Split("=", StringSplitOptions.RemoveEmptyEntries);
+                                                if (arrStr != null && arrStr.Length == 1)
+                                                {
+                                                    newLines.Add($"mediaServerId = {Common.OldMediaServerId.Trim()}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                newLines.Add(line);
+                                            }
+                                        }
+                                        File.WriteAllLines(_configPathStatic,newLines);
+                                    }
                                     Common.PerFormanceInfoTimer.Start();
                                     Common.MediaServerInstance = null;
                                 }

@@ -37,6 +37,11 @@ namespace AKStreamKeeper
         private static ulong _timerCount = 0;
         private static string _oldMediaServerId = "";
 
+        public static string OldMediaServerId
+        {
+            get => _oldMediaServerId;
+            set => _oldMediaServerId = value;
+        }
 
         private static List<KeyValuePair<double, string>> _akStreamDiskInfoOfRecordMap =
             new List<KeyValuePair<double, string>>();
