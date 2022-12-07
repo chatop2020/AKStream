@@ -628,7 +628,7 @@ namespace AKStreamKeeper
 
                                                     var tmpport = UtilsHelper.GetValue(line, ":", "/");
                                                     var tmpStr = line.Replace(tmpport, "81");
-                                                    newFile.Add("proxy_pass http://127.0.0.1:81/;");
+                                                    newFile.Add(tmpStr);
                                                     found = false;
                                                 }
 
@@ -776,7 +776,7 @@ namespace AKStreamKeeper
 
                                                     var tmpport = UtilsHelper.GetValue(line, ":", "/");
                                                     var tmpStr = line.Replace(tmpport, "81");
-                                                    newFile.Add("proxy_pass http://127.0.0.1:81/;");
+                                                    newFile.Add(tmpStr);
                                                     found = false;
                                                 }
 
