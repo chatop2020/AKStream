@@ -648,10 +648,11 @@ namespace AKStreamKeeper
                                                 }
                                             }
                                         }
+
                                         if (newFile != null && newFile.Count > 0)
                                         {
                                             File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
-                                            var _process = new ProcessHelper(null,null);
+                                            var _process = new ProcessHelper(null, null);
                                             _process.RunProcess("nginx", "-s reload");
                                         }
                                     }
@@ -757,7 +758,7 @@ namespace AKStreamKeeper
                         {
                             //用于定制gdn的特定端口
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
-                            if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp") )
+                            if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp"))
                             {
                                 var removeLine = "";
                                 if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port != 81)
@@ -802,10 +803,11 @@ namespace AKStreamKeeper
                                                 }
                                             }
                                         }
+
                                         if (newFile != null && newFile.Count > 0)
                                         {
                                             File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
-                                            var _process = new ProcessHelper(null,null);
+                                            var _process = new ProcessHelper(null, null);
                                             _process.RunProcess("nginx", "-s reload");
                                         }
                                     }
@@ -973,7 +975,6 @@ namespace AKStreamKeeper
                         var _tmpStr = data["general"]["mediaServerId"];
                         if (string.IsNullOrEmpty(_tmpStr))
                         {
-                            
                             data["general"]["mediaServerId"] = UtilsHelper.GeneralGuid();
                             try
                             {
@@ -1656,7 +1657,7 @@ namespace AKStreamKeeper
                     if (e.Data.Contains("ZLMediaKit(git hash"))
                     {
                         _checkedVersion = true;
-                        
+
                         var buildTime = UtilsHelper.GetValue(e.Data, "build time:", "\\)").Trim();
                         //2022-11-29T10:58:23
                         DateTime buildTimeDt;
@@ -1669,11 +1670,11 @@ namespace AKStreamKeeper
                                 if (!_useNewZLMediKitStatic)
                                 {
                                     if (Common.MediaServerInstance != null &&
-                                        !string.IsNullOrEmpty(Common.MediaServerInstance._mediaServerId))
+                                        !string.IsNullOrEmpty(Common.MediaServerInstance.MediaServerId))
                                     {
-                                        Common.OldMediaServerId = Common.MediaServerInstance._mediaServerId.Trim();
+                                        Common.OldMediaServerId = Common.MediaServerInstance.MediaServerId.Trim();
                                     }
-                                    
+
                                     if (File.Exists(_configPathStatic))
                                     {
                                         File.Delete(_configPathStatic);
@@ -1719,7 +1720,8 @@ namespace AKStreamKeeper
                                             if (line.Trim().ToLower().StartsWith("mediaserverid"))
                                             {
                                                 var arrStr = line.Split("=", StringSplitOptions.RemoveEmptyEntries);
-                                                if (arrStr != null && arrStr.Length == 1)
+
+                                                if (arrStr != null && arrStr.Length > 0)
                                                 {
                                                     newLines.Add($"mediaServerId = {Common.OldMediaServerId.Trim()}");
                                                 }
@@ -1729,8 +1731,13 @@ namespace AKStreamKeeper
                                                 newLines.Add(line);
                                             }
                                         }
-                                        File.WriteAllLines(_configPathStatic,newLines);
+
+                                        if (newLines != null && newLines.Count > 0)
+                                        {
+                                            File.WriteAllLines(_configPathStatic, newLines);
+                                        }
                                     }
+
                                     Common.PerFormanceInfoTimer.Start();
                                     Common.MediaServerInstance = null;
                                 }
