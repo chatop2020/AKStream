@@ -619,9 +619,19 @@ namespace AKStreamKeeper
                                             {
                                                 if (found && line.Contains("proxy_pass http://127.0.0.1:"))
                                                 {
+                                                    if (line.Contains("proxy_pass http://127.0.0.1:81/;"))
+                                                    {
+                                                        newFile.Clear();
+                                                        newFile = null;
+                                                        break;
+                                                    }
+
+                                                    var tmpport = UtilsHelper.GetValue(line, ":", "/");
+                                                    var tmpStr = line.Replace(tmpport, "81");
                                                     newFile.Add("proxy_pass http://127.0.0.1:81/;");
                                                     found = false;
                                                 }
+
                                                 if (line.Contains("location /gdn/nvr/ {"))
                                                 {
                                                     found = true;
@@ -636,7 +646,7 @@ namespace AKStreamKeeper
 
                                         if (newFile != null && newFile.Count > 0)
                                         {
-                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf",newFile);
+                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
                                         }
                                     }
                                 }
@@ -757,9 +767,19 @@ namespace AKStreamKeeper
                                             {
                                                 if (found && line.Contains("proxy_pass http://127.0.0.1:"))
                                                 {
+                                                    if (line.Contains("proxy_pass http://127.0.0.1:81/;"))
+                                                    {
+                                                        newFile.Clear();
+                                                        newFile = null;
+                                                        break;
+                                                    }
+
+                                                    var tmpport = UtilsHelper.GetValue(line, ":", "/");
+                                                    var tmpStr = line.Replace(tmpport, "81");
                                                     newFile.Add("proxy_pass http://127.0.0.1:81/;");
                                                     found = false;
                                                 }
+
                                                 if (line.Contains("location /gdn/nvr/ {"))
                                                 {
                                                     found = true;
@@ -774,7 +794,7 @@ namespace AKStreamKeeper
 
                                         if (newFile != null && newFile.Count > 0)
                                         {
-                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf",newFile);
+                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
                                         }
                                     }
                                 }
