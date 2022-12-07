@@ -569,7 +569,7 @@ namespace AKStreamKeeper
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
                         {
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
-                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp"))
                             {
                                 _akStreamKeeperConfig.RecordSec = 120;
                                 var _jsonText = JsonHelper.ToJson(_akStreamKeeperConfig, Formatting.Indented);

@@ -3073,7 +3073,7 @@ namespace AKStreamWeb.Services
                 {
                     //用于定制gdn的特定端口
                     var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
-                    if (text.Contains("gdn") || text.Contains("guardian"))
+                    if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp"))
                     {
                         if (mediaServer.RecordSec == null || mediaServer.RecordSec <= 0)
                         {
