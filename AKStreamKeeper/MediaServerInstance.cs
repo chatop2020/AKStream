@@ -601,52 +601,66 @@ namespace AKStreamKeeper
 
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
                         {
+                            Console.WriteLine("1");
                             //用于定制gdn的特定端口
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
-                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            Console.WriteLine("2");
+                            if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp"))
                             {
+                                Console.WriteLine("3");
                                 if (string.IsNullOrEmpty(data["http"]["port"]) || !data["http"]["port"].Equals("81"))
                                 {
+                                    Console.WriteLine("4");
                                     data["http"]["port"] = "81";
                                     if (File.Exists("/etc/nginx/conf.d/default.conf"))
                                     {
+                                        Console.WriteLine("5");
                                         var newFile = new List<string>();
                                         var fileline = File.ReadAllLines("/etc/nginx/conf.d/default.conf");
                                         if (fileline != null && fileline.Length > 0)
                                         {
+                                            Console.WriteLine("6");
                                             var found = false;
                                             foreach (var line in fileline)
                                             {
                                                 if (found && line.Contains("proxy_pass http://127.0.0.1:"))
                                                 {
+                                                    Console.WriteLine("7");
                                                     if (line.Contains("proxy_pass http://127.0.0.1:81/;"))
                                                     {
+                                                        Console.WriteLine("8");
                                                         newFile.Clear();
                                                         newFile = null;
                                                         break;
                                                     }
-
+                                                    Console.WriteLine("9");
                                                     var tmpport = UtilsHelper.GetValue(line, ":", "/");
                                                     var tmpStr = line.Replace(tmpport, "81");
+                                                    Console.WriteLine("10"+"\t"+tmpStr);
                                                     newFile.Add(tmpStr);
                                                     found = false;
                                                 }
 
                                                 if (line.Contains("location /gdn/nvr/ {"))
                                                 {
+                                                    Console.WriteLine("11");
                                                     found = true;
                                                     newFile.Add(line);
                                                 }
                                                 else
                                                 {
+                                                    Console.WriteLine("12");
                                                     newFile.Add(line);
                                                 }
                                             }
                                         }
-
+                                        Console.WriteLine("13");
                                         if (newFile != null && newFile.Count > 0)
                                         {
+                                            Console.WriteLine("14");
                                             File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
+                                            var _process = new ProcessHelper(null,null);
+                                            _process.RunProcess("nginx", "-s reload");
                                         }
                                     }
                                 }
@@ -751,50 +765,60 @@ namespace AKStreamKeeper
                         {
                             //用于定制gdn的特定端口
                             var text = File.ReadAllText("/etc/hostname").Trim().ToLower();
-                            if (text.Contains("gdn") || text.Contains("guardian"))
+                            if (text.Contains("gdn") || text.Contains("guardian") || text.Contains("rasp") )
                             {
                                 if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port != 81)
                                 {
                                     _zlmNewConfig.Http.Port = 81;
                                     if (File.Exists("/etc/nginx/conf.d/default.conf"))
                                     {
+                                        Console.WriteLine("B1");
                                         var newFile = new List<string>();
                                         var fileline = File.ReadAllLines("/etc/nginx/conf.d/default.conf");
                                         if (fileline != null && fileline.Length > 0)
                                         {
+                                            Console.WriteLine("B2");
                                             var found = false;
                                             foreach (var line in fileline)
                                             {
                                                 if (found && line.Contains("proxy_pass http://127.0.0.1:"))
                                                 {
+                                                    Console.WriteLine("B3");
                                                     if (line.Contains("proxy_pass http://127.0.0.1:81/;"))
                                                     {
+                                                        Console.WriteLine("B4");
                                                         newFile.Clear();
                                                         newFile = null;
                                                         break;
                                                     }
-
+                                                    Console.WriteLine("B5");
                                                     var tmpport = UtilsHelper.GetValue(line, ":", "/");
                                                     var tmpStr = line.Replace(tmpport, "81");
                                                     newFile.Add(tmpStr);
                                                     found = false;
                                                 }
 
+                                                
                                                 if (line.Contains("location /gdn/nvr/ {"))
                                                 {
+                                                    Console.WriteLine("B6");
                                                     found = true;
                                                     newFile.Add(line);
                                                 }
                                                 else
                                                 {
+                                                    Console.WriteLine("B7");
                                                     newFile.Add(line);
                                                 }
                                             }
                                         }
-
+                                        Console.WriteLine("B8");
                                         if (newFile != null && newFile.Count > 0)
                                         {
+                                            Console.WriteLine("B9");
                                             File.WriteAllLines("/etc/nginx/conf.d/default.conf", newFile);
+                                            var _process = new ProcessHelper(null,null);
+                                            _process.RunProcess("nginx", "-s reload");
                                         }
                                     }
                                 }
@@ -961,6 +985,7 @@ namespace AKStreamKeeper
                         var _tmpStr = data["general"]["mediaServerId"];
                         if (string.IsNullOrEmpty(_tmpStr))
                         {
+                            
                             data["general"]["mediaServerId"] = UtilsHelper.GeneralGuid();
                             try
                             {

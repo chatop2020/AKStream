@@ -35,6 +35,7 @@ namespace AKStreamKeeper
         private static DateTime _getDiskSpaceToRecordMapTick = DateTime.Now;
         private static DateTime _sendDataTick = DateTime.Now;
         private static ulong _timerCount = 0;
+        private static string _oldMediaServerId = "";
 
 
         private static List<KeyValuePair<double, string>> _akStreamDiskInfoOfRecordMap =
