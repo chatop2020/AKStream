@@ -608,6 +608,37 @@ namespace AKStreamKeeper
                                 if (string.IsNullOrEmpty(data["http"]["port"]) || !data["http"]["port"].Equals("81"))
                                 {
                                     data["http"]["port"] = "81";
+                                    if (File.Exists("/etc/nginx/conf.d/default.conf"))
+                                    {
+                                        var newFile = new List<string>();
+                                        var fileline = File.ReadAllLines("/etc/nginx/conf.d/default.conf");
+                                        if (fileline != null && fileline.Length > 0)
+                                        {
+                                            var found = false;
+                                            foreach (var line in fileline)
+                                            {
+                                                if (found && line.Contains("proxy_pass http://127.0.0.1:"))
+                                                {
+                                                    newFile.Add("proxy_pass http://127.0.0.1:81/;");
+                                                    found = false;
+                                                }
+                                                if (line.Contains("location /gdn/nvr/ {"))
+                                                {
+                                                    found = true;
+                                                    newFile.Add(line);
+                                                }
+                                                else
+                                                {
+                                                    newFile.Add(line);
+                                                }
+                                            }
+                                        }
+
+                                        if (newFile != null && newFile.Count > 0)
+                                        {
+                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf",newFile);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -715,6 +746,37 @@ namespace AKStreamKeeper
                                 if (_zlmNewConfig.Http.Port == null || _zlmNewConfig.Http.Port != 81)
                                 {
                                     _zlmNewConfig.Http.Port = 81;
+                                    if (File.Exists("/etc/nginx/conf.d/default.conf"))
+                                    {
+                                        var newFile = new List<string>();
+                                        var fileline = File.ReadAllLines("/etc/nginx/conf.d/default.conf");
+                                        if (fileline != null && fileline.Length > 0)
+                                        {
+                                            var found = false;
+                                            foreach (var line in fileline)
+                                            {
+                                                if (found && line.Contains("proxy_pass http://127.0.0.1:"))
+                                                {
+                                                    newFile.Add("proxy_pass http://127.0.0.1:81/;");
+                                                    found = false;
+                                                }
+                                                if (line.Contains("location /gdn/nvr/ {"))
+                                                {
+                                                    found = true;
+                                                    newFile.Add(line);
+                                                }
+                                                else
+                                                {
+                                                    newFile.Add(line);
+                                                }
+                                            }
+                                        }
+
+                                        if (newFile != null && newFile.Count > 0)
+                                        {
+                                            File.WriteAllLines("/etc/nginx/conf.d/default.conf",newFile);
+                                        }
+                                    }
                                 }
                             }
                         }
