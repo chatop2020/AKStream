@@ -22,7 +22,8 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
-    public delegate void STUNMessageReceived(IPEndPoint receivedEndPoint, IPEndPoint receivedOnEndPoint, byte[] buffer, int bufferLength);
+    public delegate void STUNMessageReceived(IPEndPoint receivedEndPoint, IPEndPoint receivedOnEndPoint, byte[] buffer,
+        int bufferLength);
 
     public class STUNListener
     {
@@ -79,7 +80,7 @@ namespace SIPSorcery.Net
 
                 m_stunConn = stunConn;
 
-                Thread listenThread = new Thread(new ThreadStart(Listen)) { IsBackground = true };
+                Thread listenThread = new Thread(new ThreadStart(Listen)) {IsBackground = true};
                 listenThread.Start();
 
                 return localEndPoint;
@@ -117,7 +118,8 @@ namespace SIPSorcery.Net
 
                     if (buffer == null || buffer.Length == 0)
                     {
-                        logger.LogError("Unable to read from STUNListener local end point " + m_localEndPoint.Address.ToString() + ":" + m_localEndPoint.Port);
+                        logger.LogError("Unable to read from STUNListener local end point " +
+                                        m_localEndPoint.Address.ToString() + ":" + m_localEndPoint.Port);
                     }
                     else
                     {
@@ -155,11 +157,13 @@ namespace SIPSorcery.Net
             }
             catch (ObjectDisposedException)
             {
-                logger.LogWarning("The STUNListener was not accessible when attempting to send a message to, " + IPSocket.GetSocketString(destinationEndPoint) + ".");
+                logger.LogWarning("The STUNListener was not accessible when attempting to send a message to, " +
+                                  IPSocket.GetSocketString(destinationEndPoint) + ".");
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception (" + excp.GetType().ToString() + ") STUNListener Send (sendto=>" + IPSocket.GetSocketString(destinationEndPoint) + "). " + excp.Message);
+                logger.LogError("Exception (" + excp.GetType().ToString() + ") STUNListener Send (sendto=>" +
+                                IPSocket.GetSocketString(destinationEndPoint) + "). " + excp.Message);
                 throw;
             }
         }

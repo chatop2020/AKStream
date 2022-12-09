@@ -62,7 +62,7 @@ namespace TinyJson
                         }
                         else
                         {
-                            stringBuilder.AppendFormat("u{0:X4}", (UInt32)str[i]);
+                            stringBuilder.AppendFormat("u{0:X4}", (UInt32) str[i]);
                         }
                     }
                     else
@@ -70,6 +70,7 @@ namespace TinyJson
                         stringBuilder.Append(str[i]);
                     }
                 }
+
                 stringBuilder.Append('"');
             }
             else if (type == typeof(byte) || type == typeof(sbyte))
@@ -90,19 +91,19 @@ namespace TinyJson
             }
             else if (type == typeof(float))
             {
-                stringBuilder.Append(((float)item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((float) item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(double))
             {
-                stringBuilder.Append(((double)item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((double) item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(decimal))
             {
-                stringBuilder.Append(((decimal)item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((decimal) item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(bool))
             {
-                stringBuilder.Append(((bool)item) ? "true" : "false");
+                stringBuilder.Append(((bool) item) ? "true" : "false");
             }
             else if (type.IsEnum)
             {
@@ -125,8 +126,10 @@ namespace TinyJson
                     {
                         stringBuilder.Append(',');
                     }
+
                     AppendValue(stringBuilder, list[i]);
                 }
+
                 stringBuilder.Append(']');
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
@@ -153,11 +156,13 @@ namespace TinyJson
                     {
                         stringBuilder.Append(',');
                     }
+
                     stringBuilder.Append('\"');
-                    stringBuilder.Append((string)key);
+                    stringBuilder.Append((string) key);
                     stringBuilder.Append("\":");
                     AppendValue(stringBuilder, dict[key]);
                 }
+
                 stringBuilder.Append('}');
             }
             else
@@ -165,7 +170,8 @@ namespace TinyJson
                 stringBuilder.Append('{');
 
                 bool isFirst = true;
-                FieldInfo[] fieldInfos = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                FieldInfo[] fieldInfos =
+                    type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 for (int i = 0; i < fieldInfos.Length; i++)
                 {
                     if (fieldInfos[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
@@ -184,13 +190,16 @@ namespace TinyJson
                         {
                             stringBuilder.Append(',');
                         }
+
                         stringBuilder.Append('\"');
                         stringBuilder.Append(GetMemberName(fieldInfos[i]));
                         stringBuilder.Append("\":");
                         AppendValue(stringBuilder, value);
                     }
                 }
-                PropertyInfo[] propertyInfo = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+                PropertyInfo[] propertyInfo =
+                    type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 for (int i = 0; i < propertyInfo.Length; i++)
                 {
                     if (!propertyInfo[i].CanRead || propertyInfo[i].IsDefined(typeof(IgnoreDataMemberAttribute), true))
@@ -209,6 +218,7 @@ namespace TinyJson
                         {
                             stringBuilder.Append(',');
                         }
+
                         stringBuilder.Append('\"');
                         stringBuilder.Append(GetMemberName(propertyInfo[i]));
                         stringBuilder.Append("\":");
@@ -224,7 +234,8 @@ namespace TinyJson
         {
             if (member.IsDefined(typeof(DataMemberAttribute), true))
             {
-                DataMemberAttribute dataMemberAttribute = (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                DataMemberAttribute dataMemberAttribute =
+                    (DataMemberAttribute) Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
                 if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
                 {
                     return dataMemberAttribute.Name;

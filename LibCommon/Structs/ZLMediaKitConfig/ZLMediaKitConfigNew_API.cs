@@ -9,7 +9,7 @@ public class ZLMediaKitConfigNew_API
     private string? _secret;
     private string? _snapRoot;
     private string? _defaultSnap;
-  
+
     /// <summary>
     /// 是否调试http api,启用调试后，会打印每次http请求的内容和回复
     /// </summary>

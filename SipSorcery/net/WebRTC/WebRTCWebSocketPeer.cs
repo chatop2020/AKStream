@@ -55,7 +55,8 @@ namespace SIPSorcery.Net
         public Func<Task<RTCPeerConnection>> CreatePeerConnection;
 
         public WebRTCWebSocketPeer()
-        { }
+        {
+        }
 
         protected override async void OnMessage(MessageEventArgs e)
         {
@@ -73,7 +74,8 @@ namespace SIPSorcery.Net
 
                 if (!useCandidate)
                 {
-                    logger.LogDebug($"WebRTCWebSocketPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
+                    logger.LogDebug(
+                        $"WebRTCWebSocketPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
                 }
                 else
                 {
@@ -93,7 +95,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    if(_pc.signalingState == RTCSignalingState.have_remote_offer)
+                    if (_pc.signalingState == RTCSignalingState.have_remote_offer)
                     {
                         var answerSdp = _pc.createAnswer(AnswerOptions);
                         await _pc.setLocalDescription(answerSdp).ConfigureAwait(false);

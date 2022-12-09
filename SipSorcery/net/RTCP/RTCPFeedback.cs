@@ -37,18 +37,19 @@ namespace SIPSorcery.Net
     /// </summary>
     public enum RTCPFeedbackTypesEnum : int
     {
-        unassigned = 0,     // Unassigned
-        NACK = 1,   		// Generic NACK	Generic negative acknowledgment		    [RFC4585]
-        // reserved = 2		// Reserved												[RFC5104]
-        TMMBR = 3, 			// Temporary Maximum Media Stream Bit Rate Request		[RFC5104]
-        TMMBN = 4,			// Temporary Maximum Media Stream Bit Rate Notification	[RFC5104]
-        RTCP_SR_REQ = 5, 	// RTCP Rapid Resynchronisation Request					[RFC6051]
-        RAMS = 6,			// Rapid Acquisition of Multicast Sessions				[RFC6285]
-        TLLEI = 7, 			// Transport-Layer Third-Party Loss Early Indication	[RFC6642]
-        RTCP_ECN_FB = 8,	// RTCP ECN Feedback 									[RFC6679]
-        PAUSE_RESUME = 9,   // Media Pause/Resume									[RFC7728]
+        unassigned = 0, // Unassigned
+        NACK = 1, // Generic NACK	Generic negative acknowledgment		    [RFC4585]
 
-        DBI = 10			// Delay Budget Information (DBI) [3GPP TS 26.114 v16.3.0][Ozgur_Oyman]
+        // reserved = 2		// Reserved												[RFC5104]
+        TMMBR = 3, // Temporary Maximum Media Stream Bit Rate Request		[RFC5104]
+        TMMBN = 4, // Temporary Maximum Media Stream Bit Rate Notification	[RFC5104]
+        RTCP_SR_REQ = 5, // RTCP Rapid Resynchronisation Request					[RFC6051]
+        RAMS = 6, // Rapid Acquisition of Multicast Sessions				[RFC6285]
+        TLLEI = 7, // Transport-Layer Third-Party Loss Early Indication	[RFC6642]
+        RTCP_ECN_FB = 8, // RTCP ECN Feedback 									[RFC6679]
+        PAUSE_RESUME = 9, // Media Pause/Resume									[RFC7728]
+
+        DBI = 10 // Delay Budget Information (DBI) [3GPP TS 26.114 v16.3.0][Ozgur_Oyman]
         // 11-30			// Unassigned	
         // Extension = 31	// Reserved for future extensions						[RFC4585]
     }
@@ -59,19 +60,20 @@ namespace SIPSorcery.Net
     /// </summary>
     public enum PSFBFeedbackTypesEnum : byte
     {
-        unassigned = 0,     // Unassigned
-        PLI = 1,            // Picture Loss Indication                              [RFC4585]
-        SLI = 2,            // Slice Loss Indication   [RFC4585]
-        RPSI = 3,           // Reference Picture Selection Indication  [RFC4585]
-        FIR = 4,            // Full Intra Request Command  [RFC5104]
-        TSTR = 5,           // Temporal-Spatial Trade-off Request  [RFC5104]
-        TSTN = 6,           // Temporal-Spatial Trade-off Notification [RFC5104]
-        VBCM = 7,           // Video Back Channel Message  [RFC5104]
-        PSLEI = 8,          // Payload-Specific Third-Party Loss Early Indication  [RFC6642]
-        ROI = 9,            // Video region-of-interest (ROI)	[3GPP TS 26.114 v16.3.0][Ozgur_Oyman]
-        LRR = 10,           // Layer Refresh Request Command   [RFC-ietf-avtext-lrr-07]
+        unassigned = 0, // Unassigned
+        PLI = 1, // Picture Loss Indication                              [RFC4585]
+        SLI = 2, // Slice Loss Indication   [RFC4585]
+        RPSI = 3, // Reference Picture Selection Indication  [RFC4585]
+        FIR = 4, // Full Intra Request Command  [RFC5104]
+        TSTR = 5, // Temporal-Spatial Trade-off Request  [RFC5104]
+        TSTN = 6, // Temporal-Spatial Trade-off Notification [RFC5104]
+        VBCM = 7, // Video Back Channel Message  [RFC5104]
+        PSLEI = 8, // Payload-Specific Third-Party Loss Early Indication  [RFC6642]
+        ROI = 9, // Video region-of-interest (ROI)	[3GPP TS 26.114 v16.3.0][Ozgur_Oyman]
+        LRR = 10, // Layer Refresh Request Command   [RFC-ietf-avtext-lrr-07]
+
         // 11-14		    // Unassigned	
-        AFB = 15            // Application Layer Feedback  [RFC4585]
+        AFB = 15 // Application Layer Feedback  [RFC4585]
         // 16-30		    // Unassigned	
         // Extension = 31   //Extension   Reserved for future extensions  [RFC4585]
     }
@@ -90,7 +92,10 @@ namespace SIPSorcery.Net
         public RTCPHeader Header;
         public uint SenderSSRC; // Packet Sender
         public uint MediaSSRC;
-        public ushort PID; // Packet ID (PID): 16 bits to specify a lost packet, the RTP sequence number of the lost packet.
+
+        public ushort
+            PID; // Packet ID (PID): 16 bits to specify a lost packet, the RTP sequence number of the lost packet.
+
         public ushort BLP; // bitmask of following lost packets (BLP): 16 bits
         public uint FCI; // Feedback Control Information (FCI)  
 
@@ -155,7 +160,7 @@ namespace SIPSorcery.Net
         public byte[] GetBytes()
         {
             byte[] buffer = new byte[RTCPHeader.HEADER_BYTES_LENGTH + SENDER_PAYLOAD_SIZE];
-            Header.SetLength((ushort)(buffer.Length / 4 - 1));
+            Header.SetLength((ushort) (buffer.Length / 4 - 1));
 
             Buffer.BlockCopy(Header.GetBytes(), 0, buffer, 0, RTCPHeader.HEADER_BYTES_LENGTH);
             int payloadIndex = RTCPHeader.HEADER_BYTES_LENGTH;
@@ -163,8 +168,10 @@ namespace SIPSorcery.Net
             // All feedback packets require the Sender and Media SSRC's to be set.
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(SenderSSRC)), 0, buffer, payloadIndex, 4);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(MediaSSRC)), 0, buffer, payloadIndex + 4, 4);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(SenderSSRC)), 0, buffer, payloadIndex,
+                    4);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(MediaSSRC)), 0, buffer,
+                    payloadIndex + 4, 4);
             }
             else
             {
@@ -174,27 +181,34 @@ namespace SIPSorcery.Net
 
             switch (Header)
             {
-                case var x when x.PacketType == RTCPReportTypesEnum.RTPFB && x.FeedbackMessageType == RTCPFeedbackTypesEnum.RTCP_SR_REQ:
+                case var x when x.PacketType == RTCPReportTypesEnum.RTPFB &&
+                                x.FeedbackMessageType == RTCPFeedbackTypesEnum.RTCP_SR_REQ:
                     // PLI feedback reports do no have any additional parameters.
                     break;
                 case var x when x.PacketType == RTCPReportTypesEnum.RTPFB:
                     if (BitConverter.IsLittleEndian)
                     {
-                        Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(PID)), 0, buffer, payloadIndex + 6, 2);
-                        Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(BLP)), 0, buffer, payloadIndex + 8, 2);
+                        Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(PID)), 0, buffer,
+                            payloadIndex + 6, 2);
+                        Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(BLP)), 0, buffer,
+                            payloadIndex + 8, 2);
                     }
                     else
                     {
                         Buffer.BlockCopy(BitConverter.GetBytes(PID), 0, buffer, payloadIndex + 6, 2);
                         Buffer.BlockCopy(BitConverter.GetBytes(BLP), 0, buffer, payloadIndex + 8, 2);
                     }
+
                     break;
 
-                case var x when x.PacketType == RTCPReportTypesEnum.PSFB && x.PayloadFeedbackMessageType == PSFBFeedbackTypesEnum.PLI:
+                case var x when x.PacketType == RTCPReportTypesEnum.PSFB &&
+                                x.PayloadFeedbackMessageType == PSFBFeedbackTypesEnum.PLI:
                     break;
                 default:
-                    throw new NotImplementedException($"Serialisation for feedback report {Header.PacketType} not yet implemented.");
+                    throw new NotImplementedException(
+                        $"Serialisation for feedback report {Header.PacketType} not yet implemented.");
             }
+
             return buffer;
         }
     }

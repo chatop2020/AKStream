@@ -218,7 +218,7 @@ namespace LibGB28181SipClient
             var keepaliveBody = new KeepAlive();
             keepaliveBody.Status = "OK";
             keepaliveBody.CmdType = CommandType.Keepalive;
-            keepaliveBody.SN = (int)Sn;
+            keepaliveBody.SN = (int) Sn;
             keepaliveBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             req.Body = KeepAlive.Instance.Save<KeepAlive>(keepaliveBody);
             return req;
@@ -377,7 +377,7 @@ namespace LibGB28181SipClient
             deviceInfoBody.Result = "OK";
             deviceInfoBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             deviceInfoBody.DeviceName = "AKStream SipClient";
-            deviceInfoBody.SN = (int)Sn;
+            deviceInfoBody.SN = (int) Sn;
             ResponseStruct rs;
             var ret = WebApiHelper.ShareChannelSumCount(out rs);
             if (ret > -1 && rs.Code.Equals(ErrorNumber.None))
@@ -441,7 +441,7 @@ namespace LibGB28181SipClient
             deviceStatusBody.Status = "OK";
             deviceStatusBody.DeviceTime = DateTime.Now;
             deviceStatusBody.Record = "OFF";
-            deviceStatusBody.SN = (int)Sn;
+            deviceStatusBody.SN = (int) Sn;
             req.Body = DeviceStatus.Instance.Save<DeviceStatus>(deviceStatusBody);
             return req;
         }
@@ -460,8 +460,6 @@ namespace LibGB28181SipClient
             _oldSipRequest = req;
         }
 
-
-       
 
         /// <summary>
         /// 生成设备目录信令
@@ -498,7 +496,7 @@ namespace LibGB28181SipClient
             var catalogBody = new Catalog();
             catalogBody.CmdType = CommandType.Catalog;
             catalogBody.SumNum = total;
-            catalogBody.SN = (int)Sn;
+            catalogBody.SN = (int) Sn;
             catalogBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             catalogBody.DeviceList = new Catalog.DevList();
             foreach (var obj in tmpList)
@@ -577,7 +575,7 @@ namespace LibGB28181SipClient
                 ushort mediaport = 0;
                 string ssrc = "";
                 string channelid =
-                    req.Header.Subject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[
+                    req.Header.Subject.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)[
                         0];
                 channelid = channelid.Substring(0, channelid.IndexOf(':'));
                 Console.WriteLine(channelid);
@@ -682,7 +680,7 @@ namespace LibGB28181SipClient
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                { new SIPContactHeader(reqold.Header.From.FromName, reqold.Header.From.FromURI) };
+                {new SIPContactHeader(reqold.Header.From.FromName, reqold.Header.From.FromURI)};
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = reqold.Header.Vias;
@@ -739,7 +737,6 @@ namespace LibGB28181SipClient
             return false;
         }
 
-    
 
         /// <summary>
         /// 创建invite协商结果
@@ -749,19 +746,19 @@ namespace LibGB28181SipClient
         /// <returns></returns>
         private SIPResponse CreateInviteResponse(SIPRequest oldreq, string sdp)
         {
-           var res= SIPResponse.GetResponse(oldreq, SIPResponseStatusCodesEnum.Ok, null);
-           res.Header.UserAgent = Common.SipUserAgent;
-           res.Header.ContentType = "Application/MANSCDP+xml";
-           res.Header.CallId = oldreq.Header.CallId;
-           res.Header.To.ToTag = UtilsHelper.CreateNewCSeq().ToString();
-           _catalogCallId = res.Header.CallId;
-           res.Header.CSeq = oldreq.Header.CSeq;
-           res.Header.CSeqMethod = SIPMethodsEnum.INVITE;
-           res.Body = sdp;
+            var res = SIPResponse.GetResponse(oldreq, SIPResponseStatusCodesEnum.Ok, null);
+            res.Header.UserAgent = Common.SipUserAgent;
+            res.Header.ContentType = "Application/MANSCDP+xml";
+            res.Header.CallId = oldreq.Header.CallId;
+            res.Header.To.ToTag = UtilsHelper.CreateNewCSeq().ToString();
+            _catalogCallId = res.Header.CallId;
+            res.Header.CSeq = oldreq.Header.CSeq;
+            res.Header.CSeqMethod = SIPMethodsEnum.INVITE;
+            res.Body = sdp;
 
-           return res;
+            return res;
         }
-       
+
 
         /// <summary>
         /// 处理来自远端的请求
@@ -790,17 +787,15 @@ namespace LibGB28181SipClient
                     retok = OnDeInviteChannel?.Invoke(fromTag, toTag, callid, out rs, out info);
                     if (retok == true)
                     {
-                       
                         GCommon.Logger.Info(
                             $"[{Common.LoggerHead}]->终止共享推流成功->{sipRequest.RemoteSIPEndPoint}->{JsonHelper.ToJson(info)}");
-                        
-                        var b=WebApiHelper.ReleaseRtpPortForSender(info.MediaServerId, info.LocalRtpPort,out rs);
-                       
+
+                        var b = WebApiHelper.ReleaseRtpPortForSender(info.MediaServerId, info.LocalRtpPort, out rs);
+
                         if (!b || !rs.Code.Equals(ErrorNumber.None))
                         {
                             GCommon.Logger.Warn(
                                 $"[{Common.LoggerHead}]->Rtp(发送)端口释放失败->{JsonHelper.ToJson(info.LocalRtpPort)}");
-
                         }
                         else
                         {
@@ -816,7 +811,7 @@ namespace LibGB28181SipClient
 
                     break;
                 case SIPMethodsEnum.INVITE:
-                
+
                     ShareInviteInfo shareinfo = null;
                     var shareinfook = GetShareInfo(sipRequest, out shareinfo);
                     if (shareinfook && shareinfo != null)
@@ -901,7 +896,6 @@ namespace LibGB28181SipClient
             SIPEndPoint remoteEndPoint,
             SIPResponse sipResponse)
         {
-            
             var method = sipResponse.Header.CSeqMethod;
             var status = sipResponse.Status;
             switch (method)
@@ -977,7 +971,7 @@ namespace LibGB28181SipClient
                             _isRegister = true;
                             _oldSipResponse = sipResponse;
                             _registerDateTime = DateTime.Now;
-                            Common.SipClientConfig.Expiry = (ushort)sipResponse.Header.Expires;
+                            Common.SipClientConfig.Expiry = (ushort) sipResponse.Header.Expires;
                             _pauseThread.Close();
                             new Thread(new ThreadStart(delegate
                             {
@@ -1002,13 +996,14 @@ namespace LibGB28181SipClient
         /// 类构造
         /// </summary>
         /// <exception cref="AkStreamException"></exception>
-        public SipClient(string outConfigPath="")
+        public SipClient(string outConfigPath = "")
         {
             ResponseStruct rs;
             if (!string.IsNullOrEmpty(outConfigPath))
             {
                 Common.SipClientConfigPath = outConfigPath + "SipClientConfig.json";
             }
+
             var ret = Common.ReadSipClientConfig(out rs);
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
             {
@@ -1022,21 +1017,28 @@ namespace LibGB28181SipClient
 
             try
             {
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地IP地址->{Common.SipClientConfig.LocalIpAddress}");
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->Sip客户端本地IP地址->{Common.SipClientConfig.LocalIpAddress}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端本地端口->{Common.SipClientConfig.LocalPort}");
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器IP地址->{Common.SipClientConfig.SipServerIpAddress}");
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->远程Sip服务器IP地址->{Common.SipClientConfig.SipServerIpAddress}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器端口->{Common.SipClientConfig.SipServerPort}");
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->远程Sip服务器设备ID->{Common.SipClientConfig.SipServerDeviceId}");
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->远程Sip服务器设备ID->{Common.SipClientConfig.SipServerDeviceId}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端设备ID->{Common.SipClientConfig.SipDeviceId}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端域(REALM)->{Common.SipClientConfig.Realm}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端注册有效时间->{Common.SipClientConfig.Expiry}秒");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端用户名->{Common.SipClientConfig.SipUsername}");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端密码->{Common.SipClientConfig.SipPassword}");
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳间隔周期->{Common.SipClientConfig.KeepAliveInterval}秒/次");
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->Sip客户端心跳间隔周期->{Common.SipClientConfig.KeepAliveInterval}秒/次");
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->Sip客户端心跳丢失多少次后离线->{Common.SipClientConfig.KeepAliveLostNumber}次后设备离线");
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端字符集->{Common.SipClientConfig.EncodingType}");
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
-                _sipTransport = new SIPTransport(false, Common.SipClientConfig.Encoding, Common.SipClientConfig.Encoding);
+                GCommon.Logger.Info(
+                    $"[{Common.LoggerHead}]->配置情况->Sip客户端与AKStreamWeb通讯地址->{Common.SipClientConfig.AkstreamWebHttpUrl}");
+                _sipTransport =
+                    new SIPTransport(false, Common.SipClientConfig.Encoding, Common.SipClientConfig.Encoding);
                 //_sipTransport = new SIPTransport();
                 _sipTransport.SIPTransportResponseReceived += RecvSipMessageOfResponse;
                 _sipTransport.SIPTransportRequestReceived += RecvSipMessageOfRequest;

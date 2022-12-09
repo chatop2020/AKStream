@@ -19,7 +19,8 @@ namespace AKStreamWeb.Misc
         /// <param name="callid"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public static bool DeInviteChannel(string fromTag, string toTag, string callid, out ResponseStruct rs,out ShareInviteInfo info)
+        public static bool DeInviteChannel(string fromTag, string toTag, string callid, out ResponseStruct rs,
+            out ShareInviteInfo info)
         {
             info = null;
             rs = new ResponseStruct()
@@ -55,13 +56,12 @@ namespace AKStreamWeb.Misc
                     var ret = mediaServer.WebApiHelper.StopSendRtp(req, out rs);
                     if (ret.Code == 0 && rs.Code.Equals(ErrorNumber.None))
                     {
-
                         info = JsonHelper.FromJson<ShareInviteInfo>(JsonHelper.ToJson(obj));
                         lock (Common.ShareInviteChannels)
                         {
                             Common.ShareInviteChannels.Remove(obj);
                         }
-                        
+
                         return true;
                     }
                 }

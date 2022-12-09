@@ -30,6 +30,7 @@ namespace SIPSorcery.Sys
         }
 
         private static ILogger _logger;
+
         internal static ILogger Logger
         {
             get

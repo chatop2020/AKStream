@@ -24,8 +24,6 @@ namespace LibSystemInfo
         public static NetWorkStat NetWorkStat = new NetWorkStat();
 
 
-        
-        
         static NetWorkWinValue()
         {
             if (File.Exists(binPath))
@@ -54,7 +52,6 @@ namespace LibSystemInfo
         private static void p_Process_Exited(object sender, EventArgs e)
         {
             SystemInfoProcessHelper.RunProcess(binPath, "");
-            
         }
 
         private static void p_StdOutputDataReceived(object sender, DataReceivedEventArgs e)

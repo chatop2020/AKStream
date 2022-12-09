@@ -51,7 +51,7 @@ namespace LibZLMediaKitMediaServer
         private int _zlmediakitPid;
         private uint _zlmRecordFileSec;
         private int? _recordSec;
-      
+
 
         public ServerInstance()
         {
@@ -83,7 +83,7 @@ namespace LibZLMediaKitMediaServer
             set => _keeperPort = value;
         }
 
-       
+
         public string Secret
         {
             get => _secret;
@@ -307,7 +307,7 @@ namespace LibZLMediaKitMediaServer
                 }
 
                 if (Math.Abs((DateTime.Now - _keepAliveTime).TotalSeconds) > 10 || _countmod % 30 == 0
-                ) //如果超过10秒没有心跳，就主动查一次健康情况，同时30秒必须查询一次
+                   ) //如果超过10秒没有心跳，就主动查一次健康情况，同时30秒必须查询一次
                 {
                     var ret = _webApiHelper.GetThreadsLoad(out ResponseStruct rs);
                     if (!rs.Code.Equals(ErrorNumber.None))
@@ -324,7 +324,7 @@ namespace LibZLMediaKitMediaServer
             if (_keeperPort != null)
             {
                 if (Math.Abs((DateTime.Now - _keepAliveTime).TotalSeconds) > 10 || _countmod % 10 == 0
-                ) //如果超过10秒没有心跳，就主动查一次健康情况，同时10秒必须查询一次
+                   ) //如果超过10秒没有心跳，就主动查一次健康情况，同时10秒必须查询一次
                 {
                     var ret = _keeperWebApi.KeeperHealth(out ResponseStruct rs);
                     if (!rs.Code.Equals(ErrorNumber.None))
@@ -347,7 +347,6 @@ namespace LibZLMediaKitMediaServer
                 }
 
                 Dispose();
-              
             }
         }
 
@@ -363,7 +362,6 @@ namespace LibZLMediaKitMediaServer
             }
         }
 
-      
 
         ~ServerInstance()
         {

@@ -7,7 +7,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
     {
         private string? _app;
         private string? _mediaServerId;
-        private string? _schema;  
+        private string? _schema;
         private string? _stream;
         private string? _vhost;
 

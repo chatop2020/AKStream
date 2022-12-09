@@ -22,7 +22,7 @@ namespace LibGB28181SipClient
             set => _sipClient = value;
         }
 
-   
+
         public static string SipClientConfigPath
         {
             get => _sipClientConfigPath;
@@ -30,6 +30,7 @@ namespace LibGB28181SipClient
         }
 
         public static string LoggerHead = "SipClient";
+
         public static SipClientConfig SipClientConfig
         {
             get => _sipClientConfig;
@@ -66,7 +67,7 @@ namespace LibGB28181SipClient
                     i++;
                     Thread.Sleep(50);
                 }
-                
+
                 if (sys != null && sys.NetWorkStat != null)
                 {
                     macAddr = sys.NetWorkStat.Mac;
@@ -108,13 +109,12 @@ namespace LibGB28181SipClient
                     sipClientConfig.SipServerPort = 5060;
                     sipClientConfig.KeepAliveLostNumber = 3;
                     sipClientConfig.SipServerIpAddress = "Sip服务器的ip地址";
-                    sipClientConfig.Expiry = 3600;//注册有效期 3600秒
+                    sipClientConfig.Expiry = 3600; //注册有效期 3600秒
                     sipClientConfig.EncodingType = EncodingType.UTF8;
                     //sipClientConfig.Encoding=Encoding.UTF8;
                     sipClientConfig.AkstreamWebHttpUrl = "http://127.0.0.1:5800/SipClient";
                     return sipClientConfig;
                 }
-
             }
             catch (Exception ex)
             {
@@ -124,8 +124,9 @@ namespace LibGB28181SipClient
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sip_SipClient_InitExcept],
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
-                };  
+                };
             }
+
             rs = new ResponseStruct()
             {
                 Code = ErrorNumber.Other,
@@ -144,7 +145,7 @@ namespace LibGB28181SipClient
         {
             if (!File.Exists(_sipClientConfigPath))
             {
-                var config =InitSipClientConfig(out rs);
+                var config = InitSipClientConfig(out rs);
                 if (config != null && rs.Code.Equals(ErrorNumber.None))
                 {
                     _sipClientConfig = config;
@@ -174,9 +175,6 @@ namespace LibGB28181SipClient
                         (UtilsHelper.ReadJsonConfig<SipClientConfig>(_sipClientConfigPath) as SipClientConfig)!;
                     if (_sipClientConfig != null)
                     {
-                        
-                        
-                        
                         /*
                         switch (_sipClientConfig.EncodingType)
                         {

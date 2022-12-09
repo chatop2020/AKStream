@@ -32,7 +32,7 @@ namespace SIPSorcery.Sys
 #pragma warning disable SYSLIB0021
 #pragma warning disable SYSLIB0023
 
-        public const int DEFAULT_RANDOM_LENGTH = 10;    // Number of digits to return for default random numbers.
+        public const int DEFAULT_RANDOM_LENGTH = 10; // Number of digits to return for default random numbers.
         public const int AES_KEY_SIZE = 32;
         public const int AES_IV_SIZE = 16;
         private const string CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -82,7 +82,8 @@ namespace SIPSorcery.Sys
             }
 
             AesManaged aes = new AesManaged();
-            ICryptoTransform encryptor = aes.CreateEncryptor(GetFixedLengthByteArray(key, AES_KEY_SIZE), GetFixedLengthByteArray(iv, AES_IV_SIZE));
+            ICryptoTransform encryptor = aes.CreateEncryptor(GetFixedLengthByteArray(key, AES_KEY_SIZE),
+                GetFixedLengthByteArray(iv, AES_IV_SIZE));
 
             MemoryStream resultStream = new MemoryStream();
             CryptoStream cryptoStream = new CryptoStream(resultStream, encryptor, CryptoStreamMode.Write);
@@ -118,7 +119,8 @@ namespace SIPSorcery.Sys
             }
 
             AesManaged aes = new AesManaged();
-            ICryptoTransform encryptor = aes.CreateDecryptor(GetFixedLengthByteArray(key, AES_KEY_SIZE), GetFixedLengthByteArray(iv, AES_IV_SIZE));
+            ICryptoTransform encryptor = aes.CreateDecryptor(GetFixedLengthByteArray(key, AES_KEY_SIZE),
+                GetFixedLengthByteArray(iv, AES_IV_SIZE));
 
             MemoryStream cipherStream = new MemoryStream(cipherBytes);
             CryptoStream cryptoStream = new CryptoStream(cipherStream, encryptor, CryptoStreamMode.Read);
@@ -151,6 +153,7 @@ namespace SIPSorcery.Sys
             {
                 buffer[i] = CHARS[Rand(CHARS.Length)];
             }
+
             return new string(buffer);
         }
 
@@ -187,7 +190,6 @@ namespace SIPSorcery.Sys
 
         public static Int32 GetRandomInt(Int32 minValue, Int32 maxValue)
         {
-
             if (minValue > maxValue)
             {
                 throw new ArgumentOutOfRangeException("minValue");
@@ -205,15 +207,18 @@ namespace SIPSorcery.Sys
                 m_randomProvider.GetBytes(uint32Buffer);
                 UInt32 rand = BitConverter.ToUInt32(uint32Buffer, 0);
 
-                Int64 max = (1 + (Int64)UInt32.MaxValue);
+                Int64 max = (1 + (Int64) UInt32.MaxValue);
                 Int64 remainder = max % diff;
                 if (rand <= max - remainder)
                 {
-                    return (Int32)(minValue + (rand % diff));
+                    return (Int32) (minValue + (rand % diff));
                 }
+
                 attempts++;
             }
-            throw new ApplicationException("GetRandomInt did not return an appropriate random number within 10 attempts.");
+
+            throw new ApplicationException(
+                "GetRandomInt did not return an appropriate random number within 10 attempts.");
         }
 
         public static UInt16 GetRandomUInt16()
@@ -229,7 +234,7 @@ namespace SIPSorcery.Sys
             m_randomProvider.GetBytes(uint32Buffer);
             var randomUint = BitConverter.ToUInt32(uint32Buffer, 0);
 
-            if(noZero && randomUint == 0)
+            if (noZero && randomUint == 0)
             {
                 m_randomProvider.GetBytes(uint32Buffer);
                 randomUint = BitConverter.ToUInt32(uint32Buffer, 0);
@@ -269,7 +274,7 @@ namespace SIPSorcery.Sys
 
             // Buffer to read in plain text blocks.
             byte[] fileBuffer = new byte[fileStream.Length];
-            fileStream.Read(fileBuffer, 0, (int)fileStream.Length);
+            fileStream.Read(fileBuffer, 0, (int) fileStream.Length);
             fileStream.Close();
 
             byte[] overallHash = shaM.ComputeHash(fileBuffer);
@@ -336,6 +341,7 @@ namespace SIPSorcery.Sys
             {
                 plainText += value;
             }
+
             return sha.ComputeHash(Encoding.UTF8.GetBytes(plainText));
         }
 
@@ -365,7 +371,7 @@ namespace SIPSorcery.Sys
         /// <returns>A hex string representing the hashed buffer.</returns>
         public static string GetSHA256Hash(byte[] buffer)
         {
-            using(SHA256Managed sha256 = new SHA256Managed())
+            using (SHA256Managed sha256 = new SHA256Managed())
             {
                 return sha256.ComputeHash(buffer).HexStr();
             }
@@ -379,22 +385,26 @@ namespace SIPSorcery.Sys
         /// <param name="checkValidity">Checks if the certificate is current and has a verifiable certificate issuer list. Should be
         /// set to false for self issued certificates.</param>
         /// <returns>A certificate object if the load is successful otherwise null.</returns>
-        public static X509Certificate2 LoadCertificate(StoreLocation storeLocation, string certificateSubject, bool checkValidity)
+        public static X509Certificate2 LoadCertificate(StoreLocation storeLocation, string certificateSubject,
+            bool checkValidity)
         {
             X509Store store = new X509Store(storeLocation);
             logger.LogDebug("Certificate store " + store.Location + " opened");
             store.Open(OpenFlags.OpenExistingOnly);
-            X509Certificate2Collection collection = store.Certificates.Find(X509FindType.FindBySubjectName, certificateSubject, checkValidity);
+            X509Certificate2Collection collection =
+                store.Certificates.Find(X509FindType.FindBySubjectName, certificateSubject, checkValidity);
             if (collection != null && collection.Count > 0)
             {
                 X509Certificate2 serverCertificate = collection[0];
                 bool verifyCert = serverCertificate.Verify();
-                logger.LogDebug("X509 certificate loaded from current user store, subject=" + serverCertificate.Subject + ", valid=" + verifyCert + ".");
+                logger.LogDebug("X509 certificate loaded from current user store, subject=" +
+                                serverCertificate.Subject + ", valid=" + verifyCert + ".");
                 return serverCertificate;
             }
             else
             {
-                logger.LogWarning("X509 certificate with subject name=" + certificateSubject + ", not found in " + store.Location + " store.");
+                logger.LogWarning("X509 certificate with subject name=" + certificateSubject + ", not found in " +
+                                  store.Location + " store.");
                 return null;
             }
         }

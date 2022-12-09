@@ -39,23 +39,23 @@ namespace SIPSorcery.Sys
     /// </summary>
     public class IPv4Header
     {
-        public const int MIN_HEADER_LEN = 5;            // Minimum length if header in 32 bit words.
+        public const int MIN_HEADER_LEN = 5; // Minimum length if header in 32 bit words.
         public const int IP_VERSION = 4;
 
         public int Version = IP_VERSION;
-        public int HeaderLength = MIN_HEADER_LEN;       // Length of header in 32 bit words.
+        public int HeaderLength = MIN_HEADER_LEN; // Length of header in 32 bit words.
         public int TypeOfService;
-        public int Length = MIN_HEADER_LEN;             // Total length of the IP packet in octets.
+        public int Length = MIN_HEADER_LEN; // Total length of the IP packet in octets.
         public int Id;
         public int TTL = 255;
-        public ProtocolType Protocol;                  // 1 = ICMP, 6 = TCP, 17 = UDP.
+        public ProtocolType Protocol; // 1 = ICMP, 6 = TCP, 17 = UDP.
         public IPAddress SourceAddress;
         public IPAddress DestinationAddress;
 
         // Fragmentation flags. Bit 0=0, Bit 1=DF, Bit 2=MF
-        public int DF = 1;              // 0 = May fragment, 1 = Don't fragment.
-        public int MF = 0;              // 0 = Last fragment, 1 = More fragments.
-        public int FragmentOffset;      // Indicates where in the datagram the fragment belongs.
+        public int DF = 1; // 0 = May fragment, 1 = Don't fragment.
+        public int MF = 0; // 0 = Last fragment, 1 = More fragments.
+        public int FragmentOffset; // Indicates where in the datagram the fragment belongs.
 
         public IPv4Header(ProtocolType protocol, int id, IPAddress sourceAddress, IPAddress dstAddress)
         {
@@ -69,23 +69,23 @@ namespace SIPSorcery.Sys
         {
             byte[] header = new byte[HeaderLength * 4];
 
-            header[0] = (byte)((Version << 4) + HeaderLength);
-            header[1] = (byte)TypeOfService;
-            header[2] = (byte)(Length >> 8);
-            header[3] = (byte)Length;
-            header[4] = (byte)(Id >> 8);
-            header[5] = (byte)Id;
-            header[6] = (byte)(DF * 64 + MF * 32 + (FragmentOffset >> 8));
-            header[7] = (byte)FragmentOffset;
-            header[8] = (byte)TTL;
-            header[9] = (byte)Protocol;
+            header[0] = (byte) ((Version << 4) + HeaderLength);
+            header[1] = (byte) TypeOfService;
+            header[2] = (byte) (Length >> 8);
+            header[3] = (byte) Length;
+            header[4] = (byte) (Id >> 8);
+            header[5] = (byte) Id;
+            header[6] = (byte) (DF * 64 + MF * 32 + (FragmentOffset >> 8));
+            header[7] = (byte) FragmentOffset;
+            header[8] = (byte) TTL;
+            header[9] = (byte) Protocol;
 
             Buffer.BlockCopy(SourceAddress.GetAddressBytes(), 0, header, 12, 4);
             Buffer.BlockCopy(DestinationAddress.GetAddressBytes(), 0, header, 16, 4);
 
             UInt16 checksum = GetChecksum(header);
-            header[10] = (byte)(checksum >> 8);
-            header[11] = (byte)checksum;
+            header[10] = (byte) (checksum >> 8);
+            header[11] = (byte) checksum;
 
             return header;
         }
@@ -100,7 +100,7 @@ namespace SIPSorcery.Sys
 
             //checksum = (checksum >> 16) + (checksum & 0xffff);
             //cksum += (checksum >> 16);
-            return (UInt16)~checksum;
+            return (UInt16) ~checksum;
         }
     }
 
@@ -135,12 +135,12 @@ namespace SIPSorcery.Sys
         {
             byte[] packet = new byte[8 + Payload.Length];
 
-            packet[0] = (byte)(SourcePort >> 8);
-            packet[1] = (byte)SourcePort;
-            packet[2] = (byte)(DestinationPort >> 8);
-            packet[3] = (byte)DestinationPort;
-            packet[4] = (byte)(packet.Length >> 8);
-            packet[5] = (byte)packet.Length;
+            packet[0] = (byte) (SourcePort >> 8);
+            packet[1] = (byte) SourcePort;
+            packet[2] = (byte) (DestinationPort >> 8);
+            packet[3] = (byte) DestinationPort;
+            packet[4] = (byte) (packet.Length >> 8);
+            packet[5] = (byte) packet.Length;
 
             Buffer.BlockCopy(Payload, 0, packet, 8, Payload.Length);
 

@@ -28,7 +28,8 @@ namespace SIPSorcery.SIP.App
             WasAuthenticatedByIP = wasAuthenticatedByIP;
         }
 
-        public SIPRequestAuthenticationResult(SIPResponseStatusCodesEnum errorResponse, SIPAuthenticationHeader authenticationRequiredHeader)
+        public SIPRequestAuthenticationResult(SIPResponseStatusCodesEnum errorResponse,
+            SIPAuthenticationHeader authenticationRequiredHeader)
         {
             Authenticated = false;
             ErrorResponse = errorResponse;

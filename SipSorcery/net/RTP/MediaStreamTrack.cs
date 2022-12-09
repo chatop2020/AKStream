@@ -37,10 +37,10 @@ namespace SIPSorcery.Net
         /// <summary>
         /// The value used in the RTP Synchronisation Source header field for media packets
         /// sent using this media stream.
-		/// Be careful that the RTP Synchronisation Source header field should not be changed
-		/// unless specific implementations require it. By default this value is chosen randomly,
-		/// with the intent that no two synchronization sources within the same RTP session
-		/// will have the same SSRC.
+        /// Be careful that the RTP Synchronisation Source header field should not be changed
+        /// unless specific implementations require it. By default this value is chosen randomly,
+        /// with the intent that no two synchronization sources within the same RTP session
+        /// will have the same SSRC.
         /// </summary>
         public uint Ssrc { get; set; }
 
@@ -50,7 +50,7 @@ namespace SIPSorcery.Net
         public ushort LastRemoteSeqNum { get; internal set; }
 
         // The value used in the RTP Sequence Number header field for media packets.
-        public ushort SeqNum { get { return (ushort)m_seqNum; } internal set { m_seqNum = value; } }
+        public ushort SeqNum { get { return (ushort) m_seqNum; } internal set { m_seqNum = value; } }
 
         /// <summary>
         /// The value used in the RTP Timestamp header field for media packets
@@ -188,8 +188,10 @@ namespace SIPSorcery.Net
         public MediaStreamTrack(
             AudioFormat format,
             MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
-            this(SDPMediaTypesEnum.audio, false, new List<SDPAudioVideoMediaFormat> { new SDPAudioVideoMediaFormat(format) }, streamStatus)
-        { }
+            this(SDPMediaTypesEnum.audio, false,
+                new List<SDPAudioVideoMediaFormat> {new SDPAudioVideoMediaFormat(format)}, streamStatus)
+        {
+        }
 
         /// <summary>
         /// Add a local audio track.
@@ -198,10 +200,12 @@ namespace SIPSorcery.Net
         /// <param name="streamStatus">Optional. The stream status for the audio track, e.g. whether
         /// send and receive or only one of.</param>
         public MediaStreamTrack(
-        List<AudioFormat> formats,
-        MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
-             this(SDPMediaTypesEnum.audio, false, formats.Select(x => new SDPAudioVideoMediaFormat(x)).ToList(), streamStatus)
-        { }
+            List<AudioFormat> formats,
+            MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
+            this(SDPMediaTypesEnum.audio, false, formats.Select(x => new SDPAudioVideoMediaFormat(x)).ToList(),
+                streamStatus)
+        {
+        }
 
         /// <summary>
         /// Add a local video track.
@@ -210,10 +214,12 @@ namespace SIPSorcery.Net
         /// <param name="streamStatus">Optional. The stream status for the video track, e.g. whether
         /// send and receive or only one of.</param>
         public MediaStreamTrack(
-           VideoFormat format,
-           MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
-            this(SDPMediaTypesEnum.video, false, new List<SDPAudioVideoMediaFormat> { new SDPAudioVideoMediaFormat(format) }, streamStatus)
-        { }
+            VideoFormat format,
+            MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
+            this(SDPMediaTypesEnum.video, false,
+                new List<SDPAudioVideoMediaFormat> {new SDPAudioVideoMediaFormat(format)}, streamStatus)
+        {
+        }
 
         /// <summary>
         /// Add a local video track.
@@ -222,10 +228,12 @@ namespace SIPSorcery.Net
         /// <param name="streamStatus">Optional. The stream status for the video track, e.g. whether
         /// send and receive or only one of.</param>
         public MediaStreamTrack(
-        List<VideoFormat> formats,
-        MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
-             this(SDPMediaTypesEnum.video, false, formats.Select(x => new SDPAudioVideoMediaFormat(x)).ToList(), streamStatus)
-        { }
+            List<VideoFormat> formats,
+            MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
+            this(SDPMediaTypesEnum.video, false, formats.Select(x => new SDPAudioVideoMediaFormat(x)).ToList(),
+                streamStatus)
+        {
+        }
 
         /// <summary>
         /// Adds a local audio track based on one or more well known audio formats.
@@ -235,7 +243,8 @@ namespace SIPSorcery.Net
         /// <param name="wellKnownAudioFormats">One or more well known audio formats.</param>
         public MediaStreamTrack(params SDPWellKnownMediaFormatsEnum[] wellKnownAudioFormats)
             : this(wellKnownAudioFormats.Select(x => new AudioFormat(x)).ToList())
-        { }
+        {
+        }
 
         /// <summary>
         /// Checks whether the payload ID in an RTP packet received from the remote call party
@@ -283,13 +292,18 @@ namespace SIPSorcery.Net
             {
                 if (++attempts > 10)
                 {
-                    throw new ApplicationException("GetNextSeqNum did not return an the next SeqNum due to concurrent updates from other threads within 10 attempts.");
+                    throw new ApplicationException(
+                        "GetNextSeqNum did not return an the next SeqNum due to concurrent updates from other threads within 10 attempts.");
                 }
+
                 expectedSeqNum = actualSeqNum;
-                int nextSeqNum = (actualSeqNum >= UInt16.MaxValue) ? (ushort)0 : (ushort)(actualSeqNum + 1);
+                int nextSeqNum = (actualSeqNum >= UInt16.MaxValue) ? (ushort) 0 : (ushort) (actualSeqNum + 1);
                 actualSeqNum = Interlocked.CompareExchange(ref m_seqNum, nextSeqNum, expectedSeqNum);
-            } while (expectedSeqNum != actualSeqNum); // Try as long as compare-exchange was not successful; in most cases, only one iteration should be needed
-            return (ushort)expectedSeqNum;
+            } while
+                (expectedSeqNum !=
+                 actualSeqNum); // Try as long as compare-exchange was not successful; in most cases, only one iteration should be needed
+
+            return (ushort) expectedSeqNum;
         }
     }
 }

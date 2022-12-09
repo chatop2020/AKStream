@@ -22,7 +22,7 @@ namespace LibCommon.Structs
             get => _mediaServerStreamInfo;
             set => _mediaServerStreamInfo = value;
         }
-        
+
         /// <summary>
         /// 丢了多少次
         /// </summary>

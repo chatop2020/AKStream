@@ -45,20 +45,23 @@ namespace SIPSorcery.SIP.App
 
                     // Only mangle if there is something to change. For example the server could be on the same private subnet in which case it can't help.
                     if (IPSocket.IsPrivateAddress(sdpAddress) && publicIPAddress != sdpAddress
-                        && pubaddr.AddressFamily == AddressFamily.InterNetworkV6
-                        && addr.AddressFamily == AddressFamily.InterNetworkV6)
+                                                              && pubaddr.AddressFamily == AddressFamily.InterNetworkV6
+                                                              && addr.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        string mangledSDP = Regex.Replace(sdpBody, @"c=IN IP6 (?<ipaddress>([:a-fA-F0-9]+))", "c=IN IP6" + publicIPAddress, RegexOptions.Singleline);
+                        string mangledSDP = Regex.Replace(sdpBody, @"c=IN IP6 (?<ipaddress>([:a-fA-F0-9]+))",
+                            "c=IN IP6" + publicIPAddress, RegexOptions.Singleline);
                         wasMangled = true;
 
                         return mangledSDP;
                     }
                     else if (IPSocket.IsPrivateAddress(sdpAddress) && publicIPAddress != sdpAddress
-                        && pubaddr.AddressFamily == AddressFamily.InterNetwork
-                        && addr.AddressFamily == AddressFamily.InterNetwork)
+                                                                   && pubaddr.AddressFamily ==
+                                                                   AddressFamily.InterNetwork
+                                                                   && addr.AddressFamily == AddressFamily.InterNetwork)
                     {
                         //logger.LogDebug("MangleSDP replacing private " + sdpAddress + " with " + publicIPAddress + ".");
-                        string mangledSDP = Regex.Replace(sdpBody, @"c=IN IP4 (?<ipaddress>(\d+\.){3}\d+)", "c=IN IP4 " + publicIPAddress, RegexOptions.Singleline);
+                        string mangledSDP = Regex.Replace(sdpBody, @"c=IN IP4 (?<ipaddress>(\d+\.){3}\d+)",
+                            "c=IN IP4 " + publicIPAddress, RegexOptions.Singleline);
                         wasMangled = true;
 
                         return mangledSDP;
@@ -89,7 +92,8 @@ namespace SIPSorcery.SIP.App
             {
                 string bottomViaIPAddress = sipRequest.Header.Vias.BottomViaHeader.ReceivedFromIPAddress;
 
-                if (sipRequest.Header.Contact != null && sipRequest.Header.Contact.Count == 1 && bottomViaIPAddress != null)
+                if (sipRequest.Header.Contact != null && sipRequest.Header.Contact.Count == 1 &&
+                    bottomViaIPAddress != null)
                 {
                     string contactHost = sipRequest.Header.Contact[0].ContactURI.Host;
 
@@ -98,7 +102,8 @@ namespace SIPSorcery.SIP.App
                     if (IPSocket.IsPrivateAddress(contactHost) && contactHost != bottomViaIPAddress)
                     {
                         string origContact = sipRequest.Header.Contact[0].ContactURI.Host;
-                        sipRequest.Header.Contact[0].ContactURI.Host = sipRequest.Header.Vias.BottomViaHeader.ReceivedFromAddress;
+                        sipRequest.Header.Contact[0].ContactURI.Host =
+                            sipRequest.Header.Vias.BottomViaHeader.ReceivedFromAddress;
 
                         //logger.LogDebug("Contact URI identified as containing private address for " + sipRequest.Method + " " + origContact + " adjusting to use bottom via " + bottomViaHost + ".");
                         //FireProxyLogEvent(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Registrar, SIPMonitorServerTypesEnum.ContactRegisterInProgress, "Contact on " + sipRequest.Method + " " + origContact + " had private address adjusted to " + bottomViaHost + ".", username));
@@ -115,7 +120,9 @@ namespace SIPSorcery.SIP.App
                         sipRequest.Body = mangledSDP;
                         sipRequest.Header.ContentLength = sipRequest.Body.Length;
 
-                        logger.LogDebug("SDP mangled for " + sipRequest.Method.ToString() + " request from " + sipRequest.RemoteSIPEndPoint.ToString() + ", adjusted address " + bottomViaIPAddress + ".");
+                        logger.LogDebug("SDP mangled for " + sipRequest.Method.ToString() + " request from " +
+                                        sipRequest.RemoteSIPEndPoint.ToString() + ", adjusted address " +
+                                        bottomViaIPAddress + ".");
                     }
                 }
             }
@@ -160,7 +167,9 @@ namespace SIPSorcery.SIP.App
                         sipResponse.Body = mangledSDP;
                         sipResponse.Header.ContentLength = sipResponse.Body.Length;
 
-                        logger.LogDebug("SDP mangled for " + sipResponse.Status.ToString() + " response from " + sipResponse.RemoteSIPEndPoint.ToString() + ", adjusted address " + remoteEndPoint.Address.ToString() + ".");
+                        logger.LogDebug("SDP mangled for " + sipResponse.Status.ToString() + " response from " +
+                                        sipResponse.RemoteSIPEndPoint.ToString() + ", adjusted address " +
+                                        remoteEndPoint.Address.ToString() + ".");
                     }
                 }
             }
@@ -182,6 +191,7 @@ namespace SIPSorcery.SIP.App
             {
                 requestIPAddress = sipRequest.RemoteSIPEndPoint.Address;
             }
+
             return requestIPAddress;
         }
     }

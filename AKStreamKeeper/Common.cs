@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -136,7 +135,7 @@ namespace AKStreamKeeper
         public static int StartupMediaServer()
         {
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath);
-            
+
             if (MediaServerInstance == null)
             {
                 MediaServerInstance =

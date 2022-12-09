@@ -96,10 +96,10 @@ namespace SIPSorcery.SIP
         public SIPStreamConnection(
             Socket streamSocket,
             SIPEndPoint remoteSIPEndPoint,
-            SIPProtocolsEnum connectionProtocol) : this(streamSocket, SIPConstants.DEFAULT_ENCODING, SIPConstants.DEFAULT_ENCODING, remoteSIPEndPoint,
+            SIPProtocolsEnum connectionProtocol) : this(streamSocket, SIPConstants.DEFAULT_ENCODING,
+            SIPConstants.DEFAULT_ENCODING, remoteSIPEndPoint,
             connectionProtocol)
         {
-
         }
 
         /// <summary>
@@ -145,7 +145,8 @@ namespace SIPSorcery.SIP
             RecvEndPosn += bytesRead;
 
             int bytesSkipped = 0;
-            byte[] sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(buffer, RecvStartPosn, RecvEndPosn, m_sipEncoding, out bytesSkipped);
+            byte[] sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(buffer, RecvStartPosn, RecvEndPosn,
+                m_sipEncoding, out bytesSkipped);
 
             while (sipMsgBuffer != null)
             {
@@ -153,8 +154,10 @@ namespace SIPSorcery.SIP
                 if (SIPMessageReceived != null)
                 {
                     LastTransmission = DateTime.Now;
-                    SIPEndPoint localEndPoint = new SIPEndPoint(ConnectionProtocol, StreamSocket.LocalEndPoint as IPEndPoint, recvChannel.ID, ConnectionID);
-                    SIPEndPoint remoteEndPoint = new SIPEndPoint(ConnectionProtocol, RemoteSIPEndPoint.GetIPEndPoint(), recvChannel.ID, ConnectionID);
+                    SIPEndPoint localEndPoint = new SIPEndPoint(ConnectionProtocol,
+                        StreamSocket.LocalEndPoint as IPEndPoint, recvChannel.ID, ConnectionID);
+                    SIPEndPoint remoteEndPoint = new SIPEndPoint(ConnectionProtocol, RemoteSIPEndPoint.GetIPEndPoint(),
+                        recvChannel.ID, ConnectionID);
                     SIPMessageReceived(recvChannel, localEndPoint, remoteEndPoint, sipMsgBuffer);
                 }
 
@@ -169,7 +172,8 @@ namespace SIPSorcery.SIP
                 else
                 {
                     // Try and extract another SIP message from the receive buffer.
-                    sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(buffer, RecvStartPosn, RecvEndPosn, m_sipEncoding, out bytesSkipped);
+                    sipMsgBuffer = SIPMessageBuffer.ParseSIPMessageFromStream(buffer, RecvStartPosn, RecvEndPosn,
+                        m_sipEncoding, out bytesSkipped);
                 }
             }
         }

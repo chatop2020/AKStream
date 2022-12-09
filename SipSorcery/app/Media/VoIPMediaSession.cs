@@ -71,24 +71,31 @@ namespace SIPSorcery.Media
 
         public VoIPMediaSession(MediaEndPoints mediaEndPoint, VideoTestPatternSource testPatternSource)
             : this(mediaEndPoint, null, 0, testPatternSource)
-        { }
+        {
+        }
 
         public VoIPMediaSession(
             MediaEndPoints mediaEndPoint,
             IPAddress bindAddress = null,
             int bindPort = 0,
             VideoTestPatternSource testPatternSource = null)
-            : this(new VoIPMediaSessionConfig { MediaEndPoint = mediaEndPoint, BindAddress = bindAddress, BindPort = bindPort, TestPatternSource = testPatternSource })
+            : this(new VoIPMediaSessionConfig
+            {
+                MediaEndPoint = mediaEndPoint, BindAddress = bindAddress, BindPort = bindPort,
+                TestPatternSource = testPatternSource
+            })
         {
         }
 
         public VoIPMediaSession(VoIPMediaSessionConfig config)
-            : base(new RtpSessionConfig { 
-                IsMediaMultiplexed = false, 
-                IsRtcpMultiplexed = false, 
-                RtpSecureMediaOption = config.RtpSecureMediaOption, 
+            : base(new RtpSessionConfig
+            {
+                IsMediaMultiplexed = false,
+                IsRtcpMultiplexed = false,
+                RtpSecureMediaOption = config.RtpSecureMediaOption,
                 BindAddress = config.BindAddress,
-                BindPort = config.BindPort } )
+                BindPort = config.BindPort
+            })
         {
             if (config.MediaEndPoint == null)
             {
@@ -157,7 +164,8 @@ namespace SIPSorcery.Media
         private void AudioFormatsNegotiated(List<AudioFormat> audoFormats)
         {
             var audioFormat = audoFormats.First();
-            logger.LogDebug($"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate} (RTP clock rate {audioFormat.RtpClockRate}).");
+            logger.LogDebug(
+                $"Setting audio sink and source format to {audioFormat.FormatID}:{audioFormat.Codec} {audioFormat.ClockRate} (RTP clock rate {audioFormat.RtpClockRate}).");
             Media.AudioSink?.SetAudioSinkFormat(audioFormat);
             Media.AudioSource?.SetAudioSourceFormat(audioFormat);
             _audioExtrasSource.SetAudioSourceFormat(audioFormat);
@@ -195,7 +203,8 @@ namespace SIPSorcery.Media
                         }
                         else
                         {
-                            logger.LogWarning($"Webcam video source failed before start, switching to test pattern source.");
+                            logger.LogWarning(
+                                $"Webcam video source failed before start, switching to test pattern source.");
 
                             // The webcam source failed to start. Switch to a test pattern source.
                             await _videoTestPatternSource.StartVideo().ConfigureAwait(false);
@@ -241,19 +250,22 @@ namespace SIPSorcery.Media
             }
         }
 
-        private void VideoSinkSampleReady(byte[] buffer, uint width, uint height, int stride, VideoPixelFormatsEnum pixelFormat)
+        private void VideoSinkSampleReady(byte[] buffer, uint width, uint height, int stride,
+            VideoPixelFormatsEnum pixelFormat)
         {
             OnVideoSinkSample?.Invoke(buffer, width, height, stride, pixelFormat);
         }
 
-        protected void RtpMediaPacketReceived(IPEndPoint remoteEndPoint, SDPMediaTypesEnum mediaType, RTPPacket rtpPacket)
+        protected void RtpMediaPacketReceived(IPEndPoint remoteEndPoint, SDPMediaTypesEnum mediaType,
+            RTPPacket rtpPacket)
         {
             var hdr = rtpPacket.Header;
             bool marker = rtpPacket.Header.MarkerBit > 0;
 
             if (mediaType == SDPMediaTypesEnum.audio && Media.AudioSink != null)
             {
-                Media.AudioSink.GotAudioRtp(remoteEndPoint, hdr.SyncSource, hdr.SequenceNumber, hdr.Timestamp, hdr.PayloadType, marker, rtpPacket.Payload);
+                Media.AudioSink.GotAudioRtp(remoteEndPoint, hdr.SyncSource, hdr.SequenceNumber, hdr.Timestamp,
+                    hdr.PayloadType, marker, rtpPacket.Payload);
             }
         }
 

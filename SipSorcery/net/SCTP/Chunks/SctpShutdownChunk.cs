@@ -39,7 +39,8 @@ namespace SIPSorcery.Net
         public uint? CumulativeTsnAck;
 
         private SctpShutdownChunk() : base(SctpChunkType.SHUTDOWN)
-        { }
+        {
+        }
 
         /// <summary>
         /// Creates a new SHUTDOWN chunk.

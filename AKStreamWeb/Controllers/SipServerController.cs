@@ -17,10 +17,6 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("Sip网关相关接口")]
     public class SipServerController : ControllerBase
     {
-        
-     
-      
-        
         /// <summary>
         /// 终止回放流
         /// </summary>

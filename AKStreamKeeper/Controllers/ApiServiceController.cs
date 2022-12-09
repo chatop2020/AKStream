@@ -367,7 +367,7 @@ namespace AKStreamKeeper.Controllers
             var ret = ApiService.ReleaseRtpPort(port);
             return ret;
         }
-        
+
         /// <summary>
         /// 释放被用过的rtp(发送)端口
         /// </summary>
@@ -404,6 +404,7 @@ namespace AKStreamKeeper.Controllers
 
             return ret;
         }
+
         /// <summary>
         ///  获取一个可用的rtp(发送)端口（配置文件中minSenderPort-maxSenderPort的范围内的偶数端口）
         /// </summary>

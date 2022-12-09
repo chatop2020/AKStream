@@ -56,7 +56,7 @@ namespace LibCommon.Structs.GB28181.XML
             ns.Add("", "");
             var xmlSerializer = new XmlSerializer(typeof(T1));
             var stringBuilder = new StringBuilder();
-          
+
 
             using (var xmlWriter = XmlWriter.Create(new StringWriter(stringBuilder), new XmlWriterSettings
                    {

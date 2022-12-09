@@ -1,6 +1,7 @@
 using System;
 
 namespace LibCommon.Structs.ZLMediaKitConfig;
+
 /// <summary>
 /// 设置源站拉流url模板, 格式跟printf类似，第一个%s指定app,第二个%s指定stream_id,
 /// 开启集群模式后，on_stream_not_found和on_stream_none_reader hook将无效.
@@ -44,6 +45,4 @@ public class ZLMediaKitConfigNew_Cluster
         get => _retry_count;
         set => _retry_count = value;
     }
-
-  
 }

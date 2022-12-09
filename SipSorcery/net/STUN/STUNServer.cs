@@ -21,10 +21,15 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.Net
 {
-    public delegate void STUNSendMessageDelegate(IPEndPoint dst, byte[] buffer);  // Used so the STUN server can operate in a multiplexed fashion with things like a SIP server.
+    public delegate void
+        STUNSendMessageDelegate(IPEndPoint dst,
+            byte[] buffer); // Used so the STUN server can operate in a multiplexed fashion with things like a SIP server.
 
-    public delegate void STUNServerRequestInTraceDelegate(IPEndPoint localEndPoint, IPEndPoint fromEndPoint, STUNMessage stunMessage);
-    public delegate void STUNServerResponseOutTraceDelegate(IPEndPoint localEndPoint, IPEndPoint toEndPoint, STUNMessage stunMessage);
+    public delegate void STUNServerRequestInTraceDelegate(IPEndPoint localEndPoint, IPEndPoint fromEndPoint,
+        STUNMessage stunMessage);
+
+    public delegate void STUNServerResponseOutTraceDelegate(IPEndPoint localEndPoint, IPEndPoint toEndPoint,
+        STUNMessage stunMessage);
 
     public class STUNServer
     {
@@ -45,7 +50,8 @@ namespace SIPSorcery.Net
         public event STUNServerResponseOutTraceDelegate STUNPrimaryResponseOutTraceEvent;
         public event STUNServerResponseOutTraceDelegate STUNSecondaryResponseOutTraceEvent;
 
-        public STUNServer(IPEndPoint primaryEndPoint, STUNSendMessageDelegate primarySend, IPEndPoint secondaryEndPoint, STUNSendMessageDelegate secondarySend)
+        public STUNServer(IPEndPoint primaryEndPoint, STUNSendMessageDelegate primarySend, IPEndPoint secondaryEndPoint,
+            STUNSendMessageDelegate secondarySend)
         {
             m_primaryEndPoint = primaryEndPoint;
             m_primarySend = primarySend;
@@ -63,10 +69,13 @@ namespace SIPSorcery.Net
             m_secondaryDiffPortSocket.Client = NetServices.CreateBoundUdpSocket(0, m_primaryEndPoint.Address);
             m_secondaryDiffPortEndPoint = m_secondaryDiffPortSocket.Client.LocalEndPoint as IPEndPoint;
 
-            logger.LogDebug("STUN Server additional sockets, primary=" + IPSocket.GetSocketString(m_primaryDiffPortEndPoint) + ", secondary=" + IPSocket.GetSocketString(m_secondaryDiffPortEndPoint) + ".");
+            logger.LogDebug("STUN Server additional sockets, primary=" +
+                            IPSocket.GetSocketString(m_primaryDiffPortEndPoint) + ", secondary=" +
+                            IPSocket.GetSocketString(m_secondaryDiffPortEndPoint) + ".");
         }
 
-        public void STUNPrimaryReceived(IPEndPoint localEndPoint, IPEndPoint receivedEndPoint, byte[] buffer, int bufferLength)
+        public void STUNPrimaryReceived(IPEndPoint localEndPoint, IPEndPoint receivedEndPoint, byte[] buffer,
+            int bufferLength)
         {
             try
             {
@@ -87,7 +96,7 @@ namespace SIPSorcery.Net
                 {
                     if (attr.AttributeType == STUNAttributeTypesEnum.ChangeRequest)
                     {
-                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute)attr;
+                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute) attr;
                         changeAddress = changeReqAttr.ChangeAddress;
                         changePort = changeReqAttr.ChangePort;
                         break;
@@ -125,7 +134,8 @@ namespace SIPSorcery.Net
                         //Console.WriteLine("<= sending to " + IPSocketAddress.GetSocketString(receivedEndPoint) + " from " + IPSocketAddress.GetSocketString(m_secondaryDiffPortEndPoint));
                         m_secondaryDiffPortSocket.Send(stunResponseBuffer, stunResponseBuffer.Length, receivedEndPoint);
 
-                        FireSTUNSecondaryResponseOutTraceEvent(m_secondaryDiffPortEndPoint, receivedEndPoint, stunResponse);
+                        FireSTUNSecondaryResponseOutTraceEvent(m_secondaryDiffPortEndPoint, receivedEndPoint,
+                            stunResponse);
                     }
                 }
             }
@@ -135,7 +145,8 @@ namespace SIPSorcery.Net
             }
         }
 
-        public void STUNSecondaryReceived(IPEndPoint localEndPoint, IPEndPoint receivedEndPoint, byte[] buffer, int bufferLength)
+        public void STUNSecondaryReceived(IPEndPoint localEndPoint, IPEndPoint receivedEndPoint, byte[] buffer,
+            int bufferLength)
         {
             try
             {
@@ -156,7 +167,7 @@ namespace SIPSorcery.Net
                 {
                     if (attr.AttributeType == STUNAttributeTypesEnum.ChangeRequest)
                     {
-                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute)attr;
+                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute) attr;
                         changeAddress = changeReqAttr.ChangeAddress;
                         changePort = changeReqAttr.ChangePort;
                         break;
@@ -177,7 +188,8 @@ namespace SIPSorcery.Net
                         //Console.WriteLine("<= sending to " + IPSocketAddress.GetSocketString(receivedEndPoint) + " from " + IPSocketAddress.GetSocketString(m_secondaryDiffPortEndPoint));
                         m_secondaryDiffPortSocket.Send(stunResponseBuffer, stunResponseBuffer.Length, receivedEndPoint);
 
-                        FireSTUNSecondaryResponseOutTraceEvent(m_secondaryDiffPortEndPoint, receivedEndPoint, stunResponse);
+                        FireSTUNSecondaryResponseOutTraceEvent(m_secondaryDiffPortEndPoint, receivedEndPoint,
+                            stunResponse);
                     }
                 }
                 else
@@ -213,31 +225,37 @@ namespace SIPSorcery.Net
                 stunResponse.Header.TransactionId = stunRequest.Header.TransactionId;
 
                 // Add MappedAddress attribute to indicate the socket the request was received from.
-                STUNAddressAttribute mappedAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.MappedAddress, receivedEndPoint.Port, receivedEndPoint.Address);
+                STUNAddressAttribute mappedAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.MappedAddress,
+                    receivedEndPoint.Port, receivedEndPoint.Address);
                 stunResponse.Attributes.Add(mappedAddressAtt);
-                stunResponse.AddXORMappedAddressAttribute(receivedEndPoint.Address, receivedEndPoint.Port);//Compatible with the client code
+                stunResponse.AddXORMappedAddressAttribute(receivedEndPoint.Address,
+                    receivedEndPoint.Port); //Compatible with the client code
 
                 // Add SourceAddress attribute to indicate the socket used to send the response.
                 if (primary)
                 {
-                    STUNAddressAttribute sourceAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.SourceAddress, m_primaryEndPoint.Port, m_primaryEndPoint.Address);
+                    STUNAddressAttribute sourceAddressAtt = new STUNAddressAttribute(
+                        STUNAttributeTypesEnum.SourceAddress, m_primaryEndPoint.Port, m_primaryEndPoint.Address);
                     stunResponse.Attributes.Add(sourceAddressAtt);
                 }
                 else
                 {
-                    STUNAddressAttribute sourceAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.SourceAddress, m_secondaryEndPoint.Port, m_secondaryEndPoint.Address);
+                    STUNAddressAttribute sourceAddressAtt = new STUNAddressAttribute(
+                        STUNAttributeTypesEnum.SourceAddress, m_secondaryEndPoint.Port, m_secondaryEndPoint.Address);
                     stunResponse.Attributes.Add(sourceAddressAtt);
                 }
 
                 // Add ChangedAddress attribute to indicate the servers alternative socket.
                 if (primary)
                 {
-                    STUNAddressAttribute changedAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.ChangedAddress, m_secondaryEndPoint.Port, m_secondaryEndPoint.Address);
+                    STUNAddressAttribute changedAddressAtt = new STUNAddressAttribute(
+                        STUNAttributeTypesEnum.ChangedAddress, m_secondaryEndPoint.Port, m_secondaryEndPoint.Address);
                     stunResponse.Attributes.Add(changedAddressAtt);
                 }
                 else
                 {
-                    STUNAddressAttribute changedAddressAtt = new STUNAddressAttribute(STUNAttributeTypesEnum.ChangedAddress, m_primaryEndPoint.Port, m_primaryEndPoint.Address);
+                    STUNAddressAttribute changedAddressAtt = new STUNAddressAttribute(
+                        STUNAttributeTypesEnum.ChangedAddress, m_primaryEndPoint.Port, m_primaryEndPoint.Address);
                     stunResponse.Attributes.Add(changedAddressAtt);
                 }
 
@@ -264,7 +282,8 @@ namespace SIPSorcery.Net
             }
         }
 
-        private void FireSTUNPrimaryRequestInTraceEvent(IPEndPoint localEndPoint, IPEndPoint fromEndPoint, STUNMessage stunMessage)
+        private void FireSTUNPrimaryRequestInTraceEvent(IPEndPoint localEndPoint, IPEndPoint fromEndPoint,
+            STUNMessage stunMessage)
         {
             try
             {
@@ -279,7 +298,8 @@ namespace SIPSorcery.Net
             }
         }
 
-        private void FireSTUNSecondaryRequestInTraceEvent(IPEndPoint localEndPoint, IPEndPoint fromEndPoint, STUNMessage stunMessage)
+        private void FireSTUNSecondaryRequestInTraceEvent(IPEndPoint localEndPoint, IPEndPoint fromEndPoint,
+            STUNMessage stunMessage)
         {
             try
             {
@@ -294,7 +314,8 @@ namespace SIPSorcery.Net
             }
         }
 
-        private void FireSTUNPrimaryResponseOutTraceEvent(IPEndPoint localEndPoint, IPEndPoint toEndPoint, STUNMessage stunMessage)
+        private void FireSTUNPrimaryResponseOutTraceEvent(IPEndPoint localEndPoint, IPEndPoint toEndPoint,
+            STUNMessage stunMessage)
         {
             try
             {
@@ -309,7 +330,8 @@ namespace SIPSorcery.Net
             }
         }
 
-        private void FireSTUNSecondaryResponseOutTraceEvent(IPEndPoint localEndPoint, IPEndPoint toEndPoint, STUNMessage stunMessage)
+        private void FireSTUNSecondaryResponseOutTraceEvent(IPEndPoint localEndPoint, IPEndPoint toEndPoint,
+            STUNMessage stunMessage)
         {
             try
             {

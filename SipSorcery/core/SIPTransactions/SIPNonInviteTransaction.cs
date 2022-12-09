@@ -53,22 +53,29 @@ namespace SIPSorcery.SIP
             NonInviteTransactionFailed?.Invoke(this, failureReason);
         }
 
-        private Task<SocketError> SIPNonInviteTransaction_TransactionRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
+        private Task<SocketError> SIPNonInviteTransaction_TransactionRequestReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
         {
             return NonInviteRequestReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipRequest);
         }
 
-        private Task<SocketError> SIPNonInviteTransaction_TransactionInformationResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> SIPNonInviteTransaction_TransactionInformationResponseReceived(
+            SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction,
+            SIPResponse sipResponse)
         {
-            return NonInviteTransactionInfoResponseReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipResponse);
+            return NonInviteTransactionInfoResponseReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this,
+                sipResponse);
         }
 
-        private Task<SocketError> SIPNonInviteTransaction_TransactionFinalResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> SIPNonInviteTransaction_TransactionFinalResponseReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
         {
-            return NonInviteTransactionFinalResponseReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipResponse);
+            return NonInviteTransactionFinalResponseReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this,
+                sipResponse);
         }
 
-        private void SIPNonInviteTransaction_TransactionRequestRetransmit(SIPTransaction sipTransaction, SIPRequest sipRequest, int retransmitNumber)
+        private void SIPNonInviteTransaction_TransactionRequestRetransmit(SIPTransaction sipTransaction,
+            SIPRequest sipRequest, int retransmitNumber)
         {
             NonInviteTransactionRequestRetransmit?.Invoke(sipTransaction, sipRequest, retransmitNumber);
         }

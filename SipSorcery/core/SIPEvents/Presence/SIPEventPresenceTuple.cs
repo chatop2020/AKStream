@@ -29,7 +29,8 @@ namespace SIPSorcery.SIP
         public string AvatarURL;
 
         private SIPEventPresenceTuple()
-        { }
+        {
+        }
 
         public SIPEventPresenceTuple(string id, SIPEventPresenceStateEnum status)
         {
@@ -37,7 +38,8 @@ namespace SIPSorcery.SIP
             Status = status;
         }
 
-        public SIPEventPresenceTuple(string id, SIPEventPresenceStateEnum status, SIPURI contactURI, decimal contactPriority, string avatarURL)
+        public SIPEventPresenceTuple(string id, SIPEventPresenceStateEnum status, SIPURI contactURI,
+            decimal contactPriority, string avatarURL)
         {
             ID = id;
             Status = status;
@@ -58,10 +60,19 @@ namespace SIPSorcery.SIP
 
             SIPEventPresenceTuple tuple = new SIPEventPresenceTuple();
             tuple.ID = tupleElement.Attribute("id").Value;
-            tuple.Status = (SIPEventPresenceStateEnum)Enum.Parse(typeof(SIPEventPresenceStateEnum), tupleElement.Element(ns + "status").Element(ns + "basic").Value, true);
-            tuple.ContactURI = (tupleElement.Element(ns + "contact") != null) ? SIPURI.ParseSIPURI(tupleElement.Element(ns + "contact").Value) : null;
-            tuple.ContactPriority = (tuple.ContactURI != null && tupleElement.Element(ns + "contact").Attribute("priority") != null) ? Decimal.Parse(tupleElement.Element(ns + "contact").Attribute("priority").Value) : Decimal.Zero;
-            tuple.AvatarURL = (tuple.ContactURI != null && tupleElement.Element(ns + "contact").Attribute("avatarurl") != null) ? tupleElement.Element(ns + "contact").Attribute("avatarurl").Value : null;
+            tuple.Status = (SIPEventPresenceStateEnum) Enum.Parse(typeof(SIPEventPresenceStateEnum),
+                tupleElement.Element(ns + "status").Element(ns + "basic").Value, true);
+            tuple.ContactURI = (tupleElement.Element(ns + "contact") != null)
+                ? SIPURI.ParseSIPURI(tupleElement.Element(ns + "contact").Value)
+                : null;
+            tuple.ContactPriority =
+                (tuple.ContactURI != null && tupleElement.Element(ns + "contact").Attribute("priority") != null)
+                    ? Decimal.Parse(tupleElement.Element(ns + "contact").Attribute("priority").Value)
+                    : Decimal.Zero;
+            tuple.AvatarURL =
+                (tuple.ContactURI != null && tupleElement.Element(ns + "contact").Attribute("avatarurl") != null)
+                    ? tupleElement.Element(ns + "contact").Attribute("avatarurl").Value
+                    : null;
 
             return tuple;
         }
@@ -74,7 +85,7 @@ namespace SIPSorcery.SIP
                 new XAttribute("id", ID),
                 new XElement(ns + "status",
                     new XElement(ns + "basic", Status.ToString()))
-                );
+            );
 
             if (ContactURI != null)
             {
@@ -83,10 +94,12 @@ namespace SIPSorcery.SIP
                 {
                     contactElement.Add(new XAttribute("priority", ContactPriority.ToString("0.###")));
                 }
+
                 if (AvatarURL != null)
                 {
                     contactElement.Add(new XAttribute("avatarurl", AvatarURL));
                 }
+
                 tupleElement.Add(contactElement);
             }
 

@@ -36,11 +36,12 @@ namespace SIPSorcery.Net
     {
         public static SDPMediaTypesEnum GetSDPMediaType(string mediaType)
         {
-            return (SDPMediaTypesEnum)Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
+            return (SDPMediaTypesEnum) Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
         }
+
         public static SDPMediaTypesEnum GetSDPMediaType(int mediaType)
         {
-            return (SDPMediaTypesEnum)mediaType;
+            return (SDPMediaTypesEnum) mediaType;
         }
     }
 
@@ -54,10 +55,10 @@ namespace SIPSorcery.Net
     /// </summary>
     public enum MediaStreamStatusEnum
     {
-        SendRecv = 0,   // The offerer is prepared to send and receive packets.
-        SendOnly = 1,   // The offerer only wishes to send RTP packets. They will probably ignore any received.
-        RecvOnly = 2,   // The offerer only wishes to receive RTP packets. They will not send.
-        Inactive = 3    // The offerer is not ready to send or receive packets.
+        SendRecv = 0, // The offerer is prepared to send and receive packets.
+        SendOnly = 1, // The offerer only wishes to send RTP packets. They will probably ignore any received.
+        RecvOnly = 2, // The offerer only wishes to receive RTP packets. They will not send.
+        Inactive = 3 // The offerer is not ready to send or receive packets.
     }
 
     public class MediaStreamStatusType
@@ -73,7 +74,8 @@ namespace SIPSorcery.Net
         /// <param name="attributeString">The attribute string to check.</param>
         /// <param name="mediaStreamStatus">If the attribute was recognised as a media stream attribute this will hold it.</param>
         /// <returns>True if the attribute matched or false if not.</returns>
-        public static bool IsMediaStreamStatusAttribute(string attributeString, out MediaStreamStatusEnum mediaStreamStatus)
+        public static bool IsMediaStreamStatusAttribute(string attributeString,
+            out MediaStreamStatusEnum mediaStreamStatus)
         {
             mediaStreamStatus = MediaStreamStatusEnum.SendRecv;
 

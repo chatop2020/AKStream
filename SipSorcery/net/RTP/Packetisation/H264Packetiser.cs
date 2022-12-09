@@ -164,12 +164,12 @@ namespace SIPSorcery.Net
         /// </remarks>
         public static byte[] GetH264RtpHeader(byte nal0, bool isFirstPacket, bool isFinalPacket)
         {
-            byte nalType = (byte)(nal0 & 0x1F);
+            byte nalType = (byte) (nal0 & 0x1F);
             //byte nalNri = (byte)((nal0 >> 5) & 0x03);
 
-            byte firstHdrByte = (byte)(nal0 & 0xE0); // Has either 24 (STAP-A) or 28 (FU-A) added to it.
+            byte firstHdrByte = (byte) (nal0 & 0xE0); // Has either 24 (STAP-A) or 28 (FU-A) added to it.
 
-            byte fuIndicator = (byte)(firstHdrByte + 28);
+            byte fuIndicator = (byte) (firstHdrByte + 28);
             byte fuHeader = nalType;
             if (isFirstPacket)
             {
@@ -180,7 +180,7 @@ namespace SIPSorcery.Net
                 fuHeader += 0x40;
             }
 
-            return new byte[] { fuIndicator, fuHeader };
+            return new byte[] {fuIndicator, fuHeader};
         }
     }
 }

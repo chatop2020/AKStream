@@ -23,7 +23,7 @@ namespace SIPSorcery.Net
     {
         public const UInt16 ADDRESS_ATTRIBUTE_LENGTH = 8;
 
-        public int Family = 1;      // Ipv4 = 1, IPv6 = 2.
+        public int Family = 1; // Ipv4 = 1, IPv6 = 2.
         public int Port;
         public IPAddress Address;
 
@@ -44,7 +44,8 @@ namespace SIPSorcery.Net
                 Port = BitConverter.ToUInt16(attributeValue, 2);
             }
 
-            Address = new IPAddress(new byte[] { attributeValue[4], attributeValue[5], attributeValue[6], attributeValue[7] });
+            Address = new IPAddress(new byte[]
+                {attributeValue[4], attributeValue[5], attributeValue[6], attributeValue[7]});
         }
 
         public STUNAddressAttribute(STUNAttributeTypesEnum attributeType, int port, IPAddress address)
@@ -61,25 +62,29 @@ namespace SIPSorcery.Net
         {
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16)base.AttributeType)), 0, buffer, startIndex, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer, startIndex + 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16) base.AttributeType)), 0,
+                    buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer,
+                    startIndex + 2, 2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((UInt16)base.AttributeType), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((UInt16) base.AttributeType), 0, buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(ADDRESS_ATTRIBUTE_LENGTH), 0, buffer, startIndex + 2, 2);
             }
 
-            buffer[startIndex + 5] = (byte)Family;
+            buffer[startIndex + 5] = (byte) Family;
 
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(Convert.ToUInt16(Port))), 0, buffer, startIndex + 6, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(Convert.ToUInt16(Port))), 0, buffer,
+                    startIndex + 6, 2);
             }
             else
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(Convert.ToUInt16(Port)), 0, buffer, startIndex + 6, 2);
             }
+
             Buffer.BlockCopy(Address.GetAddressBytes(), 0, buffer, startIndex + 8, 4);
 
             return STUNATTRIBUTE_HEADER_LENGTH + ADDRESS_ATTRIBUTE_LENGTH;
@@ -87,7 +92,8 @@ namespace SIPSorcery.Net
 
         public override string ToString()
         {
-            string attrDescrStr = "STUN Attribute: " + base.AttributeType + ", address=" + Address.ToString() + ", port=" + Port + ".";
+            string attrDescrStr = "STUN Attribute: " + base.AttributeType + ", address=" + Address.ToString() +
+                                  ", port=" + Port + ".";
 
             return attrDescrStr;
         }

@@ -22,11 +22,11 @@ namespace SIPSorcery.Media
     public sealed class VoIPMediaSessionConfig
     {
         public MediaEndPoints MediaEndPoint { get; set; }
-        
+
         public IPAddress BindAddress { get; set; }
-        
+
         public int BindPort { get; set; }
-        
+
         public RtpSecureMediaOptionEnum RtpSecureMediaOption { get; set; }
 
         public VideoTestPatternSource TestPatternSource { get; set; }

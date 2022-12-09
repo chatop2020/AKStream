@@ -32,10 +32,10 @@ namespace SIPSorcery.SIP
 
         protected byte[] _body;
 
-        public Encoding SIPEncoding { get;protected set; }
+        public Encoding SIPEncoding { get; protected set; }
         public Encoding SIPBodyEncoding { get; protected set; }
 
-        public SIPMessageBase():this(SIPConstants.DEFAULT_ENCODING, SIPConstants.DEFAULT_ENCODING){}
+        public SIPMessageBase() : this(SIPConstants.DEFAULT_ENCODING, SIPConstants.DEFAULT_ENCODING) { }
 
         public SIPMessageBase(Encoding sipEncoding, Encoding sipBodyEncoding)
         {

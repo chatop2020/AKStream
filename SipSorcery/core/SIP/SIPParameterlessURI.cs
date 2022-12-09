@@ -59,7 +59,8 @@ namespace SIPSorcery.SIP
         }
 
         private SIPParameterlessURI()
-        { }
+        {
+        }
 
         public SIPParameterlessURI(SIPURI sipURI)
         {

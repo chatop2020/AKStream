@@ -41,6 +41,7 @@ namespace SIPSorcery.Net
                 {
                     res = (res & 1) == 1 ? poly ^ (res >> 1) : (res >> 1);
                 }
+
                 _table[i] = res;
             }
         }
@@ -52,6 +53,7 @@ namespace SIPSorcery.Net
             {
                 crc = _table[(crc ^ buffer[offset++]) & 0xff] ^ crc >> 8;
             }
+
             return crc ^ 0xffffffff;
         }
     }
@@ -94,7 +96,8 @@ namespace SIPSorcery.Net
         public List<byte[]> UnrecognisedChunks;
 
         private SctpPacket()
-        { }
+        {
+        }
 
         /// <summary>
         /// Creates a new SCTP packet instance.
@@ -173,7 +176,8 @@ namespace SIPSorcery.Net
         /// <param name="offset">The position in the buffer of the packet.</param>
         /// <param name="length">The length of the serialised packet in the buffer.</param>
         /// <returns>The lsit of parsed chunks and a list of unrecognised chunks that were not de-serialised.</returns>
-        private static (List<SctpChunk> chunks, List<byte[]> unrecognisedChunks) ParseChunks(byte[] buffer, int offset, int length)
+        private static (List<SctpChunk> chunks, List<byte[]> unrecognisedChunks) ParseChunks(byte[] buffer, int offset,
+            int length)
         {
             List<SctpChunk> chunks = new List<SctpChunk>();
             List<byte[]> unrecognisedChunks = new List<byte[]>();
@@ -212,11 +216,12 @@ namespace SIPSorcery.Net
 
                 if (stop)
                 {
-                    logger.LogWarning($"SCTP unrecognised chunk type {chunkType} indicated no further chunks should be processed.");
+                    logger.LogWarning(
+                        $"SCTP unrecognised chunk type {chunkType} indicated no further chunks should be processed.");
                     break;
                 }
 
-                posn += (int)SctpChunk.GetChunkLengthFromHeader(buffer, posn, true);
+                posn += (int) SctpChunk.GetChunkLengthFromHeader(buffer, posn, true);
             }
 
             return (chunks, unrecognisedChunks);
@@ -266,7 +271,7 @@ namespace SIPSorcery.Net
         public static bool IsValid(byte[] buffer, int posn, int length, uint requiredTag)
         {
             return GetVerificationTag(buffer, posn, length) == requiredTag &&
-                VerifyChecksum(buffer, posn, length);
+                   VerifyChecksum(buffer, posn, length);
         }
     }
 }

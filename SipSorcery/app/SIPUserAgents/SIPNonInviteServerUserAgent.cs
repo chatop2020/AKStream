@@ -28,7 +28,10 @@ namespace SIPSorcery.SIP.App
 
         private SIPTransport m_sipTransport;
         private SIPNonInviteTransaction m_transaction;
-        private SIPEndPoint m_outboundProxy;                   // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+
+        private SIPEndPoint
+            m_outboundProxy; // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+
         private bool m_isAuthenticated;
 
         private string m_sipUsername;
@@ -39,12 +42,14 @@ namespace SIPSorcery.SIP.App
         {
             get { return m_sipCallDirection; }
         }
+
         public SIPDialogue SIPDialogue
         {
             get { throw new NotImplementedException(); }
         }
 
         private ISIPAccount m_sipAccount;
+
         public ISIPAccount SIPAccount
         {
             get
@@ -121,19 +126,27 @@ namespace SIPSorcery.SIP.App
                 else
                 {
                     SIPRequest sipRequest = m_transaction.TransactionRequest;
-                    SIPEndPoint localSIPEndPoint = (!sipRequest.Header.ProxyReceivedOn.IsNullOrBlank()) ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedOn) : sipRequest.LocalSIPEndPoint;
-                    SIPEndPoint remoteEndPoint = (!sipRequest.Header.ProxyReceivedFrom.IsNullOrBlank()) ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedFrom) : sipRequest.RemoteSIPEndPoint;
+                    SIPEndPoint localSIPEndPoint = (!sipRequest.Header.ProxyReceivedOn.IsNullOrBlank())
+                        ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedOn)
+                        : sipRequest.LocalSIPEndPoint;
+                    SIPEndPoint remoteEndPoint = (!sipRequest.Header.ProxyReceivedFrom.IsNullOrBlank())
+                        ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedFrom)
+                        : sipRequest.RemoteSIPEndPoint;
 
-                    SIPRequestAuthenticationResult authenticationResult = SIPRequestAuthenticator.AuthenticateSIPRequest(localSIPEndPoint, remoteEndPoint, sipRequest, m_sipAccount);
+                    SIPRequestAuthenticationResult authenticationResult =
+                        SIPRequestAuthenticator.AuthenticateSIPRequest(localSIPEndPoint, remoteEndPoint, sipRequest,
+                            m_sipAccount);
                     if (authenticationResult.Authenticated)
                     {
                         if (authenticationResult.WasAuthenticatedByIP)
                         {
-                            logger.LogDebug(m_transaction.TransactionRequest.Method + " request from " + remoteEndPoint.ToString() + " successfully authenticated by IP address.");
+                            logger.LogDebug(m_transaction.TransactionRequest.Method + " request from " +
+                                            remoteEndPoint.ToString() + " successfully authenticated by IP address.");
                         }
                         else
                         {
-                            logger.LogDebug(m_transaction.TransactionRequest.Method + " request from " + remoteEndPoint.ToString() + " successfully authenticated by digest.");
+                            logger.LogDebug(m_transaction.TransactionRequest.Method + " request from " +
+                                            remoteEndPoint.ToString() + " successfully authenticated by digest.");
                         }
 
                         m_isAuthenticated = true;
@@ -141,9 +154,13 @@ namespace SIPSorcery.SIP.App
                     else
                     {
                         // Send authorisation failure or required response
-                        SIPResponse authReqdResponse = SIPResponse.GetResponse(sipRequest, authenticationResult.ErrorResponse, null);
-                        authReqdResponse.Header.AuthenticationHeaders.Add(authenticationResult.AuthenticationRequiredHeader);
-                        logger.LogDebug(m_transaction.TransactionRequest.Method + " request not authenticated for " + m_sipUsername + "@" + m_sipDomain + ", responding with " + authenticationResult.ErrorResponse + ".");
+                        SIPResponse authReqdResponse =
+                            SIPResponse.GetResponse(sipRequest, authenticationResult.ErrorResponse, null);
+                        authReqdResponse.Header.AuthenticationHeaders.Add(authenticationResult
+                            .AuthenticationRequiredHeader);
+                        logger.LogDebug(m_transaction.TransactionRequest.Method + " request not authenticated for " +
+                                        m_sipUsername + "@" + m_sipDomain + ", responding with " +
+                                        authenticationResult.ErrorResponse + ".");
                         m_transaction.SendResponse(authReqdResponse);
                     }
                 }
@@ -157,10 +174,13 @@ namespace SIPSorcery.SIP.App
             return m_isAuthenticated;
         }
 
-        public void AnswerNonInvite(SIPResponseStatusCodesEnum answerStatus, string reasonPhrase, string[] customHeaders, string contentType, string body)
+        public void AnswerNonInvite(SIPResponseStatusCodesEnum answerStatus, string reasonPhrase,
+            string[] customHeaders, string contentType, string body)
         {
-            logger.LogDebug(m_transaction.TransactionRequest.Method + " request succeeded with a response status of " + (int)answerStatus + " " + reasonPhrase + ".");
-            SIPResponse answerResponse = SIPResponse.GetResponse(m_transaction.TransactionRequest, answerStatus, reasonPhrase);
+            logger.LogDebug(m_transaction.TransactionRequest.Method + " request succeeded with a response status of " +
+                            (int) answerStatus + " " + reasonPhrase + ".");
+            SIPResponse answerResponse =
+                SIPResponse.GetResponse(m_transaction.TransactionRequest, answerStatus, reasonPhrase);
 
             if (customHeaders != null && customHeaders.Length > 0)
             {
@@ -186,8 +206,10 @@ namespace SIPSorcery.SIP.App
 
         public void Reject(SIPResponseStatusCodesEnum failureStatus, string reasonPhrase, string[] customHeaders)
         {
-            logger.LogDebug(m_transaction.TransactionRequest.Method + " request failed with a response status of " + (int)failureStatus + " " + reasonPhrase + ".");
-            SIPResponse failureResponse = SIPResponse.GetResponse(m_transaction.TransactionRequest, failureStatus, reasonPhrase);
+            logger.LogDebug(m_transaction.TransactionRequest.Method + " request failed with a response status of " +
+                            (int) failureStatus + " " + reasonPhrase + ".");
+            SIPResponse failureResponse =
+                SIPResponse.GetResponse(m_transaction.TransactionRequest, failureStatus, reasonPhrase);
             m_transaction.SendResponse(failureResponse);
         }
 
@@ -201,17 +223,20 @@ namespace SIPSorcery.SIP.App
             throw new NotImplementedException();
         }
 
-        public SIPDialogue Answer(string contentType, string body, string toTag, SIPDialogueTransferModesEnum transferMode)
+        public SIPDialogue Answer(string contentType, string body, string toTag,
+            SIPDialogueTransferModesEnum transferMode)
         {
             throw new NotImplementedException();
         }
 
-        public SIPDialogue Answer(string contentType, string body, SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
+        public SIPDialogue Answer(string contentType, string body, SIPDialogueTransferModesEnum transferMode,
+            string[] customHeaders)
         {
             throw new NotImplementedException();
         }
 
-        public SIPDialogue Answer(string contentType, string body, string toTag, SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
+        public SIPDialogue Answer(string contentType, string body, string toTag,
+            SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
         {
             throw new NotImplementedException();
         }
@@ -221,7 +246,8 @@ namespace SIPSorcery.SIP.App
             throw new NotImplementedException();
         }
 
-        public void Progress(SIPResponseStatusCodesEnum progressStatus, string reasonPhrase, string[] customHeaders, string progressContentType, string progressBody)
+        public void Progress(SIPResponseStatusCodesEnum progressStatus, string reasonPhrase, string[] customHeaders,
+            string progressContentType, string progressBody)
         {
             throw new NotImplementedException();
         }

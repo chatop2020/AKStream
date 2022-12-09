@@ -38,7 +38,8 @@ namespace SIPSorcery.Net
         {
             if (!(codec == VideoCodecsEnum.VP8 || codec == VideoCodecsEnum.H264))
             {
-                throw new NotSupportedException("The RTP video framer currently only understands H264 and VP8 encoded frames.");
+                throw new NotSupportedException(
+                    "The RTP video framer currently only understands H264 and VP8 encoded frames.");
             }
 
             _codec = codec;
@@ -72,7 +73,8 @@ namespace SIPSorcery.Net
                 {
                     RtpVP8Header vp8Header = RtpVP8Header.GetVP8Header(payload);
 
-                    Buffer.BlockCopy(payload, vp8Header.Length, _currVideoFrame, _currVideoFramePosn, payload.Length - vp8Header.Length);
+                    Buffer.BlockCopy(payload, vp8Header.Length, _currVideoFrame, _currVideoFramePosn,
+                        payload.Length - vp8Header.Length);
                     _currVideoFramePosn += payload.Length - vp8Header.Length;
 
                     if (rtpPacket.Header.MarkerBit > 0)
@@ -95,7 +97,8 @@ namespace SIPSorcery.Net
                 //logger.LogDebug($"rtp H264 video, seqnum {hdr.SequenceNumber}, ts {hdr.Timestamp}, marker {hdr.MarkerBit}, payload {payload.Length}.");
 
                 //var hdr = rtpPacket.Header;
-                var frameStream = _h264Depacketiser.ProcessRTPPayload(payload, hdr.SequenceNumber, hdr.Timestamp, hdr.MarkerBit, out bool isKeyFrame);
+                var frameStream = _h264Depacketiser.ProcessRTPPayload(payload, hdr.SequenceNumber, hdr.Timestamp,
+                    hdr.MarkerBit, out bool isKeyFrame);
 
                 if (frameStream != null)
                 {
@@ -104,7 +107,8 @@ namespace SIPSorcery.Net
             }
             else
             {
-                logger.LogWarning($"rtp unknown video, seqnum {hdr.SequenceNumber}, ts {hdr.Timestamp}, marker {hdr.MarkerBit}, payload {payload.Length}.");
+                logger.LogWarning(
+                    $"rtp unknown video, seqnum {hdr.SequenceNumber}, ts {hdr.Timestamp}, marker {hdr.MarkerBit}, payload {payload.Length}.");
             }
 
             return null;
@@ -130,7 +134,7 @@ namespace SIPSorcery.Net
         /// <returns></returns>
         public static byte[] CreateLowQualityRtpJpegHeader(uint fragmentOffset, int quality, int width, int height)
         {
-            byte[] rtpJpegHeader = new byte[8] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 };
+            byte[] rtpJpegHeader = new byte[8] {0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00};
 
             // Byte 0: Type specific
             //http://tools.ietf.org/search/rfc2435#section-3.1.1
@@ -152,13 +156,13 @@ namespace SIPSorcery.Net
             //http://tools.ietf.org/search/rfc2435#section-3.1.3
 
             //Byte 5: http://tools.ietf.org/search/rfc2435#section-3.1.4 (Q)
-            rtpJpegHeader[5] = (byte)quality;
+            rtpJpegHeader[5] = (byte) quality;
 
             // Byte 6: http://tools.ietf.org/search/rfc2435#section-3.1.5 (Width)
-            rtpJpegHeader[6] = (byte)(width / 8);
+            rtpJpegHeader[6] = (byte) (width / 8);
 
             // Byte 7: http://tools.ietf.org/search/rfc2435#section-3.1.6 (Height)
-            rtpJpegHeader[7] = (byte)(height / 8);
+            rtpJpegHeader[7] = (byte) (height / 8);
 
             return rtpJpegHeader;
         }

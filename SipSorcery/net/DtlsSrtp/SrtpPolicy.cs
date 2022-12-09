@@ -78,11 +78,11 @@ namespace SIPSorcery.Net
          * @param saltKeyLength SRTP salt key length
          */
         public SrtpPolicy(int encType,
-                          int encKeyLength,
-                          int authType,
-                          int authKeyLength,
-                          int authTagLength,
-                          int saltKeyLength)
+            int encKeyLength,
+            int authType,
+            int authKeyLength,
+            int authTagLength,
+            int saltKeyLength)
         {
             this.encType = encType;
             this.encKeyLength = encKeyLength;

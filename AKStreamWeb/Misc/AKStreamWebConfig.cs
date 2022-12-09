@@ -17,7 +17,7 @@ namespace AKStreamWeb.Misc
         private bool _enableGB28181Client = false;
         private bool? _enableGB28181Server = false;
         private string? _ZlmFlvPrefix = "live";
-        
+
 
         /// <summary>
         /// 流媒体服务器首次注册是否要求其重新mediaserver

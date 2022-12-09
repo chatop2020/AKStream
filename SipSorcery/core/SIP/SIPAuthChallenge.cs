@@ -29,16 +29,17 @@ namespace SIPSorcery.SIP
         /// <param name="password">The password to authenticate with.</param>
         /// <param name="digestAlgorithm">The digest algorithm to use in the authentication header.</param>
         /// <returns>An authentication header that can be added to a SIP header.</returns>
-        public static SIPAuthenticationHeader GetAuthenticationHeader(List<SIPAuthenticationHeader> authenticationChallenges, 
+        public static SIPAuthenticationHeader GetAuthenticationHeader(
+            List<SIPAuthenticationHeader> authenticationChallenges,
             SIPURI uri,
             SIPMethodsEnum method,
-            string username, 
+            string username,
             string password,
             DigestAlgorithmsEnum digestAlgorithm = DigestAlgorithmsEnum.MD5)
         {
             var challenge = authenticationChallenges.First().SIPDigest.CopyOf();
             challenge.DigestAlgorithm = digestAlgorithm;
-            challenge.SetCredentials(username, password,uri.ToString(), method.ToString());
+            challenge.SetCredentials(username, password, uri.ToString(), method.ToString());
 
             var authHeader = new SIPAuthenticationHeader(challenge);
             authHeader.SIPDigest.Response = challenge.GetDigest();

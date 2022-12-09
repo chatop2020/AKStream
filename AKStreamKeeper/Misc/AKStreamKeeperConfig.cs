@@ -21,7 +21,7 @@ namespace AKStreamKeeper.Misc
         private ushort _maxRtpPort = 30000;
         private string _mediaServerPath;
         private ushort _minRtpPort = 10001;
-        private ushort _minSendRtpPort= 20002;
+        private ushort _minSendRtpPort = 20002;
         private ushort _maxSendRtpPort = 20200;
         private bool _randomPort = false;
         private int? _recordSec = 120;
@@ -29,7 +29,6 @@ namespace AKStreamKeeper.Misc
         private bool _useSSL = false;
         private ushort _webApiPort;
         private string? _zLMediakitSSLFilePath;
-    
 
 
         /// <summary>
@@ -212,7 +211,5 @@ namespace AKStreamKeeper.Misc
             get => _maxSendRtpPort;
             set => _maxSendRtpPort = value;
         }
-
-      
     }
 }

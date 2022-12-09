@@ -41,10 +41,10 @@ namespace SIPSorcery.SIP.App
         public bool IsUACAnswered => (m_uac != null) ? m_uac.IsUACAnswered : false;
 
         public SIPB2BUserAgent(
-          SIPTransport sipTransport,
-          SIPEndPoint outboundProxy,
-          UASInviteTransaction uasTransaction,
-          ISIPAccount sipAccount) :
+            SIPTransport sipTransport,
+            SIPEndPoint outboundProxy,
+            UASInviteTransaction uasTransaction,
+            ISIPAccount sipAccount) :
             base(sipTransport, outboundProxy, uasTransaction, sipAccount)
         {
             IsB2B = true;
@@ -80,7 +80,8 @@ namespace SIPSorcery.SIP.App
             logger.LogDebug("SIPB2BUserAgent Cancel.");
             m_uac.Cancel();
 
-            var busyResp = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, SIPResponseStatusCodesEnum.BusyHere, null);
+            var busyResp = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest,
+                SIPResponseStatusCodesEnum.BusyHere, null);
             m_uasTransaction.SendFinalResponse(busyResp);
         }
 
@@ -91,7 +92,8 @@ namespace SIPSorcery.SIP.App
                 logger.LogDebug($"B2BUserAgent client call failed {error}.");
 
                 var status = (errResponse != null) ? errResponse.Status : SIPResponseStatusCodesEnum.Decline;
-                var errResp = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, status, errResponse?.ReasonPhrase);
+                var errResp = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, status,
+                    errResponse?.ReasonPhrase);
                 m_uasTransaction.SendFinalResponse(errResp);
 
                 CallFailed?.Invoke(uac, error, errResponse);
@@ -110,7 +112,8 @@ namespace SIPSorcery.SIP.App
             }
             else
             {
-                var failureResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, resp.Status, resp.ReasonPhrase);
+                var failureResponse =
+                    SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, resp.Status, resp.ReasonPhrase);
                 m_uasTransaction.SendFinalResponse(failureResponse);
 
                 CallFailed?.Invoke(uac, failureResponse.ReasonPhrase, failureResponse);

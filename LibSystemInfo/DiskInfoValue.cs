@@ -32,7 +32,7 @@ namespace LibSystemInfo
                         !driveInfo.Name.ToLower().Trim().StartsWith("/run") &&
                         !driveInfo.Name.ToLower().Trim().StartsWith("/sys") &&
                         !driveInfo.Name.ToLower().Trim().StartsWith("/var")
-                    )
+                       )
                     {
                         result.Add(driveInfo);
                     }

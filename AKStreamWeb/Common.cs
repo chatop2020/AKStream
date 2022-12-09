@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Timers;
 using AKStreamWeb.AutoTask;
@@ -32,13 +31,13 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
-      
+
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
+
         public static DateTime StartupDateTime;
 
-    
 
         /// <summary>
         /// 流媒体服务器列表
@@ -58,15 +57,16 @@ namespace AKStreamWeb
         /// <summary>
         /// Sip服务实例
         /// </summary>
-        public static SipServer SipServer=null;
+        public static SipServer SipServer = null;
 
         /// <summary>
         /// Sip客户端实例
         /// </summary>
-        public static SipClient SipClient=null;
-        
+        public static SipClient SipClient = null;
+
 
         private static List<ShareInviteInfo> _shareInviteChannels = new List<ShareInviteInfo>();
+
         /// <summary>
         /// 共享流列表
         /// </summary>
@@ -78,15 +78,14 @@ namespace AKStreamWeb
 
         static Common()
         {
-
-          
             if (!string.IsNullOrEmpty(GCommon.OutConfigPath))
             {
                 if (!GCommon.OutConfigPath.Trim().EndsWith('/'))
                 {
-                    GCommon.OutConfigPath +=  "/";
+                    GCommon.OutConfigPath += "/";
                 }
-                _configPath= GCommon.OutConfigPath + "AKStreamWeb.json";
+
+                _configPath = GCommon.OutConfigPath + "AKStreamWeb.json";
             }
 
             StartupDateTime = DateTime.Now;
@@ -140,7 +139,6 @@ namespace AKStreamWeb
                 Environment.Exit(0); //退出程序
             }
 
-           
 
 #if (DEBUG)
             Console.WriteLine("[Debug]\t当前程序为Debug编译模式");
@@ -204,6 +202,7 @@ namespace AKStreamWeb
                 SipMsgProcess.OnCatalogReceived += SipServerCallBack.OnCatalogReceived;
                 SipMsgProcess.OnDeviceAuthentication += SipServerCallBack.OnAuthentication;
             }
+
             GCommon.Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip服务端->{AkStreamWebConfig.EnableGB28181Server}");
             if (AkStreamWebConfig.EnableGB28181Client)
             {
@@ -212,17 +211,18 @@ namespace AKStreamWeb
                 {
                     outPath = GCommon.OutConfigPath;
                 }
+
                 SipClient = new SipClient(outPath);
                 SipClient.OnInviteChannel += SipClientProcess.InviteChannel;
                 SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             }
+
             GCommon.Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
 
             if (AkStreamWebConfig.EnableGB28181Server == null || AkStreamWebConfig.EnableGB28181Server == true)
             {
                 try
                 {
-
                     ResponseStruct rs;
                     SipServer.Start(out rs);
                     if (!rs.Code.Equals(ErrorNumber.None))

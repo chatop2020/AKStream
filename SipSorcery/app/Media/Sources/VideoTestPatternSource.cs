@@ -33,7 +33,11 @@ namespace SIPSorcery.Media
         public const int TEST_PATTERN_HEIGHT = 480;
 
         private const int VIDEO_SAMPLING_RATE = 90000;
-        private const int MAXIMUM_FRAMES_PER_SECOND = 60;           // Note the Threading.Timer's maximum callback rate is approx 60/s so allowing higher has no effect.
+
+        private const int
+            MAXIMUM_FRAMES_PER_SECOND =
+                60; // Note the Threading.Timer's maximum callback rate is approx 60/s so allowing higher has no effect.
+
         private const int DEFAULT_FRAMES_PER_SECOND = 30;
         private const int MINIMUM_FRAMES_PER_SECOND = 1;
         private const int STAMP_BOX_SIZE = 20;
@@ -65,6 +69,7 @@ namespace SIPSorcery.Media
         /// Unencoded test pattern samples.
         /// </summary>
         public event RawVideoSampleDelegate OnVideoSourceRawSample;
+
         public event RawVideoSampleFasterDelegate OnVideoSourceRawSampleFaster;
 
         /// <summary>
@@ -88,7 +93,8 @@ namespace SIPSorcery.Media
 
             if (testPatternStm == null)
             {
-                OnVideoSourceError?.Invoke($"Test pattern embedded resource could not be found, {TEST_PATTERN_RESOURCE_PATH}.");
+                OnVideoSourceError?.Invoke(
+                    $"Test pattern embedded resource could not be found, {TEST_PATTERN_RESOURCE_PATH}.");
             }
             else
             {
@@ -108,22 +114,27 @@ namespace SIPSorcery.Media
 
         public void ForceKeyFrame() => _videoEncoder?.ForceKeyFrame();
         public bool HasEncodedVideoSubscribers() => OnVideoSourceEncodedSample != null;
-        
-        public void ExternalVideoSourceRawSample(uint durationMilliseconds, int width, int height, byte[] sample, VideoPixelFormatsEnum pixelFormat) =>
-            throw new NotImplementedException("The test pattern video source does not offer any encoding services for external sources.");
-        
+
+        public void ExternalVideoSourceRawSample(uint durationMilliseconds, int width, int height, byte[] sample,
+            VideoPixelFormatsEnum pixelFormat) =>
+            throw new NotImplementedException(
+                "The test pattern video source does not offer any encoding services for external sources.");
+
         public void ExternalVideoSourceRawSampleFaster(uint durationMilliseconds, RawImage rawImage) =>
-            throw new NotImplementedException("The test pattern video source does not offer any encoding services for external sources.");
+            throw new NotImplementedException(
+                "The test pattern video source does not offer any encoding services for external sources.");
 
         public Task<bool> InitialiseVideoSourceDevice() =>
             throw new NotImplementedException("The test pattern video source does not use a device.");
+
         public bool IsVideoSourcePaused() => _isPaused;
 
         public void SetFrameRate(int framesPerSecond)
         {
             if (framesPerSecond < MINIMUM_FRAMES_PER_SECOND || framesPerSecond > MAXIMUM_FRAMES_PER_SECOND)
             {
-                logger.LogWarning($"Frames per second not in the allowed range of {MINIMUM_FRAMES_PER_SECOND} to {MAXIMUM_FRAMES_PER_SECOND}, ignoring.");
+                logger.LogWarning(
+                    $"Frames per second not in the allowed range of {MINIMUM_FRAMES_PER_SECOND} to {MAXIMUM_FRAMES_PER_SECOND}, ignoring.");
             }
             else
             {
@@ -189,6 +200,7 @@ namespace SIPSorcery.Media
                     _sendTestPatternTimer.Change(0, _frameSpacing);
                 }
             }
+
             return Task.CompletedTask;
         }
 
@@ -202,6 +214,7 @@ namespace SIPSorcery.Media
                 _sendTestPatternTimer?.Dispose(mre.WaitHandle);
                 return Task.Run(() => mre.Wait(TIMER_DISPOSE_WAIT_MILLISECONDS));
             }
+
             return Task.CompletedTask;
         }
 
@@ -232,13 +245,15 @@ namespace SIPSorcery.Media
                         GenerateRawSample(TEST_PATTERN_WIDTH, TEST_PATTERN_HEIGHT, _testI420Buffer);
                     }
 
-                    if (_videoEncoder != null && OnVideoSourceEncodedSample != null && !_formatManager.SelectedFormat.IsEmpty())
+                    if (_videoEncoder != null && OnVideoSourceEncodedSample != null &&
+                        !_formatManager.SelectedFormat.IsEmpty())
                     {
-                        var encodedBuffer = _videoEncoder.EncodeVideo(TEST_PATTERN_WIDTH, TEST_PATTERN_HEIGHT, _testI420Buffer, VideoPixelFormatsEnum.I420, _formatManager.SelectedFormat.Codec);
+                        var encodedBuffer = _videoEncoder.EncodeVideo(TEST_PATTERN_WIDTH, TEST_PATTERN_HEIGHT,
+                            _testI420Buffer, VideoPixelFormatsEnum.I420, _formatManager.SelectedFormat.Codec);
 
                         if (encodedBuffer != null)
                         {
-                            uint fps = (_frameSpacing > 0) ? 1000 / (uint)_frameSpacing : DEFAULT_FRAMES_PER_SECOND;
+                            uint fps = (_frameSpacing > 0) ? 1000 / (uint) _frameSpacing : DEFAULT_FRAMES_PER_SECOND;
                             uint durationRtpTS = VIDEO_SAMPLING_RATE / fps;
                             OnVideoSourceEncodedSample.Invoke(durationRtpTS, encodedBuffer);
                         }
@@ -260,7 +275,7 @@ namespace SIPSorcery.Media
         private void GenerateRawSample(int width, int height, byte[] i420Buffer)
         {
             var bgr = PixelConverter.I420toBGR(i420Buffer, width, height, out _);
-            OnVideoSourceRawSample?.Invoke((uint)_frameSpacing, width, height, bgr, VideoPixelFormatsEnum.Bgr);
+            OnVideoSourceRawSample?.Invoke((uint) _frameSpacing, width, height, bgr, VideoPixelFormatsEnum.Bgr);
         }
 
         /// <summary>
@@ -277,7 +292,7 @@ namespace SIPSorcery.Media
             {
                 for (int x = startX; x < startX + STAMP_BOX_SIZE; x++)
                 {
-                    i420Buffer[y * width + x] = (byte)(frameNumber % 255);
+                    i420Buffer[y * width + x] = (byte) (frameNumber % 255);
                 }
             }
         }

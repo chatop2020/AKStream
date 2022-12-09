@@ -27,7 +27,7 @@ namespace LibCommon.Structs.GB28181
         private Encoding _encoding;
         private string _akstreamWebHttpUrl;
 
-    
+
         /// <summary>
         /// 本机ip地址
         /// </summary>
@@ -65,7 +65,7 @@ namespace LibCommon.Structs.GB28181
             get => _sipServerPort;
             set => _sipServerPort = value;
         }
-        
+
         /// <summary>
         /// sip服务器的sip设备id
         /// </summary>
@@ -140,7 +140,7 @@ namespace LibCommon.Structs.GB28181
             get => _expiry;
             set => _expiry = value;
         }
-        
+
         /// <summary>
         /// 字符集类型
         /// UTF8
@@ -167,22 +167,21 @@ namespace LibCommon.Structs.GB28181
                 switch (_encodingType)
                 {
                     case EncodingType.GB2312:
-                        _en= Encoding.GetEncoding("gb2312");
+                        _en = Encoding.GetEncoding("gb2312");
                         break;
                     case EncodingType.UTF8:
-                        _en=Encoding.GetEncoding("utf-8");
+                        _en = Encoding.GetEncoding("utf-8");
                         break;
                     case EncodingType.GBK:
-                        _en= Encoding.GetEncoding("GBK");
+                        _en = Encoding.GetEncoding("GBK");
                         break;
                     default:
-                        _en=Encoding.GetEncoding("utf-8");
+                        _en = Encoding.GetEncoding("utf-8");
                         break;
                 }
 
                 return _en;
             }
-           
         }
 
         public string AkstreamWebHttpUrl

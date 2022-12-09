@@ -230,7 +230,7 @@ namespace SIPSorcery.Net
 
         public List<RTCDtlsFingerprint> getFingerprints()
         {
-            return new List<RTCDtlsFingerprint> { DtlsUtils.Fingerprint(Certificate) };
+            return new List<RTCDtlsFingerprint> {DtlsUtils.Fingerprint(Certificate)};
         }
     }
 

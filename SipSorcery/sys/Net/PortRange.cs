@@ -51,31 +51,42 @@ namespace SIPSorcery.Sys
         {
             if (startPort <= 0 || startPort > IPEndPoint.MaxPort)
             {
-                throw new ArgumentException($"startPort must be greater than 0 and less than or euqal {IPEndPoint.MaxPort}");
+                throw new ArgumentException(
+                    $"startPort must be greater than 0 and less than or euqal {IPEndPoint.MaxPort}");
             }
+
             if (endPort <= 0 || endPort > IPEndPoint.MaxPort)
             {
-                throw new ArgumentException($"endPort must be greater than 0 and less than or euqal {IPEndPoint.MaxPort}");
+                throw new ArgumentException(
+                    $"endPort must be greater than 0 and less than or euqal {IPEndPoint.MaxPort}");
             }
+
             if (endPort - startPort < 2)
             {
-                throw new ArgumentException($"endPort({endPort}) - startPort({startPort}) must be at least 2, but is {endPort - startPort}");
+                throw new ArgumentException(
+                    $"endPort({endPort}) - startPort({startPort}) must be at least 2, but is {endPort - startPort}");
             }
+
             if (startPort % 2 == 1)
             {
                 throw new ArgumentException("startPort must be even");
             }
+
             if (endPort % 2 == 0)
             {
-                endPort -= 1;// correct end-port to odd if even -> RtpPort are always handed out in pairs
+                endPort -= 1; // correct end-port to odd if even -> RtpPort are always handed out in pairs
             }
+
             m_startPort = startPort;
             m_endPort = endPort;
             m_shuffle = shuffle;
             if (shuffle)
             {
                 m_random = randomSeed.HasValue ? new Random(randomSeed.Value) : new Random();
-                m_nextPort = m_random.Next(m_startPort, m_endPort + 1) // The + 1 is needed to get an even distribution because Random.Next(start, end) is inclusive start but exclusive the end
+                m_nextPort =
+                    m_random.Next(m_startPort,
+                        m_endPort +
+                        1) // The + 1 is needed to get an even distribution because Random.Next(start, end) is inclusive start but exclusive the end
                     & 0x0000_FFFE; // AND with IPEndPoint.MaxPort but last bit is set to zero to always have an even port
             }
             else
@@ -100,7 +111,10 @@ namespace SIPSorcery.Sys
                 var res = m_nextPort;
                 if (m_shuffle)
                 {
-                    m_nextPort = m_random.Next(m_startPort, m_endPort + 1) // The + 1 is needed to get an even distribution because Random.Next(start, end) is inclusive start but exclusive the end
+                    m_nextPort =
+                        m_random.Next(m_startPort,
+                            m_endPort +
+                            1) // The + 1 is needed to get an even distribution because Random.Next(start, end) is inclusive start but exclusive the end
                         & 0x0000_FFFE; // AND with IPEndPoint.MaxPort but last bit is set to zero to always have an even port
                 }
                 else
@@ -111,6 +125,7 @@ namespace SIPSorcery.Sys
                         m_nextPort = m_startPort;
                     }
                 }
+
                 return res;
             }
         }

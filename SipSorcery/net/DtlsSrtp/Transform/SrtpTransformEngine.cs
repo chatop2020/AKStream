@@ -68,6 +68,7 @@ namespace SIPSorcery.Net
                 defaultContext.Close();
                 defaultContext = null;
             }
+
             if (defaultContextControl != null)
             {
                 defaultContextControl.Close();

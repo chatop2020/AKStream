@@ -128,8 +128,8 @@ namespace SIPSorcery.Net
 
                 // To qualify as parsed all required fields must be set.
                 return init != null &&
-                init.candidate != null &&
-                init.sdpMid != null;
+                       init.candidate != null &&
+                       init.sdpMid != null;
             }
         }
     }
@@ -240,7 +240,9 @@ namespace SIPSorcery.Net
         RTCIceTcpCandidateType tcpType { get; }
         string relatedAddress { get; }
         ushort relatedPort { get; }
+
         string usernameFragment { get; }
+
         //RTCIceCandidateInit toJSON();
         string toJSON();
     }

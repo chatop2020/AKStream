@@ -196,6 +196,7 @@ namespace SIPSorcery.Net
             {
                 RTCSctpAssociation?.Shutdown();
             }
+
             _isClosed = true;
         }
 
@@ -284,7 +285,8 @@ namespace SIPSorcery.Net
                     {
                         if (!SctpPacket.VerifyChecksum(recvBuffer, 0, bytesRead))
                         {
-                            logger.LogWarning($"SCTP packet received on DTLS transport dropped due to invalid checksum.");
+                            logger.LogWarning(
+                                $"SCTP packet received on DTLS transport dropped due to invalid checksum.");
                         }
                         else
                         {
@@ -292,8 +294,10 @@ namespace SIPSorcery.Net
 
                             if (pkt.Chunks.Any(x => x.KnownType == SctpChunkType.INIT))
                             {
-                                var initChunk = pkt.Chunks.First(x => x.KnownType == SctpChunkType.INIT) as SctpInitChunk;
-                                logger.LogDebug($"SCTP INIT packet received, initial tag {initChunk.InitiateTag}, initial TSN {initChunk.InitialTSN}.");
+                                var initChunk =
+                                    pkt.Chunks.First(x => x.KnownType == SctpChunkType.INIT) as SctpInitChunk;
+                                logger.LogDebug(
+                                    $"SCTP INIT packet received, initial tag {initChunk.InitiateTag}, initial TSN {initChunk.InitialTSN}.");
 
                                 GotInit(pkt, null);
                             }
@@ -336,7 +340,7 @@ namespace SIPSorcery.Net
                     // Treat application exceptions as recoverable, things like SCTP packet parse failures.
                     logger.LogWarning($"SCTP error processing RTCSctpTransport receive. {appExcp.Message}");
                 }
-                catch(TlsFatalAlert alert)  when (alert.InnerException is SocketException)
+                catch (TlsFatalAlert alert) when (alert.InnerException is SocketException)
                 {
                     var sockExcp = alert.InnerException as SocketException;
                     logger.LogWarning($"SCTP RTCSctpTransport receive socket failure {sockExcp.SocketErrorCode}.");
@@ -370,7 +374,7 @@ namespace SIPSorcery.Net
             if (length > maxMessageSize)
             {
                 throw new ApplicationException($"RTCSctpTransport was requested to send data of length {length} " +
-                    $" that exceeded the maximum allowed message size of {maxMessageSize}.");
+                                               $" that exceeded the maximum allowed message size of {maxMessageSize}.");
             }
 
             if (!_isClosed)

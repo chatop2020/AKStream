@@ -71,7 +71,8 @@ namespace LibCommon
 
         public override string ToString()
         {
-            return $"{nameof(Code)}: {Code}, {nameof(Message)}: {Message}, {nameof(ExceptMessage)}: {ExceptMessage}, {nameof(ExceptStackTrace)}: {ExceptStackTrace}";
+            return
+                $"{nameof(Code)}: {Code}, {nameof(Message)}: {Message}, {nameof(ExceptMessage)}: {ExceptMessage}, {nameof(ExceptStackTrace)}: {ExceptStackTrace}";
         }
     }
 }

@@ -634,7 +634,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _rtp_audioMtuSize = value;
         }
 
-       
+
         [JsonProperty("rtp.cycleMS")]
         public ulong? Rtp_CycleMs
         {
@@ -642,7 +642,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             set => _rtp_cycleMS = value;
         }
 
-      
+
         [JsonProperty("rtp.videoMtuSize")]
         public int? Rtp_VideoMtuSize
         {

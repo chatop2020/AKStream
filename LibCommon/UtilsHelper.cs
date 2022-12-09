@@ -21,8 +21,6 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
-        
-        
         /// <summary>
         /// 是否为ushort类型
         /// </summary>
@@ -40,7 +38,7 @@ namespace LibCommon
                 return false;
             }
         }
-        
+
         /// <summary>
         /// 是否整数
         /// </summary>
@@ -70,7 +68,7 @@ namespace LibCommon
             Regex regex = new Regex(regextext, RegexOptions.None);
             return regex.IsMatch(str);
         }
-      
+
         /// <summary>
         /// 为字符串添加引号
         /// </summary>
@@ -80,6 +78,7 @@ namespace LibCommon
         {
             return $"`{str.Trim()}`";
         }
+
         /// <summary>
         /// 获取启动时传入参数列表
         /// </summary>
@@ -94,13 +93,14 @@ namespace LibCommon
                 {
                     if (!string.IsNullOrEmpty(args[i + 1].Trim()))
                     {
-                        tmpReturn.Add(new KeyValuePair<string,string>(args[i].Trim(),args[i+1].Trim()));
+                        tmpReturn.Add(new KeyValuePair<string, string>(args[i].Trim(), args[i + 1].Trim()));
                     }
                 }
             }
+
             return tmpReturn;
         }
-        
+
         /// <summary>
         /// 按指定数量对List分组
         /// </summary>
@@ -118,7 +118,7 @@ namespace LibCommon
 
             return listGroup;
         }
-        
+
         /// <summary>
         /// 日期转long 
         /// </summary>
@@ -152,7 +152,7 @@ namespace LibCommon
                 || tmp.Contains("network is down")
                 || tmp.Contains("no route")
                 || tmp.Contains("connection refused")
-            )
+               )
             {
                 return true;
             }
@@ -403,8 +403,7 @@ namespace LibCommon
             return r.Next(1, ushort.MaxValue);
         }
 
-        
-        
+
         /// <summary>
         /// 通过mac地址获取ip地址
         /// </summary>

@@ -14,7 +14,8 @@ namespace SIPSorcery.Media
     {
         private readonly MediaStreamTrack _mediaStream;
 
-        public MusicMediaSession(AudioFormat sourceAudioFormat, IPEndPoint destination) : base(new MediaEndPoints { AudioSource = new EmptyAudioSource() })
+        public MusicMediaSession(AudioFormat sourceAudioFormat, IPEndPoint destination) : base(new MediaEndPoints
+            {AudioSource = new EmptyAudioSource()})
         {
             SetDestination(SDPMediaTypesEnum.audio, destination, null);
             AudioExtrasSource.SetAudioSourceFormat(sourceAudioFormat);
@@ -25,9 +26,10 @@ namespace SIPSorcery.Media
         public Task SendAudioFile(string fileToPlay)
         {
             return AudioExtrasSource.SendAudioFromStream(
-                        new FileStream(fileToPlay, FileMode.Open, FileAccess.Read, FileShare.Read), AudioSamplingRatesEnum.Rate8KHz);
-
+                new FileStream(fileToPlay, FileMode.Open, FileAccess.Read, FileShare.Read),
+                AudioSamplingRatesEnum.Rate8KHz);
         }
+
         public override MediaStreamTrack AudioRemoteTrack
         {
             get

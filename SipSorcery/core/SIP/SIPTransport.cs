@@ -33,16 +33,26 @@ using SIPSorcery.Sys;
 namespace SIPSorcery.SIP
 {
     public delegate Task<SIPEndPoint> ResolveSIPUriDelegateAsync(SIPURI uri, bool preferIPv6, CancellationToken ct);
+
     public delegate SIPEndPoint ResolveSIPUriFromCacheDelegate(SIPURI uri, bool preferIPv6);
 
     public class SIPTransport : IDisposable
     {
-        private const int MAX_QUEUEWAIT_PERIOD = 200;              // Maximum time to wait to check the message received queue if no events are received.
-        private const int MAX_INMESSAGE_QUEUECOUNT = 5000;          // The maximum number of messages that can be stored in the incoming message queue.
+        private const int
+            MAX_QUEUEWAIT_PERIOD =
+                200; // Maximum time to wait to check the message received queue if no events are received.
+
+        private const int
+            MAX_INMESSAGE_QUEUECOUNT =
+                5000; // The maximum number of messages that can be stored in the incoming message queue.
+
         private const string RECEIVE_THREAD_NAME = "siptrans-recv";
 
         private static string m_looseRouteParameter = SIPConstants.SIP_LOOSEROUTER_PARAMETER;
-        public static IPAddress BlackholeAddress = IPAddress.Any;  // (IPAddress.Any is 0.0.0.0) Any SIP messages with this IP address will be dropped.
+
+        public static IPAddress
+            BlackholeAddress =
+                IPAddress.Any; // (IPAddress.Any is 0.0.0.0) Any SIP messages with this IP address will be dropped.
 
         /// <summary>
         /// Set to true to prefer IPv6 lookups of hostnames. By default IPv4 lookups will be performed.
@@ -207,24 +217,27 @@ namespace SIPSorcery.SIP
         /// <summary>
         /// Creates a SIP transport class with default DNS resolver and SIP transaction engine.
         /// </summary>
-        public SIPTransport():this(false)
+        public SIPTransport() : this(false)
         {
         }
+
         public SIPTransport(Encoding sipEncoding, Encoding sipBodyEncoding) : this(false, sipEncoding, sipBodyEncoding)
         {
         }
-        public SIPTransport(bool stateless):this(stateless, SIPConstants.DEFAULT_ENCODING, SIPConstants.DEFAULT_ENCODING)
+
+        public SIPTransport(bool stateless) : this(stateless, SIPConstants.DEFAULT_ENCODING,
+            SIPConstants.DEFAULT_ENCODING)
         {
         }
 
         /// <summary>
-            /// Allows the transport layer to be created to operate in a stateless mode.
-            /// </summary>
-            /// <param name="stateless">If true the transport layer will NOT queue incoming messages
-            /// and will NOT use a transaction engine.</param>
-            /// <param name="sipEncoding"></param>
-            /// <param name="sipBodyEncoding"></param>
-            public SIPTransport(bool stateless,Encoding sipEncoding,Encoding sipBodyEncoding)
+        /// Allows the transport layer to be created to operate in a stateless mode.
+        /// </summary>
+        /// <param name="stateless">If true the transport layer will NOT queue incoming messages
+        /// and will NOT use a transaction engine.</param>
+        /// <param name="sipEncoding"></param>
+        /// <param name="sipBodyEncoding"></param>
+        public SIPTransport(bool stateless, Encoding sipEncoding, Encoding sipBodyEncoding)
         {
             m_sipEncoding = sipEncoding;
             m_sipBodyEncoding = sipBodyEncoding;
@@ -240,8 +253,10 @@ namespace SIPSorcery.SIP
                 m_queueIncoming = true;
                 //ResolveSIPEndPoint_External = SIPDNSManager.ResolveSIPService;
                 m_transactionEngine = new SIPTransactionEngine(this);
-                m_transactionEngine.SIPRequestRetransmitTraceEvent += (tx, req, count) => SIPRequestRetransmitTraceEvent?.Invoke(tx, req, count);
-                m_transactionEngine.SIPResponseRetransmitTraceEvent += (tx, resp, count) => SIPResponseRetransmitTraceEvent?.Invoke(tx, resp, count);
+                m_transactionEngine.SIPRequestRetransmitTraceEvent += (tx, req, count) =>
+                    SIPRequestRetransmitTraceEvent?.Invoke(tx, req, count);
+                m_transactionEngine.SIPResponseRetransmitTraceEvent += (tx, resp, count) =>
+                    SIPResponseRetransmitTraceEvent?.Invoke(tx, resp, count);
             }
         }
 
@@ -337,7 +352,8 @@ namespace SIPSorcery.SIP
         /// <param name="localEndPoint">The local end point the message was received on.</param>
         /// <param name="remoteEndPoint">The remote end point the message came from.</param>
         /// <param name="buffer">A buffer containing the received message.</param>
-        public Task ReceiveMessage(SIPChannel sipChannel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint, byte[] buffer)
+        public Task ReceiveMessage(SIPChannel sipChannel, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint,
+            byte[] buffer)
         {
             try
             {
@@ -347,12 +363,14 @@ namespace SIPSorcery.SIP
                 }
                 else
                 {
-                    IncomingMessage incomingMessage = new IncomingMessage(sipChannel, localEndPoint, remoteEndPoint, buffer);
+                    IncomingMessage incomingMessage =
+                        new IncomingMessage(sipChannel, localEndPoint, remoteEndPoint, buffer);
 
                     // Keep the queue within size limits 
                     if (m_inMessageQueue.Count >= MAX_INMESSAGE_QUEUECOUNT)
                     {
-                        logger.LogWarning($"SIPTransport queue full new message from {remoteEndPoint} being discarded.");
+                        logger.LogWarning(
+                            $"SIPTransport queue full new message from {remoteEndPoint} being discarded.");
                     }
                     else
                     {
@@ -459,6 +477,7 @@ namespace SIPSorcery.SIP
             {
                 throw new ArgumentNullException("dstEndPoint", "The destination end point must be set for SendRaw.");
             }
+
             if (dstEndPoint.Address.Equals(BlackholeAddress))
             {
                 // Ignore packet, it's destined for the blackhole.
@@ -493,8 +512,9 @@ namespace SIPSorcery.SIP
             // in extreme cases, the lookup is put on it's own thread and then when ready the result
             // will be used on the next SIP retransmit.
 
-            SIPURI lookupURI = (sipRequest.Header.Routes != null && sipRequest.Header.Routes.Length > 0) ?
-                sipRequest.Header.Routes.TopRoute.URI : sipRequest.URI;
+            SIPURI lookupURI = (sipRequest.Header.Routes != null && sipRequest.Header.Routes.Length > 0)
+                ? sipRequest.Header.Routes.TopRoute.URI
+                : sipRequest.URI;
 
             var cacheResult = ResolveSIPUriFromCacheCallback(lookupURI, PreferIPv6NameResolution);
 
@@ -502,7 +522,7 @@ namespace SIPSorcery.SIP
             {
                 return SocketError.HostNotFound;
             }
-            else if(cacheResult != null)
+            else if (cacheResult != null)
             {
                 return await SendRequestAsync(cacheResult, sipRequest).ConfigureAwait(false);
             }
@@ -519,7 +539,9 @@ namespace SIPSorcery.SIP
 
                     if (lookupResult == null)
                     {
-                        lookupResult = await ResolveSIPUriCallbackAsync(lookupURI, PreferIPv6NameResolution, m_cts.Token).ConfigureAwait(false);
+                        lookupResult =
+                            await ResolveSIPUriCallbackAsync(lookupURI, PreferIPv6NameResolution, m_cts.Token)
+                                .ConfigureAwait(false);
                     }
 
                     if (lookupResult != null && lookupResult != SIPEndPoint.Empty)
@@ -535,7 +557,9 @@ namespace SIPSorcery.SIP
                 {
                     // This is the HAPPY path.
                     // No existing success or failure entry in the cache. Initiate a lookup but DON'T wait for it.
-                    _ = Task.Run(() => ResolveSIPUriCallbackAsync(lookupURI, PreferIPv6NameResolution, m_cts.Token).ConfigureAwait(false));
+                    _ = Task.Run(() =>
+                        ResolveSIPUriCallbackAsync(lookupURI, PreferIPv6NameResolution, m_cts.Token)
+                            .ConfigureAwait(false));
                     return SocketError.InProgress;
                 }
             }
@@ -551,7 +575,8 @@ namespace SIPSorcery.SIP
         {
             if (dstEndPoint == null)
             {
-                throw new ArgumentNullException(nameof(dstEndPoint), "The destination end point must be set for SendRequest.");
+                throw new ArgumentNullException(nameof(dstEndPoint),
+                    "The destination end point must be set for SendRequest.");
             }
             else if (sipRequest == null)
             {
@@ -563,13 +588,15 @@ namespace SIPSorcery.SIP
                 return Task.FromResult(SocketError.Success);
             }
 
-            SIPChannel sipChannel = GetSIPChannelForDestination(dstEndPoint.Protocol, dstEndPoint.GetIPEndPoint(), sipRequest.SendFromHintChannelID, false);
+            SIPChannel sipChannel = GetSIPChannelForDestination(dstEndPoint.Protocol, dstEndPoint.GetIPEndPoint(),
+                sipRequest.SendFromHintChannelID, false);
             SIPEndPoint sendFromSIPEndPoint = sipChannel.GetLocalSIPEndPointForDestination(dstEndPoint);
 
             // Optional callback to allow the application to customise the outgoing SIP Request's headers.
             if (CustomiseRequestHeader != null)
             {
-                sipRequest.Header = CustomiseRequestHeader(sendFromSIPEndPoint, dstEndPoint, sipRequest) ?? sipRequest.Header;
+                sipRequest.Header = CustomiseRequestHeader(sendFromSIPEndPoint, dstEndPoint, sipRequest) ??
+                                    sipRequest.Header;
             }
 
             // Once the channel has been determined check some specific header fields and replace the place holder end point.
@@ -584,7 +611,8 @@ namespace SIPSorcery.SIP
         /// <param name="sipChannel">The SIP channel to use to send the SIP request.</param>
         /// <param name="dstEndPoint">The destination to send the SIP request to.</param>
         /// <param name="sipRequest">The SIP request to send.</param>
-        private Task<SocketError> SendRequestAsync(SIPChannel sipChannel, SIPEndPoint sendFromSIPEndPoint, SIPEndPoint dstEndPoint, SIPRequest sipRequest)
+        private Task<SocketError> SendRequestAsync(SIPChannel sipChannel, SIPEndPoint sendFromSIPEndPoint,
+            SIPEndPoint dstEndPoint, SIPRequest sipRequest)
         {
             if (sipChannel == null)
             {
@@ -592,7 +620,8 @@ namespace SIPSorcery.SIP
             }
             else if (dstEndPoint == null)
             {
-                throw new ArgumentNullException(nameof(dstEndPoint), "The destination end point must be set for SendRequest.");
+                throw new ArgumentNullException(nameof(dstEndPoint),
+                    "The destination end point must be set for SendRequest.");
             }
             else if (sipRequest == null)
             {
@@ -610,11 +639,13 @@ namespace SIPSorcery.SIP
 
             if (sipChannel.IsSecure)
             {
-                return sipChannel.SendSecureAsync(dstEndPoint, sipRequest.GetBytes(), sipRequest.URI.HostAddress, true, sipRequest.SendFromHintConnectionID);
+                return sipChannel.SendSecureAsync(dstEndPoint, sipRequest.GetBytes(), sipRequest.URI.HostAddress, true,
+                    sipRequest.SendFromHintConnectionID);
             }
             else
             {
-                return sipChannel.SendAsync(dstEndPoint, sipRequest.GetBytes(), true, sipRequest.SendFromHintConnectionID);
+                return sipChannel.SendAsync(dstEndPoint, sipRequest.GetBytes(), true,
+                    sipRequest.SendFromHintConnectionID);
             }
         }
 
@@ -628,7 +659,8 @@ namespace SIPSorcery.SIP
         {
             if (sipTransaction == null)
             {
-                throw new ArgumentNullException(nameof(sipTransaction), "The SIP transaction parameter must be set for AddTransaction.");
+                throw new ArgumentNullException(nameof(sipTransaction),
+                    "The SIP transaction parameter must be set for AddTransaction.");
             }
 
             if (m_transactionEngine == null)
@@ -674,13 +706,15 @@ namespace SIPSorcery.SIP
             }
             else if (sipResponse.Header.Vias?.TopViaHeader == null)
             {
-                logger.LogWarning($"There was no top Via header on a SIP response from {sipResponse.RemoteSIPEndPoint} in SendResponseAsync, response dropped.");
+                logger.LogWarning(
+                    $"There was no top Via header on a SIP response from {sipResponse.RemoteSIPEndPoint} in SendResponseAsync, response dropped.");
                 return SocketError.Fault;
             }
             else
             {
                 var topViaHeader = sipResponse.Header.Vias.TopViaHeader;
-                SIPURI topViaUri = new SIPURI(null, topViaHeader.ReceivedFromAddress, null, SIPSchemesEnum.sip, topViaHeader.Transport);
+                SIPURI topViaUri = new SIPURI(null, topViaHeader.ReceivedFromAddress, null, SIPSchemesEnum.sip,
+                    topViaHeader.Transport);
 
                 var cacheResult = ResolveSIPUriFromCacheCallback(topViaUri, PreferIPv6NameResolution);
 
@@ -698,7 +732,9 @@ namespace SIPSorcery.SIP
                     {
                         // UNHAPPY PATH.
                         // The send will block waiting for a DNS resolution.
-                        var lookupResult = await ResolveSIPUriCallbackAsync(topViaUri, PreferIPv6NameResolution, m_cts.Token).ConfigureAwait(false);
+                        var lookupResult =
+                            await ResolveSIPUriCallbackAsync(topViaUri, PreferIPv6NameResolution, m_cts.Token)
+                                .ConfigureAwait(false);
 
                         if (lookupResult != null && lookupResult != SIPEndPoint.Empty)
                         {
@@ -717,7 +753,9 @@ namespace SIPSorcery.SIP
                         // in extreme cases, the lookup is put on it's own thread and then when ready the result
                         // will be used on the next SIP retransmit.
                         // No existing success or failure entry in the cache. Initiate a lookup but DON'T wait for it.
-                        _ = Task.Run(() => ResolveSIPUriCallbackAsync(topViaUri, PreferIPv6NameResolution, m_cts.Token).ConfigureAwait(false));
+                        _ = Task.Run(() =>
+                            ResolveSIPUriCallbackAsync(topViaUri, PreferIPv6NameResolution, m_cts.Token)
+                                .ConfigureAwait(false));
                         return SocketError.InProgress;
                     }
                 }
@@ -733,11 +771,13 @@ namespace SIPSorcery.SIP
         {
             if (dstEndPoint == null)
             {
-                throw new ArgumentNullException(nameof(dstEndPoint), "The destination end point must be set for SendResponseAsync.");
+                throw new ArgumentNullException(nameof(dstEndPoint),
+                    "The destination end point must be set for SendResponseAsync.");
             }
             else if (sipResponse == null)
             {
-                throw new ArgumentNullException(nameof(sipResponse), "The SIP response must be set for SendResponseAsync.");
+                throw new ArgumentNullException(nameof(sipResponse),
+                    "The SIP response must be set for SendResponseAsync.");
             }
 
             if (dstEndPoint != null && dstEndPoint.Address.Equals(BlackholeAddress))
@@ -748,11 +788,13 @@ namespace SIPSorcery.SIP
             else
             {
                 // Once the destination is known determine the local SIP channel to reach it.
-                SIPChannel sendFromChannel = GetSIPChannelForDestination(dstEndPoint.Protocol, dstEndPoint.GetIPEndPoint(), sipResponse.SendFromHintChannelID, true);
+                SIPChannel sendFromChannel = GetSIPChannelForDestination(dstEndPoint.Protocol,
+                    dstEndPoint.GetIPEndPoint(), sipResponse.SendFromHintChannelID, true);
 
                 if (sendFromChannel == null)
                 {
-                    logger.LogWarning($"An existing SIP channel could not be found to send response {sipResponse.ShortDescription}.");
+                    logger.LogWarning(
+                        $"An existing SIP channel could not be found to send response {sipResponse.ShortDescription}.");
                     return Task.FromResult(SocketError.NotConnected);
                 }
                 else
@@ -762,18 +804,21 @@ namespace SIPSorcery.SIP
                     // Optional callback to allow the application to customise the outgoing SIP Response's headers.
                     if (CustomiseResponseHeader != null)
                     {
-                        sipResponse.Header = CustomiseResponseHeader(sendFromSIPEndPoint, dstEndPoint, sipResponse) ?? sipResponse.Header;
+                        sipResponse.Header = CustomiseResponseHeader(sendFromSIPEndPoint, dstEndPoint, sipResponse) ??
+                                             sipResponse.Header;
                     }
 
                     // Once the channel has been determined check some specific header fields and replace the place holder end point.
                     sipResponse.Header = AdjustHeadersForEndPoint(sendFromSIPEndPoint, sipResponse.Header);
 
-                    sipResponse.Header.ContentLength = (sipResponse.BodyBuffer != null) ? sipResponse.BodyBuffer.Length : 0;
+                    sipResponse.Header.ContentLength =
+                        (sipResponse.BodyBuffer != null) ? sipResponse.BodyBuffer.Length : 0;
 
                     SIPResponseOutTraceEvent?.Invoke(sendFromSIPEndPoint, dstEndPoint, sipResponse);
 
                     // Now have a destination and sending channel, go ahead and forward.
-                    return sendFromChannel.SendAsync(dstEndPoint, sipResponse.GetBytes(), false, sipResponse.SendFromHintConnectionID);
+                    return sendFromChannel.SendAsync(dstEndPoint, sipResponse.GetBytes(), false,
+                        sipResponse.SendFromHintConnectionID);
                 }
             }
         }
@@ -833,13 +878,14 @@ namespace SIPSorcery.SIP
                     }
                 }
                 else if (header.Contact.Single().ContactURI.Host.StartsWith(IPAddress.Any.ToString()) ||
-                    header.Contact.Single().ContactURI.Host.StartsWith(IPAddress.IPv6Any.ToString()))
+                         header.Contact.Single().ContactURI.Host.StartsWith(IPAddress.IPv6Any.ToString()))
                 {
                     copy = copy ?? header.Copy();
                     copy.Contact.Single().ContactURI.Host = sendFromEndPoint.ToString();
                 }
 
-                if (header.Contact.Single().ContactURI.Scheme == SIPSchemesEnum.sip && sendFromSIPEndPoint.Protocol != SIPProtocolsEnum.udp)
+                if (header.Contact.Single().ContactURI.Scheme == SIPSchemesEnum.sip &&
+                    sendFromSIPEndPoint.Protocol != SIPProtocolsEnum.udp)
                 {
                     copy = copy ?? header.Copy();
                     copy.Contact.Single().ContactURI.Protocol = sendFromSIPEndPoint.Protocol;
@@ -865,7 +911,8 @@ namespace SIPSorcery.SIP
                         m_inMessageQueue.TryDequeue(out var incomingMessage);
                         if (incomingMessage != null)
                         {
-                            SIPMessageReceived(incomingMessage.LocalSIPChannel, incomingMessage.LocalEndPoint, incomingMessage.RemoteEndPoint, incomingMessage.Buffer).Wait();
+                            SIPMessageReceived(incomingMessage.LocalSIPChannel, incomingMessage.LocalEndPoint,
+                                incomingMessage.RemoteEndPoint, incomingMessage.Buffer).Wait();
                         }
                     }
 
@@ -894,9 +941,9 @@ namespace SIPSorcery.SIP
         /// <param name="remoteEndPoint">The remote end point the message came from.</param>
         /// <param name="buffer">The raw message received.</param>
         private Task<SocketError> SIPMessageReceived(
-            SIPChannel sipChannel, 
-            SIPEndPoint localEndPoint, 
-            SIPEndPoint remoteEndPoint, 
+            SIPChannel sipChannel,
+            SIPEndPoint localEndPoint,
+            SIPEndPoint remoteEndPoint,
             byte[] buffer)
         {
             string rawSIPMessage = null;
@@ -908,7 +955,8 @@ namespace SIPSorcery.SIP
                     if ((buffer[0] == 0x0 || buffer[0] == 0x1) && buffer.Length >= 20)
                     {
                         // Treat any messages that cannot be SIP as STUN requests.
-                        STUNRequestReceived?.Invoke(localEndPoint.GetIPEndPoint(), remoteEndPoint.GetIPEndPoint(), buffer, buffer.Length);
+                        STUNRequestReceived?.Invoke(localEndPoint.GetIPEndPoint(), remoteEndPoint.GetIPEndPoint(),
+                            buffer, buffer.Length);
                     }
                     else
                     {
@@ -916,8 +964,12 @@ namespace SIPSorcery.SIP
                         if (buffer.Length > SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH)
                         {
                             string rawErrorMessage = m_sipEncoding.GetString(buffer, 0, 1024) + "\r\n..truncated";
-                            SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "SIP message too large, " + buffer.Length + " bytes, maximum allowed is " + SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH + " bytes.", SIPValidationFieldsEnum.Request, rawErrorMessage);
-                            SIPResponse tooLargeResponse = SIPResponse.GetResponse(localEndPoint, remoteEndPoint, SIPResponseStatusCodesEnum.MessageTooLarge, null);
+                            SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                "SIP message too large, " + buffer.Length + " bytes, maximum allowed is " +
+                                SIPConstants.SIP_MAXIMUM_RECEIVE_LENGTH + " bytes.", SIPValidationFieldsEnum.Request,
+                                rawErrorMessage);
+                            SIPResponse tooLargeResponse = SIPResponse.GetResponse(localEndPoint, remoteEndPoint,
+                                SIPResponseStatusCodesEnum.MessageTooLarge, null);
                             return SendResponseAsync(tooLargeResponse);
                         }
                         else
@@ -932,11 +984,13 @@ namespace SIPSorcery.SIP
                             }
                             else if (!rawSIPMessage.Contains("SIP"))
                             {
-                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "Missing SIP string.", SIPValidationFieldsEnum.NoSIPString, rawSIPMessage);
+                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "Missing SIP string.",
+                                    SIPValidationFieldsEnum.NoSIPString, rawSIPMessage);
                                 return Task.FromResult(SocketError.InvalidArgument);
                             }
 
-                            var sipMessageBuffer = SIPMessageBuffer.ParseSIPMessage(buffer,m_sipEncoding,m_sipBodyEncoding,  localEndPoint, remoteEndPoint);
+                            var sipMessageBuffer = SIPMessageBuffer.ParseSIPMessage(buffer, m_sipEncoding,
+                                m_sipBodyEncoding, localEndPoint, remoteEndPoint);
 
                             if (sipMessageBuffer != null)
                             {
@@ -946,23 +1000,28 @@ namespace SIPSorcery.SIP
 
                                     try
                                     {
-                                        SIPResponse sipResponse = SIPResponse.ParseSIPResponse(sipMessageBuffer,m_sipEncoding,m_sipBodyEncoding);
+                                        SIPResponse sipResponse = SIPResponse.ParseSIPResponse(sipMessageBuffer,
+                                            m_sipEncoding, m_sipBodyEncoding);
 
                                         SIPResponseInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, sipResponse);
 
                                         if (m_transactionEngine != null && m_transactionEngine.Exists(sipResponse))
                                         {
-                                            SIPTransaction transaction = m_transactionEngine.GetTransaction(sipResponse);
+                                            SIPTransaction transaction =
+                                                m_transactionEngine.GetTransaction(sipResponse);
                                             transaction.GotResponse(localEndPoint, remoteEndPoint, sipResponse);
                                         }
                                         else
                                         {
-                                            SIPTransportResponseReceived?.Invoke(sipChannel,localEndPoint, remoteEndPoint, sipResponse);
+                                            SIPTransportResponseReceived?.Invoke(sipChannel, localEndPoint,
+                                                remoteEndPoint, sipResponse);
                                         }
                                     }
                                     catch (SIPValidationException sipValidationException)
                                     {
-                                        SIPBadResponseInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, sipMessageBuffer.RawMessage, sipValidationException.SIPErrorField, sipMessageBuffer.RawMessage);
+                                        SIPBadResponseInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                            sipMessageBuffer.RawMessage, sipValidationException.SIPErrorField,
+                                            sipMessageBuffer.RawMessage);
                                     }
 
                                     #endregion
@@ -973,97 +1032,142 @@ namespace SIPSorcery.SIP
 
                                     try
                                     {
-                                        SIPRequest sipRequest = SIPRequest.ParseSIPRequest(sipMessageBuffer,m_sipEncoding,m_sipBodyEncoding);
+                                        SIPRequest sipRequest = SIPRequest.ParseSIPRequest(sipMessageBuffer,
+                                            m_sipEncoding, m_sipBodyEncoding);
 
                                         SIPValidationFieldsEnum sipRequestErrorField = SIPValidationFieldsEnum.Unknown;
                                         string sipRequestValidationError = null;
-                                        if (!sipRequest.IsValid(out sipRequestErrorField, out sipRequestValidationError))
+                                        if (!sipRequest.IsValid(out sipRequestErrorField,
+                                                out sipRequestValidationError))
                                         {
-                                            throw new SIPValidationException(sipRequestErrorField, sipRequestValidationError);
+                                            throw new SIPValidationException(sipRequestErrorField,
+                                                sipRequestValidationError);
                                         }
 
                                         SIPRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, sipRequest);
 
                                         // Stateful cores will create transactions once they get the request and the transport layer will use those transactions.
                                         // Stateless cores will not be affected by this step as the transaction layer will always return false.
-                                        SIPTransaction requestTransaction = (m_transactionEngine != null) ? m_transactionEngine.GetTransaction(sipRequest) : null;
+                                        SIPTransaction requestTransaction = (m_transactionEngine != null)
+                                            ? m_transactionEngine.GetTransaction(sipRequest)
+                                            : null;
                                         if (requestTransaction != null)
                                         {
-                                            if (requestTransaction.TransactionState == SIPTransactionStatesEnum.Completed && sipRequest.Method != SIPMethodsEnum.ACK
+                                            if (requestTransaction.TransactionState ==
+                                                SIPTransactionStatesEnum.Completed &&
+                                                sipRequest.Method != SIPMethodsEnum.ACK
                                                 && sipRequest.Method != SIPMethodsEnum.PRACK)
                                             {
                                                 if (requestTransaction.TransactionFinalResponse != null)
                                                 {
-                                                    logger.LogWarning("Resending final response for " + sipRequest.Method + ", " + sipRequest.URI.ToString() + ", cseq=" + sipRequest.Header.CSeq + ".");
+                                                    logger.LogWarning("Resending final response for " +
+                                                                      sipRequest.Method + ", " +
+                                                                      sipRequest.URI.ToString() + ", cseq=" +
+                                                                      sipRequest.Header.CSeq + ".");
                                                     requestTransaction.OnRetransmitFinalResponse();
-                                                    return SendResponseAsync(requestTransaction.TransactionFinalResponse);
+                                                    return SendResponseAsync(
+                                                        requestTransaction.TransactionFinalResponse);
                                                 }
                                             }
                                             else if (sipRequest.Method == SIPMethodsEnum.ACK)
                                             {
-                                                if (requestTransaction.TransactionState == SIPTransactionStatesEnum.Completed ||
-                                                    requestTransaction.TransactionState == SIPTransactionStatesEnum.Cancelled)
+                                                if (requestTransaction.TransactionState ==
+                                                    SIPTransactionStatesEnum.Completed ||
+                                                    requestTransaction.TransactionState ==
+                                                    SIPTransactionStatesEnum.Cancelled)
                                                 {
-                                                    sipRequest.Header.Vias.UpateTopViaHeader(remoteEndPoint.GetIPEndPoint());
-                                                    requestTransaction.ACKReceived(localEndPoint, remoteEndPoint, sipRequest);
+                                                    sipRequest.Header.Vias.UpateTopViaHeader(
+                                                        remoteEndPoint.GetIPEndPoint());
+                                                    requestTransaction.ACKReceived(localEndPoint, remoteEndPoint,
+                                                        sipRequest);
                                                 }
                                                 else
                                                 {
-                                                    SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "ACK received on " + requestTransaction.TransactionState + " transaction, ignoring.", SIPValidationFieldsEnum.Request, null);
+                                                    SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                                        "ACK received on " + requestTransaction.TransactionState +
+                                                        " transaction, ignoring.", SIPValidationFieldsEnum.Request,
+                                                        null);
                                                 }
                                             }
                                             else if (sipRequest.Method == SIPMethodsEnum.PRACK)
                                             {
-                                                sipRequest.Header.Vias.UpateTopViaHeader(remoteEndPoint.GetIPEndPoint());
-                                                requestTransaction.PRACKReceived(localEndPoint, remoteEndPoint, sipRequest);
+                                                sipRequest.Header.Vias.UpateTopViaHeader(
+                                                    remoteEndPoint.GetIPEndPoint());
+                                                requestTransaction.PRACKReceived(localEndPoint, remoteEndPoint,
+                                                    sipRequest);
                                             }
-                                            else if (sipRequest.Method == SIPMethodsEnum.INVITE && (requestTransaction.TransactionState == SIPTransactionStatesEnum.Trying ||
-                                                requestTransaction.TransactionState == SIPTransactionStatesEnum.Proceeding))
+                                            else if (sipRequest.Method == SIPMethodsEnum.INVITE &&
+                                                     (requestTransaction.TransactionState ==
+                                                      SIPTransactionStatesEnum.Trying ||
+                                                      requestTransaction.TransactionState ==
+                                                      SIPTransactionStatesEnum.Proceeding))
                                             {
-                                                return SendResponseAsync(requestTransaction.UnreliableProvisionalResponse);
+                                                return SendResponseAsync(requestTransaction
+                                                    .UnreliableProvisionalResponse);
                                             }
                                             else
                                             {
-                                                logger.LogWarning("Transaction already exists, ignoring duplicate request, " + sipRequest.Method + " " + sipRequest.URI.ToString() + ".");
+                                                logger.LogWarning(
+                                                    "Transaction already exists, ignoring duplicate request, " +
+                                                    sipRequest.Method + " " + sipRequest.URI.ToString() + ".");
                                             }
                                         }
-                                        else if (m_transactionEngine != null && sipRequest.Method == SIPMethodsEnum.CANCEL &&
-                                            GetTransaction(SIPTransaction.GetRequestTransactionId(sipRequest.Header.Vias.TopViaHeader.Branch, SIPMethodsEnum.INVITE)) != null)
+                                        else if (m_transactionEngine != null &&
+                                                 sipRequest.Method == SIPMethodsEnum.CANCEL &&
+                                                 GetTransaction(SIPTransaction.GetRequestTransactionId(
+                                                     sipRequest.Header.Vias.TopViaHeader.Branch,
+                                                     SIPMethodsEnum.INVITE)) != null)
                                         {
-                                            UASInviteTransaction inviteTransaction = (UASInviteTransaction)GetTransaction(SIPTransaction.GetRequestTransactionId(sipRequest.Header.Vias.TopViaHeader.Branch, SIPMethodsEnum.INVITE));
+                                            UASInviteTransaction inviteTransaction =
+                                                (UASInviteTransaction) GetTransaction(
+                                                    SIPTransaction.GetRequestTransactionId(
+                                                        sipRequest.Header.Vias.TopViaHeader.Branch,
+                                                        SIPMethodsEnum.INVITE));
                                             if (inviteTransaction != null)
                                             {
                                                 // Note: this will generate the INVITE request response.
                                                 inviteTransaction.CancelCall();
 
                                                 // Note: this will generate the CANCEL request response.
-                                                SIPResponse okResponse = SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null);
+                                                SIPResponse okResponse = SIPResponse.GetResponse(sipRequest,
+                                                    SIPResponseStatusCodesEnum.Ok, null);
                                                 okResponse.Header.To.ToTag = inviteTransaction.LocalTag;
                                                 return SendResponseAsync(okResponse);
                                             }
                                             else
                                             {
-                                                SIPResponse noMatchingTxResponse = SIPResponse.GetResponse(localEndPoint, remoteEndPoint, SIPResponseStatusCodesEnum.CallLegTransactionDoesNotExist, null);
+                                                SIPResponse noMatchingTxResponse =
+                                                    SIPResponse.GetResponse(localEndPoint, remoteEndPoint,
+                                                        SIPResponseStatusCodesEnum.CallLegTransactionDoesNotExist,
+                                                        null);
                                                 return SendResponseAsync(noMatchingTxResponse);
                                             }
                                         }
                                         else if (SIPTransportRequestReceived != null)
                                         {
                                             // This is a new SIP request and if the validity checks are passed it will be handed off to all subscribed new request listeners
-                                            if (sipRequest.Header.MaxForwards == 0 && sipRequest.Method != SIPMethodsEnum.OPTIONS)
+                                            if (sipRequest.Header.MaxForwards == 0 &&
+                                                sipRequest.Method != SIPMethodsEnum.OPTIONS)
                                             {
                                                 // Check the MaxForwards value, if equal to 0 the request must be discarded. If MaxForwards is -1 it indicates the
                                                 // header was not present in the request and that the MaxForwards check should not be undertaken.
-                                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, $"Zero MaxForwards on {sipRequest.Method} {sipRequest.URI} from {sipRequest.Header.From.FromURI.User} {remoteEndPoint}.", SIPValidationFieldsEnum.Request, sipRequest.ToString());
-                                                SIPResponse tooManyHops = SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.TooManyHops, null);
+                                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                                    $"Zero MaxForwards on {sipRequest.Method} {sipRequest.URI} from {sipRequest.Header.From.FromURI.User} {remoteEndPoint}.",
+                                                    SIPValidationFieldsEnum.Request, sipRequest.ToString());
+                                                SIPResponse tooManyHops = SIPResponse.GetResponse(sipRequest,
+                                                    SIPResponseStatusCodesEnum.TooManyHops, null);
                                                 return SendResponseAsync(tooManyHops);
                                             }
                                             else if (sipRequest.Header.UnknownRequireExtension != null)
                                             {
                                                 // The sender requires an extension that we don't support.
-                                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, $"Rejecting request to one or more required extensions not being supported, unsupported extensions: {sipRequest.Header.UnknownRequireExtension}.", SIPValidationFieldsEnum.Request, sipRequest.ToString());
-                                                SIPResponse badRequireResp = SIPResponse.GetResponse(sipRequest, SIPResponseStatusCodesEnum.BadExtension, null);
-                                                badRequireResp.Header.Unsupported = sipRequest.Header.UnknownRequireExtension;
+                                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                                    $"Rejecting request to one or more required extensions not being supported, unsupported extensions: {sipRequest.Header.UnknownRequireExtension}.",
+                                                    SIPValidationFieldsEnum.Request, sipRequest.ToString());
+                                                SIPResponse badRequireResp = SIPResponse.GetResponse(sipRequest,
+                                                    SIPResponseStatusCodesEnum.BadExtension, null);
+                                                badRequireResp.Header.Unsupported =
+                                                    sipRequest.Header.UnknownRequireExtension;
                                                 return SendResponseAsync(badRequireResp);
                                             }
 
@@ -1076,13 +1180,18 @@ namespace SIPSorcery.SIP
                                             sipRequest.Header.Vias.UpateTopViaHeader(remoteEndPoint.GetIPEndPoint());
 
                                             // Stateful cores should create a transaction once they receive this event, stateless cores should not.
-                                            SIPTransportRequestReceived(sipChannel,localEndPoint, remoteEndPoint, sipRequest);
+                                            SIPTransportRequestReceived(sipChannel, localEndPoint, remoteEndPoint,
+                                                sipRequest);
                                         }
                                     }
                                     catch (SIPValidationException sipRequestExcp)
                                     {
-                                        SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, sipRequestExcp.Message, sipRequestExcp.SIPErrorField, sipMessageBuffer.RawMessage);
-                                        SIPResponse errorResponse = SIPResponse.GetResponse(localEndPoint, remoteEndPoint, sipRequestExcp.SIPResponseErrorCode, sipRequestExcp.Message);
+                                        SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                            sipRequestExcp.Message, sipRequestExcp.SIPErrorField,
+                                            sipMessageBuffer.RawMessage);
+                                        SIPResponse errorResponse = SIPResponse.GetResponse(localEndPoint,
+                                            remoteEndPoint, sipRequestExcp.SIPResponseErrorCode,
+                                            sipRequestExcp.Message);
                                         return SendResponseAsync(errorResponse);
                                     }
 
@@ -1091,7 +1200,8 @@ namespace SIPSorcery.SIP
                             }
                             else
                             {
-                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "Not parseable as SIP message.", SIPValidationFieldsEnum.Unknown, rawSIPMessage);
+                                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                                    "Not parseable as SIP message.", SIPValidationFieldsEnum.Unknown, rawSIPMessage);
                             }
                         }
                     }
@@ -1102,7 +1212,8 @@ namespace SIPSorcery.SIP
             catch (Exception excp)
             {
                 Log.Logger.LogError($"Exception SIPMessageReceived. {excp.Message}");
-                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint, "Exception SIPTransport. " + excp.Message, SIPValidationFieldsEnum.Unknown, rawSIPMessage);
+                SIPBadRequestInTraceEvent?.Invoke(localEndPoint, remoteEndPoint,
+                    "Exception SIPTransport. " + excp.Message, SIPValidationFieldsEnum.Unknown, rawSIPMessage);
                 return Task.FromResult(SocketError.Fault);
             }
         }
@@ -1118,7 +1229,8 @@ namespace SIPSorcery.SIP
         /// <param name="isForResponse">True if the channel is needed for a SIP response. New channels will not be
         /// created to send responses.</param>
         /// <returns>If found a SIP channel or null if not.</returns>
-        private SIPChannel GetSIPChannelForDestination(SIPProtocolsEnum protocol, IPEndPoint dst, string channelIDHint, bool isForResponse)
+        private SIPChannel GetSIPChannelForDestination(SIPProtocolsEnum protocol, IPEndPoint dst, string channelIDHint,
+            bool isForResponse)
         {
             if (m_sipChannels == null || m_sipChannels.Count == 0)
             {
@@ -1134,7 +1246,9 @@ namespace SIPSorcery.SIP
 
                 throw new ApplicationException("The transport layer does not have any SIP channels.");
             }
-            else if (!m_sipChannels.Any(x => x.Value.IsProtocolSupported(protocol) && x.Value.IsAddressFamilySupported(dst.Address.AddressFamily)))
+            else if (!m_sipChannels.Any(x =>
+                         x.Value.IsProtocolSupported(protocol) &&
+                         x.Value.IsAddressFamilySupported(dst.Address.AddressFamily)))
             {
                 if (CanCreateMissingChannels && !isForResponse)
                 {
@@ -1146,9 +1260,11 @@ namespace SIPSorcery.SIP
                     }
                 }
 
-                throw new ApplicationException($"The transport layer does not have any SIP channels matching {protocol} and {dst.AddressFamily}.");
+                throw new ApplicationException(
+                    $"The transport layer does not have any SIP channels matching {protocol} and {dst.AddressFamily}.");
             }
-            else if (!string.IsNullOrEmpty(channelIDHint) && m_sipChannels.Any(x => x.Value.IsProtocolSupported(protocol) && x.Key == channelIDHint))
+            else if (!string.IsNullOrEmpty(channelIDHint) &&
+                     m_sipChannels.Any(x => x.Value.IsProtocolSupported(protocol) && x.Key == channelIDHint))
             {
                 return m_sipChannels[channelIDHint];
             }
@@ -1159,7 +1275,9 @@ namespace SIPSorcery.SIP
                 // There's at least one channel available. If there's an IPAddress.Any channel choose that first
                 // since it's able to use all the machine's active network interfaces and should be able to reach
                 // any remote end point.
-                IPAddress addrAny = (dst.AddressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any;
+                IPAddress addrAny = (dst.AddressFamily == AddressFamily.InterNetworkV6)
+                    ? IPAddress.IPv6Any
+                    : IPAddress.Any;
                 matchingChannel = GetSIPChannel(protocol, addrAny);
                 if (matchingChannel != null)
                 {
@@ -1197,7 +1315,9 @@ namespace SIPSorcery.SIP
                     }
                 }
 
-                return m_sipChannels.Where(x => x.Value.IsProtocolSupported(protocol) && x.Value.IsAddressFamilySupported(dst.Address.AddressFamily))
+                return m_sipChannels.Where(x =>
+                        x.Value.IsProtocolSupported(protocol) &&
+                        x.Value.IsAddressFamilySupported(dst.Address.AddressFamily))
                     .Select(x => x.Value).FirstOrDefault();
             }
         }
@@ -1211,12 +1331,13 @@ namespace SIPSorcery.SIP
         /// <returns>A SIP channel if a match is found or null if not.</returns>
         private SIPChannel GetSIPChannel(SIPProtocolsEnum protocol, IPAddress listeningAddress)
         {
-            if (m_sipChannels.Any(x => x.Value.IsProtocolSupported(protocol) && listeningAddress.Equals(x.Value.ListeningIPAddress)))
+            if (m_sipChannels.Any(x =>
+                    x.Value.IsProtocolSupported(protocol) && listeningAddress.Equals(x.Value.ListeningIPAddress)))
             {
                 return m_sipChannels.Where(x =>
-                             x.Value.IsProtocolSupported(protocol) && listeningAddress.Equals(x.Value.ListeningIPAddress))
-                           .Select(x => x.Value)
-                           .First();
+                        x.Value.IsProtocolSupported(protocol) && listeningAddress.Equals(x.Value.ListeningIPAddress))
+                    .Select(x => x.Value)
+                    .First();
             }
             else
             {
@@ -1270,7 +1391,8 @@ namespace SIPSorcery.SIP
         public SIPChannel CreateChannel(SIPProtocolsEnum protocol, AddressFamily addressFamily, int port = 0)
         {
             SIPChannel sipChannel = null;
-            IPAddress localAddress = (addressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any;
+            IPAddress localAddress =
+                (addressFamily == AddressFamily.InterNetworkV6) ? IPAddress.IPv6Any : IPAddress.Any;
 
             switch (protocol)
             {
@@ -1342,13 +1464,15 @@ namespace SIPSorcery.SIP
 
             SIPRequestRetransmitTraceEvent += (tx, req, count) =>
             {
-                logger.LogDebug($"Request retransmit {count} for request {req.StatusLine}, initial transmit {DateTime.Now.Subtract(tx.InitialTransmit).TotalSeconds.ToString("0.###")}s ago.");
+                logger.LogDebug(
+                    $"Request retransmit {count} for request {req.StatusLine}, initial transmit {DateTime.Now.Subtract(tx.InitialTransmit).TotalSeconds.ToString("0.###")}s ago.");
                 logger.LogTrace(req.ToString());
             };
 
             SIPResponseRetransmitTraceEvent += (tx, resp, count) =>
             {
-                logger.LogDebug($"Response retransmit {count} for response {resp.ShortDescription}, initial transmit {DateTime.Now.Subtract(tx.InitialTransmit).TotalSeconds.ToString("0.###")}s ago.");
+                logger.LogDebug(
+                    $"Response retransmit {count} for response {resp.ShortDescription}, initial transmit {DateTime.Now.Subtract(tx.InitialTransmit).TotalSeconds.ToString("0.###")}s ago.");
                 logger.LogTrace(resp.ToString());
             };
         }

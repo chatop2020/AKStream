@@ -157,6 +157,7 @@ namespace LibCommon.Structs.GB28181
             get => _noAuthenticationRequireds;
             set => _noAuthenticationRequireds = value;
         }
+
         /// <summary>
         /// 字符集类型
         /// UTF8
@@ -183,23 +184,21 @@ namespace LibCommon.Structs.GB28181
                 switch (_encodingType)
                 {
                     case EncodingType.GB2312:
-                        _en= Encoding.GetEncoding("gb2312");
+                        _en = Encoding.GetEncoding("gb2312");
                         break;
                     case EncodingType.UTF8:
-                        _en=Encoding.GetEncoding("utf-8");
+                        _en = Encoding.GetEncoding("utf-8");
                         break;
                     case EncodingType.GBK:
-                        _en= Encoding.GetEncoding("GBK");
+                        _en = Encoding.GetEncoding("GBK");
                         break;
                     default:
-                        _en=Encoding.GetEncoding("utf-8");
+                        _en = Encoding.GetEncoding("utf-8");
                         break;
                 }
 
                 return _en;
             }
-           
         }
-
     }
 }

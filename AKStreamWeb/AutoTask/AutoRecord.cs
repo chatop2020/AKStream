@@ -22,7 +22,7 @@ namespace AKStreamWeb.AutoTask
                 }
                 catch (Exception ex)
                 {
-                     GCommon.Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{Common.LoggerHead}]->启动自动录制线程异常：{ex.Message}\r\n{ex.StackTrace}");
                 }
             })).Start();
@@ -179,7 +179,7 @@ namespace AKStreamWeb.AutoTask
                             if (MediaServerService.DeleteRecordFile(ret.Id, out rs))
                             {
                                 deleteSize += (long) ret.FileSize!;
-                                 GCommon.Logger.Info(
+                                GCommon.Logger.Info(
                                     $"[{Common.LoggerHead}]->删除一个录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->DBId:{ret.Id}->FilePath:{ret.VideoPath}");
                             }
 
@@ -219,7 +219,7 @@ namespace AKStreamWeb.AutoTask
                         .Where(x => x.RecordDate.Equals(day))
                         .Where(x => x.MainId.Equals(mediaInfo.Stream)).ExecuteAffrows();
                     MediaServerService.DeleteRecordFileList(deleteFileList, out _);
-                     GCommon.Logger.Info(
+                    GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->删除一天录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->{day}");
                 }
 
@@ -301,7 +301,7 @@ namespace AKStreamWeb.AutoTask
                                                         info +=
                                                             $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
                                                         info += !inRange ? "->超出录制模板规定的时间区间" : "";
-                                                         GCommon.Logger.Info(
+                                                        GCommon.Logger.Info(
                                                             $"[{Common.LoggerHead}]->{info}");
                                                         MediaServerService.StopRecord(videoChannel.MediaServerId,
                                                             videoChannel.MainId, out rs);
@@ -310,7 +310,7 @@ namespace AKStreamWeb.AutoTask
                                                         if (!inRange)
                                                         {
                                                             string info3 = "超出录制模板规定的时间区间";
-                                                             GCommon.Logger.Info(
+                                                            GCommon.Logger.Info(
                                                                 $"[{Common.LoggerHead}]->自动停止录制文件条件被触发->{info3}->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}");
                                                             MediaServerService.StopRecord(videoChannel.MediaServerId,
                                                                 videoChannel.MainId, out rs);
@@ -324,7 +324,7 @@ namespace AKStreamWeb.AutoTask
                                                                 : "";
                                                             info2 +=
                                                                 $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
-                                                             GCommon.Logger.Info(
+                                                            GCommon.Logger.Info(
                                                                 $"[{Common.LoggerHead}]->{info2}");
                                                             bool p = false;
                                                             if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
@@ -364,7 +364,7 @@ namespace AKStreamWeb.AutoTask
                                                 if (obj.MediaServerStreamInfo.IsRecorded == false && inRange &&
                                                     stopIt == false)
                                                 {
-                                                     GCommon.Logger.Info(
+                                                    GCommon.Logger.Info(
                                                         $"[{Common.LoggerHead}]->自动启动录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}" +
                                                         $"限制录制文件天数:{recordPlan.LimitDays}>实际录制文件天数:{fileDateList.Count}->限制录制空间:{recordPlan.LimitSpace}Bytes>实际录制空间:{fileSize}Bytes" +
                                                         $"录制计划模板中时间区间被击中，开始录制音视频流");
@@ -386,7 +386,7 @@ namespace AKStreamWeb.AutoTask
                                                                 : "";
                                                             info2 +=
                                                                 $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
-                                                             GCommon.Logger.Info(
+                                                            GCommon.Logger.Info(
                                                                 $"[{Common.LoggerHead}]->{info2}");
                                                             bool p = false;
                                                             if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
@@ -431,7 +431,7 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             if (obj.MediaServerStreamInfo.IsRecorded == true)
                                             {
-                                                 GCommon.Logger.Info(
+                                                GCommon.Logger.Info(
                                                     $"[{Common.LoggerHead}]->自动停止录制条件被触发，结束录制音视频流->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}-录制计划模板已禁用");
 
                                                 MediaServerService.StopRecord(videoChannel.MediaServerId,
@@ -442,7 +442,7 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             if (obj.MediaServerStreamInfo.IsRecorded == true)
                                             {
-                                                 GCommon.Logger.Info(
+                                                GCommon.Logger.Info(
                                                     $"[{Common.LoggerHead}]->自动停止录制条件被触发，结束录制音视频流->{obj.MediaServerId}->{obj.MainId}->未绑定录制计划模板");
 
                                                 MediaServerService.StopRecord(videoChannel.MediaServerId,

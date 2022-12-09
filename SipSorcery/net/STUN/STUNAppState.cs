@@ -27,7 +27,8 @@ namespace SIPSorcery.Net
 
         public static UInt32 ReverseEndian(UInt32 val)
         {
-            return Convert.ToUInt32((val << 24 & 0xff000000) | (val << 8 & 0x00ff0000) | (val >> 8 & 0xff00) | (val >> 24));
+            return Convert.ToUInt32((val << 24 & 0xff000000) | (val << 8 & 0x00ff0000) | (val >> 8 & 0xff00) |
+                                    (val >> 24));
         }
 
         public static string PrintBuffer(byte[] buffer)

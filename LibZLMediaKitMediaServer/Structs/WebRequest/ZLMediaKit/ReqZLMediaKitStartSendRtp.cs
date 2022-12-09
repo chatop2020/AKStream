@@ -92,7 +92,8 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
 
         public override string ToString()
         {
-            return $"{nameof(Vhost)}: {Vhost}, {nameof(App)}: {App}, {nameof(Stream)}: {Stream}, {nameof(Ssrc)}: {Ssrc}, {nameof(Dst_Url)}: {Dst_Url}, {nameof(Dst_Port)}: {Dst_Port}, {nameof(Is_Udp)}: {Is_Udp}, {nameof(Src_Port)}: {Src_Port}";
+            return
+                $"{nameof(Vhost)}: {Vhost}, {nameof(App)}: {App}, {nameof(Stream)}: {Stream}, {nameof(Ssrc)}: {Ssrc}, {nameof(Dst_Url)}: {Dst_Url}, {nameof(Dst_Port)}: {Dst_Port}, {nameof(Is_Udp)}: {Is_Udp}, {nameof(Src_Port)}: {Src_Port}";
         }
     }
 }

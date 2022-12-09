@@ -47,16 +47,16 @@ namespace SIPSorcery.Net
 
             if (sdpType == SdpType.offer)
             {
-               IsNegotiationComplete = false;
-               return true;
+                IsNegotiationComplete = false;
+                return true;
             }
 
-            if (m_remoteSecurityDescriptions.Count==0)
+            if (m_remoteSecurityDescriptions.Count == 0)
             {
-               throw new ApplicationException("Setup local crypto failed. No cryto attribute in offer.");
+                throw new ApplicationException("Setup local crypto failed. No cryto attribute in offer.");
             }
 
-            if (m_localSecurityDescriptions.Count==0)
+            if (m_localSecurityDescriptions.Count == 0)
             {
                 throw new ApplicationException("Setup local crypto failed. No crypto attribute in answer.");
             }
@@ -66,12 +66,12 @@ namespace SIPSorcery.Net
 
             if (rsec != null && rsec.Tag == lsec.Tag)
             {
-               IsNegotiationComplete = true;
-               SrtpEncoder = GenerateRtpEncoder(lsec);
-               SrtpDecoder = GenerateRtpDecoder(rsec);
-               SrtcpEncoder = GenerateRtcpEncoder(lsec);
-               SrtcpDecoder = GenerateRtcpDecoder(rsec);
-               return true;
+                IsNegotiationComplete = true;
+                SrtpEncoder = GenerateRtpEncoder(lsec);
+                SrtpDecoder = GenerateRtpDecoder(rsec);
+                SrtcpEncoder = GenerateRtcpEncoder(lsec);
+                SrtcpDecoder = GenerateRtcpDecoder(rsec);
+                return true;
             }
 
             return false;
@@ -87,12 +87,12 @@ namespace SIPSorcery.Net
                 return true;
             }
 
-            if (m_localSecurityDescriptions.Count==0)
+            if (m_localSecurityDescriptions.Count == 0)
             {
                 throw new ApplicationException("Setup remote crypto failed. No cryto attribute in offer.");
             }
 
-            if (m_remoteSecurityDescriptions.Count==0)
+            if (m_remoteSecurityDescriptions.Count == 0)
             {
                 throw new ApplicationException("Setup remote crypto failed. No cryto attribute in answer.");
             }
@@ -109,7 +109,7 @@ namespace SIPSorcery.Net
                 SrtcpDecoder = GenerateRtcpDecoder(rsec);
                 return true;
             }
-            
+
             return false;
         }
 
@@ -135,12 +135,12 @@ namespace SIPSorcery.Net
 
         private IPacketTransformer GenerateTransformer(SDPSecurityDescription securityDescription, bool isRtp)
         {
-            var srtpParams = SrtpParameters.GetSrtpParametersForProfile((int)securityDescription.CryptoSuite);
+            var srtpParams = SrtpParameters.GetSrtpParametersForProfile((int) securityDescription.CryptoSuite);
 
             var engine = new SrtpTransformEngine(securityDescription.KeyParams[0].Key,
-                                                 securityDescription.KeyParams[0].Salt,
-                                                 srtpParams.GetSrtpPolicy(), 
-                                                 srtpParams.GetSrtcpPolicy() );
+                securityDescription.KeyParams[0].Salt,
+                srtpParams.GetSrtpPolicy(),
+                srtpParams.GetSrtcpPolicy());
 
             if (isRtp)
             {

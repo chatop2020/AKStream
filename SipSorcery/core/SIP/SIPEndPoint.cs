@@ -74,7 +74,8 @@ namespace SIPSorcery.SIP
         /// </summary>
         public SIPEndPoint(IPEndPoint endPoint) :
             this(SIPProtocolsEnum.udp, endPoint.Address, endPoint.Port, null, null)
-        { }
+        {
+        }
 
         /// <summary>
         /// Instantiates a new SIP end point from a network end point. Non specified properties
@@ -82,15 +83,18 @@ namespace SIPSorcery.SIP
         /// </summary>
         public SIPEndPoint(SIPProtocolsEnum protocol, IPAddress address, int port) :
             this(protocol, address, port, null, null)
-        { }
+        {
+        }
 
         public SIPEndPoint(SIPProtocolsEnum protocol, IPEndPoint endPoint) :
             this(protocol, endPoint, null, null)
-        { }
+        {
+        }
 
         public SIPEndPoint(SIPProtocolsEnum protocol, IPEndPoint endPoint, string channelID, string connectionID) :
             this(protocol, endPoint.Address, endPoint.Port, channelID, connectionID)
-        { }
+        {
+        }
 
         /// <summary>
         /// Instantiates a new SIP end point.
@@ -101,7 +105,8 @@ namespace SIPSorcery.SIP
         /// <param name="channelID">Optional. The unique ID of the channel that created the end point.</param>
         /// <param name="connectionID">Optional. For connection oriented protocols the unique ID of the connection.
         /// For connectionless protocols should be set to null.</param>
-        public SIPEndPoint(SIPProtocolsEnum protocol, IPAddress address, int port, string channelID, string connectionID)
+        public SIPEndPoint(SIPProtocolsEnum protocol, IPAddress address, int port, string channelID,
+            string connectionID)
         {
             Protocol = protocol;
             Address = address?.IsIPv4MappedToIPv6 == true ? address.MapToIPv4() : address;
@@ -235,16 +240,16 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPEndPoint)obj);
+            return AreEqual(this, (SIPEndPoint) obj);
         }
 
         public static bool operator ==(SIPEndPoint endPoint1, SIPEndPoint endPoint2)
         {
-            if ((object)endPoint1 == null && (object)endPoint2 == null)
+            if ((object) endPoint1 == null && (object) endPoint2 == null)
             {
                 return true;
             }
-            else if ((object)endPoint1 == null || (object)endPoint2 == null)
+            else if ((object) endPoint1 == null || (object) endPoint2 == null)
             {
                 return false;
             }
@@ -272,8 +277,8 @@ namespace SIPSorcery.SIP
         public override int GetHashCode()
         {
             return Protocol.GetHashCode() + Address.GetHashCode() + Port.GetHashCode()
-                + (ChannelID != null ? ChannelID.GetHashCode() : 0)
-                + (ConnectionID != null ? ConnectionID.GetHashCode() : 0);
+                   + (ChannelID != null ? ChannelID.GetHashCode() : 0)
+                   + (ConnectionID != null ? ConnectionID.GetHashCode() : 0);
         }
 
         public SIPEndPoint CopyOf()
@@ -314,12 +319,16 @@ namespace SIPSorcery.SIP
             }
             else
             {
-                var ep1Address = (endPoint1.Address.IsIPv4MappedToIPv6) ? endPoint1.Address.MapToIPv4() : endPoint1.Address;
-                var ep2Address = (endPoint2.Address.IsIPv4MappedToIPv6) ? endPoint2.Address.MapToIPv4() : endPoint2.Address;
+                var ep1Address = (endPoint1.Address.IsIPv4MappedToIPv6)
+                    ? endPoint1.Address.MapToIPv4()
+                    : endPoint1.Address;
+                var ep2Address = (endPoint2.Address.IsIPv4MappedToIPv6)
+                    ? endPoint2.Address.MapToIPv4()
+                    : endPoint2.Address;
 
                 return endPoint1.Protocol == endPoint2.Protocol &&
-                    endPoint1.Port == endPoint2.Port &&
-                    ep1Address.Equals(ep2Address) ;
+                       endPoint1.Port == endPoint2.Port &&
+                       ep1Address.Equals(ep2Address);
             }
         }
 

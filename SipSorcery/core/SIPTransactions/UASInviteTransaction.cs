@@ -68,12 +68,15 @@ namespace SIPSorcery.SIP
             }
 
             //logger.LogDebug("New UASTransaction (" + TransactionId + ") for " + TransactionRequest.URI.ToString() + " to " + RemoteEndPoint + ".");
-            SIPEndPoint localEP = SIPEndPoint.TryParse(sipRequest.Header.ProxyReceivedOn) ?? sipRequest.LocalSIPEndPoint;
-            SIPEndPoint remoteEP = SIPEndPoint.TryParse(sipRequest.Header.ProxyReceivedFrom) ?? sipRequest.RemoteSIPEndPoint;
+            SIPEndPoint localEP =
+                SIPEndPoint.TryParse(sipRequest.Header.ProxyReceivedOn) ?? sipRequest.LocalSIPEndPoint;
+            SIPEndPoint remoteEP = SIPEndPoint.TryParse(sipRequest.Header.ProxyReceivedFrom) ??
+                                   sipRequest.RemoteSIPEndPoint;
 
             if (!noCDR)
             {
-                CDR = new SIPCDR(SIPCallDirection.In, sipRequest.URI, sipRequest.Header.From, sipRequest.Header.CallId, localEP, remoteEP);
+                CDR = new SIPCDR(SIPCallDirection.In, sipRequest.URI, sipRequest.Header.From, sipRequest.Header.CallId,
+                    localEP, remoteEP);
             }
 
             TransactionInformationResponseReceived += UASInviteTransaction_TransactionResponseReceived;
@@ -87,7 +90,8 @@ namespace SIPSorcery.SIP
             sipTransport.AddTransaction(this);
         }
 
-        private Task<SocketError> UASInviteTransaction_OnAckRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
+        private Task<SocketError> UASInviteTransaction_OnAckRequestReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
         {
             return OnAckReceived?.Invoke(localSIPEndPoint, remoteEndPoint, this, sipRequest);
         }
@@ -98,9 +102,11 @@ namespace SIPSorcery.SIP
             CDR?.TimedOut();
         }
 
-        private Task<SocketError> UASInviteTransaction_TransactionResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> UASInviteTransaction_TransactionResponseReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
         {
-            logger.LogWarning("UASInviteTransaction received unexpected response, " + sipResponse.ReasonPhrase + " from " + remoteEndPoint.ToString() + ", ignoring.");
+            logger.LogWarning("UASInviteTransaction received unexpected response, " + sipResponse.ReasonPhrase +
+                              " from " + remoteEndPoint.ToString() + ", ignoring.");
             return Task.FromResult(SocketError.Fault);
         }
 
@@ -123,18 +129,23 @@ namespace SIPSorcery.SIP
         /// <returns>A socket error with the result of the cancel.</returns>
         public void CancelCall()
         {
-            if (TransactionState == SIPTransactionStatesEnum.Calling || TransactionState == SIPTransactionStatesEnum.Trying || TransactionState == SIPTransactionStatesEnum.Proceeding)
+            if (TransactionState == SIPTransactionStatesEnum.Calling ||
+                TransactionState == SIPTransactionStatesEnum.Trying ||
+                TransactionState == SIPTransactionStatesEnum.Proceeding)
             {
                 base.UpdateTransactionState(SIPTransactionStatesEnum.Cancelled);
                 UASInviteTransactionCancelled?.Invoke(this);
 
-                SIPResponse cancelResponse = SIPResponse.GetResponse(TransactionRequest, SIPResponseStatusCodesEnum.RequestTerminated, null);
+                SIPResponse cancelResponse = SIPResponse.GetResponse(TransactionRequest,
+                    SIPResponseStatusCodesEnum.RequestTerminated, null);
                 cancelResponse.Header.To.ToTag = LocalTag;
                 base.SendFinalResponse(cancelResponse);
             }
             else
             {
-                logger.LogWarning("A request was made to cancel transaction " + TransactionId + " that was not in the calling, trying or proceeding states, state=" + TransactionState + ".");
+                logger.LogWarning("A request was made to cancel transaction " + TransactionId +
+                                  " that was not in the calling, trying or proceeding states, state=" +
+                                  TransactionState + ".");
             }
         }
 
@@ -156,7 +167,7 @@ namespace SIPSorcery.SIP
             okResponse.Header.MaxForwards = Int32.MinValue;
             okResponse.Header.RecordRoutes = requestHeader.RecordRoutes;
             okResponse.Header.Supported = SIPExtensionHeaders.REPLACES + ", " + SIPExtensionHeaders.NO_REFER_SUB
-                + ((PrackSupported == true) ? ", " + SIPExtensionHeaders.PRACK : "");
+                                          + ((PrackSupported == true) ? ", " + SIPExtensionHeaders.PRACK : "");
 
             okResponse.Body = messageBody;
             okResponse.Header.ContentType = contentType;

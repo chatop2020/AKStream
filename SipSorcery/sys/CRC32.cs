@@ -76,7 +76,7 @@ namespace SIPSorcery.Sys
             UInt32[] createTable = new UInt32[256];
             for (int i = 0; i < 256; i++)
             {
-                UInt32 entry = (UInt32)i;
+                UInt32 entry = (UInt32) i;
                 for (int j = 0; j < 8; j++)
                 {
                     if ((entry & 1) == 1)
@@ -88,6 +88,7 @@ namespace SIPSorcery.Sys
                         entry = entry >> 1;
                     }
                 }
+
                 createTable[i] = entry;
             }
 
@@ -109,16 +110,18 @@ namespace SIPSorcery.Sys
                     crc = (crc >> 8) ^ table[buffer[i] ^ crc & 0xff];
                 }
             }
+
             return crc;
         }
 
         private byte[] UInt32ToBigEndianBytes(UInt32 x)
         {
-            return new byte[] {
-                (byte)((x >> 24) & 0xff),
-                (byte)((x >> 16) & 0xff),
-                (byte)((x >> 8) & 0xff),
-                (byte)(x & 0xff)
+            return new byte[]
+            {
+                (byte) ((x >> 24) & 0xff),
+                (byte) ((x >> 16) & 0xff),
+                (byte) ((x >> 8) & 0xff),
+                (byte) (x & 0xff)
             };
         }
     }

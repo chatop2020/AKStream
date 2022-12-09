@@ -48,17 +48,15 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        [DataMember]
-        public string Name;
+        [DataMember] public string Name;
 
-        [DataMember]
-        public SIPURI URI;
+        [DataMember] public SIPURI URI;
 
-        [DataMember]
-        public SIPParameters Parameters = new SIPParameters(null, PARAM_TAG_DELIMITER);
+        [DataMember] public SIPParameters Parameters = new SIPParameters(null, PARAM_TAG_DELIMITER);
 
         public SIPUserField()
-        { }
+        {
+        }
 
         public SIPUserField(string name, SIPURI uri, string paramsAndHeaders)
         {
@@ -119,7 +117,8 @@ namespace SIPSorcery.SIP
                 }
                 else
                 {
-                    throw new SIPValidationException(SIPValidationFieldsEnum.ContactHeader, "A SIPUserField was missing the right quote, " + userFieldStr + ".");
+                    throw new SIPValidationException(SIPValidationFieldsEnum.ContactHeader,
+                        "A SIPUserField was missing the right quote, " + userFieldStr + ".");
                 }
             }
 

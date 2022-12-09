@@ -153,7 +153,7 @@ namespace LibGB28181SipClient
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-                           
+
             string url = $"{_baseUrl}/GuessAnRtpPortForSender?mediaServerId={mediaServerId}";
             try
             {

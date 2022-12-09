@@ -31,9 +31,9 @@ namespace SIPSorcery.SIP
     public enum SIPDialogueTransferModesEnum
     {
         Default = 0,
-        PassThru = 1,           // REFER requests will be treated as an in-dialogue request and passed through to user agents.
-        NotAllowed = 2,         // REFER requests will be blocked.
-        BlindPlaceCall = 3,     // REFER requests without a replaces parameter will initiate a new call.
+        PassThru = 1, // REFER requests will be treated as an in-dialogue request and passed through to user agents.
+        NotAllowed = 2, // REFER requests will be blocked.
+        BlindPlaceCall = 3, // REFER requests without a replaces parameter will initiate a new call.
     }
 
     /// <summary>
@@ -48,25 +48,66 @@ namespace SIPSorcery.SIP
     {
         protected static ILogger logger = Log.Logger;
 
-        public Guid Id { get; set; }                                // Id for persistence, NOT used for SIP call purposes.
+        public Guid Id { get; set; } // Id for persistence, NOT used for SIP call purposes.
         public string CallId { get; set; }
         public SIPRouteSet RouteSet { get; set; }
-        public SIPUserField LocalUserField { get; set; }            // To header for a UAS, From header for a UAC.
+        public SIPUserField LocalUserField { get; set; } // To header for a UAS, From header for a UAC.
         public string LocalTag { get; set; }
-        public SIPUserField RemoteUserField { get; set; }           // To header for a UAC, From header for a UAS.    
+        public SIPUserField RemoteUserField { get; set; } // To header for a UAC, From header for a UAS.    
         public string RemoteTag { get; set; }
-        public int CSeq { get; set; }                               // CSeq being used by the remote UA for sending requests.
-        public int RemoteCSeq { get; set; }                         // Latest CSeq received from the remote UA.
-        public SIPURI RemoteTarget { get; set; }                    // This will be the Contact URI in the INVITE request or in the 2xx INVITE response and is where subsequent dialogue requests should be sent.
-        public Guid CDRId { get; set; }                             // Call detail record for call the dialogue belongs to.
-        public string ContentType { get; private set; }             // The content type on the request or response that created this dialogue. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-        public string SDP { get; set; }                             // The sessions description protocol payload. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-        public string RemoteSDP { get; set; }                       // The sessions description protocol payload from the remote end. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
-        public Guid BridgeId { get; set; }                          // If this dialogue gets bridged by a higher level application server the id for the bridge can be stored here.                   
-        public int CallDurationLimit { get; set; }                  // If non-zero indicates the dialogue established should only be permitted to stay up for this many seconds.
-        public string ProxySendFrom { get; set; }                   // If set this is the socket the upstream proxy received the call on.
-        public SIPDialogueTransferModesEnum TransferMode { get; set; }  // Specifies how the dialogue will handle REFER requests (transfers).
-        public SIPEndPoint RemoteSIPEndPoint { get; set; }          // The SIP end point for the remote party.
+        public int CSeq { get; set; } // CSeq being used by the remote UA for sending requests.
+        public int RemoteCSeq { get; set; } // Latest CSeq received from the remote UA.
+
+        public SIPURI
+            RemoteTarget
+        {
+            get;
+            set;
+        } // This will be the Contact URI in the INVITE request or in the 2xx INVITE response and is where subsequent dialogue requests should be sent.
+
+        public Guid CDRId { get; set; } // Call detail record for call the dialogue belongs to.
+
+        public string
+            ContentType
+        {
+            get;
+            private set;
+        } // The content type on the request or response that created this dialogue. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public string
+            SDP
+        {
+            get;
+            set;
+        } // The sessions description protocol payload. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public string
+            RemoteSDP
+        {
+            get;
+            set;
+        } // The sessions description protocol payload from the remote end. This is not part of or required for the dialogue and is kept for info and consumer app. purposes only.
+
+        public Guid
+            BridgeId
+        {
+            get;
+            set;
+        } // If this dialogue gets bridged by a higher level application server the id for the bridge can be stored here.                   
+
+        public int
+            CallDurationLimit
+        {
+            get;
+            set;
+        } // If non-zero indicates the dialogue established should only be permitted to stay up for this many seconds.
+
+        public string ProxySendFrom { get; set; } // If set this is the socket the upstream proxy received the call on.
+
+        public SIPDialogueTransferModesEnum
+            TransferMode { get; set; } // Specifies how the dialogue will handle REFER requests (transfers).
+
+        public SIPEndPoint RemoteSIPEndPoint { get; set; } // The SIP end point for the remote party.
 
         /// <summary>
         /// Indicates whether the dialogue was created by a ingress or egress call.
@@ -105,6 +146,7 @@ namespace SIPSorcery.SIP
         }
 
         private DateTime m_inserted;
+
         public DateTime Inserted
         {
             get { return m_inserted; }
@@ -160,7 +202,10 @@ namespace SIPSorcery.SIP
 
             CallId = uasInviteTransaction.TransactionRequest.Header.CallId;
             //RouteSet = (uasInviteTransaction.TransactionFinalResponse != null && uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null) ? uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes.Reversed() : null;
-            RouteSet = (uasInviteTransaction.TransactionFinalResponse != null && uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null) ? uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes : null;
+            RouteSet = (uasInviteTransaction.TransactionFinalResponse != null &&
+                        uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null)
+                ? uasInviteTransaction.TransactionFinalResponse.Header.RecordRoutes
+                : null;
             LocalUserField = uasInviteTransaction.TransactionFinalResponse.Header.To.ToUserField;
             LocalTag = uasInviteTransaction.TransactionFinalResponse.Header.To.ToTag;
             RemoteUserField = uasInviteTransaction.TransactionFinalResponse.Header.From.FromUserField;
@@ -222,7 +267,11 @@ namespace SIPSorcery.SIP
             Id = Guid.NewGuid();
 
             CallId = uacInviteTransaction.TransactionRequest.Header.CallId;
-            RouteSet = (uacInviteTransaction.TransactionFinalResponse != null && uacInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null) ? uacInviteTransaction.TransactionFinalResponse.Header.RecordRoutes.Reversed() : null;
+            RouteSet =
+                (uacInviteTransaction.TransactionFinalResponse != null &&
+                 uacInviteTransaction.TransactionFinalResponse.Header.RecordRoutes != null)
+                    ? uacInviteTransaction.TransactionFinalResponse.Header.RecordRoutes.Reversed()
+                    : null;
             LocalUserField = uacInviteTransaction.TransactionFinalResponse.Header.From.FromUserField;
             LocalTag = uacInviteTransaction.TransactionFinalResponse.Header.From.FromTag;
             RemoteUserField = uacInviteTransaction.TransactionFinalResponse.Header.To.ToUserField;
@@ -280,13 +329,15 @@ namespace SIPSorcery.SIP
         /// where the dialogue is created based on a SUBSCRIBE request.
         /// </summary>
         public SIPDialogue(
-          SIPRequest nonInviteRequest,
-          string toTag)
+            SIPRequest nonInviteRequest,
+            string toTag)
         {
             Id = Guid.NewGuid();
 
             CallId = nonInviteRequest.Header.CallId;
-            RouteSet = (nonInviteRequest.Header.RecordRoutes != null) ? nonInviteRequest.Header.RecordRoutes.Reversed() : null;
+            RouteSet = (nonInviteRequest.Header.RecordRoutes != null)
+                ? nonInviteRequest.Header.RecordRoutes.Reversed()
+                : null;
             RemoteUserField = nonInviteRequest.Header.From.FromUserField;
             RemoteTag = nonInviteRequest.Header.From.FromTag;
             LocalUserField = nonInviteRequest.Header.To.ToUserField;
@@ -296,7 +347,8 @@ namespace SIPSorcery.SIP
             Inserted = DateTime.UtcNow;
             Direction = SIPCallDirection.Out;
 
-            SIPEndPoint remoteEndPointViaProxy = SIPEndPoint.ParseSIPEndPoint(nonInviteRequest.Header.ProxyReceivedFrom);
+            SIPEndPoint remoteEndPointViaProxy =
+                SIPEndPoint.ParseSIPEndPoint(nonInviteRequest.Header.ProxyReceivedFrom);
             RemoteSIPEndPoint = remoteEndPointViaProxy ?? nonInviteRequest.RemoteSIPEndPoint.CopyOf();
 
             // Set the dialogue remote target taking into account optional proxy header fields.

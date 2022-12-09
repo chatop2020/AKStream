@@ -47,8 +47,8 @@ namespace SIPSorcery.Net
 {
     public class RawPacket
     {
-
         public const int RTP_PACKET_MAX_SIZE = 8192;
+
         /**
          * The size of the extension header as defined by RFC 3550.
          */
@@ -172,6 +172,7 @@ namespace SIPSorcery.Net
 
                 length = (byteLength | byteLength2 * 4);
             }
+
             return length;
         }
 
@@ -198,6 +199,7 @@ namespace SIPSorcery.Net
             {
                 length += EXT_HEADER_SIZE + GetExtensionLength();
             }
+
             return length;
         }
 
@@ -208,7 +210,7 @@ namespace SIPSorcery.Net
          */
         public int GetLength()
         {
-            return (int)this.buffer.Length;
+            return (int) this.buffer.Length;
         }
 
         /**
@@ -223,6 +225,7 @@ namespace SIPSorcery.Net
             {
                 return 0;
             }
+
             buffer.Position = this.buffer.Length - 1;
             return this.buffer.ReadByte();
         }
@@ -256,7 +259,7 @@ namespace SIPSorcery.Net
         public byte GetPayloadType()
         {
             buffer.Position = 1;
-            return (byte)(this.buffer.ReadByte() & (byte)0x7F);
+            return (byte) (this.buffer.ReadByte() & (byte) 0x7F);
         }
 
         /**
@@ -339,7 +342,7 @@ namespace SIPSorcery.Net
                 // create a new bigger buffer
                 MemoryStream newBuffer = new MemoryStream();
                 buffer.Position = 0;
-                newBuffer.Write(buffer.GetBuffer(), 0, (int)buffer.Length);
+                newBuffer.Write(buffer.GetBuffer(), 0, (int) buffer.Length);
                 newBuffer.SetLength(newLen);
                 // switch to new buffer
                 buffer = newBuffer;
@@ -356,9 +359,9 @@ namespace SIPSorcery.Net
         {
             buffer.Position = off;
             return ((buffer.ReadByte() & 0xff) << 24) |
-                    ((buffer.ReadByte() & 0xff) << 16) |
-                    ((buffer.ReadByte() & 0xff) << 8) |
-                    ((buffer.ReadByte() & 0xff));
+                   ((buffer.ReadByte() & 0xff) << 16) |
+                   ((buffer.ReadByte() & 0xff) << 8) |
+                   ((buffer.ReadByte() & 0xff));
         }
 
         /**
@@ -422,10 +425,10 @@ namespace SIPSorcery.Net
         public long ReadUnsignedIntAsLong(int off)
         {
             buffer.Position = off;
-            return (((long)(buffer.ReadByte() & 0xff) << 24) |
-                    ((long)(buffer.ReadByte() & 0xff) << 16) |
-                    ((long)(buffer.ReadByte() & 0xff) << 8) |
-                    ((long)(buffer.ReadByte() & 0xff))) & 0xFFFFFFFFL;
+            return (((long) (buffer.ReadByte() & 0xff) << 24) |
+                    ((long) (buffer.ReadByte() & 0xff) << 16) |
+                    ((long) (buffer.ReadByte() & 0xff) << 8) |
+                    ((long) (buffer.ReadByte() & 0xff))) & 0xFFFFFFFFL;
         }
 
         /**
@@ -445,6 +448,7 @@ namespace SIPSorcery.Net
             {
                 newLimit = 0;
             }
+
             this.buffer.SetLength(newLimit);
         }
     }

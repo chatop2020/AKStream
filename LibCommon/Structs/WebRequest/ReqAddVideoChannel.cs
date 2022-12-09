@@ -40,7 +40,7 @@ namespace LibCommon.Structs.WebRequest
         private bool _isShareChannel;
         private string? _shareUrl;
         private string _shareDeviceId;
-        
+
 
         public string MediaServerId
         {

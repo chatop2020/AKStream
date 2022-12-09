@@ -972,6 +972,7 @@ public class ZLMediaKitConfigNew
             {
                 Api = new ZLMediaKitConfigNew_API();
             }
+
             var apiDebug = data["api"]["apiDebug"];
             if (apiDebug != null && !string.IsNullOrEmpty(apiDebug) && UtilsHelper.IsInteger(apiDebug))
             {
@@ -1004,6 +1005,7 @@ public class ZLMediaKitConfigNew
             {
                 FFmpeg = new ZLMediaKitConfigNew_FFMPEG();
             }
+
             var bin = data["ffmpeg"]["bin"];
             if (bin != null && !string.IsNullOrEmpty(bin))
             {
@@ -1042,6 +1044,7 @@ public class ZLMediaKitConfigNew
             {
                 Protocol = new ZLMediaKitConfigNew_Protocol();
             }
+
             var modify_stamp = data["protocol"]["modify_stamp"];
             if (modify_stamp != null && !string.IsNullOrEmpty(modify_stamp) &&
                 UtilsHelper.IsInteger(modify_stamp))
@@ -1170,6 +1173,7 @@ public class ZLMediaKitConfigNew
             {
                 General = new ZLMediaKitConfigNew_General();
             }
+
             var enableVhost = data["general"]["enableVhost"];
             if (enableVhost != null && !string.IsNullOrEmpty(enableVhost) && UtilsHelper.IsInteger(enableVhost))
             {
@@ -1246,6 +1250,7 @@ public class ZLMediaKitConfigNew
             {
                 Hls = new ZLMediaKitConfigNew_HLS();
             }
+
             var fileBufSize = data["hls"]["fileBufSize"];
             if (fileBufSize != null && !string.IsNullOrEmpty(fileBufSize) && UtilsHelper.IsInteger(fileBufSize))
             {
@@ -1298,6 +1303,7 @@ public class ZLMediaKitConfigNew
             {
                 Hook = new ZLMediaKitConfigNew_Hook();
             }
+
             var admin_params = data["hook"]["admin_params"];
             if (admin_params != null && !string.IsNullOrEmpty(admin_params))
             {
@@ -1439,6 +1445,7 @@ public class ZLMediaKitConfigNew
             {
                 Cluster = new ZLMediaKitConfigNew_Cluster();
             }
+
             var origin_url = data["cluster"]["origin_url"];
             if (origin_url != null && !string.IsNullOrEmpty(origin_url))
             {
@@ -1465,6 +1472,7 @@ public class ZLMediaKitConfigNew
             {
                 Http = new ZLMediaKitConfigNew_Http();
             }
+
             var charSet = data["http"]["charSet"];
             if (charSet != null && !string.IsNullOrEmpty(charSet))
             {
@@ -1546,6 +1554,7 @@ public class ZLMediaKitConfigNew
             {
                 Multicast = new ZLMediaKitConfigNew_Multicast();
             }
+
             var addrMax = data["multicast"]["addrMax"];
             if (addrMax != null && !string.IsNullOrEmpty(addrMax))
             {
@@ -1572,6 +1581,7 @@ public class ZLMediaKitConfigNew
             {
                 Record = new ZLMediaKitConfigNew_Record();
             }
+
             var appName = data["record"]["appName"];
             if (appName != null && !string.IsNullOrEmpty(appName))
             {
@@ -1611,6 +1621,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtmp = new ZLMediaKitConfigNew_RTMP();
             }
+
             var handshakeSecond = data["rtmp"]["handshakeSecond"];
             if (handshakeSecond != null && !string.IsNullOrEmpty(handshakeSecond) &&
                 UtilsHelper.IsInteger(handshakeSecond))
@@ -1652,6 +1663,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtp = new ZLMediaKitConfigNew_RTP();
             }
+
             var audioMtuSize = data["rtp"]["audioMtuSize"];
             if (audioMtuSize != null && !string.IsNullOrEmpty(audioMtuSize) &&
                 UtilsHelper.IsInteger(audioMtuSize))
@@ -1686,6 +1698,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtp_Proxy = new ZLMediaKitConfigNew_Rtp_Proxy();
             }
+
             var dumpDir = data["rtp_proxy"]["dumpDir"];
             if (dumpDir != null && !string.IsNullOrEmpty(dumpDir))
             {
@@ -1762,6 +1775,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtc = new ZLMediaKitConfigNew_RTC();
             }
+
             var rtc_timeoutSec = data["rtc"]["timeoutSec"];
             if (rtc_timeoutSec != null && !string.IsNullOrEmpty(rtc_timeoutSec) &&
                 UtilsHelper.IsInteger(rtc_timeoutSec))
@@ -1813,6 +1827,7 @@ public class ZLMediaKitConfigNew
             {
                 Srt = new ZLMediaKitConfigNew_SRT();
             }
+
             var srt_timeoutSec = data["srt"]["timeoutSec"];
             if (srt_timeoutSec != null && !string.IsNullOrEmpty(srt_timeoutSec) &&
                 UtilsHelper.IsInteger(srt_timeoutSec))
@@ -1846,6 +1861,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtsp = new ZLMediaKitConfigNew_RTSP();
             }
+
             var authBasic = data["rtsp"]["authBasic"];
             if (authBasic != null && !string.IsNullOrEmpty(authBasic) && UtilsHelper.IsInteger(authBasic))
             {
@@ -1900,6 +1916,7 @@ public class ZLMediaKitConfigNew
             {
                 Shell = new ZLMediaKitConfigNew_Shell();
             }
+
             var shell_maxReqSize = data["shell"]["maxReqSize"];
             if (shell_maxReqSize != null && !string.IsNullOrEmpty(shell_maxReqSize) &&
                 UtilsHelper.IsInteger(shell_maxReqSize))

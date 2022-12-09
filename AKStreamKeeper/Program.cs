@@ -12,31 +12,32 @@ namespace AKStreamKeeper
             Common.IsDebug = true;
 #endif
 
-          var tmpRet=  UtilsHelper.GetMainParams(args);
-          if (tmpRet != null && tmpRet.Count > 0)
-          {
-              foreach (var tmp in tmpRet)
-              {
-                  if (tmp.Key.ToUpper().Equals("-C"))
-                  {
-                      GCommon.OutConfigPath = tmp.Value;
-                  }
-                  if (tmp.Key.ToUpper().Equals("-L"))
-                  {
-                      GCommon.OutLogPath = tmp.Value;
-                  }
-              }
-          }
+            var tmpRet = UtilsHelper.GetMainParams(args);
+            if (tmpRet != null && tmpRet.Count > 0)
+            {
+                foreach (var tmp in tmpRet)
+                {
+                    if (tmp.Key.ToUpper().Equals("-C"))
+                    {
+                        GCommon.OutConfigPath = tmp.Value;
+                    }
 
-          if (!string.IsNullOrEmpty(GCommon.OutLogPath))
-          {
-              if (!GCommon.OutLogPath.Trim().EndsWith('/'))
-              {
-                  GCommon.OutLogPath +=  "/";
-              }
-            
-          }
-          GCommon.InitLogger();
+                    if (tmp.Key.ToUpper().Equals("-L"))
+                    {
+                        GCommon.OutLogPath = tmp.Value;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(GCommon.OutLogPath))
+            {
+                if (!GCommon.OutLogPath.Trim().EndsWith('/'))
+                {
+                    GCommon.OutLogPath += "/";
+                }
+            }
+
+            GCommon.InitLogger();
             Common.Init();
 
             CreateHostBuilder(args).Build().Run();

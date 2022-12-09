@@ -33,7 +33,10 @@ namespace SIPSorcery.SIP.App
 
         protected SIPTransport m_sipTransport;
         protected UASInviteTransaction m_uasTransaction;
-        protected SIPEndPoint m_outboundProxy;                   // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+
+        protected SIPEndPoint
+            m_outboundProxy; // If the system needs to use an outbound proxy for every request this will be set and overrides any user supplied values.
+
         protected bool m_isAuthenticated;
         protected bool m_isCancelled;
         protected bool m_isHungup;
@@ -50,7 +53,8 @@ namespace SIPSorcery.SIP.App
 
         protected ISIPAccount m_sipAccount;
 
-        private SIPNonInviteTransaction m_byeTransaction;       // If the server call is hungup this transaction contains the BYE in case it needs to be resent.
+        private SIPNonInviteTransaction
+            m_byeTransaction; // If the server call is hungup this transaction contains the BYE in case it needs to be resent.
 
         public ISIPAccount SIPAccount
         {
@@ -133,21 +137,29 @@ namespace SIPSorcery.SIP.App
             {
                 if (m_sipAccount == null)
                 {
-                    logger.LogWarning($"Rejecting authentication required call for {m_uasTransaction.TransactionRequestFrom}, SIP account not found.");
+                    logger.LogWarning(
+                        $"Rejecting authentication required call for {m_uasTransaction.TransactionRequestFrom}, SIP account not found.");
                     Reject(SIPResponseStatusCodesEnum.Forbidden, null, null);
                 }
                 else
                 {
                     SIPRequest sipRequest = m_uasTransaction.TransactionRequest;
-                    SIPEndPoint localSIPEndPoint = (!sipRequest.Header.ProxyReceivedOn.IsNullOrBlank()) ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedOn) : sipRequest.LocalSIPEndPoint;
-                    SIPEndPoint remoteEndPoint = (!sipRequest.Header.ProxyReceivedFrom.IsNullOrBlank()) ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedFrom) : sipRequest.RemoteSIPEndPoint;
+                    SIPEndPoint localSIPEndPoint = (!sipRequest.Header.ProxyReceivedOn.IsNullOrBlank())
+                        ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedOn)
+                        : sipRequest.LocalSIPEndPoint;
+                    SIPEndPoint remoteEndPoint = (!sipRequest.Header.ProxyReceivedFrom.IsNullOrBlank())
+                        ? SIPEndPoint.ParseSIPEndPoint(sipRequest.Header.ProxyReceivedFrom)
+                        : sipRequest.RemoteSIPEndPoint;
 
-                    var authenticationResult = SIPRequestAuthenticator.AuthenticateSIPRequest(localSIPEndPoint, remoteEndPoint, sipRequest, m_sipAccount);
+                    var authenticationResult =
+                        SIPRequestAuthenticator.AuthenticateSIPRequest(localSIPEndPoint, remoteEndPoint, sipRequest,
+                            m_sipAccount);
                     if (authenticationResult.Authenticated)
                     {
                         if (authenticationResult.WasAuthenticatedByIP)
                         {
-                            logger.LogDebug($"New call from {remoteEndPoint} successfully authenticated by IP address.");
+                            logger.LogDebug(
+                                $"New call from {remoteEndPoint} successfully authenticated by IP address.");
                         }
                         else
                         {
@@ -160,12 +172,15 @@ namespace SIPSorcery.SIP.App
                     {
                         if (sipRequest.Header.HasAuthenticationHeader)
                         {
-                            logger.LogWarning($"Call not authenticated for {m_sipAccount.SIPUsername}@{m_sipAccount.SIPDomain}, responding with {authenticationResult.ErrorResponse}.");
+                            logger.LogWarning(
+                                $"Call not authenticated for {m_sipAccount.SIPUsername}@{m_sipAccount.SIPDomain}, responding with {authenticationResult.ErrorResponse}.");
                         }
 
                         // Send authorisation failure or required response
-                        SIPResponse authReqdResponse = SIPResponse.GetResponse(sipRequest, authenticationResult.ErrorResponse, null);
-                        authReqdResponse.Header.AuthenticationHeaders.Add(authenticationResult.AuthenticationRequiredHeader);
+                        SIPResponse authReqdResponse =
+                            SIPResponse.GetResponse(sipRequest, authenticationResult.ErrorResponse, null);
+                        authReqdResponse.Header.AuthenticationHeaders.Add(authenticationResult
+                            .AuthenticationRequiredHeader);
                         m_uasTransaction.SendFinalResponse(authReqdResponse);
                     }
                 }
@@ -179,15 +194,17 @@ namespace SIPSorcery.SIP.App
             return m_isAuthenticated;
         }
 
-        public void Progress(SIPResponseStatusCodesEnum progressStatus, string reasonPhrase, string[] customHeaders, string progressContentType, string progressBody)
+        public void Progress(SIPResponseStatusCodesEnum progressStatus, string reasonPhrase, string[] customHeaders,
+            string progressContentType, string progressBody)
         {
             try
             {
                 if (!IsUASAnswered)
                 {
-                    if ((int)progressStatus >= 200)
+                    if ((int) progressStatus >= 200)
                     {
-                        logger.LogDebug("UAS call was passed an invalid response status of " + (int)progressStatus + ", ignoring.");
+                        logger.LogDebug("UAS call was passed an invalid response status of " + (int) progressStatus +
+                                        ", ignoring.");
                     }
                     else
                     {
@@ -195,15 +212,19 @@ namespace SIPSorcery.SIP.App
 
                         // Allow all Trying responses through as some may contain additional useful information on the call state for the caller. 
                         // Also if the response is a 183 Session Progress with audio forward it.
-                        if (m_uasTransaction.TransactionState == SIPTransactionStatesEnum.Proceeding && progressStatus != SIPResponseStatusCodesEnum.Trying &&
+                        if (m_uasTransaction.TransactionState == SIPTransactionStatesEnum.Proceeding &&
+                            progressStatus != SIPResponseStatusCodesEnum.Trying &&
                             !(progressStatus == SIPResponseStatusCodesEnum.SessionProgress && progressBody != null))
                         {
-                            logger.LogDebug("UAS call ignoring progress response with status of " + (int)progressStatus + " as already in " + m_uasTransaction.TransactionState + ".");
+                            logger.LogDebug("UAS call ignoring progress response with status of " +
+                                            (int) progressStatus + " as already in " +
+                                            m_uasTransaction.TransactionState + ".");
                         }
                         else
                         {
                             logger.LogDebug("UAS call progressing with " + progressStatus + ".");
-                            SIPResponse progressResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, progressStatus, reasonPhrase);
+                            SIPResponse progressResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest,
+                                progressStatus, reasonPhrase);
 
                             if (progressResponse.Status != SIPResponseStatusCodesEnum.Trying)
                             {
@@ -245,17 +266,20 @@ namespace SIPSorcery.SIP.App
             return Answer(contentType, body, null, transferMode);
         }
 
-        public SIPDialogue Answer(string contentType, string body, SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
+        public SIPDialogue Answer(string contentType, string body, SIPDialogueTransferModesEnum transferMode,
+            string[] customHeaders)
         {
             return Answer(contentType, body, null, transferMode, customHeaders);
         }
 
-        public SIPDialogue Answer(string contentType, string body, string toTag, SIPDialogueTransferModesEnum transferMode)
+        public SIPDialogue Answer(string contentType, string body, string toTag,
+            SIPDialogueTransferModesEnum transferMode)
         {
             return Answer(contentType, body, toTag, transferMode, null);
         }
 
-        public SIPDialogue Answer(string contentType, string body, string toTag, SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
+        public SIPDialogue Answer(string contentType, string body, string toTag,
+            SIPDialogueTransferModesEnum transferMode, string[] customHeaders)
         {
             try
             {
@@ -283,6 +307,7 @@ namespace SIPSorcery.SIP.App
                         okResponse.Header.ContentLength = body.Length;
                         okResponse.Body = body;
                     }
+
                     if (customHeaders != null && customHeaders.Length > 0)
                     {
                         foreach (string header in customHeaders)
@@ -323,7 +348,8 @@ namespace SIPSorcery.SIP.App
             }
         }
 
-        private Task<SocketError> OnAckAnswerReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
+        private Task<SocketError> OnAckAnswerReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
+            SIPTransaction sipTransaction, SIPRequest sipRequest)
         {
             SIPDialogue = new SIPDialogue(m_uasTransaction);
             SIPDialogue.TransferMode = m_transferMode;
@@ -333,7 +359,8 @@ namespace SIPSorcery.SIP.App
             return Task.FromResult(SocketError.Success);
         }
 
-        public void AnswerNonInvite(SIPResponseStatusCodesEnum answerStatus, string reasonPhrase, string[] customHeaders, string contentType, string body)
+        public void AnswerNonInvite(SIPResponseStatusCodesEnum answerStatus, string reasonPhrase,
+            string[] customHeaders, string contentType, string body)
         {
             throw new NotImplementedException();
         }
@@ -349,9 +376,10 @@ namespace SIPSorcery.SIP.App
             {
                 if (m_uasTransaction.TransactionFinalResponse == null)
                 {
-                    if ((int)failureStatus < 400)
+                    if ((int) failureStatus < 400)
                     {
-                        logger.LogDebug("UAS Reject was passed an invalid response status of " + (int)failureStatus + ", ignoring.");
+                        logger.LogDebug("UAS Reject was passed an invalid response status of " + (int) failureStatus +
+                                        ", ignoring.");
                     }
                     else
                     {
@@ -359,8 +387,10 @@ namespace SIPSorcery.SIP.App
 
                         string failureReason = (!reasonPhrase.IsNullOrBlank()) ? " and " + reasonPhrase : null;
 
-                        logger.LogWarning("UAS call failed with a response status of " + (int)failureStatus + failureReason + ".");
-                        SIPResponse failureResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, failureStatus, reasonPhrase);
+                        logger.LogWarning("UAS call failed with a response status of " + (int) failureStatus +
+                                          failureReason + ".");
+                        SIPResponse failureResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest,
+                            failureStatus, reasonPhrase);
 
                         if (customHeaders != null && customHeaders.Length > 0)
                         {
@@ -395,7 +425,8 @@ namespace SIPSorcery.SIP.App
             {
                 if (m_uasTransaction.TransactionFinalResponse == null)
                 {
-                    SIPResponse redirectResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, redirectCode, null);
+                    SIPResponse redirectResponse =
+                        SIPResponse.GetResponse(m_uasTransaction.TransactionRequest, redirectCode, null);
                     redirectResponse.Header.Contact = SIPContactHeader.CreateSIPContactList(redirectURI);
 
                     if (customHeaders != null && customHeaders.Length > 0)
@@ -445,13 +476,15 @@ namespace SIPSorcery.SIP.App
                         var inviteContact = m_uasTransaction.TransactionRequest.Header.Contact.FirstOrDefault();
                         if (inviteContact == null)
                         {
-                            logger.LogWarning("The Contact header on the INVITE request was missing, BYE request cannot be generated.");
+                            logger.LogWarning(
+                                "The Contact header on the INVITE request was missing, BYE request cannot be generated.");
                         }
                         else
                         {
                             var byeRequest = SIPDialogue.GetInDialogRequest(SIPMethodsEnum.BYE);
                             m_byeTransaction = new SIPNonInviteTransaction(m_sipTransport, byeRequest, m_outboundProxy);
-                            m_byeTransaction.NonInviteTransactionFinalResponseReceived += ByeServerFinalResponseReceived;
+                            m_byeTransaction.NonInviteTransactionFinalResponseReceived +=
+                                ByeServerFinalResponseReceived;
                             m_byeTransaction.SendRequest();
                         }
                     }
@@ -464,19 +497,24 @@ namespace SIPSorcery.SIP.App
             }
         }
 
-        private Task<SocketError> ByeServerFinalResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> ByeServerFinalResponseReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
         {
             try
             {
-                logger.LogDebug("Response " + sipResponse.StatusCode + " " + sipResponse.ReasonPhrase + " for " + sipTransaction.TransactionRequest.URI.ToString() + ".");
+                logger.LogDebug("Response " + sipResponse.StatusCode + " " + sipResponse.ReasonPhrase + " for " +
+                                sipTransaction.TransactionRequest.URI.ToString() + ".");
 
                 SIPNonInviteTransaction byeTransaction = sipTransaction as SIPNonInviteTransaction;
 
-                if ((sipResponse.Status == SIPResponseStatusCodesEnum.ProxyAuthenticationRequired || sipResponse.Status == SIPResponseStatusCodesEnum.Unauthorised) && SIPAccount != null)
+                if ((sipResponse.Status == SIPResponseStatusCodesEnum.ProxyAuthenticationRequired ||
+                     sipResponse.Status == SIPResponseStatusCodesEnum.Unauthorised) && SIPAccount != null)
                 {
-                    var authRequest = sipTransaction.TransactionRequest.DuplicateAndAuthenticate(sipResponse.Header.AuthenticationHeaders,
-                                SIPAccount.SIPUsername, SIPAccount.SIPPassword);
-                    SIPNonInviteTransaction authByeTransaction = new SIPNonInviteTransaction(m_sipTransport, authRequest, null);
+                    var authRequest = sipTransaction.TransactionRequest.DuplicateAndAuthenticate(
+                        sipResponse.Header.AuthenticationHeaders,
+                        SIPAccount.SIPUsername, SIPAccount.SIPPassword);
+                    SIPNonInviteTransaction authByeTransaction =
+                        new SIPNonInviteTransaction(m_sipTransport, authRequest, null);
                     authByeTransaction.SendRequest();
                 }
 
@@ -498,7 +536,8 @@ namespace SIPSorcery.SIP.App
 
         private void ClientTransactionFailed(SIPTransaction sipTransaction, SocketError failureReason)
         {
-            logger.LogDebug($"SIPServerUserAgent client failed with {failureReason} in transaction state {m_uasTransaction.TransactionState}.");
+            logger.LogDebug(
+                $"SIPServerUserAgent client failed with {failureReason} in transaction state {m_uasTransaction.TransactionState}.");
 
             if (sipTransaction.HasTimedOut)
             {

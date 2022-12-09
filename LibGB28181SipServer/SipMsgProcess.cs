@@ -251,7 +251,7 @@ namespace LibGB28181SipServer
                             }
 
                             if (tmpSipDevice.SipChannels.Count > 0
-                            ) //当正确收到过一次以后就返回成功
+                               ) //当正确收到过一次以后就返回成功
                             {
                                 var _taskTag = $"CATALOG:{tmpSipDevice.DeviceId}";
                                 var ret = Common.NeedResponseRequests.TryRemove(_taskTag,
@@ -360,7 +360,7 @@ namespace LibGB28181SipServer
                             tmpSipDevice.KeepAliveTime = time;
                             if (tmpSipDevice.RemoteEndPoint != null && tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
                                 tmpSipDevice.RemoteEndPoint.Protocol == SIPProtocolsEnum.udp
-                            ) //如果udp协议当endpoint发生变化时更新成新的
+                               ) //如果udp协议当endpoint发生变化时更新成新的
                             {
                                 //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
                                 tmpSipDevice.RemoteEndPoint = remoteEndPoint;
@@ -571,7 +571,7 @@ namespace LibGB28181SipServer
             return true; //需要鉴权
         }
 
-       /// <summary>
+        /// <summary>
         /// 处理sip设备注册事件
         /// </summary>
         /// <param name="localSipChannel"></param>
@@ -638,7 +638,7 @@ namespace LibGB28181SipServer
                     if (Common.SipServerConfig.Authentication &&
                         CheckDeviceAuthenticationNeed(sipDeviceId, sipDeviceIpV4Address, sipDeviceIpV6Address))
                     {
-                        if (sipRequest.Header.AuthenticationHeaders.Count<=0 )
+                        if (sipRequest.Header.AuthenticationHeaders.Count <= 0)
                         {
                             SIPAuthenticationHeader authHeader =
                                 new SIPAuthenticationHeader(SIPAuthorisationHeadersEnum.WWWAuthenticate,
@@ -652,7 +652,8 @@ namespace LibGB28181SipServer
 
                             var unAuthorizedResponse = SIPResponse.GetResponse(sipRequest,
                                 SIPResponseStatusCodesEnum.Unauthorised, null);
-                            unAuthorizedResponse.Header.AuthenticationHeaders.Add( unAuthorisedHead.AuthenticationRequiredHeader);
+                            unAuthorizedResponse.Header.AuthenticationHeaders.Add(unAuthorisedHead
+                                .AuthenticationRequiredHeader);
 
                             unAuthorizedResponse.Header.Allow = null;
                             unAuthorizedResponse.Header.Expires = 7200;
@@ -667,9 +668,10 @@ namespace LibGB28181SipServer
                              HA2=MD5(Method:Uri)//Method一般有INVITE, ACK, OPTIONS, BYE, CANCEL, REGISTER；Uri可以在字段“Authorization”找到
                              response = MD5(HA1:nonce:HA2)
                              */
-                            
+
                             string ha1 = UtilsHelper.Md5(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Username +
-                                                         ":" + sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Realm +
+                                                         ":" + sipRequest.Header.AuthenticationHeaders[0].SIPDigest
+                                                             .Realm +
                                                          ":" + (string.IsNullOrEmpty(password)
                                                              ? Common.SipServerConfig.SipPassword
                                                              : password));
@@ -677,9 +679,10 @@ namespace LibGB28181SipServer
                             string ha2 = UtilsHelper.Md5("REGISTER" + ":" +
                                                          sipRequest.Header.AuthenticationHeaders[0].SIPDigest.URI);
                             string ha3 = UtilsHelper.Md5(ha1 + ":" +
-                                                         sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Nonce + ":" +
+                                                         sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Nonce +
+                                                         ":" +
                                                          ha2);
-                          
+
                             if (!ha3.Equals(sipRequest.Header.AuthenticationHeaders[0].SIPDigest.Response))
                             {
                                 GCommon.Logger.Debug(
@@ -876,7 +879,6 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         private static async Task InviteOk(SIPResponse sipResponse, SipChannel sipChannel)
         {
-         
             var from = sipResponse.Header.From;
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;
@@ -905,7 +907,6 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         private static async Task InviteOk(SIPResponse sipResponse, RecordInfo.RecItem record)
         {
-          
             var from = sipResponse.Header.From;
             var to = sipResponse.Header.To;
             string callId = sipResponse.Header.CallId;

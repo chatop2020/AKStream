@@ -495,8 +495,8 @@ namespace LibZLMediaKitMediaServer
 
             return false;
         }
-        
-          /// <summary>
+
+        /// <summary>
         /// 释放被使用过的rtp(发送)端口，以防止段时间内同样的端口被重复使用
         /// </summary>
         /// <param name="port"></param>
@@ -1078,7 +1078,6 @@ namespace LibZLMediaKitMediaServer
                 var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
                 if (!string.IsNullOrEmpty(httpRet))
                 {
-                    
                     if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
                     {
                         rs = new ResponseStruct()
@@ -1088,6 +1087,7 @@ namespace LibZLMediaKitMediaServer
                         };
                         return false;
                     }
+
                     if (httpRet.Trim().ToUpper().Equals("OK"))
                     {
                         return true;
@@ -1097,8 +1097,6 @@ namespace LibZLMediaKitMediaServer
                         return false;
                     }
                 }
-
-               
             }
             catch (Exception ex)
             {
@@ -1263,8 +1261,8 @@ namespace LibZLMediaKitMediaServer
             return 0;
         }
 
-        
-          /// <summary>
+
+        /// <summary>
         /// 获取一个可用的rtp(发送)端口（偶数端口）
         /// </summary>
         /// <param name="rs"></param>
@@ -1278,7 +1276,7 @@ namespace LibZLMediaKitMediaServer
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            
+
             string url = $"{_baseUrl}/ApiService/GuessAnRtpPortForSender";
             url += (min != null && min > 0) ? "?min=" + min : "";
             if (url.Contains('?'))
@@ -1345,7 +1343,7 @@ namespace LibZLMediaKitMediaServer
             return 0;
         }
 
-          
+
         /// <summary>
         /// 获取裁剪合并任务积压列表
         /// </summary>

@@ -30,7 +30,7 @@ namespace SIPSorcery.Net
     /// </remarks>
     public enum DataChannelPayloadProtocols : uint
     {
-        WebRTC_DCEP = 50,           // Data Channel Establishment Protocol (DCEP).
+        WebRTC_DCEP = 50, // Data Channel Establishment Protocol (DCEP).
         WebRTC_String = 51,
         WebRTC_Binary_Partial = 52, // Deprecated.
         WebRTC_Binary = 53,
@@ -78,8 +78,10 @@ namespace SIPSorcery.Net
         private RTCSctpTransport _transport;
 
         public event Action onopen;
+
         //public event Action onbufferedamountlow;
         public event Action<string> onerror;
+
         //public event Action onclosing;
         public event Action onclose;
         public event OnDataChannelMessageDelegate onmessage;
@@ -123,12 +125,14 @@ namespace SIPSorcery.Net
         {
             if (message != null & Encoding.UTF8.GetByteCount(message) > _transport.maxMessageSize)
             {
-                throw new ApplicationException($"Data channel {label} was requested to send data of length {Encoding.UTF8.GetByteCount(message)} " +
+                throw new ApplicationException(
+                    $"Data channel {label} was requested to send data of length {Encoding.UTF8.GetByteCount(message)} " +
                     $" that exceeded the maximum allowed message size of {_transport.maxMessageSize}.");
             }
             else if (_transport.state != RTCSctpTransportState.Connected)
             {
-                logger.LogWarning($"WebRTC data channel send failed due to SCTP transport in state {_transport.state}.");
+                logger.LogWarning(
+                    $"WebRTC data channel send failed due to SCTP transport in state {_transport.state}.");
             }
             else
             {
@@ -137,13 +141,13 @@ namespace SIPSorcery.Net
                     if (string.IsNullOrEmpty(message))
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint)DataChannelPayloadProtocols.WebRTC_String_Empty,
-                            new byte[] { 0x00 });
+                            (uint) DataChannelPayloadProtocols.WebRTC_String_Empty,
+                            new byte[] {0x00});
                     }
                     else
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint)DataChannelPayloadProtocols.WebRTC_String,
+                            (uint) DataChannelPayloadProtocols.WebRTC_String,
                             Encoding.UTF8.GetBytes(message));
                     }
                 }
@@ -158,12 +162,14 @@ namespace SIPSorcery.Net
         {
             if (data.Length > _transport.maxMessageSize)
             {
-                throw new ApplicationException($"Data channel {label} was requested to send data of length {data.Length} " +
+                throw new ApplicationException(
+                    $"Data channel {label} was requested to send data of length {data.Length} " +
                     $" that exceeded the maximum allowed message size of {_transport.maxMessageSize}.");
             }
             else if (_transport.state != RTCSctpTransportState.Connected)
             {
-                logger.LogWarning($"WebRTC data channel send failed due to SCTP transport in state {_transport.state}.");
+                logger.LogWarning(
+                    $"WebRTC data channel send failed due to SCTP transport in state {_transport.state}.");
             }
             else
             {
@@ -172,14 +178,14 @@ namespace SIPSorcery.Net
                     if (data?.Length == 0)
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint)DataChannelPayloadProtocols.WebRTC_Binary_Empty,
-                            new byte[] { 0x00 });
+                            (uint) DataChannelPayloadProtocols.WebRTC_Binary_Empty,
+                            new byte[] {0x00});
                     }
                     else
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint)DataChannelPayloadProtocols.WebRTC_Binary,
-                           data);
+                            (uint) DataChannelPayloadProtocols.WebRTC_Binary,
+                            data);
                     }
                 }
             }
@@ -193,16 +199,16 @@ namespace SIPSorcery.Net
         {
             var dcepOpen = new DataChannelOpenMessage()
             {
-                MessageType = (byte)DataChannelMessageTypes.OPEN,
-                ChannelType = (byte)DataChannelTypes.DATA_CHANNEL_RELIABLE_UNORDERED,
+                MessageType = (byte) DataChannelMessageTypes.OPEN,
+                ChannelType = (byte) DataChannelTypes.DATA_CHANNEL_RELIABLE_UNORDERED,
                 Label = label
             };
 
             lock (this)
             {
                 _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                       (uint)DataChannelPayloadProtocols.WebRTC_DCEP,
-                       dcepOpen.GetBytes());
+                    (uint) DataChannelPayloadProtocols.WebRTC_DCEP,
+                    dcepOpen.GetBytes());
             }
         }
 
@@ -215,8 +221,8 @@ namespace SIPSorcery.Net
             lock (this)
             {
                 _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                       (uint)DataChannelPayloadProtocols.WebRTC_DCEP,
-                       new byte[] { (byte)DataChannelMessageTypes.ACK });
+                    (uint) DataChannelPayloadProtocols.WebRTC_DCEP,
+                    new byte[] {(byte) DataChannelMessageTypes.ACK});
             }
         }
 
@@ -239,10 +245,10 @@ namespace SIPSorcery.Net
 
             if (Enum.IsDefined(typeof(DataChannelPayloadProtocols), ppID))
             {
-                payloadType = (DataChannelPayloadProtocols)ppID;
+                payloadType = (DataChannelPayloadProtocols) ppID;
             }
 
-            onmessage?.Invoke(this, (DataChannelPayloadProtocols)ppID, data);
+            onmessage?.Invoke(this, (DataChannelPayloadProtocols) ppID, data);
         }
     }
 }

@@ -20,8 +20,8 @@ namespace SIPSorcery.Net
 {
     public class STUNErrorCodeAttribute : STUNAttribute
     {
-        public byte ErrorClass;             // The hundreds value of the error code must be between 3 and 6.
-        public byte ErrorNumber;            // The units value of the error code must be between 0 and 99.
+        public byte ErrorClass; // The hundreds value of the error code must be between 3 and 6.
+        public byte ErrorNumber; // The units value of the error code must be between 0 and 99.
         public string ReasonPhrase;
 
         public int ErrorCode
@@ -35,15 +35,15 @@ namespace SIPSorcery.Net
         public STUNErrorCodeAttribute(byte[] attributeValue)
             : base(STUNAttributeTypesEnum.ErrorCode, attributeValue)
         {
-            ErrorClass = (byte)BitConverter.ToChar(attributeValue, 2);
-            ErrorNumber = (byte)BitConverter.ToChar(attributeValue, 3);
+            ErrorClass = (byte) BitConverter.ToChar(attributeValue, 2);
+            ErrorNumber = (byte) BitConverter.ToChar(attributeValue, 3);
             ReasonPhrase = Encoding.UTF8.GetString(attributeValue, 4, attributeValue.Length - 4);
         }
 
         public STUNErrorCodeAttribute(int errorCode, string reasonPhrase)
             : base(STUNAttributeTypesEnum.ErrorCode, null)
         {
-            ErrorClass = errorCode < 700 ? Convert.ToByte(ErrorCode / 100) : (byte)0x00;
+            ErrorClass = errorCode < 700 ? Convert.ToByte(ErrorCode / 100) : (byte) 0x00;
             ErrorNumber = Convert.ToByte(errorCode % 100);
             ReasonPhrase = reasonPhrase;
         }
@@ -63,7 +63,8 @@ namespace SIPSorcery.Net
 
         public override string ToString()
         {
-            string attrDescrStr = "STUN ERROR_CODE_ADDRESS Attribute: error code=" + ErrorCode + ", reason phrase=" + ReasonPhrase + ".";
+            string attrDescrStr = "STUN ERROR_CODE_ADDRESS Attribute: error code=" + ErrorCode + ", reason phrase=" +
+                                  ReasonPhrase + ".";
 
             return attrDescrStr;
         }

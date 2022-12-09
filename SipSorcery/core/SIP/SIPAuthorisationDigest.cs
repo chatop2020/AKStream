@@ -24,7 +24,7 @@ namespace SIPSorcery.SIP
 {
     public enum SIPAuthorisationHeadersEnum
     {
-        Unknown = 0, 
+        Unknown = 0,
         Authorize = 1,
         ProxyAuthenticate = 2,
         ProxyAuthorization = 3,
@@ -47,24 +47,37 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] m_headerFieldRemoveChars = new char[] { ' ', '"', '\'' };
+        private static char[] m_headerFieldRemoveChars = new char[] {' ', '"', '\''};
         public string Algorithhm;
-        public SIPAuthorisationHeadersEnum AuthorisationType { get; private set; }              // This is the type of authorisation request received.
-        public SIPAuthorisationHeadersEnum AuthorisationResponseType { get; private set; }      // If this is set it's the type of authorisation response to use otherwise use the same as the request (God knows why you need a different response header?!?)
+
+        public SIPAuthorisationHeadersEnum
+            AuthorisationType { get; private set; } // This is the type of authorisation request received.
+
+        public SIPAuthorisationHeadersEnum
+            AuthorisationResponseType
+        {
+            get;
+            private set;
+        } // If this is set it's the type of authorisation response to use otherwise use the same as the request (God knows why you need a different response header?!?)
 
         public string Realm;
         public string Username;
+
         public string Password;
+
         //public string DestinationURL;
         public string URI;
         public string Nonce;
         public string RequestType;
         public string Response;
-        public string HA1;           // HTTP digest HA1. Contains the username, relam and password already hashed.
+        public string HA1; // HTTP digest HA1. Contains the username, relam and password already hashed.
 
-        public string Cnonce;        // Client nonce (used with WWW-Authenticate and qop=auth).
-        public string Qop;           // Quality of Protection. Values permitted are auth (authentication) and auth-int (authentication with integrity protection).
-        private int NonceCount = 0;  // Client nonce count.
+        public string Cnonce; // Client nonce (used with WWW-Authenticate and qop=auth).
+
+        public string
+            Qop; // Quality of Protection. Values permitted are auth (authentication) and auth-int (authentication with integrity protection).
+
+        private int NonceCount = 0; // Client nonce count.
         public string Opaque;
 
         public DigestAlgorithmsEnum DigestAlgorithm = DigestAlgorithmsEnum.MD5;
@@ -75,13 +88,15 @@ namespace SIPSorcery.SIP
             DigestAlgorithm = hashAlgorithm;
         }
 
-        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType, DigestAlgorithmsEnum hashAlgorithm = DigestAlgorithmsEnum.MD5)
+        public SIPAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType,
+            DigestAlgorithmsEnum hashAlgorithm = DigestAlgorithmsEnum.MD5)
         {
             AuthorisationType = authorisationType;
             DigestAlgorithm = hashAlgorithm;
         }
 
-        public static SIPAuthorisationDigest ParseAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType, string authorisationRequest)
+        public static SIPAuthorisationDigest ParseAuthorisationDigest(SIPAuthorisationHeadersEnum authorisationType,
+            string authorisationRequest)
         {
             SIPAuthorisationDigest authRequest = new SIPAuthorisationDigest(authorisationType);
 
@@ -99,53 +114,64 @@ namespace SIPSorcery.SIP
                         string headerName = headerField.Substring(0, equalsIndex).Trim();
                         string headerValue = headerField.Substring(equalsIndex + 1).Trim(m_headerFieldRemoveChars);
 
-                        if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_REALM_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_REALM_KEY + "$", RegexOptions.IgnoreCase)
+                            .Success)
                         {
                             authRequest.Realm = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_NONCE_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_NONCE_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             authRequest.Nonce = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_USERNAME_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_USERNAME_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             authRequest.Username = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_RESPONSE_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_RESPONSE_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             authRequest.Response = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_URI_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_URI_KEY + "$", RegexOptions.IgnoreCase)
+                                 .Success)
                         {
                             authRequest.URI = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_CNONCE_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_CNONCE_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             authRequest.Cnonce = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_NONCECOUNT_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_NONCECOUNT_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             Int32.TryParse(headerValue, out authRequest.NonceCount);
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_QOP_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_QOP_KEY + "$", RegexOptions.IgnoreCase)
+                                 .Success)
                         {
                             authRequest.Qop = headerValue.ToLower();
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_OPAQUE_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_OPAQUE_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             authRequest.Opaque = headerValue;
                         }
-                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_ALGORITHM_KEY + "$", RegexOptions.IgnoreCase).Success)
+                        else if (Regex.Match(headerName, "^" + AuthHeaders.AUTH_ALGORITHM_KEY + "$",
+                                     RegexOptions.IgnoreCase).Success)
                         {
                             //authRequest.Algorithhm = headerValue;
 
-                            if (Enum.TryParse<DigestAlgorithmsEnum>(headerValue.Replace("-",""), true, out var alg))
+                            if (Enum.TryParse<DigestAlgorithmsEnum>(headerValue.Replace("-", ""), true, out var alg))
                             {
                                 authRequest.DigestAlgorithm = alg;
                             }
                             else
                             {
-                                logger.LogWarning($"SIPAuthorisationDigest did not recognised digest algorithm value of {headerValue}, defaulting to {DigestAlgorithmsEnum.MD5}.");
+                                logger.LogWarning(
+                                    $"SIPAuthorisationDigest did not recognised digest algorithm value of {headerValue}, defaulting to {DigestAlgorithmsEnum.MD5}.");
                                 authRequest.DigestAlgorithm = DigestAlgorithmsEnum.MD5;
                             }
                         }
@@ -240,17 +266,18 @@ namespace SIPSorcery.SIP
             {
                 return HTTPDigest.DigestCalcResponse(
                     HA1,
-                   URI,
-                   Nonce,
-                   nonceCountStr,
-                   Cnonce,
-                   Qop,
-                   RequestType,
-                   DigestAlgorithm);
+                    URI,
+                    Nonce,
+                    nonceCountStr,
+                    Cnonce,
+                    Qop,
+                    RequestType,
+                    DigestAlgorithm);
             }
             else
             {
-                throw new ApplicationException("SIP authorisation digest cannot be calculated. No password or HA1 available.");
+                throw new ApplicationException(
+                    "SIP authorisation digest cannot be calculated. No password or HA1 available.");
             }
         }
 
@@ -258,17 +285,29 @@ namespace SIPSorcery.SIP
         {
             string authHeader = AuthHeaders.AUTH_DIGEST_KEY + " ";
 
-            authHeader += (Username != null && Username.Trim().Length != 0) ? AuthHeaders.AUTH_USERNAME_KEY + "=\"" + Username + "\"" : null;
-            authHeader += (authHeader.IndexOf('=') != -1) ? "," + AuthHeaders.AUTH_REALM_KEY + "=\"" + Realm + "\"" : AuthHeaders.AUTH_REALM_KEY + "=\"" + Realm + "\"";
+            authHeader += (Username != null && Username.Trim().Length != 0)
+                ? AuthHeaders.AUTH_USERNAME_KEY + "=\"" + Username + "\""
+                : null;
+            authHeader += (authHeader.IndexOf('=') != -1)
+                ? "," + AuthHeaders.AUTH_REALM_KEY + "=\"" + Realm + "\""
+                : AuthHeaders.AUTH_REALM_KEY + "=\"" + Realm + "\"";
             authHeader += (Nonce != null) ? "," + AuthHeaders.AUTH_NONCE_KEY + "=\"" + Nonce + "\"" : null;
-            authHeader += (URI != null && URI.Trim().Length != 0) ? "," + AuthHeaders.AUTH_URI_KEY + "=\"" + URI + "\"" : null;
-            authHeader += (Response != null && Response.Length != 0) ? "," + AuthHeaders.AUTH_RESPONSE_KEY + "=\"" + Response + "\"" : null;
+            authHeader += (URI != null && URI.Trim().Length != 0)
+                ? "," + AuthHeaders.AUTH_URI_KEY + "=\"" + URI + "\""
+                : null;
+            authHeader += (Response != null && Response.Length != 0)
+                ? "," + AuthHeaders.AUTH_RESPONSE_KEY + "=\"" + Response + "\""
+                : null;
             authHeader += (Cnonce != null) ? "," + AuthHeaders.AUTH_CNONCE_KEY + "=\"" + Cnonce + "\"" : null;
-            authHeader += (NonceCount != 0) ? "," + AuthHeaders.AUTH_NONCECOUNT_KEY + "=" + GetPaddedNonceCount(NonceCount) : null;
+            authHeader += (NonceCount != 0)
+                ? "," + AuthHeaders.AUTH_NONCECOUNT_KEY + "=" + GetPaddedNonceCount(NonceCount)
+                : null;
             authHeader += (Qop != null) ? "," + AuthHeaders.AUTH_QOP_KEY + "=" + Qop : null;
             authHeader += (Opaque != null) ? "," + AuthHeaders.AUTH_OPAQUE_KEY + "=\"" + Opaque + "\"" : null;
 
-            string algorithmID = (DigestAlgorithm == DigestAlgorithmsEnum.SHA256) ? SHA256_ALGORITHM_ID : DigestAlgorithm.ToString();
+            string algorithmID = (DigestAlgorithm == DigestAlgorithmsEnum.SHA256)
+                ? SHA256_ALGORITHM_ID
+                : DigestAlgorithm.ToString();
             authHeader += (Response != null) ? "," + AuthHeaders.AUTH_ALGORITHM_KEY + "=" + algorithmID : null;
 
             return authHeader;
@@ -276,7 +315,8 @@ namespace SIPSorcery.SIP
 
         public SIPAuthorisationDigest CopyOf()
         {
-            var copy = new SIPAuthorisationDigest(AuthorisationType, Realm, Username, Password, URI, Nonce, RequestType, DigestAlgorithm);
+            var copy = new SIPAuthorisationDigest(AuthorisationType, Realm, Username, Password, URI, Nonce, RequestType,
+                DigestAlgorithm);
             copy.Response = Response;
             copy.HA1 = HA1;
             copy.Cnonce = Cnonce;
@@ -327,16 +367,16 @@ namespace SIPSorcery.SIP
         }
 
         public static string DigestCalcResponse(
-           string username,
-           string realm,
-           string password,
-           string uri,
-           string nonce,
-           string nonceCount,
-           string cnonce,
-           string qop,         // qop-value: "", "auth", "auth-int".
-           string method,
-           DigestAlgorithmsEnum hashAlg = DigestAlgorithmsEnum.MD5)
+            string username,
+            string realm,
+            string password,
+            string uri,
+            string nonce,
+            string nonceCount,
+            string cnonce,
+            string qop, // qop-value: "", "auth", "auth-int".
+            string method,
+            DigestAlgorithmsEnum hashAlg = DigestAlgorithmsEnum.MD5)
         {
             string HA1 = DigestCalcHA1(username, realm, password, hashAlg);
             return DigestCalcResponse(HA1, uri, nonce, nonceCount, cnonce, qop, method, hashAlg);
@@ -348,7 +388,7 @@ namespace SIPSorcery.SIP
             string nonce,
             string nonceCount,
             string cnonce,
-            string qop,         // qop-value: "", "auth", "auth-int".
+            string qop, // qop-value: "", "auth", "auth-int".
             string method,
             DigestAlgorithmsEnum hashAlg = DigestAlgorithmsEnum.MD5)
         {
@@ -358,19 +398,19 @@ namespace SIPSorcery.SIP
             if (nonceCount != null && cnonce != null && qop != null)
             {
                 unhashedDigest = String.Format("{0}:{1}:{2}:{3}:{4}:{5}",
-                ha1,
-                nonce,
-                nonceCount,
-                cnonce,
-                qop,
-                HA2);
+                    ha1,
+                    nonce,
+                    nonceCount,
+                    cnonce,
+                    qop,
+                    HA2);
             }
             else
             {
                 unhashedDigest = String.Format("{0}:{1}:{2}",
-                ha1,
-                nonce,
-                HA2);
+                    ha1,
+                    nonce,
+                    HA2);
             }
 
             return GetHashHex(hashAlg, unhashedDigest);

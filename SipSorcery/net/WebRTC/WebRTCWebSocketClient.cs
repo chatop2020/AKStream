@@ -102,15 +102,17 @@ namespace SIPSorcery.Net
             int posn = 0;
 
             while (ws.State == WebSocketState.Open &&
-                (pc.connectionState == RTCPeerConnectionState.@new || pc.connectionState == RTCPeerConnectionState.connecting))
+                   (pc.connectionState == RTCPeerConnectionState.@new ||
+                    pc.connectionState == RTCPeerConnectionState.connecting))
             {
                 WebSocketReceiveResult receiveResult;
                 do
                 {
-                    receiveResult = await ws.ReceiveAsync(new ArraySegment<byte>(buffer, posn, MAX_RECEIVE_BUFFER - posn), ct).ConfigureAwait(false);
+                    receiveResult = await ws
+                        .ReceiveAsync(new ArraySegment<byte>(buffer, posn, MAX_RECEIVE_BUFFER - posn), ct)
+                        .ConfigureAwait(false);
                     posn += receiveResult.Count;
-                }
-                while (!receiveResult.EndOfMessage);
+                } while (!receiveResult.EndOfMessage);
 
                 if (posn > 0)
                 {
@@ -119,7 +121,8 @@ namespace SIPSorcery.Net
 
                     if (jsonResp != null)
                     {
-                        await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResp)), WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
+                        await ws.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonResp)),
+                            WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
                     }
                 }
 

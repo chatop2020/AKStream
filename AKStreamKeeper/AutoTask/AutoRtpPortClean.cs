@@ -86,8 +86,8 @@ public class AutoRtpPortClean
                 };
                 return null;
             }
+
             return ports;
-            
         }
 
         rs = new ResponseStruct()

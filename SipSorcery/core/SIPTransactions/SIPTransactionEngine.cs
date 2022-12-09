@@ -30,8 +30,13 @@ namespace SIPSorcery.SIP
     internal class SIPTransactionEngine
     {
         private const string TXENGINE_THREAD_NAME = "sip-txengine";
-        private const int MAX_TXCHECK_WAIT_MILLISECONDS = 200; // Time to wait between checking for new pending transactions.
-        private const int TXCHECK_WAIT_MILLISECONDS = 50;       // Time to wait between checking for actions on existing transactions.
+
+        private const int
+            MAX_TXCHECK_WAIT_MILLISECONDS = 200; // Time to wait between checking for new pending transactions.
+
+        private const int
+            TXCHECK_WAIT_MILLISECONDS = 50; // Time to wait between checking for actions on existing transactions.
+
         private static readonly int m_t1 = SIPTimings.T1;
         private static readonly int m_t2 = SIPTimings.T2;
         private static readonly int m_t6 = SIPTimings.T6;
@@ -43,7 +48,8 @@ namespace SIPSorcery.SIP
 
         protected static ILogger logger = Log.Logger;
 
-        protected static readonly int m_maxRingTime = SIPTimings.MAX_RING_TIME; // Max time an INVITE will be left ringing for.    
+        protected static readonly int
+            m_maxRingTime = SIPTimings.MAX_RING_TIME; // Max time an INVITE will be left ringing for.    
 
         private bool m_isClosed = false;
         private SIPTransport m_sipTransport;
@@ -53,7 +59,8 @@ namespace SIPSorcery.SIP
         /// on when none is received to attempt a more reliable delivery rather then just relying on the initial 
         /// request to get through.
         /// </summary>
-        private ConcurrentDictionary<string, SIPTransaction> m_pendingTransactions = new ConcurrentDictionary<string, SIPTransaction>();
+        private ConcurrentDictionary<string, SIPTransaction> m_pendingTransactions =
+            new ConcurrentDictionary<string, SIPTransaction>();
 
         public int TransactionsCount
         {
@@ -129,13 +136,16 @@ namespace SIPSorcery.SIP
         public SIPTransaction GetTransaction(SIPRequest sipRequest)
         {
             // The branch is mandatory but it doesn't stop some UA's not setting it.
-            if (sipRequest.Header.Vias.TopViaHeader.Branch == null || sipRequest.Header.Vias.TopViaHeader.Branch.Trim().Length == 0)
+            if (sipRequest.Header.Vias.TopViaHeader.Branch == null ||
+                sipRequest.Header.Vias.TopViaHeader.Branch.Trim().Length == 0)
             {
                 return null;
             }
 
-            SIPMethodsEnum transactionMethod = (sipRequest.Method != SIPMethodsEnum.ACK) ? sipRequest.Method : SIPMethodsEnum.INVITE;
-            string transactionId = SIPTransaction.GetRequestTransactionId(sipRequest.Header.Vias.TopViaHeader.Branch, transactionMethod);
+            SIPMethodsEnum transactionMethod =
+                (sipRequest.Method != SIPMethodsEnum.ACK) ? sipRequest.Method : SIPMethodsEnum.INVITE;
+            string transactionId =
+                SIPTransaction.GetRequestTransactionId(sipRequest.Header.Vias.TopViaHeader.Branch, transactionMethod);
 
             lock (m_pendingTransactions)
             {
@@ -169,12 +179,15 @@ namespace SIPSorcery.SIP
                             // of collisions seemingly very slim. As a safeguard if there happen to be two transactions with the same Call-ID in the list the match will not be made.
                             // One case where the Call-Id match breaks down is for in-Dialogue requests in that case there will be multiple transactions with the same Call-ID and tags.
                             //if (transaction.TransactionType == SIPTransactionTypesEnum.Invite && transaction.TransactionFinalResponse != null && transaction.TransactionState == SIPTransactionStatesEnum.Completed)
-                            if ((transaction.TransactionType == SIPTransactionTypesEnum.InviteClient || transaction.TransactionType == SIPTransactionTypesEnum.InviteServer)
+                            if ((transaction.TransactionType == SIPTransactionTypesEnum.InviteClient ||
+                                 transaction.TransactionType == SIPTransactionTypesEnum.InviteServer)
                                 && transaction.TransactionFinalResponse != null)
                             {
                                 if (transaction.TransactionRequest.Header.CallId == sipRequest.Header.CallId &&
-                                    transaction.TransactionFinalResponse.Header.To.ToTag == sipRequest.Header.To.ToTag &&
-                                    transaction.TransactionFinalResponse.Header.From.FromTag == sipRequest.Header.From.FromTag &&
+                                    transaction.TransactionFinalResponse.Header.To.ToTag ==
+                                    sipRequest.Header.To.ToTag &&
+                                    transaction.TransactionFinalResponse.Header.From.FromTag ==
+                                    sipRequest.Header.From.FromTag &&
                                     transaction.TransactionFinalResponse.Header.CSeq == sipRequest.Header.CSeq)
                                 {
                                     //logger.LogInformation("ACK for contact=" + contactAddress + ", cseq=" + sipRequest.Header.CSeq + " was matched by callid, tags and cseq.");
@@ -182,8 +195,8 @@ namespace SIPSorcery.SIP
                                     return transaction;
                                 }
                                 else if (transaction.TransactionRequest.Header.CallId == sipRequest.Header.CallId &&
-                                    transaction.TransactionFinalResponse.Header.CSeq == sipRequest.Header.CSeq &&
-                                    IsCallIdUniqueForPending(sipRequest.Header.CallId))
+                                         transaction.TransactionFinalResponse.Header.CSeq == sipRequest.Header.CSeq &&
+                                         IsCallIdUniqueForPending(sipRequest.Header.CallId))
                                 {
                                     //string requestEndPoint = (sipRequest.RemoteSIPEndPoint != null) ? sipRequest.RemoteSIPEndPoint.ToString() : " ? ";
                                     //logger.LogInformation("ACK for contact=" + contactAddress + ", cseq=" + sipRequest.Header.CSeq + " was matched using Call-ID mechanism (to tags: " + transaction.TransactionFinalResponse.Header.To.ToTag + "=" + sipRequest.Header.To.ToTag + ", from tags:" + transaction.TransactionFinalResponse.Header.From.FromTag + "=" + sipRequest.Header.From.FromTag + ").");
@@ -196,13 +209,16 @@ namespace SIPSorcery.SIP
                     {
                         foreach (var (_, transaction) in m_pendingTransactions)
                         {
-                            if (transaction.TransactionType == SIPTransactionTypesEnum.InviteServer && transaction.ReliableProvisionalResponse != null)
+                            if (transaction.TransactionType == SIPTransactionTypesEnum.InviteServer &&
+                                transaction.ReliableProvisionalResponse != null)
                             {
                                 if (transaction.TransactionRequest.Header.CallId == sipRequest.Header.CallId &&
-                                    transaction.ReliableProvisionalResponse.Header.From.FromTag == sipRequest.Header.From.FromTag &&
+                                    transaction.ReliableProvisionalResponse.Header.From.FromTag ==
+                                    sipRequest.Header.From.FromTag &&
                                     transaction.ReliableProvisionalResponse.Header.CSeq == sipRequest.Header.RAckCSeq &&
                                     transaction.ReliableProvisionalResponse.Header.RSeq == sipRequest.Header.RAckRSeq &&
-                                    transaction.ReliableProvisionalResponse.Header.CSeqMethod == sipRequest.Header.RAckCSeqMethod)
+                                    transaction.ReliableProvisionalResponse.Header.CSeqMethod ==
+                                    sipRequest.Header.RAckCSeqMethod)
                                 {
                                     //logger.LogDebug("PRACK for contact=" + contactAddress + ", cseq=" + sipRequest.Header.CSeq + " was matched by callid, tags and cseq.");
 
@@ -219,13 +235,16 @@ namespace SIPSorcery.SIP
 
         public SIPTransaction GetTransaction(SIPResponse sipResponse)
         {
-            if (sipResponse.Header.Vias.TopViaHeader.Branch == null || sipResponse.Header.Vias.TopViaHeader.Branch.Trim().Length == 0)
+            if (sipResponse.Header.Vias.TopViaHeader.Branch == null ||
+                sipResponse.Header.Vias.TopViaHeader.Branch.Trim().Length == 0)
             {
                 return null;
             }
             else
             {
-                string transactionId = SIPTransaction.GetRequestTransactionId(sipResponse.Header.Vias.TopViaHeader.Branch, sipResponse.Header.CSeqMethod);
+                string transactionId =
+                    SIPTransaction.GetRequestTransactionId(sipResponse.Header.Vias.TopViaHeader.Branch,
+                        sipResponse.Header.CSeqMethod);
 
                 m_pendingTransactions.TryGetValue(transactionId, out var transaction);
                 return transaction;
@@ -245,7 +264,10 @@ namespace SIPSorcery.SIP
             var now = DateTime.Now;
             foreach (var (_, transaction) in m_pendingTransactions)
             {
-                logger.LogDebug("Pending transaction " + transaction.TransactionRequest.Method + " " + transaction.TransactionState + " " + now.Subtract(transaction.Created).TotalSeconds.ToString("0.##") + "s " + transaction.TransactionRequestURI.ToString() + " (" + transaction.TransactionId + ").");
+                logger.LogDebug("Pending transaction " + transaction.TransactionRequest.Method + " " +
+                                transaction.TransactionState + " " +
+                                now.Subtract(transaction.Created).TotalSeconds.ToString("0.##") + "s " +
+                                transaction.TransactionRequestURI.ToString() + " (" + transaction.TransactionId + ").");
             }
         }
 
@@ -277,7 +299,8 @@ namespace SIPSorcery.SIP
             {
                 foreach (var (_, transaction) in m_pendingTransactions)
                 {
-                    if ((transaction.TransactionType == SIPTransactionTypesEnum.InviteClient || transaction.TransactionType == SIPTransactionTypesEnum.InviteServer) &&
+                    if ((transaction.TransactionType == SIPTransactionTypesEnum.InviteClient ||
+                         transaction.TransactionType == SIPTransactionTypesEnum.InviteServer) &&
                         transaction.TransactionFinalResponse != null &&
                         transaction.TransactionState == SIPTransactionStatesEnum.Completed &&
                         transaction.TransactionRequest.Header.CallId == callId)
@@ -320,8 +343,8 @@ namespace SIPSorcery.SIP
                             try
                             {
                                 if (transaction.TransactionState == SIPTransactionStatesEnum.Terminated ||
-                                        transaction.TransactionState == SIPTransactionStatesEnum.Confirmed ||
-                                        transaction.HasTimedOut)
+                                    transaction.TransactionState == SIPTransactionStatesEnum.Confirmed ||
+                                    transaction.HasTimedOut)
                                 {
                                     transaction.DeliveryPending = false;
                                 }
@@ -360,8 +383,10 @@ namespace SIPSorcery.SIP
                                                     case SIPTransactionStatesEnum.Proceeding:
                                                         if (transaction.ReliableProvisionalResponse != null)
                                                         {
-                                                            sendResult = SendTransactionProvisionalResponse(transaction).Result;
+                                                            sendResult = SendTransactionProvisionalResponse(transaction)
+                                                                .Result;
                                                         }
+
                                                         break;
 
                                                     case SIPTransactionStatesEnum.Completed:
@@ -377,10 +402,12 @@ namespace SIPSorcery.SIP
                                                         break;
 
                                                     default:
-                                                        logger.LogWarning($"InviteServer Transaction entered an unexpected transaction state {transaction.TransactionState}.");
+                                                        logger.LogWarning(
+                                                            $"InviteServer Transaction entered an unexpected transaction state {transaction.TransactionState}.");
                                                         transaction.DeliveryFailed = true;
                                                         break;
                                                 }
+
                                                 break;
 
                                             case SIPTransactionTypesEnum.InviteClient:
@@ -411,7 +438,8 @@ namespace SIPSorcery.SIP
                                                         break;
 
                                                     default:
-                                                        logger.LogWarning($"InviteClient Transaction entered an unexpected transaction state {transaction.TransactionState}.");
+                                                        logger.LogWarning(
+                                                            $"InviteClient Transaction entered an unexpected transaction state {transaction.TransactionState}.");
                                                         transaction.DeliveryFailed = true;
                                                         break;
                                                 }
@@ -443,9 +471,12 @@ namespace SIPSorcery.SIP
                                                             // being ready for a subsequent SIP retransmit. This mechanism won't work if SIP retransmits are disabled.
                                                             bool waitForDns = DisableRetransmitSending;
 
-                                                            sendResult = m_sipTransport.SendResponseAsync(transaction.TransactionFinalResponse, waitForDns).Result;
+                                                            sendResult = m_sipTransport
+                                                                .SendResponseAsync(transaction.TransactionFinalResponse,
+                                                                    waitForDns).Result;
                                                             transaction.DeliveryPending = false;
                                                         }
+
                                                         break;
 
                                                     case SIPTransactionStatesEnum.Confirmed:
@@ -453,20 +484,24 @@ namespace SIPSorcery.SIP
                                                         break;
 
                                                     default:
-                                                        logger.LogWarning($"NonInvite Transaction entered an unexpected transaction state {transaction.TransactionState}.");
+                                                        logger.LogWarning(
+                                                            $"NonInvite Transaction entered an unexpected transaction state {transaction.TransactionState}.");
                                                         transaction.DeliveryFailed = true;
                                                         break;
                                                 }
+
                                                 break;
 
                                             default:
-                                                logger.LogWarning($"Unrecognised transaction type {transaction.TransactionType}.");
+                                                logger.LogWarning(
+                                                    $"Unrecognised transaction type {transaction.TransactionType}.");
                                                 break;
                                         }
 
                                         if (sendResult != SocketError.Success && sendResult != SocketError.InProgress)
                                         {
-                                            logger.LogWarning($"SIP transaction send failed in state {transaction.TransactionState} with error {sendResult}.");
+                                            logger.LogWarning(
+                                                $"SIP transaction send failed in state {transaction.TransactionState} with error {sendResult}.");
 
                                             // Example of failures here are requiring a specific TCP or TLS connection that no longer exists
                                             // or attempting to send to a UDP socket that has previously returned an ICMP error.
@@ -513,7 +548,8 @@ namespace SIPSorcery.SIP
             if (transaction.Retransmits > 1 && !DisableRetransmitSending)
             {
                 transaction.OnRetransmitProvisionalResponse();
-                SIPResponseRetransmitTraceEvent?.Invoke(transaction, transaction.ReliableProvisionalResponse, transaction.Retransmits);
+                SIPResponseRetransmitTraceEvent?.Invoke(transaction, transaction.ReliableProvisionalResponse,
+                    transaction.Retransmits);
             }
 
             if (transaction.Retransmits > 1 && DisableRetransmitSending)
@@ -549,7 +585,8 @@ namespace SIPSorcery.SIP
             if (transaction.Retransmits > 1 && !DisableRetransmitSending)
             {
                 transaction.OnRetransmitFinalResponse();
-                SIPResponseRetransmitTraceEvent?.Invoke(transaction, transaction.TransactionFinalResponse, transaction.Retransmits);
+                SIPResponseRetransmitTraceEvent?.Invoke(transaction, transaction.TransactionFinalResponse,
+                    transaction.Retransmits);
             }
 
             if (transaction.Retransmits > 1 && DisableRetransmitSending)
@@ -587,7 +624,8 @@ namespace SIPSorcery.SIP
             // INVITE-UAC and no-INVITE transaction types, send request reliably.
             if (transaction.Retransmits > 1 && !DisableRetransmitSending)
             {
-                SIPRequestRetransmitTraceEvent?.Invoke(transaction, transaction.TransactionRequest, transaction.Retransmits);
+                SIPRequestRetransmitTraceEvent?.Invoke(transaction, transaction.TransactionRequest,
+                    transaction.Retransmits);
                 transaction.RequestRetransmit();
             }
 
@@ -628,7 +666,8 @@ namespace SIPSorcery.SIP
 
                 foreach (var (_, transaction) in m_pendingTransactions)
                 {
-                    if (transaction.TransactionType == SIPTransactionTypesEnum.InviteClient || transaction.TransactionType == SIPTransactionTypesEnum.InviteServer)
+                    if (transaction.TransactionType == SIPTransactionTypesEnum.InviteClient ||
+                        transaction.TransactionType == SIPTransactionTypesEnum.InviteServer)
                     {
                         if (transaction.TransactionState == SIPTransactionStatesEnum.Confirmed)
                         {
@@ -701,8 +740,8 @@ namespace SIPSorcery.SIP
                     else if (now.Subtract(transaction.Created).TotalMilliseconds >= m_t6)
                     {
                         if (transaction.TransactionState == SIPTransactionStatesEnum.Calling ||
-                           transaction.TransactionState == SIPTransactionStatesEnum.Trying ||
-                           transaction.TransactionState == SIPTransactionStatesEnum.Proceeding)
+                            transaction.TransactionState == SIPTransactionStatesEnum.Trying ||
+                            transaction.TransactionState == SIPTransactionStatesEnum.Proceeding)
                         {
                             //logger.LogWarning("Timed out transaction in SIPTransactionEngine, should have been timed out in the SIP Transport layer. " + transaction.TransactionRequest.Method + ".");
                             transaction.Expire(now);

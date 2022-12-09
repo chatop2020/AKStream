@@ -20,7 +20,7 @@ using SIPSorcery.Sys;
 
 namespace SIPSorcery.SIP
 {
-    public delegate void CDRReadyDelegate(SIPCDR cdr);                // Used to inform CDR handlers when a CDR has been udpated.
+    public delegate void CDRReadyDelegate(SIPCDR cdr); // Used to inform CDR handlers when a CDR has been udpated.
 
     public enum SIPCallDirection
     {
@@ -43,28 +43,23 @@ namespace SIPSorcery.SIP
         public static event CDRReadyDelegate CDRAnswered = c => { };
         public static event CDRReadyDelegate CDRHungup = c => { };
 
-        [DataMember]
-        public Guid CDRId { get; set; }
+        [DataMember] public Guid CDRId { get; set; }
 
-        [DataMember]
-        public DateTime Created { get; set; }
+        [DataMember] public DateTime Created { get; set; }
 
-        [DataMember]
-        public SIPCallDirection CallDirection { get; set; }
+        [DataMember] public SIPCallDirection CallDirection { get; set; }
 
-        [DataMember]
-        public SIPURI Destination { get; set; }
+        [DataMember] public SIPURI Destination { get; set; }
 
         //[DataMember]
         public SIPFromHeader From { get; set; }
 
-        [DataMember]
-        public int ProgressStatus { get; set; }
+        [DataMember] public int ProgressStatus { get; set; }
 
-        [DataMember]
-        public string ProgressReasonPhrase { get; set; }
+        [DataMember] public string ProgressReasonPhrase { get; set; }
 
         private DateTime? m_progressTime;
+
         [DataMember]
         public DateTime? ProgressTime
         {
@@ -82,13 +77,12 @@ namespace SIPSorcery.SIP
             }
         }
 
-        [DataMember]
-        public int AnswerStatus { get; set; }
+        [DataMember] public int AnswerStatus { get; set; }
 
-        [DataMember]
-        public string AnswerReasonPhrase { get; set; }
+        [DataMember] public string AnswerReasonPhrase { get; set; }
 
         private DateTime? m_answerTime;
+
         [DataMember]
         public DateTime? AnswerTime
         {
@@ -107,6 +101,7 @@ namespace SIPSorcery.SIP
         }
 
         private DateTime? m_hangupTime;
+
         [DataMember]
         public DateTime? HangupTime
         {
@@ -124,14 +119,12 @@ namespace SIPSorcery.SIP
             }
         }
 
-        [DataMember]
-        public string HangupReason { get; set; }
+        [DataMember] public string HangupReason { get; set; }
 
         [DataMember]
-        public Guid BridgeId { get; set; }                              // If the call formed part of a bridge this will be set to the bridge id.
+        public Guid BridgeId { get; set; } // If the call formed part of a bridge this will be set to the bridge id.
 
-        [DataMember]
-        public DateTime? AnsweredAt { get; set; }
+        [DataMember] public DateTime? AnsweredAt { get; set; }
 
         public string CallId { get; set; }
         public SIPEndPoint LocalSIPEndPoint { get; set; }
@@ -165,11 +158,12 @@ namespace SIPSorcery.SIP
             CDRCreated?.Invoke(this);
         }
 
-        public void Progress(SIPResponseStatusCodesEnum progressStatus, string progressReason, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint)
+        public void Progress(SIPResponseStatusCodesEnum progressStatus, string progressReason,
+            SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint)
         {
             InProgress = true;
             ProgressTime = DateTime.UtcNow;
-            ProgressStatus = (int)progressStatus;
+            ProgressStatus = (int) progressStatus;
             ProgressReasonPhrase = progressReason;
 
             if (localEndPoint != null)
@@ -183,11 +177,12 @@ namespace SIPSorcery.SIP
             }
         }
 
-        public void Answered(int answerStatusCode, SIPResponseStatusCodesEnum answerStatus, string answerReason, SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint)
+        public void Answered(int answerStatusCode, SIPResponseStatusCodesEnum answerStatus, string answerReason,
+            SIPEndPoint localEndPoint, SIPEndPoint remoteEndPoint)
         {
             IsAnswered = true;
             AnswerTime = DateTime.UtcNow;
-            AnswerStatus = (int)answerStatus;
+            AnswerStatus = (int) answerStatus;
             AnswerReasonPhrase = answerReason;
             AnsweredAt = DateTime.Now;
 
@@ -227,12 +222,16 @@ namespace SIPSorcery.SIP
 
         public int GetProgressDuration()
         {
-            return (ProgressTime != null && AnswerTime != null) ? Convert.ToInt32(AnswerTime.Value.Subtract(ProgressTime.Value).TotalSeconds) : 0;
+            return (ProgressTime != null && AnswerTime != null)
+                ? Convert.ToInt32(AnswerTime.Value.Subtract(ProgressTime.Value).TotalSeconds)
+                : 0;
         }
 
         public int GetAnsweredDuration()
         {
-            return (AnswerTime != null && HangupTime != null) ? Convert.ToInt32(HangupTime.Value.Subtract(AnswerTime.Value).TotalSeconds) : 0;
+            return (AnswerTime != null && HangupTime != null)
+                ? Convert.ToInt32(HangupTime.Value.Subtract(AnswerTime.Value).TotalSeconds)
+                : 0;
         }
 
         public void Updated()

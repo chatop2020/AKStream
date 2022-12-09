@@ -34,7 +34,7 @@ namespace SIPSorcery.Net
     /// </summary>
     public struct SctpTransportCookie
     {
-        public static SctpTransportCookie Empty = new SctpTransportCookie() { _isEmpty = true };
+        public static SctpTransportCookie Empty = new SctpTransportCookie() {_isEmpty = true};
 
         public ushort SourcePort { get; set; }
         public ushort DestinationPort { get; set; }
@@ -121,11 +121,11 @@ namespace SIPSorcery.Net
                 // the association. (RFC4960 pg. 26)
 
                 SendError(
-                  true,
-                  initPacket.Header.DestinationPort,
-                  initPacket.Header.SourcePort,
-                  initChunk.InitiateTag,
-                  new SctpCauseOnlyError(SctpErrorCauseCode.InvalidMandatoryParameter));
+                    true,
+                    initPacket.Header.DestinationPort,
+                    initPacket.Header.SourcePort,
+                    initChunk.InitiateTag,
+                    new SctpCauseOnlyError(SctpErrorCauseCode.InvalidMandatoryParameter));
             }
             else
             {
@@ -195,7 +195,7 @@ namespace SIPSorcery.Net
                 initChunk.InitialTSN,
                 initChunk.ARwnd,
                 remoteEP != null ? remoteEP.ToString() : string.Empty,
-                (int)(initChunk.CookiePreservative / 1000));
+                (int) (initChunk.CookiePreservative / 1000));
 
             var json = cookie.ToJson();
             var jsonBuffer = Encoding.UTF8.GetBytes(json);
@@ -243,25 +243,27 @@ namespace SIPSorcery.Net
             string calculatedHMAC = GetCookieHMAC(cookieBuffer);
             if (calculatedHMAC != cookie.HMAC)
             {
-                logger.LogWarning($"SCTP COOKIE ECHO chunk had an invalid HMAC, calculated {calculatedHMAC}, cookie {cookie.HMAC}.");
+                logger.LogWarning(
+                    $"SCTP COOKIE ECHO chunk had an invalid HMAC, calculated {calculatedHMAC}, cookie {cookie.HMAC}.");
                 SendError(
-                  true,
-                  sctpPacket.Header.DestinationPort,
-                  sctpPacket.Header.SourcePort,
-                  0,
-                  new SctpCauseOnlyError(SctpErrorCauseCode.InvalidMandatoryParameter));
+                    true,
+                    sctpPacket.Header.DestinationPort,
+                    sctpPacket.Header.SourcePort,
+                    0,
+                    new SctpCauseOnlyError(SctpErrorCauseCode.InvalidMandatoryParameter));
                 return SctpTransportCookie.Empty;
             }
             else if (DateTime.Now.Subtract(DateTime.Parse(cookie.CreatedAt)).TotalSeconds > cookie.Lifetime)
             {
-                logger.LogWarning($"SCTP COOKIE ECHO chunk was stale, created at {cookie.CreatedAt}, now {DateTime.Now.ToString("o")}, lifetime {cookie.Lifetime}s.");
+                logger.LogWarning(
+                    $"SCTP COOKIE ECHO chunk was stale, created at {cookie.CreatedAt}, now {DateTime.Now.ToString("o")}, lifetime {cookie.Lifetime}s.");
                 var diff = DateTime.Now.Subtract(DateTime.Parse(cookie.CreatedAt).AddSeconds(cookie.Lifetime));
                 SendError(
-                  true,
-                  sctpPacket.Header.DestinationPort,
-                  sctpPacket.Header.SourcePort,
-                  0,
-                  new SctpErrorStaleCookieError { MeasureOfStaleness = (uint)(diff.TotalMilliseconds * 1000) });
+                    true,
+                    sctpPacket.Header.DestinationPort,
+                    sctpPacket.Header.SourcePort,
+                    0,
+                    new SctpErrorStaleCookieError {MeasureOfStaleness = (uint) (diff.TotalMilliseconds * 1000)});
                 return SctpTransportCookie.Empty;
             }
             else
@@ -352,7 +354,6 @@ namespace SIPSorcery.Net
         /// <param name="associationID">Local handle to the SCTP association.</param>
         public void Shutdown(string associationID)
         {
-
         }
 
         /// <summary>
@@ -362,7 +363,6 @@ namespace SIPSorcery.Net
         /// <param name="associationID">Local handle to the SCTP association.</param>
         public void Abort(string associationID)
         {
-
         }
 
         /// <summary>
@@ -472,7 +472,6 @@ namespace SIPSorcery.Net
         /// protocol parameters that the SCTP user wishes to customise.</param>
         public void SetProtocolParameters(string associationID, object protocolParameters)
         {
-
         }
 
         /// <summary>
@@ -486,7 +485,6 @@ namespace SIPSorcery.Net
         /// stream the data was sent to.</param>
         public void ReceiveUnsent(string dataRetrievalID, byte[] buffer, int length, int streamID)
         {
-
         }
 
         /// <summary>
@@ -500,7 +498,6 @@ namespace SIPSorcery.Net
         /// stream the data was sent to.</param>
         public void ReceiveUnacknowledged(string dataRetrievalID, byte[] buffer, int length, int streamID)
         {
-
         }
 
         /// <summary>
@@ -509,7 +506,6 @@ namespace SIPSorcery.Net
         /// <param name="instanceName"></param>
         public void Destroy(string instanceName)
         {
-
         }
     }
 }

@@ -56,7 +56,7 @@ namespace SIPSorcery.Net
         /// Select type of secure media to use.
         /// </summary>
         public RtpSecureMediaOptionEnum RtpSecureMediaOption { get; set; }
-        
+
         /// <summary>
         /// Optional. If specified this address will be used as the bind address for any RTP
         /// and control sockets created. Generally this address does not need to be set. The default behaviour
@@ -64,7 +64,7 @@ namespace SIPSorcery.Net
         /// causing connection issues.
         /// </summary>
         public IPAddress BindAddress { get; set; }
-        
+
         /// <summary>
         /// Optional. If specified a single attempt will be made to bind the RTP socket
         /// on this port. It's recommended to leave this parameter as the default of 0 to let the Operating

@@ -45,7 +45,7 @@ namespace LibGB28181SipServer
         /// </summary>
         private SIPUDPChannel _sipUdpIpV6Channel = null!;
 
-        public SipServer(string outConfigPath="")
+        public SipServer(string outConfigPath = "")
         {
             ResponseStruct rs;
             GCommon.Logger.Info($"[{Common.LoggerHead}]->加载配置文件->{Common.SipServerConfigPath}");
@@ -53,6 +53,7 @@ namespace LibGB28181SipServer
             {
                 Common.SipServerConfigPath = outConfigPath + "SipServerConfig.json";
             }
+
             var ret = Common.ReadSipServerConfig(out rs);
 
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
@@ -108,15 +109,14 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
 
-            
+
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                         
-                                 IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
+                            IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
-                
+
 
                 req.Header.Allow = null;
 
@@ -149,11 +149,11 @@ namespace LibGB28181SipServer
 
                 if (commandType == CommandType.Playback && obj != null)
                 {
-                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
-                    ((RecordInfo.RecItem)obj).CallId = req.Header.CallId;
-                    ((RecordInfo.RecItem)obj).CSeq = -1;
-                    ((RecordInfo.RecItem)obj).ToTag = "";
-                    ((RecordInfo.RecItem)obj).FromTag = req.Header.From.FromTag;
+                    ((RecordInfo.RecItem) obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem) obj).CallId = req.Header.CallId;
+                    ((RecordInfo.RecItem) obj).CSeq = -1;
+                    ((RecordInfo.RecItem) obj).ToTag = "";
+                    ((RecordInfo.RecItem) obj).FromTag = req.Header.From.FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -209,12 +209,11 @@ namespace LibGB28181SipServer
                 var fromSipUri = new SIPURI(SIPSchemesEnum.sip, sipServerIpAddress, Common.SipServerConfig.SipPort);
                 fromSipUri.User = Common.SipServerConfig.ServerSipDeviceId;
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
-              
+
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                         
                             IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
 
@@ -248,7 +247,7 @@ namespace LibGB28181SipServer
 
                 sipDevice.LastSipRequest = req;
                 GCommon.Logger.Debug($"[{Common.LoggerHead}]->发送Sip请求->{req}");
-             
+
                 await _sipTransport.SendRequestAsync(sipDevice.RemoteEndPoint, req);
             }
             catch (Exception ex)
@@ -287,12 +286,11 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
 
-            
+
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from,
                     new SIPEndPoint(sipDevice.SipChannelLayout.SIPProtocol,
                         new IPEndPoint(
-                         
                             IPAddress.Parse(Common.SipServerConfig.SipIpAddress),
                             sipDevice.SipChannelLayout.Port)));
 
@@ -306,8 +304,8 @@ namespace LibGB28181SipServer
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
                 req.Header.ContentType = contentType;
                 req.Header.Subject = string.IsNullOrEmpty(subject) ? null : subject;
-                req.Header.CallId = ((RecordInfo.RecItem)obj).CallId;
-                req.Header.CSeq = ((RecordInfo.RecItem)obj).CSeq;
+                req.Header.CallId = ((RecordInfo.RecItem) obj).CallId;
+                req.Header.CSeq = ((RecordInfo.RecItem) obj).CSeq;
                 req.Body = xmlBody;
                 if (needResponse)
                 {
@@ -328,11 +326,11 @@ namespace LibGB28181SipServer
 
                 if (commandType == CommandType.Playback && obj != null)
                 {
-                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
-                    ((RecordInfo.RecItem)obj).CallId = ((RecordInfo.RecItem)obj).CallId;
-                    ((RecordInfo.RecItem)obj).CSeq = ((RecordInfo.RecItem)obj).CSeq;
-                    ((RecordInfo.RecItem)obj).ToTag = ((RecordInfo.RecItem)obj).ToTag;
-                    ((RecordInfo.RecItem)obj).FromTag = ((RecordInfo.RecItem)obj).FromTag;
+                    ((RecordInfo.RecItem) obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem) obj).CallId = ((RecordInfo.RecItem) obj).CallId;
+                    ((RecordInfo.RecItem) obj).CSeq = ((RecordInfo.RecItem) obj).CSeq;
+                    ((RecordInfo.RecItem) obj).ToTag = ((RecordInfo.RecItem) obj).ToTag;
+                    ((RecordInfo.RecItem) obj).FromTag = ((RecordInfo.RecItem) obj).FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -954,7 +952,7 @@ namespace LibGB28181SipServer
             var body = new RecordQuery()
             {
                 DeviceID = sipChannel.DeviceId,
-                SN = (int)sipQueryRecordFile.TaskId, //跟进去一个sn
+                SN = (int) sipQueryRecordFile.TaskId, //跟进去一个sn
                 CmdType = CommandType.RecordInfo,
                 Secrecy = 0,
                 StartTime = sipQueryRecordFile.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -972,7 +970,8 @@ namespace LibGB28181SipServer
                         Task>
                     request =
                         SendRequestViaSipChannel;
-                request(tmpSipDevice, sipChannel, method, ConstString.Application_MANSCDP, xmlBody, subject, body.CmdType,
+                request(tmpSipDevice, sipChannel, method, ConstString.Application_MANSCDP, xmlBody, subject,
+                    body.CmdType,
                     true,
                     evnt, evnt2, sipQueryRecordFile,
                     timeout);
@@ -1217,7 +1216,8 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn(
+                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1309,7 +1309,8 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn(
+                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1411,7 +1412,8 @@ namespace LibGB28181SipServer
                                 ExceptMessage = exex.Message,
                                 ExceptStackTrace = exex.StackTrace
                             };
-                            GCommon.Logger.Warn($"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
+                            GCommon.Logger.Warn(
+                                $"[{Common.LoggerHead}]->AutoResetEvent.Set异常->{JsonHelper.ToJson(exrs)}");
                         }
                     }
                 }
@@ -1491,7 +1493,7 @@ namespace LibGB28181SipServer
 
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
                 var fromUri = tmpSipDevice.LastSipRequest.URI;
-               
+
                 SIPRequest req = SIPRequest.GetRequest(method, toSipUri, to,
                     from);
 
@@ -1628,7 +1630,7 @@ namespace LibGB28181SipServer
                 fromSipUri.User = Common.SipServerConfig.ServerSipDeviceId;
                 SIPFromHeader from = new SIPFromHeader(null, fromSipUri, "AKStream");
                 var fromUri = tmpSipDevice.LastSipRequest.URI;
-             
+
                 req = SIPRequest.GetRequest(method, toSipUri, to,
                     from);
                 req.Header.CallId = sipChannel.InviteSipRequest.Header.CallId;
@@ -1847,9 +1849,10 @@ namespace LibGB28181SipServer
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->启动Sip服务.");
 
                 //创建sip传输层
-                _sipTransport = new SIPTransport(false, Common.SipServerConfig.Encoding, Common.SipServerConfig.Encoding);
+                _sipTransport =
+                    new SIPTransport(false, Common.SipServerConfig.Encoding, Common.SipServerConfig.Encoding);
 
-               // _sipTransport = new SIPTransport();
+                // _sipTransport = new SIPTransport();
 
                 // 创建ipv4 udp传输层
                 _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Any,

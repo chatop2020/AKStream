@@ -97,7 +97,7 @@ namespace SIPSorcery.Net
         ///  This field holds the IANA-defined message type for the
         /// DATA_CHANNEL_OPEN message.The value of this field is 0x03.
         /// </summary>
-        public byte MessageType; 
+        public byte MessageType;
 
         /// <summary>
         /// This field specifies the type of data channel to be opened.
@@ -140,7 +140,8 @@ namespace SIPSorcery.Net
         {
             if (buffer.Length < DCEP_OPEN_FIXED_PARAMETERS_LENGTH)
             {
-                throw new ApplicationException("The buffer did not contain the minimum number of bytes for a DCEP open message.");
+                throw new ApplicationException(
+                    "The buffer did not contain the minimum number of bytes for a DCEP open message.");
             }
 
             var dcepOpen = new DataChannelOpenMessage();
@@ -172,8 +173,8 @@ namespace SIPSorcery.Net
         /// <returns>The serialised length of this DECEP OPEN message.</returns>
         public int GetLength()
         {
-            ushort labelLength = (ushort)(Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
-            ushort protocolLength = (ushort)(Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
+            ushort labelLength = (ushort) (Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
+            ushort protocolLength = (ushort) (Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
 
             return DCEP_OPEN_FIXED_PARAMETERS_LENGTH + labelLength + protocolLength;
         }
@@ -193,8 +194,8 @@ namespace SIPSorcery.Net
             NetConvert.ToBuffer(Priority, buffer, posn + 2);
             NetConvert.ToBuffer(Reliability, buffer, posn + 4);
 
-            ushort labelLength = (ushort)(Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
-            ushort protocolLength = (ushort)(Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
+            ushort labelLength = (ushort) (Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
+            ushort protocolLength = (ushort) (Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
 
             NetConvert.ToBuffer(labelLength, buffer, posn + 8);
             NetConvert.ToBuffer(protocolLength, buffer, posn + 10);
@@ -213,7 +214,7 @@ namespace SIPSorcery.Net
                 posn += protocolLength;
             }
 
-            return (ushort)posn;
+            return (ushort) posn;
         }
 
         /// <summary>

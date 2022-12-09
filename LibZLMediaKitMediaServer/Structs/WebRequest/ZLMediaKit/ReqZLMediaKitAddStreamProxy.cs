@@ -13,7 +13,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
         private float? _timeout_sec;
         private string _url;
         private string _vhost;
-        private int? _retry_count=-1;//拉流失败时的重试拉流次数，-1为无限重试
+        private int? _retry_count = -1; //拉流失败时的重试拉流次数，-1为无限重试
 
 
         /// <summary>

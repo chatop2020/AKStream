@@ -38,7 +38,7 @@ namespace SIPSorcery.Net
     /// </summary>
     public class RTSPURL
     {
-        public const int DNS_RESOLUTION_TIMEOUT = 2000;    // Timeout for resolving DNS hosts in milliseconds.
+        public const int DNS_RESOLUTION_TIMEOUT = 2000; // Timeout for resolving DNS hosts in milliseconds.
 
         public const string TRANSPORT_ADDR_SEPARATOR = "://";
         public const char HOST_ADDR_DELIMITER = '/';
@@ -57,7 +57,8 @@ namespace SIPSorcery.Net
         public string Path;
 
         private RTSPURL()
-        { }
+        {
+        }
 
         public static RTSPURL ParseRTSPURL(string url)
         {
@@ -112,7 +113,8 @@ namespace SIPSorcery.Net
             }
             catch (Exception excp)
             {
-                throw new ApplicationException("There was an exception parsing an RTSP URL. " + excp.Message + " url=" + url);
+                throw new ApplicationException("There was an exception parsing an RTSP URL. " + excp.Message + " url=" +
+                                               url);
             }
         }
 

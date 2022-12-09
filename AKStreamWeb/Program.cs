@@ -8,7 +8,7 @@ namespace AKStreamWeb
     {
         public static void Main(string[] args)
         {
-            var tmpRet=  UtilsHelper.GetMainParams(args);
+            var tmpRet = UtilsHelper.GetMainParams(args);
             if (tmpRet != null && tmpRet.Count > 0)
             {
                 foreach (var tmp in tmpRet)
@@ -17,6 +17,7 @@ namespace AKStreamWeb
                     {
                         GCommon.OutConfigPath = tmp.Value;
                     }
+
                     if (tmp.Key.ToUpper().Equals("-L"))
                     {
                         GCommon.OutLogPath = tmp.Value;
@@ -28,11 +29,10 @@ namespace AKStreamWeb
             {
                 if (!GCommon.OutLogPath.Trim().EndsWith('/'))
                 {
-                    GCommon.OutLogPath +=  "/";
+                    GCommon.OutLogPath += "/";
                 }
-              
             }
-         
+
             GCommon.InitLogger();
             Common.Init();
             CreateHostBuilder(args).Build().Run();

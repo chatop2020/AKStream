@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using FreeSql;
-using FreeSql.Internal;
 
 namespace LibCommon
 {
@@ -19,7 +18,7 @@ namespace LibCommon
                         .UseMonitorCommand(cmd => Trace.WriteLine($"线程：{cmd.CommandText}\r\n"))
                         .UseAutoSyncStructure(true) //自动创建、迁移实体表结构
                         .UseNoneCommandParameter(true)
-                      //  .UseNameConvert(NameConvertType.ToLower)
+                        //  .UseNameConvert(NameConvertType.ToLower)
                         .Build();
                 }
             }

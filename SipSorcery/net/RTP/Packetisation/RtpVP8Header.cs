@@ -26,33 +26,45 @@ namespace SIPSorcery.Net
     public class RtpVP8Header
     {
         // Payload Descriptor Fields.
-        public bool ExtendedControlBitsPresent;     // Indicated whether extended control bits are present.
-        public bool NonReferenceFrame;              // When set indicates the frame can be discarded without affecting any other frames.
-        public bool StartOfVP8Partition;            // Should be set when the first payload octet is the start of a new VP8 partition.
-        public byte PartitionIndex;                 // Denotes the VP8 partition index that the first payload octet of the packet belongs to.
+        public bool ExtendedControlBitsPresent; // Indicated whether extended control bits are present.
+
+        public bool
+            NonReferenceFrame; // When set indicates the frame can be discarded without affecting any other frames.
+
+        public bool
+            StartOfVP8Partition; // Should be set when the first payload octet is the start of a new VP8 partition.
+
+        public byte
+            PartitionIndex; // Denotes the VP8 partition index that the first payload octet of the packet belongs to.
+
         public bool IsPictureIDPresent;
         public ushort PictureID;
 
         // Payload Header Fields.
-        public int FirstPartitionSize;              // The size of the first partition in bytes is calculated from the 19 bits in Size0, SIze1 & Size2 as: size = Size0 + (8 x Size1) + (2048 8 Size2).
+        public int
+            FirstPartitionSize; // The size of the first partition in bytes is calculated from the 19 bits in Size0, SIze1 & Size2 as: size = Size0 + (8 x Size1) + (2048 8 Size2).
+
         public bool ShowFrame;
         public int VersionNumber;
         public bool IsKeyFrame;
 
         private int _length = 0;
+
         public int Length
         {
             get { return _length; }
         }
 
         private int _payloadDescriptorLength;
+
         public int PayloadDescriptorLength
         {
             get { return _payloadDescriptorLength; }
         }
 
         public RtpVP8Header()
-        { }
+        {
+        }
 
         public static RtpVP8Header GetVP8Header(byte[] rtpPayload)
         {

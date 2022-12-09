@@ -108,12 +108,12 @@ namespace SIPSorcery.Net
         internal int _burstPeriodMilliseconds = BURST_PERIOD_MILLISECONDS;
         internal int _rtoInitialMilliseconds = RTO_INITIAL_SECONDS * 1000;
         internal int _rtoMinimumMilliseconds = RTO_MIN_SECONDS * 1000;
-        
+
         /// <summary>
         /// A count of the bytes currently in-flight to the remote peer.
         /// </summary>
         internal uint _outstandingBytes =>
-            (uint)(_unconfirmedChunks.Sum(x => x.Value.UserData.Length));
+            (uint) (_unconfirmedChunks.Sum(x => x.Value.UserData.Length));
 
         /// <summary>
         /// The TSN that the remote peer has acknowledged.
@@ -134,7 +134,8 @@ namespace SIPSorcery.Net
         /// <summary>
         /// Chunks that have been sent to the remote peer but have yet to be acknowledged.
         /// </summary>
-        private ConcurrentDictionary<uint, SctpDataChunk> _unconfirmedChunks = new ConcurrentDictionary<uint, SctpDataChunk>();
+        private ConcurrentDictionary<uint, SctpDataChunk> _unconfirmedChunks =
+            new ConcurrentDictionary<uint, SctpDataChunk>();
 
         /// <summary>
         /// Chunks that have been flagged by a gap report from the remote peer as missing
@@ -145,7 +146,7 @@ namespace SIPSorcery.Net
         /// <summary>
         /// The total size (in bytes) of queued user data that will be sent to the peer.
         /// </summary>
-        public ulong BufferedAmount => (ulong)_sendQueue.Sum(x => x.UserData?.Length ?? 0);
+        public ulong BufferedAmount => (ulong) _sendQueue.Sum(x => x.UserData?.Length ?? 0);
 
         /// <summary>
         /// The Transaction Sequence Number (TSN) that will be used in the next DATA chunk sent.
@@ -168,7 +169,7 @@ namespace SIPSorcery.Net
             _receiverWindow = remoteARwnd;
 
             // RFC4960 7.2.1 (point 1)
-            _congestionWindow = (uint)(Math.Min(4 * _defaultMTU, Math.Max(2 * _defaultMTU, CONGESTION_WINDOW_FACTOR)));
+            _congestionWindow = (uint) (Math.Min(4 * _defaultMTU, Math.Max(2 * _defaultMTU, CONGESTION_WINDOW_FACTOR)));
 
             // RFC4960 7.2.1 (point 3)
             _slowStartThreshold = _initialRemoteARwnd;
@@ -204,7 +205,8 @@ namespace SIPSorcery.Net
                         if (SctpDataReceiver.GetDistance(_initialTSN, sack.CumulativeTsnAck) < maxTSNDistance
                             && SctpDataReceiver.IsNewerOrEqual(_initialTSN, sack.CumulativeTsnAck))
                         {
-                            logger.LogTrace($"SCTP first SACK remote peer TSN ACK {sack.CumulativeTsnAck} next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
+                            logger.LogTrace(
+                                $"SCTP first SACK remote peer TSN ACK {sack.CumulativeTsnAck} next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
                             _gotFirstSACK = true;
                             _cumulativeAckTSN = _initialTSN;
                             RemoveAckedUnconfirmedChunks(sack.CumulativeTsnAck);
@@ -216,23 +218,27 @@ namespace SIPSorcery.Net
                         {
                             if (SctpDataReceiver.GetDistance(_cumulativeAckTSN, sack.CumulativeTsnAck) > maxTSNDistance)
                             {
-                                logger.LogWarning($"SCTP SACK TSN from remote peer of {sack.CumulativeTsnAck} was too distant from the expected {_cumulativeAckTSN}, ignoring.");
+                                logger.LogWarning(
+                                    $"SCTP SACK TSN from remote peer of {sack.CumulativeTsnAck} was too distant from the expected {_cumulativeAckTSN}, ignoring.");
                                 processGapReports = false;
                             }
                             else if (!SctpDataReceiver.IsNewer(_cumulativeAckTSN, sack.CumulativeTsnAck))
                             {
-                                logger.LogWarning($"SCTP SACK TSN from remote peer of {sack.CumulativeTsnAck} was behind expected {_cumulativeAckTSN}, ignoring.");
+                                logger.LogWarning(
+                                    $"SCTP SACK TSN from remote peer of {sack.CumulativeTsnAck} was behind expected {_cumulativeAckTSN}, ignoring.");
                                 processGapReports = false;
                             }
                             else
                             {
-                                logger.LogTrace($"SCTP SACK remote peer TSN ACK {sack.CumulativeTsnAck}, next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
+                                logger.LogTrace(
+                                    $"SCTP SACK remote peer TSN ACK {sack.CumulativeTsnAck}, next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
                                 RemoveAckedUnconfirmedChunks(sack.CumulativeTsnAck);
                             }
                         }
                         else
                         {
-                            logger.LogTrace($"SCTP SACK remote peer TSN ACK no change {_cumulativeAckTSN}, next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
+                            logger.LogTrace(
+                                $"SCTP SACK remote peer TSN ACK no change {_cumulativeAckTSN}, next sender TSN {TSN}, arwnd {sack.ARwnd} (gap reports {sack.GapAckBlocks.Count}).");
                             RemoveAckedUnconfirmedChunks(sack.CumulativeTsnAck);
                         }
                     }
@@ -268,7 +274,7 @@ namespace SIPSorcery.Net
                 {
                     unchecked
                     {
-                        _streamSeqnums[streamID] = (ushort)(_streamSeqnums[streamID] + 1);
+                        _streamSeqnums[streamID] = (ushort) (_streamSeqnums[streamID] + 1);
                         seqnum = _streamSeqnums[streamID];
                     }
                 }
@@ -349,19 +355,22 @@ namespace SIPSorcery.Net
 
                 if (SctpDataReceiver.GetDistance(lastAckTSN, goodTSNStart) > maxTSNDistance)
                 {
-                    logger.LogWarning($"SCTP SACK gap report had a start TSN of {goodTSNStart} too distant from last good TSN {lastAckTSN}, ignoring rest of SACK.");
+                    logger.LogWarning(
+                        $"SCTP SACK gap report had a start TSN of {goodTSNStart} too distant from last good TSN {lastAckTSN}, ignoring rest of SACK.");
                     break;
                 }
                 else if (!SctpDataReceiver.IsNewer(lastAckTSN, goodTSNStart))
                 {
-                    logger.LogWarning($"SCTP SACK gap report had a start TSN of {goodTSNStart} behind last good TSN {lastAckTSN}, ignoring rest of SACK.");
+                    logger.LogWarning(
+                        $"SCTP SACK gap report had a start TSN of {goodTSNStart} behind last good TSN {lastAckTSN}, ignoring rest of SACK.");
                     break;
                 }
                 else
                 {
                     uint missingTSN = lastAckTSN + 1;
 
-                    logger.LogTrace($"SCTP SACK gap report start TSN {goodTSNStart} gap report end TSN {_cumulativeAckTSN + gapBlock.End} " +
+                    logger.LogTrace(
+                        $"SCTP SACK gap report start TSN {goodTSNStart} gap report end TSN {_cumulativeAckTSN + gapBlock.End} " +
                         $"first missing TSN {missingTSN}.");
 
                     while (missingTSN != goodTSNStart)
@@ -374,7 +383,8 @@ namespace SIPSorcery.Net
                                 // Hope it's a transient error from a duplicate or out of order SACK.
                                 // TODO: Maybe keep count of how many time this occurs and send an ABORT if it
                                 // gets to a certain threshold.
-                                logger.LogWarning($"SCTP SACK gap report reported missing TSN of {missingTSN} but no matching unconfirmed chunk available.");
+                                logger.LogWarning(
+                                    $"SCTP SACK gap report reported missing TSN of {missingTSN} but no matching unconfirmed chunk available.");
                                 break;
                             }
                             else
@@ -398,7 +408,8 @@ namespace SIPSorcery.Net
         /// <param name="sackTSN">The acknowledged TSN received from in a SACK from the remote peer.</param>
         private void RemoveAckedUnconfirmedChunks(uint sackTSN)
         {
-            logger.LogTrace($"SCTP data sender removing unconfirmed chunks cumulative ACK TSN {_cumulativeAckTSN}, SACK TSN {sackTSN}.");
+            logger.LogTrace(
+                $"SCTP data sender removing unconfirmed chunks cumulative ACK TSN {_cumulativeAckTSN}, SACK TSN {sackTSN}.");
 
             if (_cumulativeAckTSN == sackTSN)
             {
@@ -417,7 +428,8 @@ namespace SIPSorcery.Net
 
                     if (!_unconfirmedChunks.TryRemove(_cumulativeAckTSN, out _))
                     {
-                        logger.LogWarning($"SCTP data sender could not remove unconfirmed chunk for {_cumulativeAckTSN}.");
+                        logger.LogWarning(
+                            $"SCTP data sender could not remove unconfirmed chunk for {_cumulativeAckTSN}.");
                     }
 
                     if (_missingChunks.ContainsKey(_cumulativeAckTSN))
@@ -441,7 +453,9 @@ namespace SIPSorcery.Net
                 // calling once per loop.
                 DateTime now = DateTime.Now;
 
-                int burstSize = (_inRetransmitMode || _congestionWindow < _outstandingBytes || _receiverWindow == 0) ? 1 : MAX_BURST;
+                int burstSize = (_inRetransmitMode || _congestionWindow < _outstandingBytes || _receiverWindow == 0)
+                    ? 1
+                    : MAX_BURST;
                 int chunksSent = 0;
 
                 //logger.LogTrace($"SCTP sender burst size {burstSize}, in retransmit mode {_inRetransmitMode}, cwnd {_congestionWindow}, arwnd {_receiverWindow}.");
@@ -459,7 +473,8 @@ namespace SIPSorcery.Net
                             missingChunk.LastSentAt = now;
                             missingChunk.SendCount += 1;
 
-                            logger.LogTrace($"SCTP resending missing data chunk for TSN {missingChunk.TSN}, data length {missingChunk.UserData.Length}, " +
+                            logger.LogTrace(
+                                $"SCTP resending missing data chunk for TSN {missingChunk.TSN}, data length {missingChunk.UserData.Length}, " +
                                 $"flags {missingChunk.ChunkFlags:X2}, send count {missingChunk.SendCount}.");
 
                             _sendDataChunk(missingChunk);
@@ -474,25 +489,26 @@ namespace SIPSorcery.Net
                 if (chunksSent < burstSize && _unconfirmedChunks.Count > 0)
                 {
                     foreach (var chunk in _unconfirmedChunks.Values
-                        .Where(x => now.Subtract(x.LastSentAt).TotalSeconds > RTO_MIN_SECONDS)
-                        .Take(burstSize - chunksSent))
+                                 .Where(x => now.Subtract(x.LastSentAt).TotalSeconds > RTO_MIN_SECONDS)
+                                 .Take(burstSize - chunksSent))
                     {
                         chunk.LastSentAt = DateTime.Now;
                         chunk.SendCount += 1;
 
-                        logger.LogTrace($"SCTP retransmitting data chunk for TSN {chunk.TSN}, data length {chunk.UserData.Length}, " +
+                        logger.LogTrace(
+                            $"SCTP retransmitting data chunk for TSN {chunk.TSN}, data length {chunk.UserData.Length}, " +
                             $"flags {chunk.ChunkFlags:X2}, send count {chunk.SendCount}.");
 
                         _sendDataChunk(chunk);
                         chunksSent++;
-                        
+
                         if (!_inRetransmitMode)
                         {
                             _inRetransmitMode = true;
 
                             // When the T3-rtx timer expires on an address, SCTP should perform slow start.
                             // RFC4960 7.2.3
-                            _slowStartThreshold = (uint)Math.Max(_congestionWindow / 2, 4 * _defaultMTU);
+                            _slowStartThreshold = (uint) Math.Max(_congestionWindow / 2, 4 * _defaultMTU);
                             _congestionWindow = _defaultMTU;
                         }
                     }
@@ -506,7 +522,8 @@ namespace SIPSorcery.Net
                         dataChunk.LastSentAt = DateTime.Now;
                         dataChunk.SendCount = 1;
 
-                        logger.LogTrace($"SCTP sending data chunk for TSN {dataChunk.TSN}, data length {dataChunk.UserData.Length}, " +
+                        logger.LogTrace(
+                            $"SCTP sending data chunk for TSN {dataChunk.TSN}, data length {dataChunk.UserData.Length}, " +
                             $"flags {dataChunk.ChunkFlags:X2}, send count {dataChunk.SendCount}.");
 
                         _unconfirmedChunks.TryAdd(dataChunk.TSN, dataChunk);
@@ -588,9 +605,10 @@ namespace SIPSorcery.Net
                     // When cwnd is less than or equal to ssthresh, an SCTP endpoint MUST
                     // use the slow - start algorithm to increase cwnd only if the current
                     // congestion window is being fully utilized.
-                    uint increasedCwnd = (uint)(_congestionWindow + Math.Min(lastAckDataChunkSize, _defaultMTU));
+                    uint increasedCwnd = (uint) (_congestionWindow + Math.Min(lastAckDataChunkSize, _defaultMTU));
 
-                    logger.LogTrace($"SCTP sender congestion window in slow-start increased from {_congestionWindow} to {increasedCwnd}.");
+                    logger.LogTrace(
+                        $"SCTP sender congestion window in slow-start increased from {_congestionWindow} to {increasedCwnd}.");
 
                     return increasedCwnd;
                 }
@@ -605,7 +623,8 @@ namespace SIPSorcery.Net
 
                 if (_congestionWindow < _outstandingBytes)
                 {
-                    logger.LogTrace($"SCTP sender congestion window in congestion avoidance increased from {_congestionWindow} to {_congestionWindow + _defaultMTU}.");
+                    logger.LogTrace(
+                        $"SCTP sender congestion window in congestion avoidance increased from {_congestionWindow} to {_congestionWindow + _defaultMTU}.");
 
                     return _congestionWindow + _defaultMTU;
                 }

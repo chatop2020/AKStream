@@ -36,7 +36,8 @@ namespace SIPSorcery.SIP
         public string CRMPictureURL;
 
         private SIPEventDialogParticipant()
-        { }
+        {
+        }
 
         public SIPEventDialogParticipant(string displayName, SIPURI uri, SIPURI targetURI, int cseq)
         {
@@ -60,7 +61,9 @@ namespace SIPSorcery.SIP
             XElement identityElement = participantElement.Element(ns + "identity");
             if (identityElement != null)
             {
-                participant.DisplayName = (identityElement.Attribute("display-name") != null) ? identityElement.Attribute("display-name").Value : null;
+                participant.DisplayName = (identityElement.Attribute("display-name") != null)
+                    ? identityElement.Attribute("display-name").Value
+                    : null;
                 participant.URI = SIPURI.ParseSIPURI(identityElement.Value);
             }
 
@@ -70,7 +73,9 @@ namespace SIPSorcery.SIP
                 participant.TargetURI = SIPURI.ParseSIPURI(targetElement.Attribute("uri").Value);
             }
 
-            participant.CSeq = (participantElement.Element(ns + "cseq") != null) ? Convert.ToInt32(participantElement.Element(ns + "cseq").Value) : 0;
+            participant.CSeq = (participantElement.Element(ns + "cseq") != null)
+                ? Convert.ToInt32(participantElement.Element(ns + "cseq").Value)
+                : 0;
 
             return participant;
         }
@@ -92,6 +97,7 @@ namespace SIPSorcery.SIP
                 {
                     identityElement.Add(new XAttribute("display-name", DisplayName));
                 }
+
                 participantElement.Add(identityElement);
             }
 

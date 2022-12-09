@@ -71,7 +71,8 @@ namespace SIPSorcery.Net
         {
             if (buffer.Length < SCTP_HEADER_LENGTH)
             {
-                throw new ApplicationException("The buffer did not contain the minimum number of bytes for an SCTP header.");
+                throw new ApplicationException(
+                    "The buffer did not contain the minimum number of bytes for an SCTP header.");
             }
 
             SctpHeader header = new SctpHeader();

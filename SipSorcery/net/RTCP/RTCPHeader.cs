@@ -42,26 +42,26 @@ namespace SIPSorcery.Net
     /// </summary>
     public enum RTCPReportTypesEnum : byte
     {
-        SR = 200,     // Send Report.
-        RR = 201,     // Receiver Report.
-        SDES = 202,   // Session Description.
-        BYE = 203,    // Goodbye.
-        APP = 204,    // Application-defined.
+        SR = 200, // Send Report.
+        RR = 201, // Receiver Report.
+        SDES = 202, // Session Description.
+        BYE = 203, // Goodbye.
+        APP = 204, // Application-defined.
 
         // From RFC5760: https://tools.ietf.org/html/rfc5760
         // "RTP Control Protocol (RTCP) Extensions for
         // Single-Source Multicast Sessions with Unicast Feedback"
 
-        RTPFB = 205,    // Generic RTP feedback 
-        PSFB = 206,     // Payload-specific feedback 
-        XR = 207,       // RTCP Extension
+        RTPFB = 205, // Generic RTP feedback 
+        PSFB = 206, // Payload-specific feedback 
+        XR = 207, // RTCP Extension
     }
 
     public class RTCPReportTypes
     {
         public static RTCPReportTypesEnum GetRTCPReportTypeForId(ushort rtcpReportTypeId)
         {
-            return (RTCPReportTypesEnum)Enum.Parse(typeof(RTCPReportTypesEnum), rtcpReportTypeId.ToString(), true);
+            return (RTCPReportTypesEnum) Enum.Parse(typeof(RTCPReportTypesEnum), rtcpReportTypeId.ToString(), true);
         }
     }
 
@@ -74,11 +74,11 @@ namespace SIPSorcery.Net
         public const int MAX_RECEPTIONREPORT_COUNT = 32;
         public const int RTCP_VERSION = 2;
 
-        public int Version { get; private set; } = RTCP_VERSION;         // 2 bits.
-        public int PaddingFlag { get; private set; } = 0;                 // 1 bit.
-        public int ReceptionReportCount { get; private set; } = 0;        // 5 bits.
-        public RTCPReportTypesEnum PacketType { get; private set; }       // 8 bits.
-        public UInt16 Length { get; private set; }                        // 16 bits.
+        public int Version { get; private set; } = RTCP_VERSION; // 2 bits.
+        public int PaddingFlag { get; private set; } = 0; // 1 bit.
+        public int ReceptionReportCount { get; private set; } = 0; // 5 bits.
+        public RTCPReportTypesEnum PacketType { get; private set; } // 8 bits.
+        public UInt16 Length { get; private set; } // 16 bits.
 
         /// <summary>
         /// The Feedback Message Type is used for RFC4585 transport layer feedback reports.
@@ -90,7 +90,8 @@ namespace SIPSorcery.Net
         /// The Payload Feedback Message Type is used for RFC4585 payload layer feedback reports.
         /// When used this field gets set in place of the Reception Report Counter field.
         /// </summary>
-        public PSFBFeedbackTypesEnum PayloadFeedbackMessageType { get; private set; } = PSFBFeedbackTypesEnum.unassigned;
+        public PSFBFeedbackTypesEnum PayloadFeedbackMessageType { get; private set; } =
+            PSFBFeedbackTypesEnum.unassigned;
 
         public RTCPHeader(RTCPFeedbackTypesEnum feedbackType)
         {
@@ -136,7 +137,8 @@ namespace SIPSorcery.Net
         {
             if (packet.Length < HEADER_BYTES_LENGTH)
             {
-                throw new ApplicationException("The packet did not contain the minimum number of bytes for an RTCP header packet.");
+                throw new ApplicationException(
+                    "The packet did not contain the minimum number of bytes for an RTCP header packet.");
             }
 
             UInt16 firstWord = BitConverter.ToUInt16(packet, 0);
@@ -153,17 +155,17 @@ namespace SIPSorcery.Net
 
             Version = Convert.ToInt32(firstWord >> 14);
             PaddingFlag = Convert.ToInt32((firstWord >> 13) & 0x1);
-            PacketType = (RTCPReportTypesEnum)(firstWord & 0x00ff);
+            PacketType = (RTCPReportTypesEnum) (firstWord & 0x00ff);
 
             if (IsFeedbackReport())
             {
                 if (PacketType == RTCPReportTypesEnum.RTPFB)
                 {
-                    FeedbackMessageType = (RTCPFeedbackTypesEnum)((firstWord >> 8) & 0x1f);
+                    FeedbackMessageType = (RTCPFeedbackTypesEnum) ((firstWord >> 8) & 0x1f);
                 }
                 else
                 {
-                    PayloadFeedbackMessageType = (PSFBFeedbackTypesEnum)((firstWord >> 8) & 0x1f);
+                    PayloadFeedbackMessageType = (PSFBFeedbackTypesEnum) ((firstWord >> 8) & 0x1f);
                 }
             }
             else
@@ -176,7 +178,8 @@ namespace SIPSorcery.Net
         {
             if (receptionReportCount > MAX_RECEPTIONREPORT_COUNT)
             {
-                throw new ApplicationException("The Reception Report Count value cannot be larger than " + MAX_RECEPTIONREPORT_COUNT + ".");
+                throw new ApplicationException("The Reception Report Count value cannot be larger than " +
+                                               MAX_RECEPTIONREPORT_COUNT + ".");
             }
 
             ReceptionReportCount = receptionReportCount;
@@ -198,22 +201,22 @@ namespace SIPSorcery.Net
         {
             byte[] header = new byte[4];
 
-            UInt32 firstWord = ((uint)Version << 30) + ((uint)PaddingFlag << 29) + ((uint)PacketType << 16) + Length;
+            UInt32 firstWord = ((uint) Version << 30) + ((uint) PaddingFlag << 29) + ((uint) PacketType << 16) + Length;
 
             if (IsFeedbackReport())
             {
                 if (PacketType == RTCPReportTypesEnum.RTPFB)
                 {
-                    firstWord += (uint)FeedbackMessageType << 24;
+                    firstWord += (uint) FeedbackMessageType << 24;
                 }
                 else
                 {
-                    firstWord += (uint)PayloadFeedbackMessageType << 24;
+                    firstWord += (uint) PayloadFeedbackMessageType << 24;
                 }
             }
             else
             {
-                firstWord += (uint)ReceptionReportCount << 24;
+                firstWord += (uint) ReceptionReportCount << 24;
             }
 
             if (BitConverter.IsLittleEndian)

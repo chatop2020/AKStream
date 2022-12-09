@@ -39,7 +39,7 @@ namespace SIPSorcery.SIP
 
         private bool _sendOkAckManually = false;
         internal bool _disablePrackSupport = false;
-        internal bool m_sentPrack;                  // Records whether the PRACK request was sent.
+        internal bool m_sentPrack; // Records whether the PRACK request was sent.
         private int m_cseq;
 
         /// <summary>
@@ -57,7 +57,8 @@ namespace SIPSorcery.SIP
         {
             TransactionType = SIPTransactionTypesEnum.InviteClient;
             m_localTag = sipRequest.Header.From.FromTag;
-            CDR = new SIPCDR(SIPCallDirection.Out, sipRequest.URI, sipRequest.Header.From, sipRequest.Header.CallId, sipRequest.LocalSIPEndPoint, sipRequest.RemoteSIPEndPoint);
+            CDR = new SIPCDR(SIPCallDirection.Out, sipRequest.URI, sipRequest.Header.From, sipRequest.Header.CallId,
+                sipRequest.LocalSIPEndPoint, sipRequest.RemoteSIPEndPoint);
             _sendOkAckManually = sendOkAckManually;
             _disablePrackSupport = disablePrackSupport;
             m_cseq = sipRequest.Header.CSeq;
@@ -72,9 +73,11 @@ namespace SIPSorcery.SIP
             base.SendReliableRequest();
         }
 
-        private Task<SocketError> UACInviteTransaction_TransactionRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
+        private Task<SocketError> UACInviteTransaction_TransactionRequestReceived(SIPEndPoint localSIPEndPoint,
+            SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPRequest sipRequest)
         {
-            logger.LogWarning("UACInviteTransaction received unexpected request, " + sipRequest.Method + " from " + remoteEndPoint.ToString() + ", ignoring.");
+            logger.LogWarning("UACInviteTransaction received unexpected request, " + sipRequest.Method + " from " +
+                              remoteEndPoint.ToString() + ", ignoring.");
             return Task.FromResult(SocketError.Fault);
         }
 
@@ -84,7 +87,9 @@ namespace SIPSorcery.SIP
             CDR?.TimedOut();
         }
 
-        private async Task<SocketError> UACInviteTransaction_TransactionInformationResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private async Task<SocketError> UACInviteTransaction_TransactionInformationResponseReceived(
+            SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction,
+            SIPResponse sipResponse)
         {
             try
             {
@@ -108,7 +113,8 @@ namespace SIPSorcery.SIP
 
                 if (UACInviteTransactionInformationResponseReceived != null)
                 {
-                    return await UACInviteTransactionInformationResponseReceived(localSIPEndPoint, remoteEndPoint, sipTransaction, sipResponse).ConfigureAwait(false);
+                    return await UACInviteTransactionInformationResponseReceived(localSIPEndPoint, remoteEndPoint,
+                        sipTransaction, sipResponse).ConfigureAwait(false);
                 }
                 else
                 {
@@ -117,12 +123,15 @@ namespace SIPSorcery.SIP
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception UACInviteTransaction_TransactionInformationResponseReceived. " + excp.Message);
+                logger.LogError(
+                    "Exception UACInviteTransaction_TransactionInformationResponseReceived. " + excp.Message);
                 return SocketError.Fault;
             }
         }
 
-        private async Task<SocketError> UACInviteTransaction_TransactionFinalResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private async Task<SocketError> UACInviteTransaction_TransactionFinalResponseReceived(
+            SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction,
+            SIPResponse sipResponse)
         {
             try
             {
@@ -134,7 +143,8 @@ namespace SIPSorcery.SIP
                 {
                     if (_sendOkAckManually == false)
                     {
-                        AckRequest = GetAcknowledgeRequest(sipResponse, SIPMethodsEnum.ACK, sipResponse.Header.CSeq, null, null);
+                        AckRequest = GetAcknowledgeRequest(sipResponse, SIPMethodsEnum.ACK, sipResponse.Header.CSeq,
+                            null, null);
                         await SendRequestAsync(AckRequest).ConfigureAwait(false);
                     }
                 }
@@ -149,12 +159,14 @@ namespace SIPSorcery.SIP
                 {
                     SIPEndPoint localEP = SIPEndPoint.TryParse(sipResponse.Header.ProxyReceivedOn) ?? localSIPEndPoint;
                     SIPEndPoint remoteEP = SIPEndPoint.TryParse(sipResponse.Header.ProxyReceivedFrom) ?? remoteEndPoint;
-                    CDR.Answered(sipResponse.StatusCode, sipResponse.Status, sipResponse.ReasonPhrase, localEP, remoteEP);
+                    CDR.Answered(sipResponse.StatusCode, sipResponse.Status, sipResponse.ReasonPhrase, localEP,
+                        remoteEP);
                 }
 
                 if (UACInviteTransactionFinalResponseReceived != null)
                 {
-                    return await UACInviteTransactionFinalResponseReceived(localSIPEndPoint, remoteEndPoint, sipTransaction, sipResponse).ConfigureAwait(false);
+                    return await UACInviteTransactionFinalResponseReceived(localSIPEndPoint, remoteEndPoint,
+                        sipTransaction, sipResponse).ConfigureAwait(false);
                 }
                 else
                 {
@@ -178,7 +190,8 @@ namespace SIPSorcery.SIP
         /// <param name="cseq">The SIP CSeq header value to set on the acknowledge request.</param>
         /// <param name="content">The optional content body for the ACK request.</param>
         /// <param name="contentType">The optional content type.</param>
-        private SIPRequest GetAcknowledgeRequest(SIPResponse ackResponse, SIPMethodsEnum ackMethod, int cseq, string content, string contentType)
+        private SIPRequest GetAcknowledgeRequest(SIPResponse ackResponse, SIPMethodsEnum ackMethod, int cseq,
+            string content, string contentType)
         {
             if (ackResponse.Header.To != null)
             {
@@ -192,11 +205,13 @@ namespace SIPSorcery.SIP
                 // Don't mangle private contacts if there is a Record-Route header. If a proxy is putting private IP's 
                 // in a Record-Route header that's its problem.
                 if ((ackResponse.Header.RecordRoutes == null || ackResponse.Header.RecordRoutes.Length == 0)
-                    && IPSocket.IsPrivateAddress(requestURI.Host) && !ackResponse.Header.ProxyReceivedFrom.IsNullOrBlank())
+                    && IPSocket.IsPrivateAddress(requestURI.Host) &&
+                    !ackResponse.Header.ProxyReceivedFrom.IsNullOrBlank())
                 {
                     // Setting the Proxy-ReceivedOn header is how an upstream proxy will let an agent know it should 
                     // mangle the contact. 
-                    SIPEndPoint remoteUASSIPEndPoint = SIPEndPoint.ParseSIPEndPoint(ackResponse.Header.ProxyReceivedFrom);
+                    SIPEndPoint remoteUASSIPEndPoint =
+                        SIPEndPoint.ParseSIPEndPoint(ackResponse.Header.ProxyReceivedFrom);
                     requestURI.Host = remoteUASSIPEndPoint.GetIPEndPoint().ToString();
                 }
             }
@@ -241,7 +256,8 @@ namespace SIPSorcery.SIP
             SIPRequest acknowledgeRequest = new SIPRequest(method, ackURI.ToString());
             acknowledgeRequest.SetSendFromHints(sipResponse.LocalSIPEndPoint);
 
-            SIPHeader header = new SIPHeader(TransactionRequest.Header.From, sipResponse.Header.To, cseq, sipResponse.Header.CallId);
+            SIPHeader header = new SIPHeader(TransactionRequest.Header.From, sipResponse.Header.To, cseq,
+                sipResponse.Header.CallId);
             header.CSeqMethod = method;
             header.AuthenticationHeaders = TransactionRequest.Header.AuthenticationHeaders;
             header.ProxySendFrom = TransactionRequest.Header.ProxySendFrom;
@@ -303,7 +319,8 @@ namespace SIPSorcery.SIP
             SIPRequest ackRequest = new SIPRequest(SIPMethodsEnum.ACK, ackURI.ToString());
             ackRequest.SetSendFromHints(sipResponse.LocalSIPEndPoint);
 
-            SIPHeader header = new SIPHeader(TransactionRequest.Header.From, sipResponse.Header.To, sipResponse.Header.CSeq, sipResponse.Header.CallId);
+            SIPHeader header = new SIPHeader(TransactionRequest.Header.From, sipResponse.Header.To,
+                sipResponse.Header.CSeq, sipResponse.Header.CallId);
             header.CSeqMethod = SIPMethodsEnum.ACK;
             header.AuthenticationHeaders = TransactionRequest.Header.AuthenticationHeaders;
             header.Routes = base.TransactionRequest.Header.Routes;
@@ -311,7 +328,8 @@ namespace SIPSorcery.SIP
 
             ackRequest.Header = header;
 
-            SIPViaHeader viaHeader = new SIPViaHeader(new IPEndPoint(IPAddress.Any, 0), sipResponse.Header.Vias.TopViaHeader.Branch);
+            SIPViaHeader viaHeader = new SIPViaHeader(new IPEndPoint(IPAddress.Any, 0),
+                sipResponse.Header.Vias.TopViaHeader.Branch);
             ackRequest.Header.Vias.PushViaHeader(viaHeader);
 
             return ackRequest;

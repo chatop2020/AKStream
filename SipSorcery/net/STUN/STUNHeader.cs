@@ -120,7 +120,7 @@ namespace SIPSorcery.Net
     {
         public static STUNMessageTypesEnum GetSTUNMessageTypeForId(int stunMessageTypeId)
         {
-            return (STUNMessageTypesEnum)Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
+            return (STUNMessageTypesEnum) Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
         }
     }
 
@@ -133,12 +133,13 @@ namespace SIPSorcery.Net
         public const int TRANSACTION_ID_LENGTH = 12;
 
         public STUNMessageTypesEnum MessageType = STUNMessageTypesEnum.BindingRequest;
+
         public STUNClassTypesEnum MessageClass
         {
             get
             {
-                int @class = ((ushort)MessageType >> 8 & 0x01) * 2 | ((ushort)MessageType >> 4 & 0x01);
-                return (STUNClassTypesEnum)@class;
+                int @class = ((ushort) MessageType >> 8 & 0x01) * 2 | ((ushort) MessageType >> 4 & 0x01);
+                return (STUNClassTypesEnum) @class;
             }
         }
 
@@ -146,7 +147,8 @@ namespace SIPSorcery.Net
         public byte[] TransactionId = new byte[TRANSACTION_ID_LENGTH];
 
         public STUNHeader()
-        { }
+        {
+        }
 
         public STUNHeader(STUNMessageTypesEnum messageType)
         {

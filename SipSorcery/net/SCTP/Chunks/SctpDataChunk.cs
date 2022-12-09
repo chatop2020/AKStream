@@ -89,7 +89,8 @@ namespace SIPSorcery.Net
 
         private SctpDataChunk()
             : base(SctpChunkType.DATA)
-        { }
+        {
+        }
 
         /// <summary>
         /// Creates a new DATA chunk.
@@ -109,10 +110,10 @@ namespace SIPSorcery.Net
             bool isUnordered,
             bool isBegining,
             bool isEnd,
-            uint tsn, 
-            ushort streamID, 
-            ushort seqnum, 
-            uint ppid, 
+            uint tsn,
+            ushort streamID,
+            ushort seqnum,
+            uint ppid,
             byte[] data) : base(SctpChunkType.DATA)
         {
             if (data == null || data.Length == 0)
@@ -125,11 +126,11 @@ namespace SIPSorcery.Net
             Ending = isEnd;
             TSN = tsn;
             StreamID = streamID;
-            StreamSeqNum = seqnum; 
+            StreamSeqNum = seqnum;
             PPID = ppid;
             UserData = data;
 
-            ChunkFlags = (byte)(
+            ChunkFlags = (byte) (
                 (Unordered ? 0x04 : 0x0) +
                 (Begining ? 0x02 : 0x0) +
                 (Ending ? 0x01 : 0x0));
@@ -143,7 +144,7 @@ namespace SIPSorcery.Net
         public override ushort GetChunkLength(bool padded)
         {
             ushort len = SCTP_CHUNK_HEADER_LENGTH + FIXED_PARAMETERS_LENGTH;
-            len += (ushort)(UserData != null ? UserData.Length : 0);
+            len += (ushort) (UserData != null ? UserData.Length : 0);
             return (padded) ? SctpPadding.PadTo4ByteBoundary(len) : len;
         }
 
@@ -193,7 +194,8 @@ namespace SIPSorcery.Net
 
             if (chunkLen < FIXED_PARAMETERS_LENGTH)
             {
-                throw new ApplicationException($"SCTP data chunk cannot be parsed as buffer too short for fixed parameter fields.");
+                throw new ApplicationException(
+                    $"SCTP data chunk cannot be parsed as buffer too short for fixed parameter fields.");
             }
 
             dataChunk.Unordered = (dataChunk.ChunkFlags & 0x04) > 0;

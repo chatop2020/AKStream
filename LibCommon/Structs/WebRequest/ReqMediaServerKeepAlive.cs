@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.AccessControl;
 
 namespace LibCommon.Structs.WebRequest
 {
@@ -35,8 +34,6 @@ namespace LibCommon.Structs.WebRequest
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
         private int? _recordSec;
-      
-     
 
 
         /// <summary>

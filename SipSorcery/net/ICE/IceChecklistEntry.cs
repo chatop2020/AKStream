@@ -144,10 +144,10 @@ namespace SIPSorcery.Net
         /// See https://tools.ietf.org/html/rfc8445#section-6.1.2.3.
         /// </remarks>
         public ulong Priority =>
-                ((2 << 32) * Math.Min(LocalPriority, RemotePriority) +
-                2 * Math.Max(LocalPriority, RemotePriority) +
-                (ulong)((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
-                    : RemotePriority > LocalPriority ? 1 : 0));
+            ((2 << 32) * Math.Min(LocalPriority, RemotePriority) +
+             2 * Math.Max(LocalPriority, RemotePriority) +
+             (ulong) ((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
+                 : RemotePriority > LocalPriority ? 1 : 0));
 
         /// <summary>
         /// Timestamp the first connectivity check (STUN binding request) was sent at.
@@ -253,18 +253,21 @@ namespace SIPSorcery.Net
             }
             else if (stunResponse.Header.MessageType == STUNMessageTypesEnum.CreatePermissionSuccessResponse)
             {
-                logger.LogDebug($"A TURN Create Permission success response was received from {remoteEndPoint} (TxID: {Encoding.ASCII.GetString(stunResponse.Header.TransactionId)}).");
+                logger.LogDebug(
+                    $"A TURN Create Permission success response was received from {remoteEndPoint} (TxID: {Encoding.ASCII.GetString(stunResponse.Header.TransactionId)}).");
                 TurnPermissionsResponseAt = DateTime.Now;
             }
             else if (stunResponse.Header.MessageType == STUNMessageTypesEnum.CreatePermissionErrorResponse)
             {
-                logger.LogWarning($"ICE RTP channel TURN Create Permission error response was received from {remoteEndPoint}.");
+                logger.LogWarning(
+                    $"ICE RTP channel TURN Create Permission error response was received from {remoteEndPoint}.");
                 TurnPermissionsResponseAt = DateTime.Now;
                 State = ChecklistEntryState.Failed;
             }
             else
             {
-                logger.LogWarning($"ICE RTP channel received an unexpected STUN response {stunResponse.Header.MessageType} from {remoteEndPoint}.");
+                logger.LogWarning(
+                    $"ICE RTP channel received an unexpected STUN response {stunResponse.Header.MessageType} from {remoteEndPoint}.");
             }
         }
     }

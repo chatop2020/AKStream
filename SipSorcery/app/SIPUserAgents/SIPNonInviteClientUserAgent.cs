@@ -58,47 +58,62 @@ namespace SIPSorcery.SIP.App
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception SIPNonInviteClientUserAgent SendRequest to " + m_callDescriptor.Uri + ". " + excp.Message);
+                logger.LogError("Exception SIPNonInviteClientUserAgent SendRequest to " + m_callDescriptor.Uri + ". " +
+                                excp.Message);
                 throw;
             }
         }
 
         private void TransactionFailed(SIPTransaction sipTransaction, SocketError failureReason)
         {
-            logger.LogWarning($"Attempt to send {sipTransaction.TransactionRequest.Method} to {m_callDescriptor.Uri} failed with {failureReason}.");
+            logger.LogWarning(
+                $"Attempt to send {sipTransaction.TransactionRequest.Method} to {m_callDescriptor.Uri} failed with {failureReason}.");
         }
 
-        private Task<SocketError> ServerResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> ServerResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
+            SIPTransaction sipTransaction, SIPResponse sipResponse)
         {
             try
             {
-                string reasonPhrase = (sipResponse.ReasonPhrase.IsNullOrBlank()) ? sipResponse.Status.ToString() : sipResponse.ReasonPhrase;
-                logger.LogDebug("Server response " + sipResponse.StatusCode + " " + reasonPhrase + " received for " + sipTransaction.TransactionRequest.Method + " to " + m_callDescriptor.Uri + ".");
+                string reasonPhrase = (sipResponse.ReasonPhrase.IsNullOrBlank())
+                    ? sipResponse.Status.ToString()
+                    : sipResponse.ReasonPhrase;
+                logger.LogDebug("Server response " + sipResponse.StatusCode + " " + reasonPhrase + " received for " +
+                                sipTransaction.TransactionRequest.Method + " to " + m_callDescriptor.Uri + ".");
 
-                if (sipResponse.Status == SIPResponseStatusCodesEnum.ProxyAuthenticationRequired || sipResponse.Status == SIPResponseStatusCodesEnum.Unauthorised)
+                if (sipResponse.Status == SIPResponseStatusCodesEnum.ProxyAuthenticationRequired ||
+                    sipResponse.Status == SIPResponseStatusCodesEnum.Unauthorised)
                 {
                     if (sipResponse.Header.HasAuthenticationHeader)
                     {
-                        if ((m_callDescriptor.Username != null || m_callDescriptor.AuthUsername != null) && m_callDescriptor.Password != null)
+                        if ((m_callDescriptor.Username != null || m_callDescriptor.AuthUsername != null) &&
+                            m_callDescriptor.Password != null)
                         {
-                            string username = (m_callDescriptor.AuthUsername != null) ? m_callDescriptor.AuthUsername : m_callDescriptor.Username;
-                            SIPRequest authenticatedRequest = sipTransaction.TransactionRequest.DuplicateAndAuthenticate(
-                                sipResponse.Header.AuthenticationHeaders, username, m_callDescriptor.Password);
+                            string username = (m_callDescriptor.AuthUsername != null)
+                                ? m_callDescriptor.AuthUsername
+                                : m_callDescriptor.Username;
+                            SIPRequest authenticatedRequest =
+                                sipTransaction.TransactionRequest.DuplicateAndAuthenticate(
+                                    sipResponse.Header.AuthenticationHeaders, username, m_callDescriptor.Password);
 
-                            SIPNonInviteTransaction authTransaction = new SIPNonInviteTransaction(m_sipTransport, authenticatedRequest, m_outboundProxy);
+                            SIPNonInviteTransaction authTransaction =
+                                new SIPNonInviteTransaction(m_sipTransport, authenticatedRequest, m_outboundProxy);
                             authTransaction.NonInviteTransactionFinalResponseReceived += AuthResponseReceived;
                             authTransaction.NonInviteTransactionFailed += TransactionFailed;
                             authTransaction.SendRequest();
                         }
                         else
                         {
-                            logger.LogDebug("Send request received an authentication required response but no credentials were available.");
+                            logger.LogDebug(
+                                "Send request received an authentication required response but no credentials were available.");
                             ResponseReceived?.Invoke(sipResponse);
                         }
                     }
                     else
                     {
-                        logger.LogDebug("Send request failed with " + sipResponse.StatusCode + " but no authentication header was supplied for " + sipTransaction.TransactionRequest.Method + " to " + m_callDescriptor.Uri + ".");
+                        logger.LogDebug("Send request failed with " + sipResponse.StatusCode +
+                                        " but no authentication header was supplied for " +
+                                        sipTransaction.TransactionRequest.Method + " to " + m_callDescriptor.Uri + ".");
                         ResponseReceived?.Invoke(sipResponse);
                     }
                 }
@@ -109,7 +124,8 @@ namespace SIPSorcery.SIP.App
             }
             catch (Exception excp)
             {
-                logger.LogError("Exception SIPNonInviteClientUserAgent ServerResponseReceived (" + remoteEndPoint + "). " + excp.Message);
+                logger.LogError("Exception SIPNonInviteClientUserAgent ServerResponseReceived (" + remoteEndPoint +
+                                "). " + excp.Message);
             }
 
             return Task.FromResult(SocketError.Success);
@@ -118,10 +134,15 @@ namespace SIPSorcery.SIP.App
         /// <summary>
         /// The event handler for responses to the authenticated register request.
         /// </summary>
-        private Task<SocketError> AuthResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPTransaction sipTransaction, SIPResponse sipResponse)
+        private Task<SocketError> AuthResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint,
+            SIPTransaction sipTransaction, SIPResponse sipResponse)
         {
-            string reasonPhrase = (sipResponse.ReasonPhrase.IsNullOrBlank()) ? sipResponse.Status.ToString() : sipResponse.ReasonPhrase;
-            logger.LogDebug("Server response " + sipResponse.Status + " " + reasonPhrase + " received for authenticated " + sipTransaction.TransactionRequest.Method + " to " + m_callDescriptor.Uri + ".");
+            string reasonPhrase = (sipResponse.ReasonPhrase.IsNullOrBlank())
+                ? sipResponse.Status.ToString()
+                : sipResponse.ReasonPhrase;
+            logger.LogDebug("Server response " + sipResponse.Status + " " + reasonPhrase +
+                            " received for authenticated " + sipTransaction.TransactionRequest.Method + " to " +
+                            m_callDescriptor.Uri + ".");
 
             if (ResponseReceived != null)
             {
@@ -173,7 +194,8 @@ namespace SIPSorcery.SIP.App
                 }
                 catch (Exception excp)
                 {
-                    logger.LogError("Exception Parsing CustomHeader for SIPNonInviteClientUserAgent GetRequest. " + excp.Message + m_callDescriptor.CustomHeaders);
+                    logger.LogError("Exception Parsing CustomHeader for SIPNonInviteClientUserAgent GetRequest. " +
+                                    excp.Message + m_callDescriptor.CustomHeaders);
                 }
 
                 if (!m_callDescriptor.Content.IsNullOrBlank())

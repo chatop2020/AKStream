@@ -230,6 +230,5 @@ namespace LibCommon.Structs
             get => _updateTime;
             set => _updateTime = value;
         }
-        
     }
 }

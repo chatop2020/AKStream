@@ -54,7 +54,7 @@ namespace AKStreamKeeper.Services
                             taskStatus.PlayUrl = taskReturn.Uri;
                         }
 
-                         GCommon.Logger.Debug(
+                        GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->一个裁剪合并任务执行回调->TaskId:{taskReturn.Task.TaskId}->TaskStatus:{taskReturn.Status}->TimeConsuming:{taskReturn.TimeConsuming}->CallbakUrl:{taskReturn.Task.CallbakUrl}");
                         var postDate = JsonHelper.ToJson(taskReturn);
                         var ret = NetHelper.HttpPostRequest(taskReturn.Task.CallbakUrl!, null!, postDate);
@@ -154,7 +154,7 @@ namespace AKStreamKeeper.Services
             };
             try
             {
-                 GCommon.Logger.Info("接受一个裁剪合并请求 ->" + task.TaskId);
+                GCommon.Logger.Info("接受一个裁剪合并请求 ->" + task.TaskId);
                 CutMergeTaskList.Add(task);
                 CutMergeTaskStatusList.Add(task);
                 return new ResKeeperCutMergeTaskResponse()
@@ -176,7 +176,7 @@ namespace AKStreamKeeper.Services
                     ExceptMessage = ex.Message,
                     ExceptStackTrace = ex.StackTrace,
                 };
-                 GCommon.Logger.Error(
+                GCommon.Logger.Error(
                     $"[{Common.LoggerHead}]->接受一个裁剪合并请求出现异常->TaskId:{task.TaskId}->Message:{ex.Message}->StackTrace:{ex.StackTrace}");
                 return null;
             }
@@ -222,7 +222,7 @@ namespace AKStreamKeeper.Services
                 Thread.Sleep(20);
             }
 
-             GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪合并任务打包成TS文件->TaskId:{task.TaskId}");
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪合并任务打包成TS文件->TaskId:{task.TaskId}");
             return task;
         }
 
@@ -262,10 +262,10 @@ namespace AKStreamKeeper.Services
                 out string std,
                 out string err);
             task.ProcessPercentage += 40f;
-            
+
             GCommon.Logger.Debug($"[{Common.LoggerHead}]->FFMPEG命令->{Common.AkStreamKeeperConfig.FFmpegPath}{args}");
-            GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(mergePath+"files.txt")}");
-            
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(mergePath + "files.txt")}");
+
             if (retRun && (!string.IsNullOrEmpty(std) || !string.IsNullOrEmpty(err)) &&
                 File.Exists(newFilePath))
             {
@@ -273,12 +273,12 @@ namespace AKStreamKeeper.Services
                 FileInfo fileInfo = new FileInfo(newFilePath);
                 if (fileInfo.Length > 10)
                 {
-                     GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪合并任务合并文件->TaskId:{task.TaskId}");
+                    GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪合并任务合并文件->TaskId:{task.TaskId}");
                     return newFilePath;
                 }
             }
 
-             GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(mergeProcess失败)->TaskId:{task.TaskId}->Error:{err}");
+            GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(mergeProcess失败)->TaskId:{task.TaskId}->Error:{err}");
             return null!;
         }
 
@@ -313,7 +313,7 @@ namespace AKStreamKeeper.Services
                         long.TryParse(str, out find);
                         if (find <= 0)
                         {
-                            str = UtilsHelper.GetValue(err, "audio:", "subtitle:"); 
+                            str = UtilsHelper.GetValue(err, "audio:", "subtitle:");
                             str = str.ToLower();
                             str = str.Replace("kb", "");
                             long.TryParse(str, out find);
@@ -328,7 +328,7 @@ namespace AKStreamKeeper.Services
                     long.TryParse(str, out find);
                     if (find <= 0)
                     {
-                        str = UtilsHelper.GetValue(err, "audio:", "subtitle:"); 
+                        str = UtilsHelper.GetValue(err, "audio:", "subtitle:");
                         str = str.ToLower();
                         str = str.Replace("kb", "");
                         long.TryParse(str, out find);
@@ -341,12 +341,12 @@ namespace AKStreamKeeper.Services
                 }
                 else
                 {
-                     GCommon.Logger.Warn(
+                    GCommon.Logger.Warn(
                         $"[{Common.LoggerHead}]->合并请求任务裁剪失败(cutProcess)->FFmpeg Cmd:{Common.AkStreamKeeperConfig.FFmpegPath} {args}->Error:{err}");
                 }
             }
 
-             GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪文件任务->FilePath:{cms.FilePath}");
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪文件任务->FilePath:{cms.FilePath}");
             return cms;
         }
 
@@ -407,7 +407,7 @@ namespace AKStreamKeeper.Services
                         {
                         }
 
-                         GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪合并任务成功->TaskId:{task.TaskId}");
+                        GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪合并任务成功->TaskId:{task.TaskId}");
                         return new ResKeeperCutMergeTaskResponse
                         {
                             FilePath = newPath,
@@ -419,7 +419,7 @@ namespace AKStreamKeeper.Services
                         };
                     }
 
-                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->裁剪合并任务失败->TaskId:{task.TaskId}");
+                    GCommon.Logger.Warn($"[{Common.LoggerHead}]->裁剪合并任务失败->TaskId:{task.TaskId}");
 
                     return new ResKeeperCutMergeTaskResponse
                     {
@@ -433,7 +433,7 @@ namespace AKStreamKeeper.Services
                 }
                 catch (Exception ex)
                 {
-                     GCommon.Logger.Error(
+                    GCommon.Logger.Error(
                         $"[{Common.LoggerHead}]->裁剪合并视频文件时出现异常->Message:{ex.Message}->StackTrace:{ex.StackTrace}");
                     return null!;
                 }
@@ -445,7 +445,7 @@ namespace AKStreamKeeper.Services
                     }
 
                     if (File.Exists(Common.CutOrMergeTempPath + task!.TaskId + "files.txt")
-                    ) //清理战场
+                       ) //清理战场
                     {
                         File.Delete(Common.CutOrMergeTempPath + task!.TaskId + "files.txt");
                     }

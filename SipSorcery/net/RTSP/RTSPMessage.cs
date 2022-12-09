@@ -24,7 +24,10 @@ namespace SIPSorcery.Net
     public class RTSPMessage
     {
         private const string RTSP_RESPONSE_PREFIX = "RTSP";
-        private const string RTSP_MESSAGE_IDENTIFIER = "RTSP";  // String that must be in a message buffer to be recognised as an RTSP message and processed.
+
+        private const string
+            RTSP_MESSAGE_IDENTIFIER =
+                "RTSP"; // String that must be in a message buffer to be recognised as an RTSP message and processed.
 
         private static ILogger logger = Log.Logger;
 
@@ -55,7 +58,8 @@ namespace SIPSorcery.Net
                 }
                 else if (buffer.Length > RTSPConstants.RTSP_MAXIMUM_LENGTH)
                 {
-                    logger.LogError("RTSP message received that exceeded the maximum allowed message length, ignoring.");
+                    logger.LogError(
+                        "RTSP message received that exceeded the maximum allowed message length, ignoring.");
                     return null;
                 }
                 else if (!BufferUtils.HasString(buffer, 0, buffer.Length, RTSP_MESSAGE_IDENTIFIER, m_CRLF))
@@ -110,12 +114,14 @@ namespace SIPSorcery.Net
                     if (endHeaderPosn == -1)
                     {
                         // Assume flakey implementation if message does not contain the required CRLFCRLF sequence and treat the message as having no body.
-                        string headerString = message.Substring(endFistLinePosn + 2, message.Length - endFistLinePosn - 2);
+                        string headerString =
+                            message.Substring(endFistLinePosn + 2, message.Length - endFistLinePosn - 2);
                         rtspMessage.RTSPHeaders = RTSPHeader.SplitHeaders(headerString);
                     }
                     else if (endHeaderPosn > endFistLinePosn + 2)
                     {
-                        string headerString = message.Substring(endFistLinePosn + 2, endHeaderPosn - endFistLinePosn - 2);
+                        string headerString =
+                            message.Substring(endFistLinePosn + 2, endHeaderPosn - endFistLinePosn - 2);
                         rtspMessage.RTSPHeaders = RTSPHeader.SplitHeaders(headerString);
 
                         if (message.Length > endHeaderPosn + 4)
@@ -128,7 +134,8 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    logger.LogError("Error ParseRTSPMessage, there were no end of line characters in the string being parsed.");
+                    logger.LogError(
+                        "Error ParseRTSPMessage, there were no end of line characters in the string being parsed.");
                     return null;
                 }
             }

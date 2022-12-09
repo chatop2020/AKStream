@@ -24,7 +24,9 @@ namespace SIPSorcery.SIP
     public static class SIPEventConsts
     {
         public const string DIALOG_XML_NAMESPACE_URN = "urn:ietf:params:xml:ns:dialog-info";
-        public const string PIDF_XML_NAMESPACE_URN = "urn:ietf:params:xml:ns:pidf";             // Presence Information Data Format XML namespace.
+
+        public const string
+            PIDF_XML_NAMESPACE_URN = "urn:ietf:params:xml:ns:pidf"; // Presence Information Data Format XML namespace.
     }
 
     public enum SIPEventPackagesEnum
@@ -66,10 +68,11 @@ namespace SIPSorcery.SIP
             {
                 return false;
             }
-            else {
+            else
+            {
                 value = value.Trim();
 
-                return 
+                return
                     string.Equals(value, DIALOG_EVENT_VALUE, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(value, MESSAGE_SUMMARY_EVENT_VALUE, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(value, PRESENCE_EVENT_VALUE, StringComparison.OrdinalIgnoreCase) ||
@@ -104,7 +107,7 @@ namespace SIPSorcery.SIP
 
         public static string GetEventHeader(SIPEventPackagesEnum eventPackage)
         {
-            switch(eventPackage)
+            switch (eventPackage)
             {
                 case SIPEventPackagesEnum.Dialog:
                     return DIALOG_EVENT_VALUE;
@@ -164,8 +167,9 @@ namespace SIPSorcery.SIP
                 return false;
             }
             else if (value.ToLower() == "cancelled" || value.ToLower() == "error" || value.ToLower() == "local-bye" ||
-                value.ToLower() == "rejected" || value.ToLower() == "replaced" || value.ToLower() == "remote-bye" ||
-                value.ToLower() == "timeout")
+                     value.ToLower() == "rejected" || value.ToLower() == "replaced" ||
+                     value.ToLower() == "remote-bye" ||
+                     value.ToLower() == "timeout")
             {
                 return true;
             }
@@ -213,7 +217,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPEventDialogStateEvent)obj);
+            return AreEqual(this, (SIPEventDialogStateEvent) obj);
         }
 
         public static bool AreEqual(SIPEventDialogStateEvent x, SIPEventDialogStateEvent y)

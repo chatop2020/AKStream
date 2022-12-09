@@ -1248,10 +1248,9 @@ namespace LibZLMediaKitMediaServer
                 ? "https://"
                 : "http://" +
                   $"{_ipAddress}:{_webApiPort}{_baseUri}getSnap?secret={this._secret}&url={req.Url}&timeout_sec={req.Timeout_Sec}&expire_sec={req.Expire_Sec}";
-            
+
             try
             {
-             
                 string base64 = "";
                 var httpRet = NetHelper.DownloadFileToBase64(url, out base64);
                 if (httpRet && !string.IsNullOrEmpty(base64))
@@ -1260,7 +1259,6 @@ namespace LibZLMediaKitMediaServer
                 }
                 else
                 {
-                
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.MediaServer_WebApiDataExcept,

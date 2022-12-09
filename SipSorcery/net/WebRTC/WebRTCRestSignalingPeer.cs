@@ -31,9 +31,9 @@ namespace SIPSorcery.Net
 {
     public enum WebRTCSignalTypesEnum
     {
-        any = 0,        // Any message type.
-        sdp = 2,        // SDP offer or answer.
-        ice = 3         // ICE candidates
+        any = 0, // Any message type.
+        sdp = 2, // SDP offer or answer.
+        ice = 3 // ICE candidates
     }
 
     /// <summary>
@@ -42,8 +42,12 @@ namespace SIPSorcery.Net
     /// </summary>
     public class WebRTCRestSignalingPeer
     {
-        private const int REST_SERVER_POLL_PERIOD = 2000;   // Period in milliseconds to poll the HTTP server to check for new messages.
-        private const int CONNECTION_RETRY_PERIOD = 5000;   // Period in milliseconds to retry if the initial HTTP connection attempt fails.
+        private const int
+            REST_SERVER_POLL_PERIOD = 2000; // Period in milliseconds to poll the HTTP server to check for new messages.
+
+        private const int
+            CONNECTION_RETRY_PERIOD =
+                5000; // Period in milliseconds to retry if the initial HTTP connection attempt fails.
 
         private ILogger logger = Log.Logger;
 
@@ -116,14 +120,16 @@ namespace SIPSorcery.Net
         public async Task Start(CancellationTokenSource cancellation)
         {
             var peerConnectedCancellation = new CancellationTokenSource();
-            CancellationTokenSource linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token, peerConnectedCancellation.Token);
+            CancellationTokenSource linkedSource =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token, peerConnectedCancellation.Token);
 
             var restClient = new HttpClient();
 
             _pc = await _createPeerConnection().ConfigureAwait(false);
             _pc.onconnectionstatechange += (state) =>
             {
-                if (_isReceiving && !(state == RTCPeerConnectionState.@new || state == RTCPeerConnectionState.connecting))
+                if (_isReceiving &&
+                    !(state == RTCPeerConnectionState.@new || state == RTCPeerConnectionState.connecting))
                 {
                     logger.LogDebug("cancelling HTTP receive task.");
                     peerConnectedCancellation?.Cancel();
@@ -139,7 +145,8 @@ namespace SIPSorcery.Net
                 }
             };
 
-            logger.LogDebug($"webrtc-rest starting receive task for server {_restServerUri}, our ID {_ourID} and their ID {_theirID}.");
+            logger.LogDebug(
+                $"webrtc-rest starting receive task for server {_restServerUri}, our ID {_ourID} and their ID {_theirID}.");
 
             _receiveTask = Task.Run(() => ReceiveFromNSS(restClient, _pc, linkedSource.Token));
         }
@@ -161,9 +168,11 @@ namespace SIPSorcery.Net
         private async Task SendToSignalingServer(HttpClient httpClient, string jsonStr, WebRTCSignalTypesEnum sendType)
         {
             var content = new StringContent(jsonStr, Encoding.UTF8, "application/json");
-            var res = await httpClient.PutAsync($"{_restServerUri}/{sendType}/{_ourID}/{_theirID}", content).ConfigureAwait(false);
+            var res = await httpClient.PutAsync($"{_restServerUri}/{sendType}/{_ourID}/{_theirID}", content)
+                .ConfigureAwait(false);
 
-            logger.LogDebug($"webrtc-rest PUT result for {_restServerUri}/{sendType}/{_ourID}/{_theirID} {res.StatusCode}.");
+            logger.LogDebug(
+                $"webrtc-rest PUT result for {_restServerUri}/{sendType}/{_ourID}/{_theirID} {res.StatusCode}.");
         }
 
         private async Task ReceiveFromNSS(HttpClient httpClient, RTCPeerConnection pc, CancellationToken ct)
@@ -180,14 +189,17 @@ namespace SIPSorcery.Net
 
                     try
                     {
-                        res = await httpClient.GetAsync($"{_restServerUri}/{_ourID}/{_theirID}", ct).ConfigureAwait(false);
+                        res = await httpClient.GetAsync($"{_restServerUri}/{_ourID}/{_theirID}", ct)
+                            .ConfigureAwait(false);
                     }
                     catch (HttpRequestException e)
-                        when (e.InnerException is SocketException && (e.InnerException as SocketException).SocketErrorCode == SocketError.ConnectionRefused)
+                        when (e.InnerException is SocketException &&
+                              (e.InnerException as SocketException).SocketErrorCode == SocketError.ConnectionRefused)
                     {
                         if (isInitialReceive)
                         {
-                            logger.LogDebug($"webrtc-rest server initial connection attempt failed, will retry in {CONNECTION_RETRY_PERIOD}ms.");
+                            logger.LogDebug(
+                                $"webrtc-rest server initial connection attempt failed, will retry in {CONNECTION_RETRY_PERIOD}ms.");
                             await Task.Delay(CONNECTION_RETRY_PERIOD).ConfigureAwait(false);
                             continue;
                         }
@@ -205,7 +217,8 @@ namespace SIPSorcery.Net
 
                         if (resp != null)
                         {
-                            await SendToSignalingServer(httpClient, resp, WebRTCSignalTypesEnum.sdp).ConfigureAwait(false);
+                            await SendToSignalingServer(httpClient, resp, WebRTCSignalTypesEnum.sdp)
+                                .ConfigureAwait(false);
                         }
                     }
                     else if (res.StatusCode == HttpStatusCode.NoContent)
@@ -224,14 +237,17 @@ namespace SIPSorcery.Net
                     }
                     else
                     {
-                        throw new ApplicationException($"Get request to REST server failed with response code {res.StatusCode}.");
+                        throw new ApplicationException(
+                            $"Get request to REST server failed with response code {res.StatusCode}.");
                     }
 
                     isInitialReceive = false;
                 }
             }
-            catch (OperationCanceledException) // Thrown if the task is explicitly cancelled by the consumer using a cancellation token.
-            { }
+            catch
+                (OperationCanceledException) // Thrown if the task is explicitly cancelled by the consumer using a cancellation token.
+            {
+            }
             catch (Exception excp)
             {
                 logger.LogError($"Exception receiving webrtc signal. {excp}");
@@ -259,7 +275,8 @@ namespace SIPSorcery.Net
 
                 if (!useCandidate)
                 {
-                    logger.LogDebug($"WebRTCRestPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
+                    logger.LogDebug(
+                        $"WebRTCRestPeer excluding ICE candidate due to filter: {iceCandidateInit.candidate}");
                 }
                 else
                 {
@@ -272,7 +289,7 @@ namespace SIPSorcery.Net
                 //logger.LogDebug(descriptionInit.sdp);
 
                 var result = pc.setRemoteDescription(descriptionInit);
-                
+
                 if (result != SetDescriptionResultEnum.OK)
                 {
                     logger.LogWarning($"Failed to set remote description, {result}.");

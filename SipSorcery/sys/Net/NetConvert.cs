@@ -51,7 +51,7 @@ namespace SIPSorcery.Sys
         /// <returns>A UInt16 value.</returns>
         public static ushort ParseUInt16(byte[] buffer, int posn)
         {
-            return (ushort)(buffer[posn] << 8 | buffer[posn + 1]);
+            return (ushort) (buffer[posn] << 8 | buffer[posn + 1]);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace SIPSorcery.Sys
         /// <returns>A UInt32 value.</returns>
         public static uint ParseUInt32(byte[] buffer, int posn)
         {
-            return (uint)(buffer[posn] << 24 | buffer[posn + 1] << 16 | buffer[posn + 2] << 8 | buffer[posn + 3]);
+            return (uint) (buffer[posn] << 24 | buffer[posn + 1] << 16 | buffer[posn + 2] << 8 | buffer[posn + 3]);
         }
 
         /// <summary>
@@ -73,15 +73,15 @@ namespace SIPSorcery.Sys
         /// <returns>A UInt64 value.</returns>
         public static ulong ParseUInt64(byte[] buffer, int posn)
         {
-            return 
-                 (ulong)buffer[posn] << 56 |
-                 (ulong)buffer[posn + 1] << 48 |
-                 (ulong)buffer[posn + 2] << 40 |
-                 (ulong)buffer[posn + 3] << 32 |
-                 (ulong)buffer[posn + 4] << 24 |
-                 (ulong)buffer[posn + 5] << 16 |
-                 (ulong)buffer[posn + 6] << 8 |
-                 (ulong)buffer[posn + 7];
+            return
+                (ulong) buffer[posn] << 56 |
+                (ulong) buffer[posn + 1] << 48 |
+                (ulong) buffer[posn + 2] << 40 |
+                (ulong) buffer[posn + 3] << 32 |
+                (ulong) buffer[posn + 4] << 24 |
+                (ulong) buffer[posn + 5] << 16 |
+                (ulong) buffer[posn + 6] << 8 |
+                (ulong) buffer[posn + 7];
         }
 
         /// <summary>
@@ -92,13 +92,13 @@ namespace SIPSorcery.Sys
         /// <param name="posn">The start position in the buffer to write the value at.</param>
         public static void ToBuffer(ushort val, byte[] buffer, int posn)
         {
-            if(buffer.Length < posn + 2)
+            if (buffer.Length < posn + 2)
             {
                 throw new ApplicationException("Buffer was too short for ushort ToBuffer.");
             }
 
-            buffer[posn] = (byte)(val >> 8);
-            buffer[posn + 1] = (byte)val;
+            buffer[posn] = (byte) (val >> 8);
+            buffer[posn + 1] = (byte) val;
         }
 
         /// <summary>
@@ -127,10 +127,10 @@ namespace SIPSorcery.Sys
                 throw new ApplicationException("Buffer was too short for uint ToBuffer.");
             }
 
-            buffer[posn] = (byte)(val >> 24);
-            buffer[posn + 1] = (byte)(val >> 16);
-            buffer[posn + 2] = (byte)(val >> 8);
-            buffer[posn + 3] = (byte)val;
+            buffer[posn] = (byte) (val >> 24);
+            buffer[posn + 1] = (byte) (val >> 16);
+            buffer[posn + 2] = (byte) (val >> 8);
+            buffer[posn + 3] = (byte) val;
         }
 
         /// <summary>
@@ -159,14 +159,14 @@ namespace SIPSorcery.Sys
                 throw new ApplicationException("Buffer was too short for ulong ToBuffer.");
             }
 
-            buffer[posn] = (byte)(val >> 56);
-            buffer[posn + 1] = (byte)(val >> 48);
-            buffer[posn + 2] = (byte)(val >> 40);
-            buffer[posn + 3] = (byte)(val >> 32);
-            buffer[posn + 4] = (byte)(val >> 24);
-            buffer[posn + 5] = (byte)(val >> 16);
-            buffer[posn + 6] = (byte)(val >> 8);
-            buffer[posn + 7] = (byte)val;
+            buffer[posn] = (byte) (val >> 56);
+            buffer[posn + 1] = (byte) (val >> 48);
+            buffer[posn + 2] = (byte) (val >> 40);
+            buffer[posn + 3] = (byte) (val >> 32);
+            buffer[posn + 4] = (byte) (val >> 24);
+            buffer[posn + 5] = (byte) (val >> 16);
+            buffer[posn + 6] = (byte) (val >> 8);
+            buffer[posn + 7] = (byte) val;
         }
 
         /// <summary>

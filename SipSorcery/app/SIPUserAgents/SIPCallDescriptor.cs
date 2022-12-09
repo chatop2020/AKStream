@@ -29,10 +29,11 @@ namespace SIPSorcery.SIP.App
     public enum SIPCallRedirectModesEnum
     {
         None = 0,
+
         //Add = 1,        // (option=a)
         //Replace = 2,    // (option=r)
-        NewDialPlan = 3,// (option=n)
-        Manual = 4,      // (option=m) Means don't do anything with a redirect response. Let the user handle it in their dialplan.
+        NewDialPlan = 3, // (option=n)
+        Manual = 4, // (option=m) Means don't do anything with a redirect response. Let the user handle it in their dialplan.
     }
 
     public class CRMHeaders
@@ -44,7 +45,8 @@ namespace SIPSorcery.SIP.App
         public string LookupError;
 
         public CRMHeaders()
-        { }
+        {
+        }
 
         public CRMHeaders(string personName, string companyName, string avatarURL)
         {
@@ -60,55 +62,128 @@ namespace SIPSorcery.SIP.App
         private const int MAX_REINVITE_DELAY = 5;
         private const int DEFAULT_REINVITE_DELAY = 2;
 
-        public const string DELAY_CALL_OPTION_KEY = "dt";       // Dial string option to delay the start of a call leg.
-        public const string REDIRECT_MODE_OPTION_KEY = "rm";    // Dial string option to set the redirect mode of a call leg. Redirect mode refers to how 3xx responses to a call are handled.
-        public const string CALL_DURATION_OPTION_KEY = "cd";    // Dial string option used to set the maximum duration of a call in seconds.
-        public const string MANGLE_MODE_OPTION_KEY = "ma";      // Dial string option used to specify whether the SDP should be mangled. Default is true.
-        public const string FROM_DISPLAY_NAME_KEY = "fd";       // Dial string option to customise the From header display name on the call request.
-        public const string FROM_USERNAME_KEY = "fu";           // Dial string option to customise the From header SIP URI User on the call request.
-        public const string FROM_HOST_KEY = "fh";               // Dial string option to customise the From header SIP URI Host on the call request.
-        public const string TRANSFER_MODE_OPTION_KEY = "tr";    // Dial string option to dictate how REFER (transfer) requests will be handled.
-        public const string REQUEST_CALLER_DETAILS = "rcd";     // Dial string option to indicate the client agent would like any caller details if/when available.
-        public const string ACCOUNT_CODE_KEY = "ac";            // Dial string option which indicates that the call leg is billable and the account code it should be billed against.
-        public const string RATE_CODE_KEY = "rc";               // Dial string option which indicates the rate code a billable call leg should use. If no rate code is specified then the rate will be looked up based on the call destination.
-        public const string DELAYED_REINVITE_KEY = "dr";        // Dial string option to initiate a re-INVITE request when a call is answered in an attempt to solve a one way audio problem.
+        public const string DELAY_CALL_OPTION_KEY = "dt"; // Dial string option to delay the start of a call leg.
+
+        public const string
+            REDIRECT_MODE_OPTION_KEY =
+                "rm"; // Dial string option to set the redirect mode of a call leg. Redirect mode refers to how 3xx responses to a call are handled.
+
+        public const string
+            CALL_DURATION_OPTION_KEY =
+                "cd"; // Dial string option used to set the maximum duration of a call in seconds.
+
+        public const string
+            MANGLE_MODE_OPTION_KEY =
+                "ma"; // Dial string option used to specify whether the SDP should be mangled. Default is true.
+
+        public const string
+            FROM_DISPLAY_NAME_KEY =
+                "fd"; // Dial string option to customise the From header display name on the call request.
+
+        public const string
+            FROM_USERNAME_KEY =
+                "fu"; // Dial string option to customise the From header SIP URI User on the call request.
+
+        public const string
+            FROM_HOST_KEY = "fh"; // Dial string option to customise the From header SIP URI Host on the call request.
+
+        public const string
+            TRANSFER_MODE_OPTION_KEY =
+                "tr"; // Dial string option to dictate how REFER (transfer) requests will be handled.
+
+        public const string
+            REQUEST_CALLER_DETAILS =
+                "rcd"; // Dial string option to indicate the client agent would like any caller details if/when available.
+
+        public const string
+            ACCOUNT_CODE_KEY =
+                "ac"; // Dial string option which indicates that the call leg is billable and the account code it should be billed against.
+
+        public const string
+            RATE_CODE_KEY =
+                "rc"; // Dial string option which indicates the rate code a billable call leg should use. If no rate code is specified then the rate will be looked up based on the call destination.
+
+        public const string
+            DELAYED_REINVITE_KEY =
+                "dr"; // Dial string option to initiate a re-INVITE request when a call is answered in an attempt to solve a one way audio problem.
 
         // Switchboard dial string options.
-        public const string SWITCHBOARD_LINE_NAME_KEY = "swln";             // Dial string option to set the Switchboard-LineName header on the call leg.
-                                                                            //public const string SWITCHBOARD_DIALOGUE_DESCRIPTION_KEY = "swdd";// Dial string option to set a value for the switchboard description field on the answered dialogue. It does not set a header.
-        public const string SWITCHBOARD_CALLID_KEY = "swcid";               // Dial string option to set the Switchboard-CallID header on the call leg.
-        public const string SWITCHBOARD_OWNER_KEY = "swo";                  // Dial string option to set the Switchboard-Owner header on the call leg.
+        public const string
+            SWITCHBOARD_LINE_NAME_KEY =
+                "swln"; // Dial string option to set the Switchboard-LineName header on the call leg.
+
+        //public const string SWITCHBOARD_DIALOGUE_DESCRIPTION_KEY = "swdd";// Dial string option to set a value for the switchboard description field on the answered dialogue. It does not set a header.
+        public const string
+            SWITCHBOARD_CALLID_KEY =
+                "swcid"; // Dial string option to set the Switchboard-CallID header on the call leg.
+
+        public const string
+            SWITCHBOARD_OWNER_KEY = "swo"; // Dial string option to set the Switchboard-Owner header on the call leg.
 
         private readonly static string m_defaultFromURI = SIPConstants.SIP_DEFAULT_FROMURI;
         private readonly static string m_sdpContentType = SDP.SDP_MIME_CONTENTTYPE;
-        private static char m_customHeadersSeparator = '|';                 // Must match SIPProvider.CUSTOM_HEADERS_SEPARATOR.
+        private static char m_customHeadersSeparator = '|'; // Must match SIPProvider.CUSTOM_HEADERS_SEPARATOR.
 
         private static ILogger logger = Log.Logger;
 
-        public string Username;                 // The username that will be used in the From header and to authenticate the call unless overridden by AuthUsername.
-        public string AuthUsername;             // The username that will be used from authentication. Optional setting only needed if the From header user needs to be different from the digest username.
-        public string Password;                 // The password that will be used to authenticate the call if required.
-        public string Uri;                      // A string representing the URI the call will be forwarded with.
-        public string From;                     // A string representing the From header to be set for the call.
-        public string To;                       // A string representing the To header to be set for the call.  
-        public string RouteSet;                 // A route set for the forwarded call request. If there is only a single route or IP socket it will be treated like an Outbound Proxy (i.e. no Route header will be added).
-        public string ProxySendFrom;            // Used to set the Proxy-SendFrom header which informs an upstream proxy which socket the request should try and go out on.
-        public List<string> CustomHeaders;      // An optional list of custom SIP headers that will be added to the INVITE request.
-        public SIPCallDirection CallDirection;  // Indicates whether the call is incoming out outgoing relative to this server. An outgoing call is one that is placed by a user the server authenticates.
+        public string
+            Username; // The username that will be used in the From header and to authenticate the call unless overridden by AuthUsername.
+
+        public string
+            AuthUsername; // The username that will be used from authentication. Optional setting only needed if the From header user needs to be different from the digest username.
+
+        public string Password; // The password that will be used to authenticate the call if required.
+        public string Uri; // A string representing the URI the call will be forwarded with.
+        public string From; // A string representing the From header to be set for the call.
+        public string To; // A string representing the To header to be set for the call.  
+
+        public string
+            RouteSet; // A route set for the forwarded call request. If there is only a single route or IP socket it will be treated like an Outbound Proxy (i.e. no Route header will be added).
+
+        public string
+            ProxySendFrom; // Used to set the Proxy-SendFrom header which informs an upstream proxy which socket the request should try and go out on.
+
+        public List<string>
+            CustomHeaders; // An optional list of custom SIP headers that will be added to the INVITE request.
+
+        public SIPCallDirection
+            CallDirection; // Indicates whether the call is incoming out outgoing relative to this server. An outgoing call is one that is placed by a user the server authenticates.
+
         public string ContentType;
         public string Content;
-        public int DelaySeconds;                        // An amount in seconds to delay the initiation of this call when used as part of a dial string.
-        public SIPCallRedirectModesEnum RedirectMode;   // Determines how the call will handle 3xx redirect responses.
-        public int CallDurationLimit;                   // If non-zero sets a limit on the duration of any call created with this descriptor.
-        public bool MangleResponseSDP = true;           // If false indicates the response SDP should be left alone if it contains a private IP address.
-        public IPAddress MangleIPAddress;               // If mangling is required on this call this address needs to be set as the one to mangle to.
+
+        public int
+            DelaySeconds; // An amount in seconds to delay the initiation of this call when used as part of a dial string.
+
+        public SIPCallRedirectModesEnum RedirectMode; // Determines how the call will handle 3xx redirect responses.
+
+        public int
+            CallDurationLimit; // If non-zero sets a limit on the duration of any call created with this descriptor.
+
+        public bool
+            MangleResponseSDP =
+                true; // If false indicates the response SDP should be left alone if it contains a private IP address.
+
+        public IPAddress
+            MangleIPAddress; // If mangling is required on this call this address needs to be set as the one to mangle to.
+
         public string FromDisplayName;
         public string FromURIUsername;
         public string FromURIHost;
-        public SIPDialogueTransferModesEnum TransferMode = SIPDialogueTransferModesEnum.Default;   // Determines how the call (dialogues) created by this descriptor will handle transfers (REFER requests).
-        public bool RequestCallerDetails;       // If true indicates the client agent would like to pass on any caller details if/when available.
+
+        public SIPDialogueTransferModesEnum
+            TransferMode =
+                SIPDialogueTransferModesEnum
+                    .Default; // Determines how the call (dialogues) created by this descriptor will handle transfers (REFER requests).
+
+        public bool
+            RequestCallerDetails; // If true indicates the client agent would like to pass on any caller details if/when available.
+
         public Guid DialPlanContextID;
-        public int ReinviteDelay = -1;          // If >= 0 a SIP re-INVITE request will be sent to the remote caller after this many seconds. This is an attempt to work around a bug with one way audio and early media on a particular SIP server.
+
+        public int
+            ReinviteDelay =
+                -1; // If >= 0 a SIP re-INVITE request will be sent to the remote caller after this many seconds. This is an attempt to work around a bug with one way audio and early media on a particular SIP server.
 
         //rj2
         /// <summary>
@@ -118,6 +193,7 @@ namespace SIPSorcery.SIP.App
         /// CallId MUST be unique between different calls
         /// </summary>
         public string CallId;
+
         /// <summary>
         /// A string representing the Branch part of the SIP-VIA header to identify Call-Requests and Call-Responses
         /// defaults to <see cref="CallProperties.CreateBranchId()"/> if not set
@@ -133,8 +209,11 @@ namespace SIPSorcery.SIP.App
         public string BranchId;
 
         // Real-time call control variables.
-        public string AccountCode;          // If set indicates this is a billable call and this is the account code to bill the call against.
-        public string RateCode;             // If set indicates and the call is billable indicates the rate code that should be used to determine the rate for the call.
+        public string
+            AccountCode; // If set indicates this is a billable call and this is the account code to bill the call against.
+
+        public string
+            RateCode; // If set indicates and the call is billable indicates the rate code that should be used to determine the rate for the call.
 
         public CRMHeaders CRMHeaders;
 
@@ -144,9 +223,10 @@ namespace SIPSorcery.SIP.App
         public string CallbackPattern;
         public int CallbackPhoneType;
 
-        public ISIPAccount ToSIPAccount;         // If non-null indicates the call is for a SIP Account on the same server. An example of using this it to call from one user into another user's dialplan.
+        public ISIPAccount
+            ToSIPAccount; // If non-null indicates the call is for a SIP Account on the same server. An example of using this it to call from one user into another user's dialplan.
 
-        public ManualResetEvent DelayMRE;       // If the call needs to be delayed DelaySeconds this MRE will be used.
+        public ManualResetEvent DelayMRE; // If the call needs to be delayed DelaySeconds this MRE will be used.
 
         /// <summary>
         /// This constructor is for calls to a SIP account that the application recognises as belonging to it.
@@ -157,7 +237,8 @@ namespace SIPSorcery.SIP.App
         /// <param name="fromHeader"></param>
         /// <param name="contentType"></param>
         /// <param name="content"></param>
-        public SIPCallDescriptor(ISIPAccount toSIPAccount, string uri, string fromHeader, string contentType, string content)
+        public SIPCallDescriptor(ISIPAccount toSIPAccount, string uri, string fromHeader, string contentType,
+            string content)
         {
             ToSIPAccount = toSIPAccount;
             Uri = uri ?? toSIPAccount.SIPUsername + "@" + toSIPAccount.SIPDomain;
@@ -179,7 +260,8 @@ namespace SIPSorcery.SIP.App
         {
             if (string.IsNullOrWhiteSpace(dstUri))
             {
-                throw new ArgumentNullException(nameof(dstUri), "A destination must be supplied when creating a SIPCallDescriptor.");
+                throw new ArgumentNullException(nameof(dstUri),
+                    "A destination must be supplied when creating a SIPCallDescriptor.");
             }
 
             Uri = SIPURI.ParseSIPURIRelaxed(dstUri).ToString();
@@ -248,10 +330,12 @@ namespace SIPSorcery.SIP.App
             {
                 fromHeader.FromName = FromDisplayName;
             }
+
             if (!FromURIUsername.IsNullOrBlank())
             {
                 fromHeader.FromURI.User = FromURIUsername;
             }
+
             if (!FromURIHost.IsNullOrBlank())
             {
                 fromHeader.FromURI.Host = FromURIHost;
@@ -448,7 +532,8 @@ namespace SIPSorcery.SIP.App
                             }
                             else if (customHeader.IndexOf(':') == -1)
                             {
-                                logger.LogWarning("ParseCustomHeaders skipping custom header due to missing colon, " + customHeader + ".");
+                                logger.LogWarning("ParseCustomHeaders skipping custom header due to missing colon, " +
+                                                  customHeader + ".");
                                 continue;
                             }
                             else
@@ -457,9 +542,13 @@ namespace SIPSorcery.SIP.App
                                 //string headerName = customHeader.Substring(0, colonIndex).Trim();
                                 //string headerValue = (customHeader.Length > colonIndex) ? customHeader.Substring(colonIndex + 1).Trim() : String.Empty;
 
-                                if (Regex.Match(customHeader.Trim(), "^(Via|From|Contact|CSeq|Call-ID|Max-Forwards|Content-Length)$", RegexOptions.IgnoreCase).Success)
+                                if (Regex.Match(customHeader.Trim(),
+                                        "^(Via|From|Contact|CSeq|Call-ID|Max-Forwards|Content-Length)$",
+                                        RegexOptions.IgnoreCase).Success)
                                 {
-                                    logger.LogWarning("ParseCustomHeaders skipping custom header due to an non-permitted string in header name, " + customHeader + ".");
+                                    logger.LogWarning(
+                                        "ParseCustomHeaders skipping custom header due to an non-permitted string in header name, " +
+                                        customHeader + ".");
                                     continue;
                                 }
                                 else

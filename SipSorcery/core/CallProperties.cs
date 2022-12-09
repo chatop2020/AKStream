@@ -46,9 +46,11 @@ namespace SIPSorcery.SIP
         /// but MD5 (RFC 1321 [35]), expressed in hexadecimal, is a  reasonable choice.  (Base64 is not permissible for a token.)
         /// </summary>
         /// <returns></returns>
-        public static string CreateBranchId(string magicCookie, string toTag, string fromTag, string callId, string uri, string topVia, int cSeq, string route, string proxyRequire, string proxyAuth)
+        public static string CreateBranchId(string magicCookie, string toTag, string fromTag, string callId, string uri,
+            string topVia, int cSeq, string route, string proxyRequire, string proxyAuth)
         {
-            string plainTextBranch = toTag + fromTag + callId + uri + topVia + cSeq.ToString() + route + proxyRequire + proxyAuth;
+            string plainTextBranch = toTag + fromTag + callId + uri + topVia + cSeq.ToString() + route + proxyRequire +
+                                     proxyAuth;
 
             string cypherTextBranch = Crypto.GetSHAHashAsHex(plainTextBranch);
 

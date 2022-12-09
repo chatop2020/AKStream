@@ -27,7 +27,10 @@ namespace SIPSorcery.Sys
 
     public class PasswordHash
     {
-        private const int RFC289_MINIMUM_ITERATIONS = 5000;     // The minimum number of iterations to use when deriving the password hash. This slows the algorithm down to help mitigate against brute force and rainbow attacks. 
+        private const int
+            RFC289_MINIMUM_ITERATIONS =
+                5000; // The minimum number of iterations to use when deriving the password hash. This slows the algorithm down to help mitigate against brute force and rainbow attacks. 
+
         private const int SALT_SIZE = 16;
 
         private static RNGCryptoServiceProvider _randomProvider = new RNGCryptoServiceProvider();
@@ -66,7 +69,8 @@ namespace SIPSorcery.Sys
             var iters = int.Parse(salt.Substring(0, i), NumberStyles.HexNumber);
             salt = salt.Substring(i + 1);
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))
+            using (var pbkdf2 =
+                   new Rfc2898DeriveBytes(Encoding.UTF8.GetBytes(value), Convert.FromBase64String(salt), iters))
             {
                 var key = pbkdf2.GetBytes(24);
 

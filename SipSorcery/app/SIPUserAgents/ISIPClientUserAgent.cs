@@ -17,6 +17,7 @@
 namespace SIPSorcery.SIP.App
 {
     public delegate void SIPCallResponseDelegate(ISIPClientUserAgent uac, SIPResponse sipResponse);
+
     public delegate void SIPCallFailedDelegate(ISIPClientUserAgent uac, string errorMessage, SIPResponse sipResponse);
 
     /// <summary>

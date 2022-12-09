@@ -43,7 +43,6 @@ namespace SIPSorcery.Net
 
         public SrtcpTransformer(SrtpTransformEngine engine) : this(engine, engine)
         {
-
         }
 
         public SrtcpTransformer(SrtpTransformEngine forwardEngine, SrtpTransformEngine reverseEngine)
@@ -93,7 +92,6 @@ namespace SIPSorcery.Net
             }
             finally
             {
-             
                 //Unlock
                 if (!isLocked)
                 {
@@ -135,6 +133,7 @@ namespace SIPSorcery.Net
                 {
                     result = packet.GetData();
                 }
+
                 return result;
             }
             finally

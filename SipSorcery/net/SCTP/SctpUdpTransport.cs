@@ -42,7 +42,8 @@ namespace SIPSorcery.Net
         /// </summary>
         private Socket _udpEncapSocket;
 
-        private ConcurrentDictionary<string, SctpAssociation> _associations = new ConcurrentDictionary<string, SctpAssociation>();
+        private ConcurrentDictionary<string, SctpAssociation> _associations =
+            new ConcurrentDictionary<string, SctpAssociation>();
 
         /// <summary>
         /// Creates a new UDP transport capable of encapsulating SCTP packets.
@@ -65,7 +66,8 @@ namespace SIPSorcery.Net
         /// <param name="localPort">The local port the packet was received on.</param>
         /// <param name="remoteEndPoint">The remote end point the packet was received from.</param>
         /// <param name="packet">A buffer containing the packet.</param>
-        private void OnEncapsulationSocketPacketReceived(UdpReceiver receiver, int localPort, IPEndPoint remoteEndPoint, byte[] packet)
+        private void OnEncapsulationSocketPacketReceived(UdpReceiver receiver, int localPort, IPEndPoint remoteEndPoint,
+            byte[] packet)
         {
             try
             {
@@ -95,7 +97,7 @@ namespace SIPSorcery.Net
                         else
                         {
                             logger.LogDebug($"SCTP creating new association for {remoteEndPoint}.");
-                                
+
                             var association = new SctpAssociation(this, cookie, localPort);
 
                             if (_associations.TryAdd(association.ID, association))
@@ -150,17 +152,17 @@ namespace SIPSorcery.Net
         /// <param name="destinationPort">The SCTP destination port.</param>
         /// <returns>An SCTP association.</returns>
         public SctpAssociation Associate(
-            IPEndPoint destination, 
-            ushort sourcePort, 
-            ushort destinationPort, 
+            IPEndPoint destination,
+            ushort sourcePort,
+            ushort destinationPort,
             ushort numberOutboundStreams = SctpAssociation.DEFAULT_NUMBER_OUTBOUND_STREAMS,
             ushort numberInboundStreams = SctpAssociation.DEFAULT_NUMBER_INBOUND_STREAMS)
         {
             var association = new SctpAssociation(
-                this, 
-                destination, 
-                sourcePort, 
-                destinationPort, 
+                this,
+                destination,
+                sourcePort,
+                destinationPort,
                 DEFAULT_UDP_MTU,
                 numberOutboundStreams,
                 numberInboundStreams);

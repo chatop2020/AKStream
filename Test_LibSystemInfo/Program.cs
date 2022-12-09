@@ -14,9 +14,6 @@ namespace Test_LibSystemInfo
 
         static void Main(string[] args)
         {
-            
-       
-            
             while (true)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();

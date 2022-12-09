@@ -59,8 +59,8 @@ namespace LibCommon
         Sip_Channel_StatusExcept = -2012, //Sip通道设备状态异常
         Sip_VideoLiveExcept = -2013, //Sip通道推流请求异常
         Sip_CallBackExcept = -2014, //sip回调时异常
-        Sip_SipClient_InitExcept=-2015,//sip客户端启动异常
-        Sip_SipClient_ShareDeviceIdAlRedayExists=-2016,//SIP共享通道设备ID已经存在,ShareDeviceId不能重复
+        Sip_SipClient_InitExcept = -2015, //sip客户端启动异常
+        Sip_SipClient_ShareDeviceIdAlRedayExists = -2016, //SIP共享通道设备ID已经存在,ShareDeviceId不能重复
         MediaServer_WebApiExcept = -3000, //访问流媒体服务器WebApi时异常
         MediaServer_WebApiDataExcept = -3001, //访问流媒体服务器WebApi接口返回数据异常
         MediaServer_TimeExcept = -3002, //服务器时间异常，建议同步
@@ -77,9 +77,9 @@ namespace LibCommon
         MediaServer_StreamTypeExcept = -3013, //流类型不正确
         MediaServer_GetStreamTypeExcept = -3014, //指定拉流方法不正确
         MediaServer_VideoSrcExcept = -3015, //源流地址异常
-        MediaServer_InputObjectAlredayExists=-3016,//传入对象已经存在
-        MediaServer_ObjectNotExists=-3017,//对象不存在
-        
+        MediaServer_InputObjectAlredayExists = -3016, //传入对象已经存在
+        MediaServer_ObjectNotExists = -3017, //对象不存在
+
 
         Other = -6000 //其他异常
     }

@@ -20,9 +20,9 @@ namespace SIPSorcery.Net
 {
     public class RTPEvent
     {
-        public const int DTMF_PACKET_LENGTH = 4;   // The length of an RTP DTMF event packet.
+        public const int DTMF_PACKET_LENGTH = 4; // The length of an RTP DTMF event packet.
         public const ushort DEFAULT_VOLUME = 10;
-        public const int DUPLICATE_COUNT = 3;       // The number of packets to duplicate for the start and end of an event.
+        public const int DUPLICATE_COUNT = 3; // The number of packets to duplicate for the start and end of an event.
 
         /// <summary>
         /// The ID for the event. For a DTMF tone this is the digit/letter to represent.
@@ -80,8 +80,8 @@ namespace SIPSorcery.Net
             byte[] payload = new byte[DTMF_PACKET_LENGTH];
 
             payload[0] = EventID;
-            payload[1] = (byte)(EndOfEvent ? 0x80 : 0x00);
-            payload[1] += (byte)(Volume & 0xcf); // The Volume field uses 6 bits.
+            payload[1] = (byte) (EndOfEvent ? 0x80 : 0x00);
+            payload[1] += (byte) (Volume & 0xcf); // The Volume field uses 6 bits.
 
             if (BitConverter.IsLittleEndian)
             {
@@ -103,12 +103,13 @@ namespace SIPSorcery.Net
         {
             if (packet.Length < DTMF_PACKET_LENGTH)
             {
-                throw new ApplicationException("The packet did not contain the minimum number of bytes for an RTP Event packet.");
+                throw new ApplicationException(
+                    "The packet did not contain the minimum number of bytes for an RTP Event packet.");
             }
 
             EventID = packet[0];
             EndOfEvent = (packet[1] & 0x80) > 1;
-            Volume = (ushort)(packet[1] & 0xcf);
+            Volume = (ushort) (packet[1] & 0xcf);
 
             if (BitConverter.IsLittleEndian)
             {

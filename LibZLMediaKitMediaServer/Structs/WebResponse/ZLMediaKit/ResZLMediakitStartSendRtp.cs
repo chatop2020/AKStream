@@ -3,7 +3,7 @@ using System;
 namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
 {
     [Serializable]
-    public class ResZLMediakitStartSendRtp:ResZLMediaKitResponseBase
+    public class ResZLMediakitStartSendRtp : ResZLMediaKitResponseBase
     {
         private string _local_port;
         private string? _msg;
@@ -19,6 +19,5 @@ namespace LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit
             get => _msg;
             set => _msg = value;
         }
-        
     }
 }
