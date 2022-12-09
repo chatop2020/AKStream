@@ -34,6 +34,7 @@ namespace LibCommon.Structs.WebRequest
         private ushort _zlmRtspPort;
         private ushort _zlmRtspsPort;
         private int? _recordSec;
+        private DateTime? _zlmBuildDateTime;
 
 
         /// <summary>
@@ -233,6 +234,15 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _recordSec;
             set => _recordSec = value;
+        }
+
+        /// <summary>
+        /// ZLM的编译时间
+        /// </summary>
+        public DateTime? ZlmBuildDateTime
+        {
+            get => _zlmBuildDateTime;
+            set => _zlmBuildDateTime = value;
         }
     }
 }

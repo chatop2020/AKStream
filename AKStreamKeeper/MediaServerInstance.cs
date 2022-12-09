@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -49,6 +50,7 @@ namespace AKStreamKeeper
         private static bool _useNewZLMediKitStatic = false;
         private static string _configPathStatic;
         private static string _binPathStatic;
+        private static DateTime _zlmBuildDateTime;
 
         /// <summary>
         /// 新的zlm配置文件实例
@@ -74,6 +76,14 @@ namespace AKStreamKeeper
             set => _useNewZLMediaKit = value;
         }
 
+        /// <summary>
+        /// ZLMediaKit的编译时间
+        /// </summary>
+        public static DateTime ZlmBuildDateTime
+        {
+            get => _zlmBuildDateTime;
+            set => _zlmBuildDateTime = value;
+        }
 
         /// <summary>
         /// 检查是否为新版zlm配置文件
@@ -1663,6 +1673,9 @@ namespace AKStreamKeeper
                         var got = DateTime.TryParse(buildTime, out buildTimeDt);
                         if (got)
                         {
+                            ZlmBuildDateTime = buildTimeDt;
+                            GCommon.Logger.Info(
+                                $"[{Common.LoggerHead}]->当前MediaServer编译时间为:{buildTimeDt.ToString("yyyy-MM-dd HH:mm:ss")}");
                             if (buildTimeDt > checkTime) //如果检查的版本时间小于要检查的时间，则要看mediaserver的配置文件是否正常问题
                             {
                                 if (!_useNewZLMediKitStatic)

@@ -703,7 +703,7 @@ namespace AKStreamKeeper
                 {
                     tmpKeepAlive.FirstPost = false;
                 }
-
+                
                 tmpKeepAlive.RecordSec = MediaServerInstance.AkStreamKeeperConfig.RecordSec;
                 tmpKeepAlive.Secret = MediaServerInstance.Secret;
                 tmpKeepAlive.PerformanceInfo = KeeperPerformanceInfo;
@@ -740,6 +740,7 @@ namespace AKStreamKeeper
                 tmpKeepAlive.AccessKey = _akStreamKeeperConfig.AccessKey;
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
+                tmpKeepAlive.ZlmBuildDateTime = MediaServerInstance.ZlmBuildDateTime;
 
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
 

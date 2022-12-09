@@ -870,6 +870,7 @@ namespace AKStreamWeb.Services
                     mediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     mediaServer.AccessKey = req.AccessKey;
                     mediaServer.RecordSec = req.RecordSec;
+                    mediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {

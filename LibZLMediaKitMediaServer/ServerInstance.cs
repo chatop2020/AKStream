@@ -51,6 +51,7 @@ namespace LibZLMediaKitMediaServer
         private int _zlmediakitPid;
         private uint _zlmRecordFileSec;
         private int? _recordSec;
+        private DateTime? _zlmBuildDateTime;
 
 
         public ServerInstance()
@@ -271,6 +272,14 @@ namespace LibZLMediaKitMediaServer
             set => _recordSec = value;
         }
 
+        /// <summary>
+        /// ZLM编译时间
+        /// </summary>
+        public DateTime? ZlmBuildDateTime
+        {
+            get => _zlmBuildDateTime;
+            set => _zlmBuildDateTime = value;
+        }
 
         public void Dispose()
         {
