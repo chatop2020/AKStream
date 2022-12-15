@@ -329,8 +329,23 @@ namespace AKStreamWeb.Services
             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnStreamNoneReader回调->{JsonHelper.ToJson(req)}");
             if (b == false)
             {
+                VideoChannelMediaInfo retobj = null;
+                lock (GCommon.Ldb.LiteDBLockObj) //当无人观看事件触发时，又不在录制的情况下，清除playerlist
+                {
+                    retobj = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
+                        x.MainId.Equals(req.Stream) && x.MediaServerId.Equals(req.MediaServerId));
+                    if (retobj != null && retobj.MediaServerStreamInfo != null &&
+                        retobj.MediaServerStreamInfo.PlayerList != null &&
+                        retobj.MediaServerStreamInfo.PlayerList.Count > 0)
+                    {
+                        retobj.MediaServerStreamInfo.PlayerList = null;
+                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+                    }
+                }
+
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
+
                 if (videoChannel.AutoVideo == false && videoChannel.NoPlayerBreak == true) //或者要求没有人观看时自动断流的，就断流
                 {
                     var ret = MediaServerService.StreamStop(videoChannel.MediaServerId, videoChannel.MainId,
