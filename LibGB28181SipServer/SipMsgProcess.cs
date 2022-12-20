@@ -334,14 +334,15 @@ namespace LibGB28181SipServer
                 switch (cmdType)
                 {
                     case "KEEPALIVE": //处理心跳
-
                         string sipDeviceId = bodyXml.Element("DeviceID")?.Value.ToUpper()!;
                         var tmpSipDevice =
                             Common.SipDevices.FindLast((x => x.DeviceId.Equals(sipDeviceId)));
                         if (tmpSipDevice != null)
                         {
-                            await SendKeepAliveOk(sipRequest);
                             var time = DateTime.Now;
+                            //2022.8.17
+                            //如果间隔注册时间超过最大注册时间，表示设备需要重新注册，发送BadRequest消息
+                            await SendKeepAliveOk(sipRequest);
                             if (!tmpSipDevice.IsReday)
                             {
                                 tmpSipDevice.IsReday = true; //设备已就绪
@@ -356,9 +357,9 @@ namespace LibGB28181SipServer
                                 OnKeepaliveReceived?.Invoke(sipDeviceId, time, tmpSipDevice.KeepAliveLostTime);
                             }); //抛线程出去处理
 
-
                             tmpSipDevice.KeepAliveTime = time;
-                            if (tmpSipDevice.RemoteEndPoint != null && tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
+                            if (tmpSipDevice.RemoteEndPoint != null &&
+                                tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
                                 tmpSipDevice.RemoteEndPoint.Protocol == SIPProtocolsEnum.udp
                                ) //如果udp协议当endpoint发生变化时更新成新的
                             {
@@ -508,6 +509,14 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         public static void DoKickSipDevice(SipDevice sipDevice)
         {
+            try
+            {//发一个心跳异常消息给设备，由于不确定是否可行，为防止报错，用try..catch包起来
+                Task.Run(() => { SendKeepAliveExcept(sipDevice.LastSipRequest); }); //抛线程出去处理\
+            }
+            catch
+            {
+            }
+
             string tmpSipDeviceStr = JsonHelper.ToJson(sipDevice);
             Task.Run(() => { OnUnRegisterReceived?.Invoke(tmpSipDeviceStr); }); //抛线程出去处理
 

@@ -295,9 +295,9 @@ namespace LibCommon.Structs.GB28181
             {
                 if (KickMe != null)
                 {
+                    KickMe?.Invoke(this!);
                     _keepAliveCheckTimer.Enabled = false;
                     _keepAliveCheckTimer.Stop();
-                    KickMe?.Invoke(this!);
                 }
             }
         }
