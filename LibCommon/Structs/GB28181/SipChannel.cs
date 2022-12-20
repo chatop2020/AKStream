@@ -29,6 +29,9 @@ namespace LibCommon.Structs.GB28181
         private SipChannelType _sipChannelType;
         private string _ssrcId;
         private string _stream;
+        private string? _app;
+        private ushort? _rtpPort;
+        private string? _vhost;
 
         /*
         private List<KeyValuePair<int, RecordInfo.RecItem>> _lastRecordInfos =
@@ -61,6 +64,23 @@ namespace LibCommon.Structs.GB28181
             set => _stream = value ?? throw new ArgumentNullException(nameof(value));
         }
 
+        public string App
+        {
+            get => _app;
+            set => _app = value;
+        }
+
+        public ushort? RtpPort
+        {
+            get => _rtpPort;
+            set => _rtpPort = value;
+        }
+
+        public string Vhost
+        {
+            get => _vhost;
+            set => _vhost = value;
+        }
 
         [JsonIgnore]
         [BsonIgnore]

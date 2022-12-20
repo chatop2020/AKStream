@@ -13,6 +13,7 @@ using LibGB28181SipServer;
 using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
+using Newtonsoft.Json;
 
 namespace AKStreamWeb.Services
 {
@@ -379,6 +380,71 @@ namespace AKStreamWeb.Services
             if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
             {
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
+
+                #region 保障zlm的流一定断开，rtp端口一定释放
+
+                try
+                {
+                    var rs2 = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.None,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+                    };
+                    var retRtp = mediaServer.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out rs2);
+                    if (retRtp != null && rs2.Code.Equals(ErrorNumber.None))
+                    {
+                        var found = false;
+
+                        foreach (var d in retRtp.Data)
+                        {
+                            if (d != null && !string.IsNullOrEmpty(d.Stream_Id))
+                            {
+                                if (d.Stream_Id.Trim().Equals(sipChannel.Stream.Trim()))
+                                {
+                                    found = true;
+                                    GCommon.Logger.Debug($"[{Common.LoggerHead}]->发现此流依然在MediaServer的Rtp列表中，要进行断开处理->{deviceId}-{channelId}-{d.Stream_Id}-{d.Port}");
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (found)
+                        {
+                            ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
+                            {
+                                App = sipChannel.App,
+                                Force = true,
+                                Stream = sipChannel.Stream,
+                                Vhost = sipChannel.Vhost
+                            };
+                            GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造断流请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseStreams,Formatting.Indented)}");
+
+                            mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs2); //关掉流  
+                            if (videoChannel.DefaultRtpPort == false)
+                            {
+                                ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
+                                {
+                                    Stream_Id = sipChannel.Stream,
+                                };
+                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造关闭rtp服务请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseRtpPort,Formatting.Indented)}");
+
+                                mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs2); //关掉rtp端口
+                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造释放rtp端口请求->{sipChannel.RtpPort}");
+
+                                mediaServer.KeeperWebApi.ReleaseRtpPort(
+                                    (ushort) sipChannel.RtpPort,
+                                    out rs2); //释放rtp端口
+                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新断流执行返回情况->{JsonHelper.ToJson(rs2,Formatting.Indented)}");
+
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                }
+
+                #endregion
 
                 return true;
             }
@@ -1060,6 +1126,9 @@ namespace AKStreamWeb.Services
             {
                 try
                 {
+                    sipChannel.App = videoChannel.App;
+                    sipChannel.RtpPort = openRtpPort.Port;
+                    sipChannel.Vhost = videoChannel.Vhost;
                     sipChannel.PushStatus = PushStatus.IDLE;
                     var mediaList =
                         mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);

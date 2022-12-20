@@ -229,6 +229,7 @@ namespace LibGB28181SipServer
                                             newSipChannel.DeviceId);
                                         newSipChannel.SsrcId = ret.Key;
                                         newSipChannel.Stream = ret.Value;
+                                      
                                     }
 
                                     tmpSipDevice.SipChannels.Add(newSipChannel);
