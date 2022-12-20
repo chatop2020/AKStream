@@ -509,15 +509,16 @@ namespace LibGB28181SipServer
         /// <returns></returns>
         public static void DoKickSipDevice(SipDevice sipDevice)
         {
+            string tmpSipDeviceStr = JsonHelper.ToJson(sipDevice);
             try
-            {//发一个心跳异常消息给设备，由于不确定是否可行，为防止报错，用try..catch包起来
-                Task.Run(() => { SendKeepAliveExcept(sipDevice.LastSipRequest); }); //抛线程出去处理\
+            {
+                //发一个心跳异常消息给设备，由于不确定是否可行，为防止报错，用try..catch包起来
+                Task.Run(() => { SendKeepAliveExcept(sipDevice.LastSipRequest); }); //抛线程出去处理
             }
             catch
             {
             }
 
-            string tmpSipDeviceStr = JsonHelper.ToJson(sipDevice);
             Task.Run(() => { OnUnRegisterReceived?.Invoke(tmpSipDeviceStr); }); //抛线程出去处理
 
             lock (Common.SipDevicesLock)
