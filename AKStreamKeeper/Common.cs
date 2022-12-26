@@ -722,6 +722,7 @@ namespace AKStreamKeeper
                         : "";
                 }
 
+                tmpKeepAlive.Candidate = MediaServerInstance.AkStreamKeeperConfig.Candidate;
                 tmpKeepAlive.MediaServerId = MediaServerInstance.MediaServerId;
                 tmpKeepAlive.MediaServerPid = MediaServerInstance.GetPid();
                 tmpKeepAlive.RecordPathList = _akStreamDiskInfoOfRecordMap;

@@ -556,6 +556,27 @@ namespace LibCommon
                 return false;
             }
         }
+        
+        private static bool IsMatchex(string expression, string str)
+        {
+            Regex reg = new Regex(expression);
+            if (string.IsNullOrEmpty(str))
+                return false;
+            return reg.IsMatch(str);
+        }
+        
+        /// <summary>
+        /// 是否为域名
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static bool IsDomain(string str)
+        {
+            string pattern = @"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$";
+            return IsMatchex(pattern, str);
+        }
+        
+      
 
         /// <summary>
         /// 是否rtsp地址

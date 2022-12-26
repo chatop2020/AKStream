@@ -1,6 +1,7 @@
 {
   "IpV4Address": "192.168.2.94",
   "IpV6Address": "fe80::8:807:2143:28a1%5",
+  "Candidate":"192.168.2.94",
   "WebApiPort": 6880,
   "MediaServerPath": "/Users/qiuzhouwei/SourceTemp/ZLMediaKit/release/darwin/Debug/MediaServer",
   "AkStreamWebRegisterUrl": "http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive",

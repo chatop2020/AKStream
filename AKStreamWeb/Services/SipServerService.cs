@@ -660,7 +660,15 @@ namespace AKStreamWeb.Services
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
+            }
+            else
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            }
+            
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
@@ -1060,7 +1068,15 @@ namespace AKStreamWeb.Services
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
+            }
+            else
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            }
+
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
@@ -1663,7 +1679,15 @@ namespace AKStreamWeb.Services
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
+            }
+            else
+            {
+                pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
+            }
+
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try

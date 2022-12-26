@@ -43,7 +43,7 @@ namespace LibSystemInfo
                                 break;
                             }
 
-                            if (!string.IsNullOrEmpty(str) && str.ToLower().Contains("default"))
+                            if (!string.IsNullOrEmpty(str) && (str.ToLower().Contains("default") || str.Contains("UG")))
                             {
                                 string[] s1Arr = str.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                                 if (s1Arr.Length > 0)

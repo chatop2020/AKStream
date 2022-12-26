@@ -862,6 +862,7 @@ namespace AKStreamWeb.Services
                         return result;
                     }
 
+                    mediaServer.Candidate = req.Candidate;
                     mediaServer.Secret = req.Secret;
                     mediaServer.IpV4Address = req.IpV4Address;
                     mediaServer.IpV6Address = req.IpV6Address;

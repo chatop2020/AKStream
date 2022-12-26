@@ -18,6 +18,7 @@ namespace AKStreamKeeper.Misc
         private int _httpClientTimeoutSec;
         private string _ipV4Address;
         private string _ipV6Address;
+        private string? _candidate;
         private ushort _maxRtpPort = 30000;
         private string _mediaServerPath;
         private ushort _minRtpPort = 10001;
@@ -58,6 +59,8 @@ namespace AKStreamKeeper.Misc
             set => _webApiPort = value;
         }
 
+      
+
         /// <summary>
         /// 流媒体服务器路径
         /// </summary>
@@ -65,6 +68,16 @@ namespace AKStreamKeeper.Misc
         {
             get => _mediaServerPath;
             set => _mediaServerPath = value;
+        }
+
+        
+        /// <summary>
+        /// keeper对外服务的ip地址（公网ip地址）
+        /// </summary>
+        public string? Candidate
+        {
+            get => _candidate;
+            set => _candidate = value;
         }
 
         /// <summary>

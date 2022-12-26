@@ -15,6 +15,7 @@ namespace LibCommon.Structs.WebRequest
         private string _ipV6Address;
         private ushort _keeperWebApiPort;
         private string _mediaServerId;
+        private string? _candidate;
         private bool _mediaServerIsRunning = false;
         private int _mediaServerPid;
         private PerformanceInfo? _performanceInfo;
@@ -53,6 +54,14 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _ipV6Address;
             set => _ipV6Address = value ?? throw new ArgumentNullException(nameof(value));
+        }
+        /// <summary>
+        /// keeper对外服务的ip地址（公网ip地址）
+        /// </summary>
+        public string? Candidate
+        {
+            get => _candidate;
+            set => _candidate = value;
         }
 
         /// <summary>

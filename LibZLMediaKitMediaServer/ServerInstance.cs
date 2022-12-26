@@ -26,6 +26,7 @@ namespace LibZLMediaKitMediaServer
         private ushort _httpsPort;
         private string _ipV4Address;
         private string _ipV6Address;
+        private string? _candidate;
         private bool _isKeeperRunning;
         private bool _isMediaServerRunning;
         private Timer _keepAliveCheckTimer;
@@ -57,6 +58,15 @@ namespace LibZLMediaKitMediaServer
         public ServerInstance()
         {
             StartTimer();
+        }
+
+        /// <summary>
+        /// keeper对外服务的ip地址（公网ip地址）
+        /// </summary>
+        public string? Candidate
+        {
+            get => _candidate;
+            set => _candidate = value;
         }
 
 
