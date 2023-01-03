@@ -30,8 +30,8 @@ namespace AKStreamWeb.Services
 
             var result = new AKStreamVersions();
             result.ZlmBuildDatetime = mediaServer.ZlmBuildDateTime != null
-                ? string.Format("yyyy-MM-dd",mediaServer.ZlmBuildDateTime)
-                : "";
+                ? ((DateTime)mediaServer.ZlmBuildDateTime).ToString("yyyy-MM-dd HH:mm:ss")
+                : "无编译时间";
             result.AKStreamKeeperVersion = mediaServer.AKStreamKeeperVersion;
             result.AKStreamWebVersion = Common.Version;
             return result;
