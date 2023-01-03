@@ -53,12 +53,23 @@ namespace LibZLMediaKitMediaServer
         private uint _zlmRecordFileSec;
         private int? _recordSec;
         private DateTime? _zlmBuildDateTime;
+        private string? _akstreamKeeperVersion;
 
 
         public ServerInstance()
         {
             StartTimer();
         }
+
+        /// <summary>
+        /// keeper的版本号
+        /// </summary>
+        public string? AKStreamKeeperVersion
+        {
+            get => _akstreamKeeperVersion;
+            set => _akstreamKeeperVersion = value;
+        }
+
 
         /// <summary>
         /// keeper对外服务的ip地址（公网ip地址）

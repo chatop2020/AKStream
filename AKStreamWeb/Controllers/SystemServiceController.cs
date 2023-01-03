@@ -36,6 +36,28 @@ namespace AKStreamWeb.Controllers
             return ret;
         }
 
+        /// <summary>
+        /// 获取版本号,包含
+        /// akstreamweb版本
+        /// akstreamkeeper版本
+        /// zlmediakit编译时间
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="mediaServerId"></param>
+        /// <returns></returns>
+        [Route("GetVersions")]
+        [HttpPost]
+        public AKStreamVersions GetVersions([FromHeader(Name = "AccessKey")] string AccessKey,string mediaServerId)
+        {
+            ResponseStruct rs;
+            var ret = SystemService.GetVersions(mediaServerId,out rs);
+            if (rs.Code != ErrorNumber.None)
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
 
         /// <summary>
         /// 获取AKStreamWeb版本标识

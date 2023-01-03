@@ -4,11 +4,41 @@ using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
+using Newtonsoft.Json;
 
 namespace AKStreamWeb.Services
 {
     public static class SystemService
     {
+        
+        
+        public static AKStreamVersions GetVersions(string mediaServerId, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var mediaServer = MediaServerService.CheckMediaServer(mediaServerId, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None) || mediaServer == null)
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->获取AKStream版本号失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            var result = new AKStreamVersions();
+            result.ZlmBuildDatetime = mediaServer.ZlmBuildDateTime != null
+                ? string.Format("yyyy-MM-dd",mediaServer.ZlmBuildDateTime)
+                : "";
+            result.AKStreamKeeperVersion = mediaServer.AKStreamKeeperVersion;
+            result.AKStreamWebVersion = Common.Version;
+            return result;
+          
+        }
+        
+        
         /// <summary>
         /// 获取日志级别
         /// </summary>

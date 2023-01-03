@@ -51,6 +51,7 @@ namespace AKStreamKeeper
         private static string _configPathStatic;
         private static string _binPathStatic;
         private static DateTime _zlmBuildDateTime;
+ 
 
         /// <summary>
         /// 新的zlm配置文件实例

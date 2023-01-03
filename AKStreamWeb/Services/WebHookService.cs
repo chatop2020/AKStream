@@ -887,6 +887,7 @@ namespace AKStreamWeb.Services
                     mediaServer.AccessKey = req.AccessKey;
                     mediaServer.RecordSec = req.RecordSec;
                     mediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
+                    mediaServer.AKStreamKeeperVersion = req.Version;
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {
@@ -927,6 +928,9 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.ServerDateTime = req.ServerDateTime;
                     tmpMediaServer.ZlmRecordFileSec = req.ZlmRecordFileSec;
                     tmpMediaServer.AccessKey = req.AccessKey;
+                    tmpMediaServer.RecordSec = req.RecordSec;
+                    tmpMediaServer.AKStreamKeeperVersion = req.Version;
+                    tmpMediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
 
 
                     if (req.PerformanceInfo != null) //更新性能信息

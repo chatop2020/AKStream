@@ -4580,7 +4580,7 @@ namespace AKStreamWeb.Services
         /// <param name="mediaServerId"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        private static ServerInstance CheckMediaServer(string mediaServerId, out ResponseStruct rs)
+        public static ServerInstance CheckMediaServer(string mediaServerId, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
