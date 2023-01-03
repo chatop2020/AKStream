@@ -50,7 +50,7 @@ namespace AKStreamKeeper
         private static bool _useNewZLMediKitStatic = false;
         private static string _configPathStatic;
         private static string _binPathStatic;
-        private static DateTime _zlmBuildDateTime;
+        private static DateTime? _zlmBuildDateTime;
  
 
         /// <summary>
@@ -77,10 +77,11 @@ namespace AKStreamKeeper
             set => _useNewZLMediaKit = value;
         }
 
+      
         /// <summary>
         /// ZLMediaKit的编译时间
         /// </summary>
-        public static DateTime ZlmBuildDateTime
+        public static DateTime? ZlmBuildDateTime
         {
             get => _zlmBuildDateTime;
             set => _zlmBuildDateTime = value;
