@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Security.AccessControl;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LiteDB;
+using OracleInternal.Secure.Network;
 
 namespace LibCommon
 {
@@ -21,6 +25,35 @@ namespace LibCommon
         /// <param name="dbpath">对应数据库文件的路径，默认位置为程序目录下"VideoOnlineInfo.ldb"</param>
         public LiteDBHelper(string dbpath = "AKStream.ldb")
         {
+            /*启动时删除所有.ldb文件*/
+            DirectoryInfo di = new DirectoryInfo(GCommon.BaseStartPath);
+            if (di != null)
+            {
+                var deleteList = new List<string>();
+                var fileList = di.GetFiles();
+                if (fileList != null && fileList.Length > 0)
+                {
+                    foreach (var filei in fileList)
+                    {
+                        if (filei.FullName.ToLower().EndsWith(".ldb"))
+                        {
+                            deleteList.Add(filei.FullName);
+                        }
+                    }
+
+                    if (deleteList.Count > 0)
+                    {
+                        foreach (var delf in deleteList)
+                        {
+                            if (File.Exists(delf))
+                            {
+                                File.Delete(delf);
+                            }
+                        }
+                    }
+                }
+            }
+            /*启动时删除所有.ldb文件*/
             _liteDb = new LiteDatabase(dbpath);
             VideoOnlineInfo =
                 (LiteCollection<VideoChannelMediaInfo>) _liteDb.GetCollection<VideoChannelMediaInfo>("VideoOnlineInfo");

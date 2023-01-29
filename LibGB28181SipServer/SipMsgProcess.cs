@@ -798,6 +798,7 @@ namespace LibGB28181SipServer
             retResponse.Header.Expires = sipRequest.Header.Expires;
             retResponse.Header.SetDateHeader();
             /*增加tplink 摄像头支持*/
+            retResponse.Header.Date = DateTime.Now.ToString("yyyy-MM-dd’T’HH: mm:ss.SSS"); //增加与服务器授时
             registerTransaction.SendResponse(retResponse);
         }
 
