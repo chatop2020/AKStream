@@ -87,7 +87,7 @@ namespace AKStreamWeb.Services
                 };
             }
 
-            var st = UtilsHelper.ConvertDateTimeToInt((long) req.Start_Time);
+            var st = UtilsHelper.ConvertDateTimeToInt((long)req.Start_Time);
             DateTime currentTime = DateTime.Now;
             RecordFile tmpDvrVideo = new RecordFile();
             tmpDvrVideo.App = req.App;
@@ -97,21 +97,35 @@ namespace AKStreamWeb.Services
             tmpDvrVideo.DownloadUrl = req.Url;
             tmpDvrVideo.VideoPath = req.File_Path;
             tmpDvrVideo.StartTime = st;
-            decimal _len = (decimal) req.Time_Len;
-            int _intLen = (int) Math.Ceiling(_len); //四舍五入后取整
+            decimal _len = (decimal)req.Time_Len;
+            int _intLen = (int)Math.Ceiling(_len); //四舍五入后取整
             tmpDvrVideo.EndTime = st.AddSeconds(_intLen);
             tmpDvrVideo.Duration = _intLen;
-            if (tmpDvrVideo.Duration <= 0 )
+            if (tmpDvrVideo.Duration <= 0)
             {
-                ResponseStruct rs = new ResponseStruct()
+                ResponseStruct rs = null;
+                try
                 {
-                    Code = ErrorNumber.MediaServer_RecordFileExcept,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RecordFileExcept],
-                    ExceptMessage = "录制文件异常，视频时长为0",
-                    ExceptStackTrace = $"可能因为磁盘不可写，造成视频时长为0，文件大小无穷大->{JsonHelper.ToJson(req)}",
-                };
-                throw new AkStreamException(rs);
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_RecordFileExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RecordFileExcept],
+                        ExceptMessage = "录制文件异常，视频时长为0",
+                        ExceptStackTrace = $"可能因为磁盘不可写，造成视频时长为0，文件大小无穷大->{JsonHelper.ToJson(req)}",
+                    };
+                    return new ResToWebHookOnRecordMP4()
+                    {
+                        Code = 0,
+                        Msg = "success"
+                    };
+                }
+
+                finally
+                {
+                    throw new AkStreamException(rs);
+                }
             }
+
             tmpDvrVideo.Undo = false;
             tmpDvrVideo.Deleted = false;
             tmpDvrVideo.MediaServerId = req.MediaServerId;
@@ -293,7 +307,7 @@ namespace AKStreamWeb.Services
                                         };
                                     mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
                                     mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                        (ushort) rtpPort,
+                                        (ushort)rtpPort,
                                         out _); //释放rtp端口
                                 }
                             }
@@ -538,7 +552,7 @@ namespace AKStreamWeb.Services
                                 };
                                 mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
                                 mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                    (ushort) rtpPort,
+                                    (ushort)rtpPort,
                                     out _); //释放rtp端口
                             }
                         }
@@ -622,7 +636,7 @@ namespace AKStreamWeb.Services
                         IpAddress = req.Ip,
                         PlayerId = req.Id,
                         Params = req.Params,
-                        Port = (ushort) req.Port,
+                        Port = (ushort)req.Port,
                         StartTime = DateTime.Now,
                     });
                     lock (GCommon.Ldb.LiteDBLockObj)
@@ -652,7 +666,7 @@ namespace AKStreamWeb.Services
                         IpAddress = req.Ip,
                         PlayerId = req.Id,
                         Params = req.Params,
-                        Port = (ushort) req.Port,
+                        Port = (ushort)req.Port,
                         StartTime = DateTime.Now,
                     });
                     lock (GCommon.Ldb.LiteDBLockObj)
