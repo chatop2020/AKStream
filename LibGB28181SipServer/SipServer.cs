@@ -1384,7 +1384,7 @@ namespace LibGB28181SipServer
                 if (!string.IsNullOrEmpty(mediaSdp))
                 {
                     SIPMethodsEnum method = SIPMethodsEnum.INVITE;
-                    var tmpId = new Random().Next(int.MinValue, int.MaxValue).ToString();
+                    var tmpId = UtilsHelper.CreateGUID();
                     var tmpIntId = CRC32Helper.GetCRC32(tmpId);
                     tmpId = tmpIntId.ToString();
                     if (!tmpId.StartsWith('0'))
