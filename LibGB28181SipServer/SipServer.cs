@@ -1384,8 +1384,15 @@ namespace LibGB28181SipServer
                 if (!string.IsNullOrEmpty(mediaSdp))
                 {
                     SIPMethodsEnum method = SIPMethodsEnum.INVITE;
+                    var tmpId = new Random().Next(int.MinValue, int.MaxValue).ToString();
+                    var tmpIntId = CRC32Helper.GetCRC32(tmpId);
+                    tmpId = tmpIntId.ToString();
+                    if (!tmpId.StartsWith('0'))
+                    {
+                        tmpId = "0" + tmpId;
+                    }
                     var subject =
-                        $"{sipChannel.DeviceId}:{0},{Common.SipServerConfig.ServerSipDeviceId}:{new Random().Next(100, ushort.MaxValue)}";
+                        $"{sipChannel.DeviceId}:{tmpId},{Common.SipServerConfig.ServerSipDeviceId}:{new Random().Next(100, ushort.MaxValue)}";
                     try
                     {
                         Func<SipDevice, SipChannel, SIPMethodsEnum, string, string, string, CommandType, bool,
