@@ -101,7 +101,7 @@ namespace AKStreamWeb.Services
             int _intLen = (int)Math.Ceiling(_len); //四舍五入后取整
             tmpDvrVideo.EndTime = st.AddSeconds(_intLen);
             tmpDvrVideo.Duration = _intLen;
-            if (tmpDvrVideo.Duration <= 0)
+            if (tmpDvrVideo.Duration <= 0 || req.File_Size>103881427200)//大概720p下60个小时的录制量，单文件超过这个值，就不再保存
             {
                 ResponseStruct rs = null;
                 try
@@ -110,8 +110,8 @@ namespace AKStreamWeb.Services
                     {
                         Code = ErrorNumber.MediaServer_RecordFileExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RecordFileExcept],
-                        ExceptMessage = "录制文件异常，视频时长为0",
-                        ExceptStackTrace = $"可能因为磁盘不可写，造成视频时长为0，文件大小无穷大->{JsonHelper.ToJson(req)}",
+                        ExceptMessage = "录制文件异常，视频时长为0或者单文件字节数过大",
+                        ExceptStackTrace = $"可能因为磁盘不可写，造成视频时长为0，或者单文件字节数超过103881427200相当于720p下单文件录制60个小时->{JsonHelper.ToJson(req)}",
                     };
                     return new ResToWebHookOnRecordMP4()
                     {
