@@ -815,6 +815,7 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
+                
             }
 
             if (Math.Abs((DateTime.Now - req.ServerDateTime).TotalSeconds) > 60) //两边服务器时间大于60秒，则回复注册失败

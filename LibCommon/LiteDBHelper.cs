@@ -26,7 +26,7 @@ namespace LibCommon
         public LiteDBHelper(string dbpath = "AKStream.ldb")
         {
             /*启动时删除所有.ldb文件*/
-            DirectoryInfo di = new DirectoryInfo(GCommon.BaseStartPath);
+            DirectoryInfo di = new DirectoryInfo(Environment.CurrentDirectory);
             if (di != null)
             {
                 var deleteList = new List<string>();
