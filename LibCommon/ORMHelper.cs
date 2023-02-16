@@ -6,11 +6,13 @@ namespace LibCommon
     public class ORMHelper
     {
         public static IFreeSql Db = null!;
+        public static string DBType;
 
         public ORMHelper(string dbConnStr, string dbType)
         {
             if (Db == null)
             {
+                DBType = dbType;
                 if (DataType.TryParse(dbType, out DataType dt))
                 {
                     Db = new FreeSqlBuilder()

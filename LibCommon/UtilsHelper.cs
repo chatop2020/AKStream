@@ -76,7 +76,18 @@ namespace LibCommon
         /// <returns></returns>
         public static string AddQuote(string str)
         {
-            return $"`{str.Trim()}`";
+            switch (ORMHelper.DBType.Trim().ToLower())
+            {
+                case "mysql":
+                    return $"`{str.Trim()}`";
+                    break;
+                case "postgresql":
+                    return $"\"{str.Trim()}\"";
+                    break;
+                default:
+                    return $"`{str.Trim()}`";
+                    break;
+            }
         }
 
         /// <summary>
