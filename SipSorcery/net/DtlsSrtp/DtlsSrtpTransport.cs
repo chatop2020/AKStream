@@ -177,7 +177,7 @@ namespace SIPSorcery.Net
                 DtlsClientProtocol clientProtocol = new DtlsClientProtocol(secureRandom);
                 try
                 {
-                    var client = (DtlsSrtpClient) connection;
+                    var client = (DtlsSrtpClient)connection;
                     // Perform the handshake in a non-blocking fashion
                     Transport = clientProtocol.Connect(client, this);
 
@@ -247,7 +247,7 @@ namespace SIPSorcery.Net
                 DtlsServerProtocol serverProtocol = new DtlsServerProtocol(secureRandom);
                 try
                 {
-                    var server = (DtlsSrtpServer) connection;
+                    var server = (DtlsSrtpServer)connection;
 
                     // Perform the handshake in a non-blocking fashion
                     Transport = serverProtocol.Accept(server, this);
@@ -482,7 +482,7 @@ namespace SIPSorcery.Net
         /// </summary>
         private int GetMillisecondsRemaining()
         {
-            return TimeoutMilliseconds - (int) (DateTime.Now - this._startTime).TotalMilliseconds;
+            return TimeoutMilliseconds - (int)(DateTime.Now - this._startTime).TotalMilliseconds;
         }
 
         public int GetReceiveLimit()
@@ -509,7 +509,7 @@ namespace SIPSorcery.Net
             {
                 if (_isClosed)
                 {
-                    throw new SocketException((int) SocketError.NotConnected);
+                    throw new SocketException((int)SocketError.NotConnected);
                     //return DTLS_RECEIVE_ERROR_CODE;
                 }
                 else if (_chunks.TryTake(out var item, timeout))
@@ -564,7 +564,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    throw new SocketException((int) SocketError.NotConnected);
+                    throw new SocketException((int)SocketError.NotConnected);
                     //return DTLS_RECEIVE_ERROR_CODE;
                 }
             }
@@ -574,7 +574,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                throw new SocketException((int) SocketError.NotConnected);
+                throw new SocketException((int)SocketError.NotConnected);
                 //return DTLS_RECEIVE_ERROR_CODE;
             }
         }

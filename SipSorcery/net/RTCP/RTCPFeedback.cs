@@ -160,7 +160,7 @@ namespace SIPSorcery.Net
         public byte[] GetBytes()
         {
             byte[] buffer = new byte[RTCPHeader.HEADER_BYTES_LENGTH + SENDER_PAYLOAD_SIZE];
-            Header.SetLength((ushort) (buffer.Length / 4 - 1));
+            Header.SetLength((ushort)(buffer.Length / 4 - 1));
 
             Buffer.BlockCopy(Header.GetBytes(), 0, buffer, 0, RTCPHeader.HEADER_BYTES_LENGTH);
             int payloadIndex = RTCPHeader.HEADER_BYTES_LENGTH;

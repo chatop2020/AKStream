@@ -34,7 +34,7 @@ namespace SIPSorcery.Net
     /// </summary>
     public struct SctpTransportCookie
     {
-        public static SctpTransportCookie Empty = new SctpTransportCookie() {_isEmpty = true};
+        public static SctpTransportCookie Empty = new SctpTransportCookie() { _isEmpty = true };
 
         public ushort SourcePort { get; set; }
         public ushort DestinationPort { get; set; }
@@ -195,7 +195,7 @@ namespace SIPSorcery.Net
                 initChunk.InitialTSN,
                 initChunk.ARwnd,
                 remoteEP != null ? remoteEP.ToString() : string.Empty,
-                (int) (initChunk.CookiePreservative / 1000));
+                (int)(initChunk.CookiePreservative / 1000));
 
             var json = cookie.ToJson();
             var jsonBuffer = Encoding.UTF8.GetBytes(json);
@@ -263,7 +263,7 @@ namespace SIPSorcery.Net
                     sctpPacket.Header.DestinationPort,
                     sctpPacket.Header.SourcePort,
                     0,
-                    new SctpErrorStaleCookieError {MeasureOfStaleness = (uint) (diff.TotalMilliseconds * 1000)});
+                    new SctpErrorStaleCookieError { MeasureOfStaleness = (uint)(diff.TotalMilliseconds * 1000) });
                 return SctpTransportCookie.Empty;
             }
             else

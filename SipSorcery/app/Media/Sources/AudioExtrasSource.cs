@@ -148,7 +148,7 @@ namespace SIPSorcery.Media
         {
             _audioEncoder = new AudioEncoder();
             _audioFormatManager = new MediaFormatManager<AudioFormat>(_audioEncoder.SupportedFormats);
-            _audioOpts = new AudioSourceOptions {AudioSource = AudioSourcesEnum.None};
+            _audioOpts = new AudioSourceOptions { AudioSource = AudioSourcesEnum.None };
         }
 
         public int _audioSamplePeriodMilliseconds = AUDIO_SAMPLE_PERIOD_MILLISECONDS_DEFAULT;
@@ -182,7 +182,7 @@ namespace SIPSorcery.Media
         {
             _audioEncoder = audioEncoder;
             _audioFormatManager = new MediaFormatManager<AudioFormat>(_audioEncoder.SupportedFormats);
-            _audioOpts = audioOptions ?? new AudioSourceOptions {AudioSource = AudioSourcesEnum.None};
+            _audioOpts = audioOptions ?? new AudioSourceOptions { AudioSource = AudioSourcesEnum.None };
         }
 
         public void ExternalAudioSourceRawSample(AudioSamplingRatesEnum samplingRate, uint durationMilliseconds,
@@ -296,7 +296,7 @@ namespace SIPSorcery.Media
         /// if the source requires additional options, e.g. stream from file.</param>
         public void SetSource(AudioSourcesEnum audioSource)
         {
-            SetSource(new AudioSourceOptions {AudioSource = audioSource});
+            SetSource(new AudioSourceOptions { AudioSource = audioSource });
         }
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace SIPSorcery.Media
 
                     if (samplesRead > 0)
                     {
-                        EncodeAndSend(pcm, (int) _audioOpts.MusicInputSamplingRate);
+                        EncodeAndSend(pcm, (int)_audioOpts.MusicInputSamplingRate);
                     }
 
                     if (samplesRead == 0)
@@ -454,7 +454,7 @@ namespace SIPSorcery.Media
                     float[] linear = new float[_audioFormatManager.SelectedFormat.ClockRate / 1000 *
                                                _audioSamplePeriodMilliseconds];
                     _signalGenerator.Read(linear, 0, linear.Length);
-                    short[] pcm = linear.Select(x => (short) (x * LINEAR_MAXIMUM)).ToArray();
+                    short[] pcm = linear.Select(x => (short)(x * LINEAR_MAXIMUM)).ToArray();
 
                     EncodeAndSend(pcm, _audioFormatManager.SelectedFormat.ClockRate);
                 }
@@ -476,7 +476,7 @@ namespace SIPSorcery.Media
 
                         if (samplesRead > 0)
                         {
-                            EncodeAndSend(pcm, (int) _streamSourceRate);
+                            EncodeAndSend(pcm, (int)_streamSourceRate);
 
                             if (_streamSourceReader.BaseStream.Position >= _streamSourceReader.BaseStream.Length)
                             {
@@ -540,8 +540,8 @@ namespace SIPSorcery.Media
 
                 byte[] encodedSample = _audioEncoder.EncodeAudio(pcm, _audioFormatManager.SelectedFormat);
 
-                uint rtpUnits = (uint) (_audioFormatManager.SelectedFormat.RtpClockRate / 1000 *
-                                        _audioSamplePeriodMilliseconds);
+                uint rtpUnits = (uint)(_audioFormatManager.SelectedFormat.RtpClockRate / 1000 *
+                                       _audioSamplePeriodMilliseconds);
 
                 OnAudioSourceEncodedSample?.Invoke(rtpUnits, encodedSample);
             }

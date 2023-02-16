@@ -57,7 +57,7 @@ namespace LibCommon.Structs.GB28181.Net.SDP
 
         public SDPMediaFormat(SDPMediaFormatsEnum format)
         {
-            FormatID = (int) format;
+            FormatID = (int)format;
             Name = format.ToString();
             IsStandardAttribute = true;
             ClockRate = DEFAULT_CLOCK_RATE;

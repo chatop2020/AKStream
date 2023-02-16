@@ -87,7 +87,7 @@ namespace SIPSorcery.Net
     {
         public static STUNAttributeTypesEnum GetSTUNAttributeTypeForId(int stunAttributeTypeId)
         {
-            return (STUNAttributeTypesEnum) Enum.Parse(typeof(STUNAttributeTypesEnum), stunAttributeTypeId.ToString(),
+            return (STUNAttributeTypesEnum)Enum.Parse(typeof(STUNAttributeTypesEnum), stunAttributeTypeId.ToString(),
                 true);
         }
     }
@@ -96,7 +96,7 @@ namespace SIPSorcery.Net
     {
         public static readonly byte[]
             UdpTransportType = new byte[]
-                {0x11, 0x00, 0x00, 0x00}; // The payload type for UDP in a RequestedTransport type attribute.
+                { 0x11, 0x00, 0x00, 0x00 }; // The payload type for UDP in a RequestedTransport type attribute.
     }
 
     public class STUNAttribute
@@ -223,7 +223,7 @@ namespace SIPSorcery.Net
         {
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort) AttributeType)), 0, buffer,
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort)AttributeType)), 0, buffer,
                     startIndex, 2);
 
                 if (Value != null && Value.Length > 0)
@@ -239,7 +239,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((ushort) AttributeType), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((ushort)AttributeType), 0, buffer, startIndex, 2);
 
                 if (Value != null && Value.Length > 0)
                 {

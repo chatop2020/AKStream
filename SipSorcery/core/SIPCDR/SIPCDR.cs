@@ -163,7 +163,7 @@ namespace SIPSorcery.SIP
         {
             InProgress = true;
             ProgressTime = DateTime.UtcNow;
-            ProgressStatus = (int) progressStatus;
+            ProgressStatus = (int)progressStatus;
             ProgressReasonPhrase = progressReason;
 
             if (localEndPoint != null)
@@ -182,7 +182,7 @@ namespace SIPSorcery.SIP
         {
             IsAnswered = true;
             AnswerTime = DateTime.UtcNow;
-            AnswerStatus = (int) answerStatus;
+            AnswerStatus = (int)answerStatus;
             AnswerReasonPhrase = answerReason;
             AnsweredAt = DateTime.Now;
 

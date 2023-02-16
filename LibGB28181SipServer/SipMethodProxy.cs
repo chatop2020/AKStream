@@ -132,7 +132,7 @@ namespace LibGB28181SipServer
 
                 if (isTimeout)
                 {
-                    return (int) queryRecordFile.TaskId;
+                    return (int)queryRecordFile.TaskId;
                 }
 
                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理获取历史视频列表失败->{JsonHelper.ToJson(rs)}");

@@ -91,7 +91,7 @@ namespace TinyJson
             }
 
             //Parse the thing!
-            return (T) ParseValue(typeof(T), stringBuilder.ToString());
+            return (T)ParseValue(typeof(T), stringBuilder.ToString());
         }
 
         static int AppendUntilStringEnd(bool appendEscapeCharacter, int startIdx, string json)
@@ -197,7 +197,7 @@ namespace TinyJson
                             UInt32 c = 0;
                             if (UInt32.TryParse(json.Substring(i + 2, 4), NumberStyles.AllowHexSpecifier, null, out c))
                             {
-                                parseStringBuilder.Append((char) c);
+                                parseStringBuilder.Append((char)c);
                                 i += 5;
                                 continue;
                             }
@@ -273,7 +273,7 @@ namespace TinyJson
                 }
 
                 List<string> elems = Split(json);
-                var list = (IList) type.GetConstructor(new Type[] {typeof(int)}).Invoke(new object[] {elems.Count});
+                var list = (IList)type.GetConstructor(new Type[] { typeof(int) }).Invoke(new object[] { elems.Count });
                 for (int i = 0; i < elems.Count; i++)
                 {
                     list.Add(ParseValue(listType, elems[i]));
@@ -311,8 +311,8 @@ namespace TinyJson
                     return null;
                 }
 
-                var dictionary = (IDictionary) type.GetConstructor(new Type[] {typeof(int)})
-                    .Invoke(new object[] {elems.Count / 2});
+                var dictionary = (IDictionary)type.GetConstructor(new Type[] { typeof(int) })
+                    .Invoke(new object[] { elems.Count / 2 });
                 for (int i = 0; i < elems.Count; i += 2)
                 {
                     if (elems[i].Length <= 2)
@@ -428,7 +428,7 @@ namespace TinyJson
                 if (member.IsDefined(typeof(DataMemberAttribute), true))
                 {
                     DataMemberAttribute dataMemberAttribute =
-                        (DataMemberAttribute) Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                        (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
                     if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
                     {
                         name = dataMemberAttribute.Name;

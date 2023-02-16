@@ -22,7 +22,7 @@ namespace LibSystemInfo
         public static MemoryInfo GetMemoryStatus()
         {
             MEMORY_INFO mi = new MEMORY_INFO();
-            mi.dwLength = (uint) Marshal.SizeOf(mi);
+            mi.dwLength = (uint)Marshal.SizeOf(mi);
             GlobalMemoryStatusEx(ref mi);
             _memoryInfo.Free = mi.ullAvailPhys;
             _memoryInfo.Total = mi.ullTotalPhys;

@@ -36,6 +36,7 @@ namespace AKStreamWeb.AutoTask
         private List<string> GetRecordFileDataList(string mainId)
         {
             List<string?> ret = null!;
+
             ret = ORMHelper.Db.Select<RecordFile>()
                 .Where(x => x.MainId.Equals(mainId))
                 .Where(x => x.Deleted == false)
@@ -178,7 +179,7 @@ namespace AKStreamWeb.AutoTask
                         {
                             if (MediaServerService.DeleteRecordFile(ret.Id, out rs))
                             {
-                                deleteSize += (long) ret.FileSize!;
+                                deleteSize += (long)ret.FileSize!;
                                 GCommon.Logger.Info(
                                     $"[{Common.LoggerHead}]->删除一个录制文件->{mediaInfo.MediaServerId}->{mediaInfo.Stream}->DBId:{ret.Id}->FilePath:{ret.VideoPath}");
                             }
@@ -205,6 +206,21 @@ namespace AKStreamWeb.AutoTask
         {
             foreach (var day in days)
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordFile>()
+                        .Where(x => x.RecordDate.Equals(day))
+                        .Where(x => x.Deleted.Equals(false))
+                        .Where(x => x.MainId.Equals(mediaInfo.Stream)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteFileByDay->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var deleteList = ORMHelper.Db.Select<RecordFile>()
                     .Where(x => x.RecordDate.Equals(day))
                     .Where(x => x.Deleted.Equals(false))
@@ -213,6 +229,21 @@ namespace AKStreamWeb.AutoTask
                 if (deleteList != null && deleteList.Count > 0)
                 {
                     var deleteFileList = deleteList.Select(x => x.Id).ToList();
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
+                            .Set(x => x.Deleted, true)
+                            .Where(x => x.RecordDate.Equals(day))
+                            .Where(x => x.MainId.Equals(mediaInfo.Stream)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->DeleteFileByDay->执行SQL:->{sql}");
+                    }
+
+                    #endregion
 
                     ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
                         .Set(x => x.Deleted, true)
@@ -235,6 +266,21 @@ namespace AKStreamWeb.AutoTask
                 {
                     ResponseStruct rs = null;
                     var recordPlanList = RecordPlanService.GetRecordPlanList("", out rs);
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
+                            .Where(x => !string.IsNullOrEmpty(x.RecordPlanName))
+                            .Where(x => x.AutoRecord.Equals(true)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->KeepRecord->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var videoChannelList = ORMHelper.Db.Select<VideoChannel>().Where(x => x.Enabled.Equals(true))
                         .Where(x => !string.IsNullOrEmpty(x.RecordPlanName))
                         .Where(x => x.AutoRecord.Equals(true)).ToList();

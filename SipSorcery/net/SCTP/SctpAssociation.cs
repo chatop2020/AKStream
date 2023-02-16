@@ -392,7 +392,7 @@ namespace SIPSorcery.Net
             {
                 foreach (var chunk in packet.Chunks)
                 {
-                    var chunkType = (SctpChunkType) chunk.ChunkType;
+                    var chunkType = (SctpChunkType)chunk.ChunkType;
 
                     switch (chunkType)
                     {
@@ -433,7 +433,7 @@ namespace SIPSorcery.Net
                                 // - If an endpoint receives a DATA chunk with no user data (i.e., the
                                 //   Length field is set to 16), it MUST send an ABORT with error cause
                                 //   set to "No User Data". (RFC4960 pg. 80)
-                                Abort(new SctpErrorNoUserData {TSN = (chunk as SctpDataChunk).TSN});
+                                Abort(new SctpErrorNoUserData { TSN = (chunk as SctpDataChunk).TSN });
                             }
                             else
                             {
@@ -470,7 +470,7 @@ namespace SIPSorcery.Net
 
                         case SctpChunkType.HEARTBEAT:
                             // The HEARTBEAT ACK sends back the same chunk but with the type changed.
-                            chunk.ChunkType = (byte) SctpChunkType.HEARTBEAT_ACK;
+                            chunk.ChunkType = (byte)SctpChunkType.HEARTBEAT_ACK;
                             SendChunk(chunk);
                             break;
 
@@ -511,7 +511,7 @@ namespace SIPSorcery.Net
 
                                 // The cookie chunk parameter can be changed to a COOKE ECHO CHUNK by changing the first two bytes.
                                 // But it's more convenient to create a new chunk.
-                                var cookieEchoChunk = new SctpChunk(SctpChunkType.COOKIE_ECHO) {ChunkValue = cookie};
+                                var cookieEchoChunk = new SctpChunk(SctpChunkType.COOKIE_ECHO) { ChunkValue = cookie };
                                 var cookieEchoPkt = GetControlPacket(cookieEchoChunk);
 
                                 if (initAckChunk.UnrecognizedPeerParameters.Count > 0)
@@ -521,7 +521,7 @@ namespace SIPSorcery.Net
                                     foreach (var unrecognised in initAckChunk.UnrecognizedPeerParameters)
                                     {
                                         var unrecognisedParams = new SctpErrorUnrecognizedParameters
-                                            {UnrecognizedParameters = unrecognised.GetBytes()};
+                                            { UnrecognizedParameters = unrecognised.GetBytes() };
                                         errChunk.AddErrorCause(unrecognisedParams);
                                     }
 
@@ -556,7 +556,7 @@ namespace SIPSorcery.Net
                         case var ct when ct == SctpChunkType.SHUTDOWN_ACK && State == SctpAssociationState.ShutdownSent:
                             SetState(SctpAssociationState.Closed);
                             var shutCompleteChunk = new SctpChunk(SctpChunkType.SHUTDOWN_COMPLETE,
-                                (byte) (_remoteVerificationTag != 0 ? SHUTDOWN_CHUNK_TBIT_FLAG : 0x00));
+                                (byte)(_remoteVerificationTag != 0 ? SHUTDOWN_CHUNK_TBIT_FLAG : 0x00));
                             var shutCompletePkt = GetControlPacket(shutCompleteChunk);
                             shutCompletePkt.Header.VerificationTag = packet.Header.VerificationTag;
                             SendPacket(shutCompletePkt);

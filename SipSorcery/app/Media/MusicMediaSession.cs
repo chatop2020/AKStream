@@ -15,7 +15,7 @@ namespace SIPSorcery.Media
         private readonly MediaStreamTrack _mediaStream;
 
         public MusicMediaSession(AudioFormat sourceAudioFormat, IPEndPoint destination) : base(new MediaEndPoints
-            {AudioSource = new EmptyAudioSource()})
+            { AudioSource = new EmptyAudioSource() })
         {
             SetDestination(SDPMediaTypesEnum.audio, destination, null);
             AudioExtrasSource.SetAudioSourceFormat(sourceAudioFormat);

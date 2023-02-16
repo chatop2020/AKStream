@@ -40,7 +40,7 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] m_invalidSIPHostChars = new char[] {',', '"'};
+        private static char[] m_invalidSIPHostChars = new char[] { ',', '"' };
 
         private static SIPProtocolsEnum m_defaultSIPTransport = SIPProtocolsEnum.udp;
         private static SIPSchemesEnum m_defaultSIPScheme = SIPSchemesEnum.sip;
@@ -315,14 +315,15 @@ namespace SIPSorcery.SIP
                             if (ampPosn != -1)
                             {
                                 paramHeaderPosn =
-                                    uriHostPortion.IndexOfAny(new char[] {PARAM_TAG_DELIMITER, HEADER_START_DELIMITER},
+                                    uriHostPortion.IndexOfAny(
+                                        new char[] { PARAM_TAG_DELIMITER, HEADER_START_DELIMITER },
                                         ampPosn);
                             }
                             else
                             {
                                 // Host only SIP URI.
                                 paramHeaderPosn = uriHostPortion.IndexOfAny(new char[]
-                                    {PARAM_TAG_DELIMITER, HEADER_START_DELIMITER});
+                                    { PARAM_TAG_DELIMITER, HEADER_START_DELIMITER });
                             }
 
                             if (ampPosn != -1 && paramHeaderPosn != -1)
@@ -559,7 +560,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPURI) obj);
+            return AreEqual(this, (SIPURI)obj);
         }
 
         public static bool operator ==(SIPURI uri1, SIPURI uri2)

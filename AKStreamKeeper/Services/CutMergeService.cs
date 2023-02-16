@@ -218,7 +218,7 @@ namespace AKStreamKeeper.Services
                     }
                 }
 
-                task.ProcessPercentage += ((double) 1 / (double) task.CutMergeFileList!.Count * 100f) * 0.4f;
+                task.ProcessPercentage += ((double)1 / (double)task.CutMergeFileList!.Count * 100f) * 0.4f;
                 Thread.Sleep(20);
             }
 
@@ -381,7 +381,7 @@ namespace AKStreamKeeper.Services
                     {
                         if (task.CutMergeFileList[i].CutStartPos != null && task.CutMergeFileList[i].CutEndPos != null)
                         {
-                            task.ProcessPercentage += ((double) 1 / (double) cutFileList.Count * 100f) * 0.15f;
+                            task.ProcessPercentage += ((double)1 / (double)cutFileList.Count * 100f) * 0.15f;
 
                             //做剪切
                             task.CutMergeFileList[i] = cutProcess(task.CutMergeFileList[i]);

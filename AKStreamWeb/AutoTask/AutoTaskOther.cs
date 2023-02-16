@@ -185,6 +185,23 @@ namespace AKStreamWeb.AutoTask
             {
                 if (Common.AkStreamWebConfig.DeletedRecordsExpiredDays > 0)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Delete<RecordFile>()
+                            .Where(x => x.Deleted == true)
+                            .Where(x => x.Undo == false)
+                            .Where(x => x.UpdateTime <=
+                                        DateTime.Now.AddDays(-Common.AkStreamWebConfig.DeletedRecordsExpiredDays))
+                            .ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->DoDeleteLostRecored->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     ORMHelper.Db.Delete<RecordFile>()
                         .Where(x => x.Deleted == true)
                         .Where(x => x.Undo == false)
@@ -203,10 +220,26 @@ namespace AKStreamWeb.AutoTask
             try
             {
                 List<RecordFile> retList = null!;
+
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordFile>()
+                        .Where(x => x.Deleted == true)
+                        .Where(x => x.Undo == true)
+                        .Where(x => ((DateTime)x.UpdateTime!).AddHours(24) <= DateTime.Now).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DoDeleteFor24HourAgo->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 retList = ORMHelper.Db.Select<RecordFile>()
                     .Where(x => x.Deleted == true)
                     .Where(x => x.Undo == true)
-                    .Where(x => ((DateTime) x.UpdateTime!).AddHours(24) <= DateTime.Now)
+                    .Where(x => ((DateTime)x.UpdateTime!).AddHours(24) <= DateTime.Now)
                     .ToList();
 
                 if (retList != null && retList.Count > 0)
@@ -219,6 +252,20 @@ namespace AKStreamWeb.AutoTask
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
                         var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
+
+                        #region debug sql output
+
+                        if (Common.IsDebug)
+                        {
+                            var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
+                                .Set(x => x.Undo, false)
+                                .Where(x => deleteFileIdList.Contains(x.Id)).ToSql();
+
+                            GCommon.Logger.Debug(
+                                $"[{Common.LoggerHead}]->DoDeleteFor24HourAgo->执行SQL:->{sql}");
+                        }
+
+                        #endregion
 
                         var a = ORMHelper.Db.Update<RecordFile>().Set(x => x.UpdateTime, DateTime.Now)
                             .Set(x => x.Undo, false)

@@ -86,13 +86,13 @@ namespace SIPSorcery.Net
             if (BitConverter.IsLittleEndian)
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(GENERIC_VENDOR_ID)), 0, buf, 0, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort) chunkType)), 0, buf, 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort)chunkType)), 0, buf, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(length)), 0, buf, 4, 2);
             }
             else
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(GENERIC_VENDOR_ID), 0, buf, 0, 2);
-                Buffer.BlockCopy(BitConverter.GetBytes((ushort) chunkType), 0, buf, 2, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((ushort)chunkType), 0, buf, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(length), 0, buf, 4, 2);
             }
 
@@ -154,8 +154,8 @@ namespace SIPSorcery.Net
         /// </summary>
         public static byte[] GetBytes(ChunkTypeEnum chunkType, byte[] payload)
         {
-            byte[] buf = InitBuffer(chunkType, (ushort) (MINIMUM_CHUNK_LENGTH + payload.Length));
-            Buffer.BlockCopy(payload, 0, buf, MINIMUM_CHUNK_LENGTH, (ushort) payload.Length);
+            byte[] buf = InitBuffer(chunkType, (ushort)(MINIMUM_CHUNK_LENGTH + payload.Length));
+            Buffer.BlockCopy(payload, 0, buf, MINIMUM_CHUNK_LENGTH, (ushort)payload.Length);
             return buf;
         }
 
@@ -210,9 +210,9 @@ namespace SIPSorcery.Net
             switch (sipProtocol)
             {
                 case SIPProtocolsEnum.udp:
-                    return (byte) ProtocolType.Udp;
+                    return (byte)ProtocolType.Udp;
                 default:
-                    return (byte) ProtocolType.Tcp;
+                    return (byte)ProtocolType.Tcp;
             }
         }
 
@@ -244,7 +244,7 @@ namespace SIPSorcery.Net
             offset = 6;
 
             // IP family.
-            var familyChunkBuffer = HepChunk.GetBytes(ChunkTypeEnum.IPFamily, (byte) srcEndPoint.Address.AddressFamily);
+            var familyChunkBuffer = HepChunk.GetBytes(ChunkTypeEnum.IPFamily, (byte)srcEndPoint.Address.AddressFamily);
             Buffer.BlockCopy(familyChunkBuffer, 0, packetBuffer, offset, familyChunkBuffer.Length);
             offset += familyChunkBuffer.Length;
 
@@ -271,28 +271,28 @@ namespace SIPSorcery.Net
             offset += dstIPAddress.Length;
 
             // Source port.
-            var srcPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.SourcePort, (ushort) srcEndPoint.Port);
+            var srcPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.SourcePort, (ushort)srcEndPoint.Port);
             Buffer.BlockCopy(srcPortBuffer, 0, packetBuffer, offset, srcPortBuffer.Length);
             offset += srcPortBuffer.Length;
 
             // Destination port.
-            var dstPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.DestinationPort, (ushort) dstEndPoint.Port);
+            var dstPortBuffer = HepChunk.GetBytes(ChunkTypeEnum.DestinationPort, (ushort)dstEndPoint.Port);
             Buffer.BlockCopy(dstPortBuffer, 0, packetBuffer, offset, dstPortBuffer.Length);
             offset += dstPortBuffer.Length;
 
             // Timestamp.
-            var timestampBuffer = HepChunk.GetBytes(ChunkTypeEnum.TimestampSeconds, (uint) timestamp.GetEpoch());
+            var timestampBuffer = HepChunk.GetBytes(ChunkTypeEnum.TimestampSeconds, (uint)timestamp.GetEpoch());
             Buffer.BlockCopy(timestampBuffer, 0, packetBuffer, offset, timestampBuffer.Length);
             offset += timestampBuffer.Length;
 
             // Timestamp micro seconds (.NET only has millisecond resolution).
             var timestampMicrosBuffer =
-                HepChunk.GetBytes(ChunkTypeEnum.TimestampMicroSeconds, (uint) (timestamp.Millisecond * 1000));
+                HepChunk.GetBytes(ChunkTypeEnum.TimestampMicroSeconds, (uint)(timestamp.Millisecond * 1000));
             Buffer.BlockCopy(timestampMicrosBuffer, 0, packetBuffer, offset, timestampMicrosBuffer.Length);
             offset += timestampMicrosBuffer.Length;
 
             // Protocol type, only interested in SIP at this point.
-            var protocolTypeBuffer = HepChunk.GetBytes(ChunkTypeEnum.ProtocolType, (byte) CaptureProtocolTypeEnum.SIP);
+            var protocolTypeBuffer = HepChunk.GetBytes(ChunkTypeEnum.ProtocolType, (byte)CaptureProtocolTypeEnum.SIP);
             Buffer.BlockCopy(protocolTypeBuffer, 0, packetBuffer, offset, protocolTypeBuffer.Length);
             offset += protocolTypeBuffer.Length;
 
@@ -324,12 +324,12 @@ namespace SIPSorcery.Net
             // Length
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort) offset)), 0, packetBuffer, 4,
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((ushort)offset)), 0, packetBuffer, 4,
                     2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((ushort) offset), 0, packetBuffer, 4, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((ushort)offset), 0, packetBuffer, 4, 2);
             }
 
             return packetBuffer.Take(offset).ToArray();

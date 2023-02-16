@@ -56,6 +56,18 @@ namespace AKStreamWeb.Services
                 };
             }
 
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->OnRecordMp4->执行SQL:->{sql}");
+            }
+
+            #endregion
+
             var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream)).First();
 
             if (videoChannel == null)
@@ -66,6 +78,26 @@ namespace AKStreamWeb.Services
                     Msg = "success"
                 };
             }
+
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<RecordFile>().Where(x => x.Streamid.Equals(req.Stream) &&
+                                                                       x.VideoPath.Equals(req.File_Path) &&
+                                                                       x.FileSize.Equals(req.File_Size) &&
+                                                                       x.Vhost.Equals(req.Vhost) &&
+                                                                       x.Deleted.Equals(false) &&
+                                                                       x.App.Equals(req.App) &&
+                                                                       x.MediaServerId.Equals(req.MediaServerId))
+                    .ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->OnRecordMp4->执行SQL:->{sql}");
+            }
+
+            #endregion
+
 
             var recordInfo = ORMHelper.Db.Select<RecordFile>().Where(x => x.Streamid.Equals(req.Stream) &&
                                                                           x.VideoPath.Equals(req.File_Path) &&
@@ -101,7 +133,7 @@ namespace AKStreamWeb.Services
             int _intLen = (int)Math.Ceiling(_len); //四舍五入后取整
             tmpDvrVideo.EndTime = st.AddSeconds(_intLen);
             tmpDvrVideo.Duration = _intLen;
-            if (tmpDvrVideo.Duration <= 0 || req.File_Size>103881427200)//大概720p下60个小时的录制量，单文件超过这个值，就不再保存
+            if (tmpDvrVideo.Duration <= 0 || req.File_Size > 103881427200) //大概720p下60个小时的录制量，单文件超过这个值，就不再保存
             {
                 ResponseStruct rs = null;
                 try
@@ -111,7 +143,8 @@ namespace AKStreamWeb.Services
                         Code = ErrorNumber.MediaServer_RecordFileExcept,
                         Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RecordFileExcept],
                         ExceptMessage = "录制文件异常，视频时长为0或者单文件字节数过大",
-                        ExceptStackTrace = $"可能因为磁盘不可写，造成视频时长为0，或者单文件字节数超过103881427200相当于720p下单文件录制60个小时->{JsonHelper.ToJson(req)}",
+                        ExceptStackTrace =
+                            $"可能因为磁盘不可写，造成视频时长为0，或者单文件字节数超过103881427200相当于720p下单文件录制60个小时->{JsonHelper.ToJson(req)}",
                     };
                     return new ResToWebHookOnRecordMP4()
                     {
@@ -182,6 +215,18 @@ namespace AKStreamWeb.Services
 
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Insert(tmpDvrVideo).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnRecordMp4->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var dbRet = ORMHelper.Db.Insert(tmpDvrVideo).ExecuteAffrows();
             }
             catch (Exception ex)
@@ -265,6 +310,19 @@ namespace AKStreamWeb.Services
             {
                 if (!IsRecordStream(req.Stream, out _))
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
+                            .Where(x => x.MediaServerId.Equals(req.MediaServerId)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->OnFlowReport->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
                     if (videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
@@ -368,6 +426,19 @@ namespace AKStreamWeb.Services
                     }
                 }
 
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
+                        .Where(x => x.MediaServerId.Equals(req.MediaServerId)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnStreamNoneReader->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
 
@@ -447,6 +518,18 @@ namespace AKStreamWeb.Services
                         };
                     }
 
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->OnStreamChanged->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
                     if (videoChannel == null)
@@ -514,6 +597,19 @@ namespace AKStreamWeb.Services
                 {
                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流移除)->{JsonHelper.ToJson(req)}");
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->OnStreamChanged->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
@@ -604,6 +700,19 @@ namespace AKStreamWeb.Services
 
             if (!IsRecordStream(req.Stream, out _))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
+                        .Where(x => x.MediaServerId.Equals(req.MediaServerId)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnPlay->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
 
@@ -710,6 +819,18 @@ namespace AKStreamWeb.Services
 
             if (!IsRecordStream(req.Stream, out _))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnPublish->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                     .First();
                 if (videoChannel == null)
@@ -815,7 +936,6 @@ namespace AKStreamWeb.Services
                     Code = ErrorNumber.Sys_ParamsIsNotRight,
                     Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
                 };
-                
             }
 
             if (Math.Abs((DateTime.Now - req.ServerDateTime).TotalSeconds) > 60) //两边服务器时间大于60秒，则回复注册失败

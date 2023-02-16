@@ -169,7 +169,7 @@ namespace SIPSorcery.SIP
         /// </summary>
         private void OnReadCallback(IAsyncResult ar)
         {
-            SIPStreamConnection sipStreamConnection = (SIPStreamConnection) ar.AsyncState;
+            SIPStreamConnection sipStreamConnection = (SIPStreamConnection)ar.AsyncState;
 
             try
             {

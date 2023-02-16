@@ -253,7 +253,7 @@ namespace SIPSorcery.Media
 
                         if (encodedBuffer != null)
                         {
-                            uint fps = (_frameSpacing > 0) ? 1000 / (uint) _frameSpacing : DEFAULT_FRAMES_PER_SECOND;
+                            uint fps = (_frameSpacing > 0) ? 1000 / (uint)_frameSpacing : DEFAULT_FRAMES_PER_SECOND;
                             uint durationRtpTS = VIDEO_SAMPLING_RATE / fps;
                             OnVideoSourceEncodedSample.Invoke(durationRtpTS, encodedBuffer);
                         }
@@ -275,7 +275,7 @@ namespace SIPSorcery.Media
         private void GenerateRawSample(int width, int height, byte[] i420Buffer)
         {
             var bgr = PixelConverter.I420toBGR(i420Buffer, width, height, out _);
-            OnVideoSourceRawSample?.Invoke((uint) _frameSpacing, width, height, bgr, VideoPixelFormatsEnum.Bgr);
+            OnVideoSourceRawSample?.Invoke((uint)_frameSpacing, width, height, bgr, VideoPixelFormatsEnum.Bgr);
         }
 
         /// <summary>
@@ -292,7 +292,7 @@ namespace SIPSorcery.Media
             {
                 for (int x = startX; x < startX + STAMP_BOX_SIZE; x++)
                 {
-                    i420Buffer[y * width + x] = (byte) (frameNumber % 255);
+                    i420Buffer[y * width + x] = (byte)(frameNumber % 255);
                 }
             }
         }

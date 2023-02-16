@@ -35,15 +35,15 @@ namespace SIPSorcery.Net
         public STUNErrorCodeAttribute(byte[] attributeValue)
             : base(STUNAttributeTypesEnum.ErrorCode, attributeValue)
         {
-            ErrorClass = (byte) BitConverter.ToChar(attributeValue, 2);
-            ErrorNumber = (byte) BitConverter.ToChar(attributeValue, 3);
+            ErrorClass = (byte)BitConverter.ToChar(attributeValue, 2);
+            ErrorNumber = (byte)BitConverter.ToChar(attributeValue, 3);
             ReasonPhrase = Encoding.UTF8.GetString(attributeValue, 4, attributeValue.Length - 4);
         }
 
         public STUNErrorCodeAttribute(int errorCode, string reasonPhrase)
             : base(STUNAttributeTypesEnum.ErrorCode, null)
         {
-            ErrorClass = errorCode < 700 ? Convert.ToByte(ErrorCode / 100) : (byte) 0x00;
+            ErrorClass = errorCode < 700 ? Convert.ToByte(ErrorCode / 100) : (byte)0x00;
             ErrorNumber = Convert.ToByte(errorCode % 100);
             ReasonPhrase = reasonPhrase;
         }

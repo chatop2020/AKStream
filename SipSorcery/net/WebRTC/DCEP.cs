@@ -173,8 +173,8 @@ namespace SIPSorcery.Net
         /// <returns>The serialised length of this DECEP OPEN message.</returns>
         public int GetLength()
         {
-            ushort labelLength = (ushort) (Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
-            ushort protocolLength = (ushort) (Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
+            ushort labelLength = (ushort)(Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
+            ushort protocolLength = (ushort)(Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
 
             return DCEP_OPEN_FIXED_PARAMETERS_LENGTH + labelLength + protocolLength;
         }
@@ -194,8 +194,8 @@ namespace SIPSorcery.Net
             NetConvert.ToBuffer(Priority, buffer, posn + 2);
             NetConvert.ToBuffer(Reliability, buffer, posn + 4);
 
-            ushort labelLength = (ushort) (Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
-            ushort protocolLength = (ushort) (Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
+            ushort labelLength = (ushort)(Label != null ? Encoding.UTF8.GetByteCount(Label) : 0);
+            ushort protocolLength = (ushort)(Protocol != null ? Encoding.UTF8.GetByteCount(Protocol) : 0);
 
             NetConvert.ToBuffer(labelLength, buffer, posn + 8);
             NetConvert.ToBuffer(protocolLength, buffer, posn + 10);
@@ -214,7 +214,7 @@ namespace SIPSorcery.Net
                 posn += protocolLength;
             }
 
-            return (ushort) posn;
+            return (ushort)posn;
         }
 
         /// <summary>

@@ -135,7 +135,7 @@ namespace SIPSorcery.Net
 
         private IPacketTransformer GenerateTransformer(SDPSecurityDescription securityDescription, bool isRtp)
         {
-            var srtpParams = SrtpParameters.GetSrtpParametersForProfile((int) securityDescription.CryptoSuite);
+            var srtpParams = SrtpParameters.GetSrtpParametersForProfile((int)securityDescription.CryptoSuite);
 
             var engine = new SrtpTransformEngine(securityDescription.KeyParams[0].Key,
                 securityDescription.KeyParams[0].Salt,

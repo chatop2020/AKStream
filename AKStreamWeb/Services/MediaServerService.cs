@@ -58,7 +58,7 @@ namespace AKStreamWeb.Services
                 {
                     if (d != null && d.Port > 0)
                     {
-                        tmpPortList.Add((ushort) d.Port);
+                        tmpPortList.Add((ushort)d.Port);
                     }
                 }
 
@@ -115,14 +115,14 @@ namespace AKStreamWeb.Services
                         continue;
                     }
 
-                    if (!DateTime.TryParse(((DateTime) videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                    if (!DateTime.TryParse(((DateTime)videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
                             out _))
                     {
                         videoList[i] = null;
                         continue;
                     }
 
-                    if (!DateTime.TryParse(((DateTime) videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+                    if (!DateTime.TryParse(((DateTime)videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
                             out _))
                     {
                         videoList[i] = null;
@@ -134,8 +134,8 @@ namespace AKStreamWeb.Services
 
                 for (int i = 0; i <= videoList.Count - 1; i++)
                 {
-                    var startInDb = DateTime.Parse(((DateTime) videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
-                    var endInDb = DateTime.Parse(((DateTime) videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
+                    var startInDb = DateTime.Parse(((DateTime)videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
+                    var endInDb = DateTime.Parse(((DateTime)videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
                     if (startPos < 0)
                     {
                         if (_start >= startInDb && _start < endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
@@ -178,9 +178,9 @@ namespace AKStreamWeb.Services
                     tmpStruct.StartTime = cutMegerList[0].StartTime;
                     var tmpCutMeger = cutMegerList[0];
                     DateTime tmpCutMegerStartTime =
-                        DateTime.Parse(((DateTime) tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                        DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                     DateTime tmpCutMegerEndTime =
-                        DateTime.Parse(((DateTime) tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                        DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                     if (tmpCutMegerStartTime <= _start)
                     {
                         TimeSpan ts = -tmpCutMegerStartTime.Subtract(_start); //视频的开始时间减去需要的开始时间，再取反
@@ -241,9 +241,9 @@ namespace AKStreamWeb.Services
                         if (tmpCutMeger != null && i == 0) //看第一个文件是否需要裁剪
                         {
                             DateTime tmpCutMegerStartTime =
-                                DateTime.Parse(((DateTime) tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                                DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                             DateTime tmpCutMegerEndTime =
-                                DateTime.Parse(((DateTime) tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                                DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
 
                             if (tmpCutMegerStartTime < _start && tmpCutMegerEndTime > _start
                                ) //如果视频开始时间大于需要的开始时间，而视频结束时间大于需要的开始时间
@@ -307,9 +307,9 @@ namespace AKStreamWeb.Services
                         else if (tmpCutMeger != null && i == cutMegerList.Count - 1) //处理最后一个视频，看是否需要裁剪，后续操作同上
                         {
                             DateTime tmpCutMegerStartTime =
-                                DateTime.Parse(((DateTime) tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                                DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                             DateTime tmpCutMegerEndTime =
-                                DateTime.Parse(((DateTime) tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+                                DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
                             if (tmpCutMegerEndTime > _end)
                             {
                                 TimeSpan ts = tmpCutMegerEndTime.Subtract(_end);
@@ -686,8 +686,8 @@ namespace AKStreamWeb.Services
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                             x.IpV4Address.Equals(req.VideoChannelIp)
                                                                             && x.MainId.Equals(req.MainId)).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                            x.IpV4Address.Equals(req.VideoChannelIp)
                                                                            && x.MainId.Equals(req.MainId));
@@ -702,8 +702,8 @@ namespace AKStreamWeb.Services
                                                                             && x.MainId.Equals(req.MainId) &&
                                                                             x.StreamSourceType == req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId) &&
                                                                            x.IpV4Address.Equals(req.VideoChannelIp)
                                                                            && x.MainId.Equals(req.MainId) &&
@@ -749,8 +749,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                             && x.MainId.Equals(req.MainId)).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                            && x.MainId.Equals(req.MainId));
                         }
@@ -763,8 +763,8 @@ namespace AKStreamWeb.Services
                                                                             && x.MainId.Equals(req.MainId) &&
                                                                             x.StreamSourceType == req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                            && x.MainId.Equals(req.MainId) &&
                                                                            x.StreamSourceType == req.StreamSourceType);
@@ -809,8 +809,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                             && x.MainId.Equals(req.MainId)).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                            && x.MainId.Equals(req.MainId));
                         }
@@ -823,8 +823,8 @@ namespace AKStreamWeb.Services
                                                                             && x.MainId.Equals(req.MainId) &&
                                                                             x.StreamSourceType == req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                                                            && x.MainId.Equals(req.MainId) &&
                                                                            x.StreamSourceType == req.StreamSourceType);
@@ -873,8 +873,8 @@ namespace AKStreamWeb.Services
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                             && x.IpV4Address.Equals(req.VideoChannelIp)
                                 ).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                            && x.IpV4Address.Equals(req.VideoChannelIp));
                         }
@@ -888,8 +888,8 @@ namespace AKStreamWeb.Services
                                                                             && x.StreamSourceType ==
                                                                             req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId)
                                                                            && x.IpV4Address.Equals(
                                                                                req.VideoChannelIp) &&
@@ -934,8 +934,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.IpV4Address.Equals(req.VideoChannelIp)
                                 ).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.IpV4Address.Equals(req.VideoChannelIp));
                         }
                     }
@@ -947,8 +947,8 @@ namespace AKStreamWeb.Services
                                                                             && x.StreamSourceType ==
                                                                             req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                                 x.IpV4Address.Equals(req.VideoChannelIp) &&
                                 x.StreamSourceType == req.StreamSourceType);
@@ -987,8 +987,8 @@ namespace AKStreamWeb.Services
                         lock (GCommon.Ldb.LiteDBLockObj)
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MainId.Equals(req.MainId)).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MainId.Equals(req.MainId));
                         }
                     }
@@ -998,8 +998,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x =>
                                     x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                                 x.MainId.Equals(req.MainId) && x.StreamSourceType == req.StreamSourceType);
                         }
@@ -1042,8 +1042,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.MediaServerId.Equals(req.MediaServerId)
                                 ).ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.MediaServerId.Equals(req.MediaServerId));
                         }
                     }
@@ -1055,8 +1055,8 @@ namespace AKStreamWeb.Services
                                                                             && x.StreamSourceType ==
                                                                             req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x =>
                                 x.MediaServerId.Equals(req.MediaServerId) &&
                                 x.StreamSourceType == req.StreamSourceType);
@@ -1094,8 +1094,8 @@ namespace AKStreamWeb.Services
                         lock (GCommon.Ldb.LiteDBLockObj)
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.FindAll().ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count();
                         }
                     }
@@ -1105,8 +1105,8 @@ namespace AKStreamWeb.Services
                         {
                             retList = GCommon.Ldb.VideoOnlineInfo.Find(x => x.StreamSourceType == req.StreamSourceType)
                                 .ToList()
-                                .Skip(((int) req.PageIndex - 1) * (int) req.PageSize)
-                                .Take((int) req.PageSize).ToList();
+                                .Skip(((int)req.PageIndex - 1) * (int)req.PageSize)
+                                .Take((int)req.PageSize).ToList();
                             count = GCommon.Ldb.VideoOnlineInfo.Count(x => x.StreamSourceType == req.StreamSourceType);
                         }
                     }
@@ -1646,7 +1646,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            ReqForWebHookOnStreamChange onStreamChangeWebhook = (ReqForWebHookOnStreamChange) taskWait.OtherObj;
+            ReqForWebHookOnStreamChange onStreamChangeWebhook = (ReqForWebHookOnStreamChange)taskWait.OtherObj;
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.StreamSourceType = StreamSourceType.Live;
             videoChannelMediaInfo.App = videoChannel.App;
@@ -1684,7 +1684,7 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
             videoChannelMediaInfo.MediaServerStreamInfo.StartTime = DateTime.Now;
             videoChannelMediaInfo.MediaServerStreamInfo.RptPort = null;
-            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort) new Uri(videoChannel.VideoSrcUrl).Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort)new Uri(videoChannel.VideoSrcUrl).Port;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerId = mediaServerId;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerIp = mediaServer.IpV4Address;
             videoChannelMediaInfo.MediaServerStreamInfo.PushSocketType = videoChannel.RtpWithTcp == true
@@ -1766,7 +1766,7 @@ namespace AKStreamWeb.Services
             bool recorded = false;
             if (retobj != null)
             {
-                recorded = (bool) retobj.MediaServerStreamInfo.IsRecorded;
+                recorded = (bool)retobj.MediaServerStreamInfo.IsRecorded;
                 lock (GCommon.Ldb.LiteDBLockObj)
                 {
                     GCommon.Ldb.VideoOnlineInfo.DeleteMany(x => x.MainId.Equals(videoChannelMediaInfo.MainId)
@@ -1947,7 +1947,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            ReqForWebHookOnStreamChange onStreamChangeWebhook = (ReqForWebHookOnStreamChange) taskWait.OtherObj;
+            ReqForWebHookOnStreamChange onStreamChangeWebhook = (ReqForWebHookOnStreamChange)taskWait.OtherObj;
             var videoChannelMediaInfo = new VideoChannelMediaInfo();
             videoChannelMediaInfo.StreamSourceType = StreamSourceType.Live;
             videoChannelMediaInfo.App = videoChannel.App;
@@ -1985,7 +1985,7 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
             videoChannelMediaInfo.MediaServerStreamInfo.StartTime = DateTime.Now;
             videoChannelMediaInfo.MediaServerStreamInfo.RptPort = null;
-            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort) new Uri(videoChannel.VideoSrcUrl).Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort)new Uri(videoChannel.VideoSrcUrl).Port;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerId = mediaServerId;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerIp = mediaServer.IpV4Address;
             videoChannelMediaInfo.MediaServerStreamInfo.PushSocketType = videoChannel.RtpWithTcp == true
@@ -2066,7 +2066,7 @@ namespace AKStreamWeb.Services
             bool recorded = false;
             if (retobj != null)
             {
-                recorded = (bool) retobj.MediaServerStreamInfo.IsRecorded;
+                recorded = (bool)retobj.MediaServerStreamInfo.IsRecorded;
                 lock (GCommon.Ldb.LiteDBLockObj)
                 {
                     GCommon.Ldb.VideoOnlineInfo.DeleteMany(x => x.MainId.Equals(videoChannelMediaInfo.MainId)
@@ -2205,7 +2205,7 @@ namespace AKStreamWeb.Services
                 {
                     if (left.Key > right.Key)
                         return 0;
-                    if ((int) left.Key == (int) right.Key)
+                    if ((int)left.Key == (int)right.Key)
                     {
                         return 1;
                     }
@@ -2339,7 +2339,7 @@ namespace AKStreamWeb.Services
 
             var result = new ResMediaServerOpenRtpPort()
             {
-                Port = (ushort) zlRet.Port,
+                Port = (ushort)zlRet.Port,
                 Stream = stream,
             };
             GCommon.Logger.Info(
@@ -2365,7 +2365,20 @@ namespace AKStreamWeb.Services
             result.PathList = new List<KeyValuePair<long, string>>();
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordFile>().Where(x => dbIdList.Contains(x.Id)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteRecordFileList->执行SQL:->{sql}");
+                }
+
+                #endregion
+
+
                 var dbRetList = ORMHelper.Db.Select<RecordFile>().Where(x => dbIdList.Contains(x.Id)).ToList();
+
                 foreach (var dbId in dbIdList)
                 {
                     var obj = dbRetList.FindLast(x => x.Id.Equals(dbId));
@@ -2390,10 +2403,25 @@ namespace AKStreamWeb.Services
                         continue;
                     }
 
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
+                            .Set(x => x.Undo, false)
+                            .Set(x => x.UpdateTime, DateTime.Now)
+                            .Where(x => x.Id.Equals(dbRet.Id)).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->DeleteRecordFileList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var r = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
                         .Set(x => x.Undo, false)
                         .Set(x => x.UpdateTime, DateTime.Now)
                         .Where(x => x.Id.Equals(dbRet.Id)).ExecuteAffrows();
+
                     if (r <= 0)
                     {
                         result.PathList.Add(new KeyValuePair<long, string>(dbRet.Id, dbRet.VideoPath));
@@ -2449,6 +2477,20 @@ namespace AKStreamWeb.Services
                 result.PathList = new List<KeyValuePair<long, string>>();
                 foreach (var dbId in dbIdList)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
+                            .Set(x => x.Undo, true)
+                            .Set(x => x.UpdateTime, DateTime.Now)
+                            .Where(x => x.Id.Equals(dbId)).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->SoftDeleteRecordFileList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
                         .Set(x => x.Undo, true)
                         .Set(x => x.UpdateTime, DateTime.Now)
@@ -2497,6 +2539,17 @@ namespace AKStreamWeb.Services
             };
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordFile>().Where(x => x.Id.Equals(dbId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteRecordFile->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var row = ORMHelper.Db.Select<RecordFile>().Where(x => x.Id.Equals(dbId)).First();
                 if (row != null)
                 {
@@ -2521,6 +2574,20 @@ namespace AKStreamWeb.Services
                         GCommon.Logger.Warn(
                             $"[{Common.LoggerHead}]->删除(硬删除)录制文件失败->{dbId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
                     }
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
+                            .Set(x => x.Undo, false)
+                            .Set(x => x.UpdateTime, DateTime.Now)
+                            .Where(x => x.Id.Equals(dbId)).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->DeleteRecordFile->执行SQL:->{sql}");
+                    }
+
+                    #endregion
 
                     var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
                         .Set(x => x.Undo, false)
@@ -2590,6 +2657,17 @@ namespace AKStreamWeb.Services
             };
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordFile>().Where(x => x.Id.Equals(dbId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->RestoreSoftDeleteRecordFile->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var row = ORMHelper.Db.Select<RecordFile>().Where(x => x.Id.Equals(dbId)).First();
                 if (row != null)
                 {
@@ -2630,6 +2708,20 @@ namespace AKStreamWeb.Services
 
                         return false;
                     }
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, false)
+                            .Set(x => x.Undo, false)
+                            .Set(x => x.UpdateTime, DateTime.Now)
+                            .Where(x => x.Id.Equals(dbId)).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->RestoreSoftDeleteRecordFile->执行SQL:->{sql}");
+                    }
+
+                    #endregion
 
                     var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, false)
                         .Set(x => x.Undo, false)
@@ -2699,6 +2791,20 @@ namespace AKStreamWeb.Services
             };
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
+                        .Set(x => x.Undo, true)
+                        .Set(x => x.UpdateTime, DateTime.Now)
+                        .Where(x => x.Id.Equals(dbId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->SoftDeleteRecordFile->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var ret = ORMHelper.Db.Update<RecordFile>().Set(x => x.Deleted, true)
                     .Set(x => x.Undo, true)
                     .Set(x => x.UpdateTime, DateTime.Now)
@@ -2759,6 +2865,17 @@ namespace AKStreamWeb.Services
 
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(mainId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var obj = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(mainId)).First();
                 if (obj == null)
                 {
@@ -2772,6 +2889,17 @@ namespace AKStreamWeb.Services
 
                     return false;
                 }
+
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Delete<VideoChannel>().Where(x => x.MainId.Equals(mainId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
 
                 var ret = ORMHelper.Db.Delete<VideoChannel>().Where(x => x.MainId.Equals(mainId)).ExecuteAffrows() > 0
                     ? true
@@ -2961,6 +3089,17 @@ namespace AKStreamWeb.Services
 
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(mainId)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->AddVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion;
+
                 var dbobj = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(mainId)).First();
                 if (dbobj != null)
                 {
@@ -2992,6 +3131,17 @@ namespace AKStreamWeb.Services
 
             if (!UtilsHelper.StringIsNullEx(req.RecordPlanName))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->AddVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var recordPlan = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName))
                     .First();
                 if (recordPlan == null)
@@ -3010,6 +3160,18 @@ namespace AKStreamWeb.Services
 
             if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>()
+                        .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->AddVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var channels = ORMHelper.Db.Select<VideoChannel>()
                     .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
                 if (channels != null && channels.Count > 0)
@@ -3086,6 +3248,17 @@ namespace AKStreamWeb.Services
                     }
                 }
 
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Insert(tmpVideoChannel).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->AddVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 result = ORMHelper.Db.Insert(tmpVideoChannel).ExecuteAffrows();
             }
             catch (Exception ex)
@@ -3107,6 +3280,18 @@ namespace AKStreamWeb.Services
             {
                 try
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>()
+                            .Where(x => x.MainId.Equals(mainId)).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->AddVideoChannel->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var r1 = ORMHelper.Db.Select<VideoChannel>()
                         .Where(x => x.MainId.Equals(mainId)).First();
                     if (r1 != null)
@@ -3216,6 +3401,72 @@ namespace AKStreamWeb.Services
             {
                 if (isPageQuery)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                            .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                            .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                            .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                            .WhereIf((req.StartTime != null && req.EndTime != null), x => x.EndTime >= req.StartTime)
+                            .WhereIf((req.StartTime != null && req.EndTime != null), x => x.StartTime <= req.EndTime)
+                            .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                                x => x.App.Equals(req.App))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                                x => x.Streamid.Equals(req.Streamid))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                                x => x.Vhost.Equals(req.Vhost))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                                x => x.DownloadUrl.Equals(req.DownloadUrl))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordDate),
+                                x => x.RecordDate.Equals(req.RecordDate))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoPath),
+                                x => x.VideoPath.Equals(req.VideoPath))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                                x => x.MediaServerIp.Equals(req.MediaServerIp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .OrderBy(orderBy)
+                            .Count(out total)
+                            .Page((int)req.PageIndex!, (int)req.PageSize!).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetRecordFileListEx->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
                         .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
                         .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
@@ -3271,11 +3522,75 @@ namespace AKStreamWeb.Services
                             x => x.PDepartmentName.Equals(req.PDepartmentName))
                         .OrderBy(orderBy)
                         .Count(out total)
-                        .Page((int) req.PageIndex!, (int) req.PageSize!)
+                        .Page((int)req.PageIndex!, (int)req.PageSize!)
                         .ToList();
                 }
                 else
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                            .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                            .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                            .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                            .WhereIf((req.StartTime != null && req.EndTime != null), x => x.EndTime >= req.StartTime)
+                            .WhereIf((req.StartTime != null && req.EndTime != null), x => x.StartTime <= req.EndTime)
+                            .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                                x => x.App.Equals(req.App))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                                x => x.Streamid.Equals(req.Streamid))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                                x => x.Vhost.Equals(req.Vhost))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                                x => x.DownloadUrl.Equals(req.DownloadUrl))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordDate),
+                                x => x.RecordDate.Equals(req.RecordDate))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoPath),
+                                x => x.VideoPath.Equals(req.VideoPath))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                                x => x.MediaServerIp.Equals(req.MediaServerIp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .OrderBy(orderBy).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetRecordFileListEx->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
                         .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
                         .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
@@ -3436,6 +3751,72 @@ namespace AKStreamWeb.Services
             {
                 if (isPageQuery)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                            .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                            .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                            .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                            .WhereIf(req.StartTime != null, x => x.StartTime >= req.StartTime)
+                            .WhereIf(req.EndTime != null, x => x.EndTime <= req.EndTime)
+                            .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                                x => x.App.Equals(req.App))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                                x => x.Streamid.Equals(req.Streamid))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                                x => x.Vhost.Equals(req.Vhost))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                                x => x.DownloadUrl.Equals(req.DownloadUrl))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordDate),
+                                x => x.RecordDate.Equals(req.RecordDate))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoPath),
+                                x => x.VideoPath.Equals(req.VideoPath))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                                x => x.MediaServerIp.Equals(req.MediaServerIp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .OrderBy(orderBy)
+                            .Count(out total)
+                            .Page((int)req.PageIndex!, (int)req.PageSize!).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetRecordFileList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
                         .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
                         .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
@@ -3491,11 +3872,75 @@ namespace AKStreamWeb.Services
                             x => x.PDepartmentName.Equals(req.PDepartmentName))
                         .OrderBy(orderBy)
                         .Count(out total)
-                        .Page((int) req.PageIndex!, (int) req.PageSize!)
+                        .Page((int)req.PageIndex!, (int)req.PageSize!)
                         .ToList();
                 }
                 else
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<RecordFile>().Where("1=1")
+                            .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
+                            .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
+                            .WhereIf(req.Id != null, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.Undo != null, x => x.Undo.Equals(req.Undo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime >= req.CreateTime)
+                            .WhereIf(req.StartTime != null, x => x.StartTime >= req.StartTime)
+                            .WhereIf(req.EndTime != null, x => x.EndTime <= req.EndTime)
+                            .WhereIf(req.FileSize != null, x => x.FileSize.Equals(req.FileSize))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.App),
+                                x => x.App.Equals(req.App))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Streamid),
+                                x => x.Streamid.Equals(req.Streamid))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                                x => x.Vhost.Equals(req.Vhost))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DownloadUrl),
+                                x => x.DownloadUrl.Equals(req.DownloadUrl))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordDate),
+                                x => x.RecordDate.Equals(req.RecordDate))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoPath),
+                                x => x.VideoPath.Equals(req.VideoPath))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerIp),
+                                x => x.MediaServerIp.Equals(req.MediaServerIp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .OrderBy(orderBy).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetRecordFileList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<RecordFile>().Where("1=1")
                         .WhereIf(req.Deleted != null, x => x.Deleted.Equals(req.Deleted))
                         .WhereIf(req.Duration != null, x => x.Duration.Equals(req.Duration))
@@ -3714,6 +4159,103 @@ namespace AKStreamWeb.Services
             {
                 if (isPageQuery)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
+                            .WhereIf(req.Id != null && req.Id > 0, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.DeviceNetworkType != null,
+                                x => x.DeviceNetworkType.Equals(req.DeviceNetworkType))
+                            .WhereIf(req.DeviceStreamType != null, x => x.DeviceStreamType.Equals(req.DeviceStreamType))
+                            .WhereIf(req.VideoDeviceType != null, x => x.VideoDeviceType.Equals(req.VideoDeviceType))
+                            .WhereIf(req.MethodByGetStream != null,
+                                x => x.MethodByGetStream.Equals(req.MethodByGetStream))
+                            .WhereIf(req.Enabled != null, x => x.Enabled.Equals(req.Enabled))
+                            .WhereIf(req.AutoRecord != null, x => x.AutoRecord.Equals(req.AutoRecord))
+                            .WhereIf(req.AutoVideo != null, x => x.AutoVideo.Equals(req.AutoVideo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime.Equals(req.CreateTime))
+                            .WhereIf(req.HasPtz != null, x => x.HasPtz.Equals(req.HasPtz))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(req.DefaultRtpPort != null, x => x.DefaultRtpPort.Equals(req.DefaultRtpPort))
+                            .WhereIf(req.NoPlayerBreak != null, x => x.NoPlayerBreak.Equals(req.NoPlayerBreak))
+                            .WhereIf(req.RtpWithTcp != null, x => x.RtpWithTcp.Equals(req.RtpWithTcp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordPlanName),
+                                x => x.RecordPlanName.Equals(req.RecordPlanName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.App),
+                                x => x.App.Equals(req.App))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.Vhost),
+                                x => x.Vhost.Equals(req.Vhost))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId) &&
+                                (req.IncludeSubDeptartment == null || req.IncludeSubDeptartment == false),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV4Address),
+                                x => x.IpV4Address.Equals(req.IpV4Address))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV6Address),
+                                x => x.IpV6Address.Equals(req.IpV6Address))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoSrcUrl),
+                                x => x.VideoSrcUrl.Equals(req.VideoSrcUrl))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelNameLike),
+                                x => x.ChannelName.Contains(req.ChannelNameLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentNameLike),
+                                x => x.DepartmentName.Contains(req.DepartmentNameLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV4AddressLike),
+                                x => x.IpV4Address.Contains(req.IpV4AddressLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV6AddressLike),
+                                x => x.IpV6Address.Contains(req.IpV6AddressLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoSrcUrlLike),
+                                x => x.VideoSrcUrl.Contains(req.VideoSrcUrlLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DeviceIdLike),
+                                x => x.DeviceId.Contains(req.DeviceIdLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelIdLike),
+                                x => x.ChannelId.Contains(req.ChannelIdLike))
+                            .WhereIf(req.IncludeSubDeptartment != null && req.IncludeSubDeptartment == true,
+                                x => x.PDepartmentId.Equals(req.DepartmentId))
+                            .OrderBy(orderBy)
+                            .Count(out total)
+                            .Page((int)req.PageIndex!, (int)req.PageSize!).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetVideoChannelList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
                         .WhereIf(req.Id != null && req.Id > 0, x => x.Id.Equals(req.Id))
                         .WhereIf(req.DeviceNetworkType != null, x => x.DeviceNetworkType.Equals(req.DeviceNetworkType))
@@ -3798,11 +4340,100 @@ namespace AKStreamWeb.Services
                             x => x.PDepartmentId.Equals(req.DepartmentId))
                         .OrderBy(orderBy)
                         .Count(out total)
-                        .Page((int) req.PageIndex!, (int) req.PageSize!)
+                        .Page((int)req.PageIndex!, (int)req.PageSize!)
                         .ToList();
                 }
                 else
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
+                            .WhereIf(req.Id != null && req.Id > 0, x => x.Id.Equals(req.Id))
+                            .WhereIf(req.DeviceNetworkType != null,
+                                x => x.DeviceNetworkType.Equals(req.DeviceNetworkType))
+                            .WhereIf(req.DeviceStreamType != null, x => x.DeviceStreamType.Equals(req.DeviceStreamType))
+                            .WhereIf(req.VideoDeviceType != null, x => x.VideoDeviceType.Equals(req.VideoDeviceType))
+                            .WhereIf(req.MethodByGetStream != null,
+                                x => x.MethodByGetStream.Equals(req.MethodByGetStream))
+                            .WhereIf(req.Enabled != null, x => x.Enabled.Equals(req.Enabled))
+                            .WhereIf(req.AutoRecord != null, x => x.AutoRecord.Equals(req.AutoRecord))
+                            .WhereIf(req.AutoVideo != null, x => x.AutoVideo.Equals(req.AutoVideo))
+                            .WhereIf(req.CreateTime != null, x => x.CreateTime.Equals(req.CreateTime))
+                            .WhereIf(req.HasPtz != null, x => x.HasPtz.Equals(req.HasPtz))
+                            .WhereIf(req.UpdateTime != null, x => x.UpdateTime.Equals(req.UpdateTime))
+                            .WhereIf(req.DefaultRtpPort != null, x => x.DefaultRtpPort.Equals(req.DefaultRtpPort))
+                            .WhereIf(req.NoPlayerBreak != null, x => x.NoPlayerBreak.Equals(req.NoPlayerBreak))
+                            .WhereIf(req.RtpWithTcp != null, x => x.RtpWithTcp.Equals(req.RtpWithTcp))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelId),
+                                x => x.ChannelId.Equals(req.ChannelId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.RecordPlanName),
+                                x => x.RecordPlanName.Equals(req.RecordPlanName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelName),
+                                x => x.ChannelName.Equals(req.ChannelName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentId) &&
+                                (req.IncludeSubDeptartment == null || req.IncludeSubDeptartment == false),
+                                x => x.DepartmentId.Equals(req.DepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                                x => x.DepartmentName.Equals(req.DepartmentName))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                                x => x.DeviceId.Equals(req.DeviceId))
+                            .WhereIf(!UtilsHelper.StringIsNullEx(req.MainId),
+                                x => x.MainId.Equals(req.MainId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV4Address),
+                                x => x.IpV4Address.Equals(req.IpV4Address))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV6Address),
+                                x => x.IpV6Address.Equals(req.IpV6Address))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                                x => x.PDepartmentId.Equals(req.PDepartmentId))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                                x => x.PDepartmentName.Equals(req.PDepartmentName))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoSrcUrl),
+                                x => x.VideoSrcUrl.Equals(req.VideoSrcUrl))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelNameLike),
+                                x => x.ChannelName.Contains(req.ChannelNameLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DepartmentNameLike),
+                                x => x.DepartmentName.Contains(req.DepartmentNameLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV4AddressLike),
+                                x => x.IpV4Address.Contains(req.IpV4AddressLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.IpV6AddressLike),
+                                x => x.IpV6Address.Contains(req.IpV6AddressLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.VideoSrcUrlLike),
+                                x => x.VideoSrcUrl.Contains(req.VideoSrcUrlLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.DeviceIdLike),
+                                x => x.DeviceId.Contains(req.DeviceIdLike))
+                            .WhereIf(
+                                !UtilsHelper.StringIsNullEx(req.ChannelIdLike),
+                                x => x.ChannelId.Contains(req.ChannelIdLike))
+                            .WhereIf(req.IncludeSubDeptartment != null && req.IncludeSubDeptartment == true,
+                                x => x.PDepartmentId.Equals(req.DepartmentId))
+                            .OrderBy(orderBy).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetVideoChannelList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
                         .WhereIf(req.Id != null && req.Id > 0, x => x.Id.Equals(req.Id))
                         .WhereIf(req.DeviceNetworkType != null, x => x.DeviceNetworkType.Equals(req.DeviceNetworkType))
@@ -4029,6 +4660,17 @@ namespace AKStreamWeb.Services
 
             if (!UtilsHelper.StringIsNullEx(req.RecordPlanName))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ModifyVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var recordPlan = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName))
                     .First();
                 if (recordPlan == null)
@@ -4048,6 +4690,18 @@ namespace AKStreamWeb.Services
             VideoChannel ret = null;
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
+                        .ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ModifyVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 ret = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                     .First();
             }
@@ -4081,6 +4735,18 @@ namespace AKStreamWeb.Services
 
             if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>()
+                        .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ModifyVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var channels = ORMHelper.Db.Select<VideoChannel>()
                     .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
                 if (channels != null && channels.Count > 0)
@@ -4099,6 +4765,70 @@ namespace AKStreamWeb.Services
 
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Update<VideoChannel>()
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ChannelName),
+                            x => x.ChannelName, req.ChannelName)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.RecordPlanName),
+                            x => x.RecordPlanName, req.RecordPlanName)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                            x => x.DepartmentId, req.DepartmentId)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                            x => x.DepartmentName, req.DepartmentName)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                            x => x.PDepartmentId, req.PDepartmentId)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                            x => x.PDepartmentName, req.PDepartmentName)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.IpV4Address),
+                            x => x.IpV4Address, req.IpV4Address)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.IpV6Address),
+                            x => x.IpV6Address, req.IpV6Address)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.MediaServerId),
+                            x => x.MediaServerId, req.MediaServerId)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.VideoSrcUrl),
+                            x => x.VideoSrcUrl, req.VideoSrcUrl)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.DeviceId),
+                            x => x.DeviceId, req.DeviceId)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ChannelId),
+                            x => x.ChannelId, req.ChannelId)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.App),
+                            x => x.App, req.App)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.Vhost),
+                            x => x.Vhost, req.Vhost)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.FFmpegTemplate),
+                            x => x.FFmpegTemplate, req.FFmpegTemplate)
+                        .SetIf(req.AutoVideo != null, x => x.AutoVideo, req.AutoVideo)
+                        .SetIf(req.HasPtz != null, x => x.HasPtz, req.HasPtz)
+                        .SetIf(req.DefaultRtpPort != null, x => x.DefaultRtpPort, req.DefaultRtpPort)
+                        .SetIf(req.DeviceNetworkType != null, x => x.DeviceNetworkType, req.DeviceNetworkType)
+                        .SetIf(req.NoPlayerBreak != null, x => x.NoPlayerBreak, req.NoPlayerBreak)
+                        .SetIf(req.RtpWithTcp != null, x => x.RtpWithTcp, req.RtpWithTcp)
+                        .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
+                        .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
+                        .SetIf(req.Enabled != null, x => x.Enabled, req.Enabled)
+                        .SetIf(req.DeviceStreamType != null, x => x.DeviceStreamType, req.DeviceStreamType)
+                        .SetIf(req.MethodByGetStream != null, x => x.MethodByGetStream, req.MethodByGetStream)
+                        .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
+                        .SetIf(req.IsShareChannel != null, x => x.IsShareChannel, req.IsShareChannel)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ShareUrl), x => x.ShareUrl, req.ShareUrl)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ShareDeviceId), x => x.ShareDeviceId, req.ShareDeviceId)
+                        .Set(x => x.UpdateTime, DateTime.Now)
+                        .Where("1=1")
+                        .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ModifyVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var rAffrows = ORMHelper.Db.Update<VideoChannel>()
                     .SetIf(!UtilsHelper.StringIsNullEx(req.ChannelName),
                         x => x.ChannelName, req.ChannelName)
@@ -4155,6 +4885,18 @@ namespace AKStreamWeb.Services
                     .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ExecuteAffrows();
                 if (rAffrows > 0)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
+                            .ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->ModifyVideoChannel->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var r = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                         .First();
 
@@ -4256,6 +4998,19 @@ namespace AKStreamWeb.Services
             VideoChannel ret = null;
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
+                        .Where(x => x.Enabled.Equals(false))
+                        .Where(x => x.MediaServerId.Contains("unknown_server")).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ActiveVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 ret = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                     .Where(x => x.Enabled.Equals(false))
                     .Where(x => x.MediaServerId.Contains("unknown_server")).First();
@@ -4291,6 +5046,17 @@ namespace AKStreamWeb.Services
             req.App = "rtp";
             if (!UtilsHelper.StringIsNullEx(req.RecordPlanName))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName)).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ActiveVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var recordPlan = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(req.RecordPlanName))
                     .First();
                 if (recordPlan == null)
@@ -4309,6 +5075,18 @@ namespace AKStreamWeb.Services
 
             if (!UtilsHelper.StringIsNullEx(req.ShareDeviceId))
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>()
+                        .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ActiveVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var channels = ORMHelper.Db.Select<VideoChannel>()
                     .Where(x => x.ShareDeviceId.Equals(req.ShareDeviceId.Trim())).ToList();
                 if (channels != null && channels.Count > 0)
@@ -4327,6 +5105,61 @@ namespace AKStreamWeb.Services
 
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Update<VideoChannel>()
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ChannelName),
+                            x => x.ChannelName, req.ChannelName)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.RecordPlanName),
+                            x => x.RecordPlanName, req.RecordPlanName)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentId),
+                            x => x.DepartmentId, req.DepartmentId)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.DepartmentName),
+                            x => x.DepartmentName, req.DepartmentName)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentId),
+                            x => x.PDepartmentId, req.PDepartmentId)
+                        .SetIf(
+                            !UtilsHelper.StringIsNullEx(req.PDepartmentName),
+                            x => x.PDepartmentName, req.PDepartmentName)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.IpV4Address),
+                            x => x.IpV4Address, req.IpV4Address)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.IpV6Address),
+                            x => x.IpV6Address, req.IpV6Address)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.FFmpegTemplate), x => x.FFmpegTemplate,
+                            req.FFmpegTemplate)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.App), x => x.App, req.App)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.Vhost), x => x.Vhost, req.Vhost)
+                        .SetIf(req.AutoVideo != null, x => x.AutoVideo, req.AutoVideo)
+                        .SetIf(req.HasPtz != null, x => x.HasPtz, req.HasPtz)
+                        .SetIf(req.DefaultRtpPort != null, x => x.DefaultRtpPort, req.DefaultRtpPort)
+                        .SetIf(req.DeviceNetworkType != null, x => x.DeviceNetworkType, req.DeviceNetworkType)
+                        .SetIf(req.NoPlayerBreak != null, x => x.NoPlayerBreak, req.NoPlayerBreak)
+                        .SetIf(req.RtpWithTcp != null, x => x.RtpWithTcp, req.RtpWithTcp)
+                        .SetIf(req.VideoDeviceType != null, x => x.VideoDeviceType, req.VideoDeviceType)
+                        .SetIf(req.AutoRecord != null, x => x.AutoRecord, req.AutoRecord)
+                        .SetIf(req.RecordSecs != null, x => x.RecordSecs, req.RecordSecs)
+                        .SetIf(
+                            (req.RecordSecs == null && MediaServerInstance.RecordSec != null &&
+                             MediaServerInstance.RecordSec > 0), x => x.RecordSecs, MediaServerInstance.RecordSec)
+                        .SetIf(req.IsShareChannel != null, x => x.IsShareChannel, req.IsShareChannel)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ShareUrl), x => x.ShareUrl, req.ShareUrl)
+                        .SetIf(!UtilsHelper.StringIsNullEx(req.ShareDeviceId), x => x.ShareDeviceId, req.ShareDeviceId)
+                        .Set(x => x.MediaServerId, req.MediaServerId)
+                        .Set(x => x.UpdateTime, DateTime.Now)
+                        .Set(x => x.Enabled, true)
+                        .Where("1=1")
+                        .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ToSql();
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ActiveVideoChannel->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var rAffrows = ORMHelper.Db.Update<VideoChannel>()
                     .SetIf(!UtilsHelper.StringIsNullEx(req.ChannelName),
                         x => x.ChannelName, req.ChannelName)
@@ -4373,6 +5206,18 @@ namespace AKStreamWeb.Services
                     .Where(x => x.MainId.Trim().Equals(mainId.Trim())).ExecuteAffrows();
                 if (rAffrows > 0)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
+                            .ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->ActiveVideoChannel->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var r = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Trim().Equals(mainId.Trim()))
                         .First();
                     GCommon.Logger.Info(
@@ -4478,6 +5323,19 @@ namespace AKStreamWeb.Services
             {
                 if (!isPageQuery)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
+                            .Where(x => x.Enabled == false).Where(x => x.MediaServerId.Contains("unknown_server"))
+                            .OrderBy(orderBy).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetWaitForActiveVideoChannelList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
                         .Where(x => x.Enabled == false).Where(x => x.MediaServerId.Contains("unknown_server"))
                         .OrderBy(orderBy)
@@ -4485,11 +5343,26 @@ namespace AKStreamWeb.Services
                 }
                 else
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
+                            .Where(x => x.Enabled == false).Where(x => x.MediaServerId.Contains("unknown_server"))
+                            .OrderBy(orderBy)
+                            .Count(out total)
+                            .Page((int)req.PageIndex!, (int)req.PageSize!).ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetWaitForActiveVideoChannelList->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     retList = ORMHelper.Db.Select<VideoChannel>().Where("1=1")
                         .Where(x => x.Enabled == false).Where(x => x.MediaServerId.Contains("unknown_server"))
                         .OrderBy(orderBy)
                         .Count(out total)
-                        .Page((int) req.PageIndex!, (int) req.PageSize!)
+                        .Page((int)req.PageIndex!, (int)req.PageSize!)
                         .ToList();
                 }
             }

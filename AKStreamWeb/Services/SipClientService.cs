@@ -21,6 +21,19 @@ namespace AKStreamWeb.Services
             };
             try
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.IsShareChannel.Equals(true))
+                        .Where(x => x.Enabled.Equals(true)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->GetShareChannelList->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 return ORMHelper.Db.Select<VideoChannel>().Where(x => x.IsShareChannel.Equals(true))
                     .Where(x => x.Enabled.Equals(true)).ToList();
             }
@@ -51,7 +64,20 @@ namespace AKStreamWeb.Services
             };
             try
             {
-                return (int) ORMHelper.Db.Select<VideoChannel>().Where(x => x.IsShareChannel.Equals(true))
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.IsShareChannel.Equals(true))
+                        .Where(x => x.Enabled.Equals(true)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->ShareChannelSumCount->执行SQL:->{sql}");
+                }
+
+                #endregion
+
+                return (int)ORMHelper.Db.Select<VideoChannel>().Where(x => x.IsShareChannel.Equals(true))
                     .Where(x => x.Enabled.Equals(true))
                     .Count();
             }

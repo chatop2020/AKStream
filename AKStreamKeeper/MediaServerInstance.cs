@@ -51,7 +51,7 @@ namespace AKStreamKeeper
         private static string _configPathStatic;
         private static string _binPathStatic;
         private static DateTime? _zlmBuildDateTime;
- 
+
 
         /// <summary>
         /// 新的zlm配置文件实例
@@ -77,7 +77,7 @@ namespace AKStreamKeeper
             set => _useNewZLMediaKit = value;
         }
 
-      
+
         /// <summary>
         /// ZLMediaKit的编译时间
         /// </summary>
@@ -1332,7 +1332,7 @@ namespace AKStreamKeeper
                             return false;
                         }
 
-                        _zlmHttpPort = (ushort) _zlmNewConfig.Http.Port;
+                        _zlmHttpPort = (ushort)_zlmNewConfig.Http.Port;
 
                         #endregion
 
@@ -1345,7 +1345,7 @@ namespace AKStreamKeeper
                         }
                         else
                         {
-                            _zlmHttpsPort = (ushort) _zlmNewConfig.Http.SSLport;
+                            _zlmHttpsPort = (ushort)_zlmNewConfig.Http.SSLport;
                         }
 
                         #endregion
@@ -1364,7 +1364,7 @@ namespace AKStreamKeeper
                             return false;
                         }
 
-                        _zlmRtspPort = (ushort) _zlmNewConfig.Rtsp.Port;
+                        _zlmRtspPort = (ushort)_zlmNewConfig.Rtsp.Port;
 
                         #endregion
 
@@ -1377,7 +1377,7 @@ namespace AKStreamKeeper
                         }
                         else
                         {
-                            _zlmRtspsPort = (ushort) _zlmNewConfig.Rtsp.Sslport;
+                            _zlmRtspsPort = (ushort)_zlmNewConfig.Rtsp.Sslport;
                         }
 
                         #endregion
@@ -1396,7 +1396,7 @@ namespace AKStreamKeeper
                             return false;
                         }
 
-                        _zlmRtmpPort = (ushort) _zlmNewConfig.Rtmp.Port;
+                        _zlmRtmpPort = (ushort)_zlmNewConfig.Rtmp.Port;
 
                         #endregion
 
@@ -1409,7 +1409,7 @@ namespace AKStreamKeeper
                         }
                         else
                         {
-                            _zlmRtmpsPort = (ushort) _zlmNewConfig.Rtsp.Sslport;
+                            _zlmRtmpsPort = (ushort)_zlmNewConfig.Rtsp.Sslport;
                         }
 
                         #endregion
@@ -1428,7 +1428,7 @@ namespace AKStreamKeeper
                             return false;
                         }
 
-                        _zlmRtpProxyPort = (ushort) _zlmNewConfig.Rtp_Proxy.Port;
+                        _zlmRtpProxyPort = (ushort)_zlmNewConfig.Rtp_Proxy.Port;
 
                         #endregion
 
@@ -1448,7 +1448,7 @@ namespace AKStreamKeeper
 
                         if (UtilsHelper.IsInteger(_zlmNewConfig.Protocol.Mp4_Max_Second.ToString()))
                         {
-                            _zlmRecordFileSec = (uint) _zlmNewConfig.Protocol.Mp4_Max_Second;
+                            _zlmRecordFileSec = (uint)_zlmNewConfig.Protocol.Mp4_Max_Second;
                         }
 
                         #endregion

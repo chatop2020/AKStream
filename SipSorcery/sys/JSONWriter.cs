@@ -62,7 +62,7 @@ namespace TinyJson
                         }
                         else
                         {
-                            stringBuilder.AppendFormat("u{0:X4}", (UInt32) str[i]);
+                            stringBuilder.AppendFormat("u{0:X4}", (UInt32)str[i]);
                         }
                     }
                     else
@@ -91,19 +91,19 @@ namespace TinyJson
             }
             else if (type == typeof(float))
             {
-                stringBuilder.Append(((float) item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((float)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(double))
             {
-                stringBuilder.Append(((double) item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((double)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(decimal))
             {
-                stringBuilder.Append(((decimal) item).ToString(CultureInfo.InvariantCulture));
+                stringBuilder.Append(((decimal)item).ToString(CultureInfo.InvariantCulture));
             }
             else if (type == typeof(bool))
             {
-                stringBuilder.Append(((bool) item) ? "true" : "false");
+                stringBuilder.Append(((bool)item) ? "true" : "false");
             }
             else if (type.IsEnum)
             {
@@ -158,7 +158,7 @@ namespace TinyJson
                     }
 
                     stringBuilder.Append('\"');
-                    stringBuilder.Append((string) key);
+                    stringBuilder.Append((string)key);
                     stringBuilder.Append("\":");
                     AppendValue(stringBuilder, dict[key]);
                 }
@@ -235,7 +235,7 @@ namespace TinyJson
             if (member.IsDefined(typeof(DataMemberAttribute), true))
             {
                 DataMemberAttribute dataMemberAttribute =
-                    (DataMemberAttribute) Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
+                    (DataMemberAttribute)Attribute.GetCustomAttribute(member, typeof(DataMemberAttribute), true);
                 if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
                 {
                     return dataMemberAttribute.Name;

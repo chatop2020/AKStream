@@ -50,7 +50,7 @@ namespace SIPSorcery.Sys
                         _ms.Seek(_readPos, SeekOrigin.Begin);
                     }
 
-                    int len = (int) Math.Min(count, _writePos - _readPos);
+                    int len = (int)Math.Min(count, _writePos - _readPos);
                     int bytesRead = _ms.Read(buffer, offset, len);
                     _readPos += bytesRead;
                     return bytesRead;

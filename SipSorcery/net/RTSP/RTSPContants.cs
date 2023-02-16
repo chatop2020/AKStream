@@ -68,7 +68,7 @@ namespace SIPSorcery.Net
 
             try
             {
-                rtspMethod = (RTSPMethodsEnum) Enum.Parse(typeof(RTSPMethodsEnum), method, true);
+                rtspMethod = (RTSPMethodsEnum)Enum.Parse(typeof(RTSPMethodsEnum), method, true);
             }
             catch { }
 
@@ -157,7 +157,7 @@ namespace SIPSorcery.Net
     {
         public static RTSPResponseStatusCodesEnum GetStatusTypeForCode(int statusCode)
         {
-            return (RTSPResponseStatusCodesEnum) Enum.Parse(typeof(RTSPResponseStatusCodesEnum), statusCode.ToString(),
+            return (RTSPResponseStatusCodesEnum)Enum.Parse(typeof(RTSPResponseStatusCodesEnum), statusCode.ToString(),
                 true);
         }
     }

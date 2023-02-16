@@ -112,7 +112,7 @@ namespace LibCommon.Structs.GB28181.Sys
                                     setting = setting.Substring(2);
                                     byte[] encryptedBytes = Convert.FromBase64String(setting);
                                     RSACryptoServiceProvider rsa =
-                                        (RSACryptoServiceProvider) encryptedSettingsCertificate.PrivateKey;
+                                        (RSACryptoServiceProvider)encryptedSettingsCertificate.PrivateKey;
                                     byte[] plainTextBytes = rsa.Decrypt(encryptedBytes, false);
                                     setting = Encoding.ASCII.GetString(plainTextBytes);
                                 }

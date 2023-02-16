@@ -247,7 +247,7 @@ namespace LibCommon.Structs.GB28181.Sys.Net
 
                 for (int octetIndex = 0; octetIndex < 4; octetIndex++)
                 {
-                    IPAddress[] testAddresses = (IPAddress[]) possibleMatches.ToArray(typeof(IPAddress));
+                    IPAddress[] testAddresses = (IPAddress[])possibleMatches.ToArray(typeof(IPAddress));
                     foreach (IPAddress localAddress in testAddresses)
                     {
                         string[] localOctets = Regex.Split(localAddress.ToString(), @"\.");
@@ -258,7 +258,7 @@ namespace LibCommon.Structs.GB28181.Sys.Net
 
                         if (possibleMatches.Count == 1)
                         {
-                            return (IPAddress) possibleMatches[0];
+                            return (IPAddress)possibleMatches[0];
                         }
                     }
                 }

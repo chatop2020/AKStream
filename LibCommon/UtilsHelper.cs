@@ -390,7 +390,7 @@ namespace LibCommon
         {
             var xmlSerializer = new XmlSerializer(typeof(T));
 
-            return (T) xmlSerializer.Deserialize(xmlBody.CreateReader());
+            return (T)xmlSerializer.Deserialize(xmlBody.CreateReader());
         }
 
         /// <summary>
@@ -556,7 +556,7 @@ namespace LibCommon
                 return false;
             }
         }
-        
+
         private static bool IsMatchex(string expression, string str)
         {
             Regex reg = new Regex(expression);
@@ -564,7 +564,7 @@ namespace LibCommon
                 return false;
             return reg.IsMatch(str);
         }
-        
+
         /// <summary>
         /// 是否为域名
         /// </summary>
@@ -575,8 +575,7 @@ namespace LibCommon
             string pattern = @"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$";
             return IsMatchex(pattern, str);
         }
-        
-      
+
 
         /// <summary>
         /// 是否rtsp地址
@@ -655,7 +654,7 @@ namespace LibCommon
         public static long GetTimeGoneMilliseconds(DateTime starttime, DateTime endtime)
         {
             TimeSpan ts = endtime.Subtract(starttime);
-            return (long) ts.TotalMilliseconds;
+            return (long)ts.TotalMilliseconds;
         }
 
         /// <summary>
@@ -747,7 +746,7 @@ namespace LibCommon
         /// <returns></returns>
         public static string GeneralGuid()
         {
-            Random rand = new Random((int) DateTime.Now.Ticks);
+            Random rand = new Random((int)DateTime.Now.Ticks);
             string random_str = "";
             for (int i = 0; i < 6; ++i)
             {
@@ -755,10 +754,10 @@ namespace LibCommon
                     switch (rand.Next() % 2)
                     {
                         case 1:
-                            random_str += (char) ('A' + rand.Next() % 26);
+                            random_str += (char)('A' + rand.Next() % 26);
                             break;
                         default:
-                            random_str += (char) ('0' + rand.Next() % 10);
+                            random_str += (char)('0' + rand.Next() % 10);
                             break;
                     }
 

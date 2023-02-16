@@ -964,7 +964,7 @@ namespace SIPSorcery.SIP
     {
         private static string m_looseRouterParameter = SIPConstants.SIP_LOOSEROUTER_PARAMETER;
 
-        private static char[] m_angles = new char[] {'<', '>'};
+        private static char[] m_angles = new char[] { '<', '>' };
 
         private SIPUserField m_userField;
 

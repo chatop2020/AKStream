@@ -241,7 +241,7 @@ namespace SIPSorcery.Net
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] delimiterChars = new char[] {':'};
+        private static char[] delimiterChars = new char[] { ':' };
 
         public string Accept;
         public string ContentType;

@@ -76,7 +76,7 @@ namespace SIPSorcery.Sys
             UInt32[] createTable = new UInt32[256];
             for (int i = 0; i < 256; i++)
             {
-                UInt32 entry = (UInt32) i;
+                UInt32 entry = (UInt32)i;
                 for (int j = 0; j < 8; j++)
                 {
                     if ((entry & 1) == 1)
@@ -118,10 +118,10 @@ namespace SIPSorcery.Sys
         {
             return new byte[]
             {
-                (byte) ((x >> 24) & 0xff),
-                (byte) ((x >> 16) & 0xff),
-                (byte) ((x >> 8) & 0xff),
-                (byte) (x & 0xff)
+                (byte)((x >> 24) & 0xff),
+                (byte)((x >> 16) & 0xff),
+                (byte)((x >> 8) & 0xff),
+                (byte)(x & 0xff)
             };
         }
     }

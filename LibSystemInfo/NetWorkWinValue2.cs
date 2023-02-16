@@ -67,7 +67,7 @@ namespace LibSystemInfo
             }
 
             //定义，获取 MIB_IFTABLE 对象
-            MIB_IFTABLE tbl = new MIB_IFTABLE((int) dwSize);
+            MIB_IFTABLE tbl = new MIB_IFTABLE((int)dwSize);
             ret = GetIfTable(tbl.ByteArray, ref dwSize, false);
 
             //如果不成功

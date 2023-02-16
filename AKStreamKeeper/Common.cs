@@ -176,7 +176,7 @@ namespace AKStreamKeeper
                 var obj = KeeperPerformanceInfo.DriveInfo.FindLast(x => x.Name.Trim().Equals(path));
                 if (obj != null)
                 {
-                    tmpList.Add(new KeyValuePair<double, string>((double) obj.Free, path));
+                    tmpList.Add(new KeyValuePair<double, string>((double)obj.Free, path));
                 }
                 else
                 {
@@ -196,7 +196,7 @@ namespace AKStreamKeeper
                                 drvPath = drvPath.TrimEnd(':');
                                 if (drvPath.Equals(rootPath))
                                 {
-                                    tmpList.Add(new KeyValuePair<double, string>((double) drv.Free, path));
+                                    tmpList.Add(new KeyValuePair<double, string>((double)drv.Free, path));
                                 }
                             }
                         }
@@ -210,7 +210,7 @@ namespace AKStreamKeeper
                                 x.Name.Trim().Equals("/"));
                             if (objUnix != null)
                             {
-                                tmpList.Add(new KeyValuePair<double, string>((double) objUnix.Free, path));
+                                tmpList.Add(new KeyValuePair<double, string>((double)objUnix.Free, path));
                             }
                         }
                         else
@@ -232,7 +232,7 @@ namespace AKStreamKeeper
                                         x.Name.Trim().Equals(tmpStr.Trim()));
                                     if (objUnix != null)
                                     {
-                                        subTmpList.Add(new KeyValuePair<double, string>((double) objUnix.Free, path));
+                                        subTmpList.Add(new KeyValuePair<double, string>((double)objUnix.Free, path));
                                         break;
                                     }
                                 }
@@ -259,7 +259,7 @@ namespace AKStreamKeeper
                                     x.Name.Trim().Equals("/"));
                                 if (objUnix != null)
                                 {
-                                    subTmpList.Add(new KeyValuePair<double, string>((double) objUnix.Free, path));
+                                    subTmpList.Add(new KeyValuePair<double, string>((double)objUnix.Free, path));
                                 }
                             }
 
@@ -703,7 +703,7 @@ namespace AKStreamKeeper
                 {
                     tmpKeepAlive.FirstPost = false;
                 }
-                
+
                 tmpKeepAlive.RecordSec = MediaServerInstance.AkStreamKeeperConfig.RecordSec;
                 tmpKeepAlive.Secret = MediaServerInstance.Secret;
                 tmpKeepAlive.PerformanceInfo = KeeperPerformanceInfo;

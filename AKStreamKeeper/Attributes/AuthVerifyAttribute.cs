@@ -60,7 +60,7 @@ namespace AKStreamKeeper.Attributes
             GCommon.Logger.Error(
                 $@"[{Common.LoggerHead}]->HTTP-AuthVerify    {remoteIpAddr}    {context.HttpContext.Request.Method}    {context.HttpContext.Request.Path} ->授权访问失败，访问密钥不正确");
             var result = new JsonResult(rs);
-            result.StatusCode = (int) HttpStatusCode.BadRequest;
+            result.StatusCode = (int)HttpStatusCode.BadRequest;
             context.Result = result;
         }
     }

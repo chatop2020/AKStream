@@ -120,7 +120,7 @@ namespace SIPSorcery.Net
     {
         public static STUNMessageTypesEnum GetSTUNMessageTypeForId(int stunMessageTypeId)
         {
-            return (STUNMessageTypesEnum) Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
+            return (STUNMessageTypesEnum)Enum.Parse(typeof(STUNMessageTypesEnum), stunMessageTypeId.ToString(), true);
         }
     }
 
@@ -138,8 +138,8 @@ namespace SIPSorcery.Net
         {
             get
             {
-                int @class = ((ushort) MessageType >> 8 & 0x01) * 2 | ((ushort) MessageType >> 4 & 0x01);
-                return (STUNClassTypesEnum) @class;
+                int @class = ((ushort)MessageType >> 8 & 0x01) * 2 | ((ushort)MessageType >> 4 & 0x01);
+                return (STUNClassTypesEnum)@class;
             }
         }
 

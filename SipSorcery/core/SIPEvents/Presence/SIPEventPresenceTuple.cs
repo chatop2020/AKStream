@@ -60,7 +60,7 @@ namespace SIPSorcery.SIP
 
             SIPEventPresenceTuple tuple = new SIPEventPresenceTuple();
             tuple.ID = tupleElement.Attribute("id").Value;
-            tuple.Status = (SIPEventPresenceStateEnum) Enum.Parse(typeof(SIPEventPresenceStateEnum),
+            tuple.Status = (SIPEventPresenceStateEnum)Enum.Parse(typeof(SIPEventPresenceStateEnum),
                 tupleElement.Element(ns + "status").Element(ns + "basic").Value, true);
             tuple.ContactURI = (tupleElement.Element(ns + "contact") != null)
                 ? SIPURI.ParseSIPURI(tupleElement.Element(ns + "contact").Value)

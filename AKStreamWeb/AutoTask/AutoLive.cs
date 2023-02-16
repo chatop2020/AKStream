@@ -28,6 +28,17 @@ namespace AKStreamWeb.AutoTask
             {
                 try
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<VideoChannel>().ToSql();
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->KeepLive->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var dbRet = ORMHelper.Db.Select<VideoChannel>().ToList();
                     if (dbRet != null && dbRet.Count > 0)
                     {

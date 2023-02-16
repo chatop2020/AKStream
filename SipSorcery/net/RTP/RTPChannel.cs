@@ -480,7 +480,7 @@ namespace SIPSorcery.Net
         {
             try
             {
-                Socket sendSocket = (Socket) ar.AsyncState;
+                Socket sendSocket = (Socket)ar.AsyncState;
                 int bytesSent = sendSocket.EndSendTo(ar);
             }
             catch (SocketException sockExcp)

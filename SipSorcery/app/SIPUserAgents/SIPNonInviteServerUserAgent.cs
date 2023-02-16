@@ -178,7 +178,7 @@ namespace SIPSorcery.SIP.App
             string[] customHeaders, string contentType, string body)
         {
             logger.LogDebug(m_transaction.TransactionRequest.Method + " request succeeded with a response status of " +
-                            (int) answerStatus + " " + reasonPhrase + ".");
+                            (int)answerStatus + " " + reasonPhrase + ".");
             SIPResponse answerResponse =
                 SIPResponse.GetResponse(m_transaction.TransactionRequest, answerStatus, reasonPhrase);
 
@@ -207,7 +207,7 @@ namespace SIPSorcery.SIP.App
         public void Reject(SIPResponseStatusCodesEnum failureStatus, string reasonPhrase, string[] customHeaders)
         {
             logger.LogDebug(m_transaction.TransactionRequest.Method + " request failed with a response status of " +
-                            (int) failureStatus + " " + reasonPhrase + ".");
+                            (int)failureStatus + " " + reasonPhrase + ".");
             SIPResponse failureResponse =
                 SIPResponse.GetResponse(m_transaction.TransactionRequest, failureStatus, reasonPhrase);
             m_transaction.SendResponse(failureResponse);

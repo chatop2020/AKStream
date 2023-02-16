@@ -30,7 +30,8 @@ namespace SystemInfoLibrary.Hardware
         private RAMInfo _RAM;
 
         public override IList<CPUInfo> CPUs =>
-            _CPUs ?? (_CPUs = new List<CPUInfo> {new BSDCPUInfo()}); // We'll assume only one physical CPU is supported
+            _CPUs ?? (_CPUs = new List<CPUInfo>
+                { new BSDCPUInfo() }); // We'll assume only one physical CPU is supported
 
         public override IList<GPUInfo> GPUs => new List<GPUInfo>();
         public override RAMInfo RAM => _RAM ?? (_RAM = new BSDRAMInfo());

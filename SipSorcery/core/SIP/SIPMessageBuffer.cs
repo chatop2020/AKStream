@@ -276,7 +276,7 @@ namespace SIPSorcery.SIP
             bool letterCharFound = false;
             while (!letterCharFound && start < length)
             {
-                if ((int) receiveBuffer[start] >= 65)
+                if ((int)receiveBuffer[start] >= 65)
                 {
                     break;
                 }
@@ -407,7 +407,7 @@ namespace SIPSorcery.SIP
                         }
                         else if (buffer[index] >= '0' && buffer[index] <= '9')
                         {
-                            contentLengthValue += ((char) buffer[index]).ToString();
+                            contentLengthValue += ((char)buffer[index]).ToString();
                         }
                         else
                         {

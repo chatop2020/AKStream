@@ -112,7 +112,7 @@ namespace SIPSorcery.Net
             byte[] reasonBytes = (Reason != null) ? Encoding.UTF8.GetBytes(Reason) : null;
             int reasonLength = (reasonBytes != null) ? reasonBytes.Length : 0;
             byte[] buffer = new byte[RTCPHeader.HEADER_BYTES_LENGTH + GetPaddedLength(reasonLength)];
-            Header.SetLength((ushort) (buffer.Length / 4 - 1));
+            Header.SetLength((ushort)(buffer.Length / 4 - 1));
 
             Buffer.BlockCopy(Header.GetBytes(), 0, buffer, 0, RTCPHeader.HEADER_BYTES_LENGTH);
             int payloadIndex = RTCPHeader.HEADER_BYTES_LENGTH;
@@ -128,7 +128,7 @@ namespace SIPSorcery.Net
 
             if (reasonLength > 0)
             {
-                buffer[payloadIndex + 4] = (byte) reasonLength;
+                buffer[payloadIndex + 4] = (byte)reasonLength;
                 Buffer.BlockCopy(reasonBytes, 0, buffer, payloadIndex + 5, reasonBytes.Length);
             }
 

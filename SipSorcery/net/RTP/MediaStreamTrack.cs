@@ -50,7 +50,7 @@ namespace SIPSorcery.Net
         public ushort LastRemoteSeqNum { get; internal set; }
 
         // The value used in the RTP Sequence Number header field for media packets.
-        public ushort SeqNum { get { return (ushort) m_seqNum; } internal set { m_seqNum = value; } }
+        public ushort SeqNum { get { return (ushort)m_seqNum; } internal set { m_seqNum = value; } }
 
         /// <summary>
         /// The value used in the RTP Timestamp header field for media packets
@@ -189,7 +189,7 @@ namespace SIPSorcery.Net
             AudioFormat format,
             MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
             this(SDPMediaTypesEnum.audio, false,
-                new List<SDPAudioVideoMediaFormat> {new SDPAudioVideoMediaFormat(format)}, streamStatus)
+                new List<SDPAudioVideoMediaFormat> { new SDPAudioVideoMediaFormat(format) }, streamStatus)
         {
         }
 
@@ -217,7 +217,7 @@ namespace SIPSorcery.Net
             VideoFormat format,
             MediaStreamStatusEnum streamStatus = MediaStreamStatusEnum.SendRecv) :
             this(SDPMediaTypesEnum.video, false,
-                new List<SDPAudioVideoMediaFormat> {new SDPAudioVideoMediaFormat(format)}, streamStatus)
+                new List<SDPAudioVideoMediaFormat> { new SDPAudioVideoMediaFormat(format) }, streamStatus)
         {
         }
 
@@ -297,13 +297,13 @@ namespace SIPSorcery.Net
                 }
 
                 expectedSeqNum = actualSeqNum;
-                int nextSeqNum = (actualSeqNum >= UInt16.MaxValue) ? (ushort) 0 : (ushort) (actualSeqNum + 1);
+                int nextSeqNum = (actualSeqNum >= UInt16.MaxValue) ? (ushort)0 : (ushort)(actualSeqNum + 1);
                 actualSeqNum = Interlocked.CompareExchange(ref m_seqNum, nextSeqNum, expectedSeqNum);
             } while
                 (expectedSeqNum !=
                  actualSeqNum); // Try as long as compare-exchange was not successful; in most cases, only one iteration should be needed
 
-            return (ushort) expectedSeqNum;
+            return (ushort)expectedSeqNum;
         }
     }
 }

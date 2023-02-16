@@ -58,7 +58,7 @@ namespace SIPSorcery.Media
             int sign = (sample >> 8) & 0x80;
             if (sign != 0)
             {
-                sample = (short) -sample;
+                sample = (short)-sample;
             }
 
             if (sample > cClip)
@@ -66,12 +66,12 @@ namespace SIPSorcery.Media
                 sample = cClip;
             }
 
-            sample = (short) (sample + cBias);
-            int exponent = (int) MuLawCompressTable[(sample >> 7) & 0xFF];
+            sample = (short)(sample + cBias);
+            int exponent = (int)MuLawCompressTable[(sample >> 7) & 0xFF];
             int mantissa = (sample >> (exponent + 3)) & 0x0F;
             int compressedByte = ~(sign | (exponent << 4) | mantissa);
 
-            return (byte) compressedByte;
+            return (byte)compressedByte;
         }
     }
 
@@ -118,7 +118,7 @@ namespace SIPSorcery.Media
             sign = ((~sample) >> 8) & 0x80;
             if (sign == 0)
             {
-                sample = (short) -sample;
+                sample = (short)-sample;
             }
 
             if (sample > cClip)
@@ -128,16 +128,16 @@ namespace SIPSorcery.Media
 
             if (sample >= 256)
             {
-                exponent = (int) ALawCompressTable[(sample >> 8) & 0x7F];
+                exponent = (int)ALawCompressTable[(sample >> 8) & 0x7F];
                 mantissa = (sample >> (exponent + 3)) & 0x0F;
-                compressedByte = (byte) ((exponent << 4) | mantissa);
+                compressedByte = (byte)((exponent << 4) | mantissa);
             }
             else
             {
-                compressedByte = (byte) (sample >> 4);
+                compressedByte = (byte)(sample >> 4);
             }
 
-            compressedByte ^= (byte) (sign ^ 0x55);
+            compressedByte ^= (byte)(sign ^ 0x55);
             return compressedByte;
         }
     }

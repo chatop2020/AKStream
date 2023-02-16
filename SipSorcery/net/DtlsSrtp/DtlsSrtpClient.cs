@@ -118,7 +118,7 @@ namespace SIPSorcery.Net
         }
 
         public DtlsSrtpClient(string certificatePath, string keyPath) :
-            this(new string[] {certificatePath}, keyPath)
+            this(new string[] { certificatePath }, keyPath)
         {
         }
 
@@ -143,7 +143,7 @@ namespace SIPSorcery.Net
             if (clientSrtpData == null)
             {
                 SecureRandom random = new SecureRandom();
-                int[] protectionProfiles = {SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80};
+                int[] protectionProfiles = { SrtpProtectionProfile.SRTP_AES128_CM_HMAC_SHA1_80 };
                 byte[] mki = new byte[(SrtpParameters.SRTP_AES128_CM_HMAC_SHA1_80.GetCipherKeyLength() +
                                        SrtpParameters.SRTP_AES128_CM_HMAC_SHA1_80.GetCipherSaltLength()) / 8];
                 random.NextBytes(mki); // Reusing our secure random for generating the key.
@@ -205,7 +205,7 @@ namespace SIPSorcery.Net
 
             // server chooses a mutually supported SRTP protection profile
             // http://tools.ietf.org/html/draft-ietf-avt-dtls-srtp-07#section-4.1.2
-            int[] protectionProfiles = {chosenProfile};
+            int[] protectionProfiles = { chosenProfile };
 
             // server agrees to use the MKI offered by the client
             clientSrtpData = new UseSrtpData(protectionProfiles, clientSrtpData.Mki);
@@ -440,12 +440,12 @@ namespace SIPSorcery.Net
 
             if (Enum.IsDefined(typeof(AlertLevelsEnum), alertLevel))
             {
-                level = (AlertLevelsEnum) alertLevel;
+                level = (AlertLevelsEnum)alertLevel;
             }
 
             if (Enum.IsDefined(typeof(AlertTypesEnum), alertDescription))
             {
-                alertType = (AlertTypesEnum) alertDescription;
+                alertType = (AlertTypesEnum)alertDescription;
             }
 
             if (alertType == AlertTypesEnum.close_notify)

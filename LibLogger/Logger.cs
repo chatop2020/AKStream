@@ -60,7 +60,7 @@ namespace LibLogger
         /// <returns></returns>
         public string GetLogLevel()
         {
-            return ((Hierarchy) LogManager.GetRepository()).Root.Level.ToString();
+            return ((Hierarchy)LogManager.GetRepository()).Root.Level.ToString();
         }
     }
 }

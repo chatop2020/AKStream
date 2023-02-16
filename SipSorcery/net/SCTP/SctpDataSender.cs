@@ -113,7 +113,7 @@ namespace SIPSorcery.Net
         /// A count of the bytes currently in-flight to the remote peer.
         /// </summary>
         internal uint _outstandingBytes =>
-            (uint) (_unconfirmedChunks.Sum(x => x.Value.UserData.Length));
+            (uint)(_unconfirmedChunks.Sum(x => x.Value.UserData.Length));
 
         /// <summary>
         /// The TSN that the remote peer has acknowledged.
@@ -146,7 +146,7 @@ namespace SIPSorcery.Net
         /// <summary>
         /// The total size (in bytes) of queued user data that will be sent to the peer.
         /// </summary>
-        public ulong BufferedAmount => (ulong) _sendQueue.Sum(x => x.UserData?.Length ?? 0);
+        public ulong BufferedAmount => (ulong)_sendQueue.Sum(x => x.UserData?.Length ?? 0);
 
         /// <summary>
         /// The Transaction Sequence Number (TSN) that will be used in the next DATA chunk sent.
@@ -169,7 +169,7 @@ namespace SIPSorcery.Net
             _receiverWindow = remoteARwnd;
 
             // RFC4960 7.2.1 (point 1)
-            _congestionWindow = (uint) (Math.Min(4 * _defaultMTU, Math.Max(2 * _defaultMTU, CONGESTION_WINDOW_FACTOR)));
+            _congestionWindow = (uint)(Math.Min(4 * _defaultMTU, Math.Max(2 * _defaultMTU, CONGESTION_WINDOW_FACTOR)));
 
             // RFC4960 7.2.1 (point 3)
             _slowStartThreshold = _initialRemoteARwnd;
@@ -274,7 +274,7 @@ namespace SIPSorcery.Net
                 {
                     unchecked
                     {
-                        _streamSeqnums[streamID] = (ushort) (_streamSeqnums[streamID] + 1);
+                        _streamSeqnums[streamID] = (ushort)(_streamSeqnums[streamID] + 1);
                         seqnum = _streamSeqnums[streamID];
                     }
                 }
@@ -508,7 +508,7 @@ namespace SIPSorcery.Net
 
                             // When the T3-rtx timer expires on an address, SCTP should perform slow start.
                             // RFC4960 7.2.3
-                            _slowStartThreshold = (uint) Math.Max(_congestionWindow / 2, 4 * _defaultMTU);
+                            _slowStartThreshold = (uint)Math.Max(_congestionWindow / 2, 4 * _defaultMTU);
                             _congestionWindow = _defaultMTU;
                         }
                     }
@@ -605,7 +605,7 @@ namespace SIPSorcery.Net
                     // When cwnd is less than or equal to ssthresh, an SCTP endpoint MUST
                     // use the slow - start algorithm to increase cwnd only if the current
                     // congestion window is being fully utilized.
-                    uint increasedCwnd = (uint) (_congestionWindow + Math.Min(lastAckDataChunkSize, _defaultMTU));
+                    uint increasedCwnd = (uint)(_congestionWindow + Math.Min(lastAckDataChunkSize, _defaultMTU));
 
                     logger.LogTrace(
                         $"SCTP sender congestion window in slow-start increased from {_congestionWindow} to {increasedCwnd}.");

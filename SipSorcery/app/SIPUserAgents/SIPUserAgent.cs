@@ -919,7 +919,7 @@ namespace SIPSorcery.SIP.App
                 referTx.NonInviteTransactionFinalResponseReceived += referTxStatusHandler;
                 referTx.SendRequest();
 
-                await Task.WhenAny(transferAccepted.Task, Task.Delay((int) timeout.TotalMilliseconds, ct))
+                await Task.WhenAny(transferAccepted.Task, Task.Delay((int)timeout.TotalMilliseconds, ct))
                     .ConfigureAwait(false);
 
                 referTx.NonInviteTransactionFinalResponseReceived -= referTxStatusHandler;
@@ -1266,7 +1266,7 @@ namespace SIPSorcery.SIP.App
                 else
                 {
                     reinviteRequest.Header.Contact = new List<SIPContactHeader>()
-                        {SIPContactHeader.GetDefaultSIPContactHeader(reinviteRequest.URI.Scheme)};
+                        { SIPContactHeader.GetDefaultSIPContactHeader(reinviteRequest.URI.Scheme) };
                 }
 
                 UACInviteTransaction reinviteTransaction =
@@ -1658,7 +1658,7 @@ namespace SIPSorcery.SIP.App
             referRequest.Header.ReferTo = referToUri.ToString();
             referRequest.Header.Supported = SIPExtensionHeaders.NO_REFER_SUB;
             referRequest.Header.Contact = new List<SIPContactHeader>
-                {SIPContactHeader.GetDefaultSIPContactHeader(referRequest.URI.Scheme)};
+                { SIPContactHeader.GetDefaultSIPContactHeader(referRequest.URI.Scheme) };
 
             if (customHeaders != null && customHeaders.Length > 0)
             {
@@ -1683,7 +1683,7 @@ namespace SIPSorcery.SIP.App
             SIPRequest referRequest = m_sipDialogue.GetInDialogRequest(SIPMethodsEnum.REFER);
             SIPURI targetUri = target.RemoteTarget.CopyOf();
             referRequest.Header.Contact = new List<SIPContactHeader>
-                {SIPContactHeader.GetDefaultSIPContactHeader(referRequest.URI.Scheme)};
+                { SIPContactHeader.GetDefaultSIPContactHeader(referRequest.URI.Scheme) };
 
             SIPParameters replacesHeaders = new SIPParameters();
 

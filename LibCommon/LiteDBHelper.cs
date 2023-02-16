@@ -53,10 +53,11 @@ namespace LibCommon
                     }
                 }
             }
+
             /*启动时删除所有.ldb文件*/
             _liteDb = new LiteDatabase(dbpath);
             VideoOnlineInfo =
-                (LiteCollection<VideoChannelMediaInfo>) _liteDb.GetCollection<VideoChannelMediaInfo>("VideoOnlineInfo");
+                (LiteCollection<VideoChannelMediaInfo>)_liteDb.GetCollection<VideoChannelMediaInfo>("VideoOnlineInfo");
             BsonMapper.Global.RegisterType<IPAddress>
             (
                 serialize: (ip) => ip.ToString(),
@@ -65,7 +66,7 @@ namespace LibCommon
             BsonMapper.Global.RegisterType<StreamSourceType>
             (
                 serialize: (type) => type.ToString(),
-                deserialize: (bson) => (StreamSourceType) Enum.Parse(typeof(StreamSourceType), bson)
+                deserialize: (bson) => (StreamSourceType)Enum.Parse(typeof(StreamSourceType), bson)
             );
         }
 

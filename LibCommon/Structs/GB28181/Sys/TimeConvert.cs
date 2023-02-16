@@ -15,7 +15,7 @@ namespace LibCommon.Structs.GB28181.Sys
         /// <returns></returns>
         public static uint DateToTimeStamp(DateTime date)
         {
-            return (uint) ((date.ToUniversalTime().Ticks - 621355968000000000) / 10000000);
+            return (uint)((date.ToUniversalTime().Ticks - 621355968000000000) / 10000000);
         }
     }
 }

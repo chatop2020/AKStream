@@ -221,7 +221,7 @@ namespace SIPSorcery.Net
                     break;
                 }
 
-                posn += (int) SctpChunk.GetChunkLengthFromHeader(buffer, posn, true);
+                posn += (int)SctpChunk.GetChunkLengthFromHeader(buffer, posn, true);
             }
 
             return (chunks, unrecognisedChunks);

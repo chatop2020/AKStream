@@ -358,7 +358,7 @@ namespace SIPSorcery.Net
             _localChecklistCandidate.SetAddressProperties(
                 RTCIceProtocol.udp,
                 base.RTPLocalEndPoint.Address,
-                (ushort) base.RTPLocalEndPoint.Port,
+                (ushort)base.RTPLocalEndPoint.Port,
                 RTCIceCandidateType.host,
                 null,
                 0);
@@ -594,7 +594,7 @@ namespace SIPSorcery.Net
         private List<RTCIceCandidate> GetHostCandidates()
         {
             List<RTCIceCandidate> hostCandidates = new List<RTCIceCandidate>();
-            RTCIceCandidateInit init = new RTCIceCandidateInit {usernameFragment = LocalIceUser};
+            RTCIceCandidateInit init = new RTCIceCandidateInit { usernameFragment = LocalIceUser };
 
             // RFC8445 states that loopback addresses should not be included in
             // host candidates. If the provided bind address is a loopback
@@ -644,13 +644,13 @@ namespace SIPSorcery.Net
             {
                 // If not bound on a [::] or 0.0.0.0 means we're only listening on a specific IP address
                 // and that's the only one that can be used for the host candidate.
-                localAddresses = new List<IPAddress> {rtpBindAddress};
+                localAddresses = new List<IPAddress> { rtpBindAddress };
             }
 
             foreach (var localAddress in localAddresses)
             {
                 var hostCandidate = new RTCIceCandidate(init);
-                hostCandidate.SetAddressProperties(RTCIceProtocol.udp, localAddress, (ushort) base.RTPPort,
+                hostCandidate.SetAddressProperties(RTCIceProtocol.udp, localAddress, (ushort)base.RTPPort,
                     RTCIceCandidateType.host, null, 0);
 
                 // We currently only support a single multiplexed connection for all data streams and RTCP.
@@ -1284,7 +1284,7 @@ namespace SIPSorcery.Net
             if (NominatedEntry == null)
             {
                 _connectedAt = DateTime.Now;
-                int duration = (int) _connectedAt.Subtract(_startedGatheringAt).TotalMilliseconds;
+                int duration = (int)_connectedAt.Subtract(_startedGatheringAt).TotalMilliseconds;
 
                 logger.LogInformation(
                     $"ICE RTP channel connected after {duration:0.##}ms {entry.LocalCandidate.ToShortString()}->{entry.RemoteCandidate.ToShortString()}.");
@@ -1452,7 +1452,7 @@ namespace SIPSorcery.Net
                     DateTime.Now.Subtract(candidatePair.LastBindingRequestReceivedAt).TotalSeconds >
                     FAILED_TIMEOUT_PERIOD)
                 {
-                    int duration = (int) DateTime.Now.Subtract(candidatePair.LastConnectedResponseAt).TotalSeconds;
+                    int duration = (int)DateTime.Now.Subtract(candidatePair.LastConnectedResponseAt).TotalSeconds;
                     logger.LogWarning(
                         $"ICE RTP channel failed after {duration:0.##}s {candidatePair.LocalCandidate.ToShortString()}->{candidatePair.RemoteCandidate.ToShortString()}.");
 
@@ -1470,7 +1470,7 @@ namespace SIPSorcery.Net
                     {
                         if (IceConnectionState == RTCIceConnectionState.connected)
                         {
-                            int duration = (int) DateTime.Now.Subtract(candidatePair.LastConnectedResponseAt)
+                            int duration = (int)DateTime.Now.Subtract(candidatePair.LastConnectedResponseAt)
                                 .TotalSeconds;
                             logger.LogWarning(
                                 $"ICE RTP channel disconnected after {duration:0.##}s {candidatePair.LocalCandidate.ToShortString()}->{candidatePair.RemoteCandidate.ToShortString()}.");
@@ -1662,7 +1662,7 @@ namespace SIPSorcery.Net
                         // Add a new remote peer reflexive candidate. 
                         RTCIceCandidate peerRflxCandidate = new RTCIceCandidate(new RTCIceCandidateInit());
                         peerRflxCandidate.SetAddressProperties(RTCIceProtocol.udp, remoteEndPoint.Address,
-                            (ushort) remoteEndPoint.Port, RTCIceCandidateType.prflx, null, 0);
+                            (ushort)remoteEndPoint.Port, RTCIceCandidateType.prflx, null, 0);
                         peerRflxCandidate.SetDestinationEndPoint(remoteEndPoint);
                         logger.LogDebug($"Adding peer reflex ICE candidate for {remoteEndPoint}.");
                         _remoteCandidates.Add(peerRflxCandidate);

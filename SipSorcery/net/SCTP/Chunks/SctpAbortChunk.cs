@@ -53,13 +53,13 @@ namespace SIPSorcery.Net
         {
             if (ErrorCauses.Any(x => x.CauseCode == SctpErrorCauseCode.UserInitiatedAbort))
             {
-                var userAbort = (SctpErrorUserInitiatedAbort) (ErrorCauses
+                var userAbort = (SctpErrorUserInitiatedAbort)(ErrorCauses
                     .First(x => x.CauseCode == SctpErrorCauseCode.UserInitiatedAbort));
                 return userAbort.AbortReason;
             }
             else if (ErrorCauses.Any(x => x.CauseCode == SctpErrorCauseCode.ProtocolViolation))
             {
-                var protoViolation = (SctpErrorProtocolViolation) (ErrorCauses
+                var protoViolation = (SctpErrorProtocolViolation)(ErrorCauses
                     .First(x => x.CauseCode == SctpErrorCauseCode.ProtocolViolation));
                 return protoViolation.AdditionalInformation;
             }

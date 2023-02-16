@@ -36,12 +36,12 @@ namespace SIPSorcery.Net
     {
         public static SDPMediaTypesEnum GetSDPMediaType(string mediaType)
         {
-            return (SDPMediaTypesEnum) Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
+            return (SDPMediaTypesEnum)Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
         }
 
         public static SDPMediaTypesEnum GetSDPMediaType(int mediaType)
         {
-            return (SDPMediaTypesEnum) mediaType;
+            return (SDPMediaTypesEnum)mediaType;
         }
     }
 

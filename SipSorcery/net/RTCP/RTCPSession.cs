@@ -218,7 +218,7 @@ namespace SIPSorcery.Net
             LastActivityAt = DateTime.Now;
             IsTimedOut = false;
             PacketsReceivedCount++;
-            OctetsReceivedCount += (uint) rtpPacket.Payload.Length;
+            OctetsReceivedCount += (uint)rtpPacket.Payload.Length;
 
             if (m_receptionReport == null)
             {
@@ -251,7 +251,7 @@ namespace SIPSorcery.Net
         public void RecordRtpPacketSend(RTPPacket rtpPacket)
         {
             PacketsSentCount++;
-            OctetsSentCount += (uint) rtpPacket.Payload.Length;
+            OctetsSentCount += (uint)rtpPacket.Payload.Length;
             LastSeqNum = rtpPacket.Header.SequenceNumber;
             LastRtpTimestampSent = rtpPacket.Header.Timestamp;
             LastNtpTimestampSent = DateTimeToNtpTimestamp(DateTime.Now);
@@ -376,7 +376,7 @@ namespace SIPSorcery.Net
             {
                 // If we have sent a packet since the last report then we send an RTCP Sender Report.
                 var senderReport = new RTCPSenderReport(Ssrc, LastNtpTimestampSent, LastRtpTimestampSent,
-                    PacketsSentCount, OctetsSentCount, (rr != null) ? new List<ReceptionReportSample> {rr} : null);
+                    PacketsSentCount, OctetsSentCount, (rr != null) ? new List<ReceptionReportSample> { rr } : null);
                 return new RTCPCompoundPacket(senderReport, sdesReport);
             }
             else
@@ -384,7 +384,7 @@ namespace SIPSorcery.Net
                 // If we have NOT sent a packet since the last report then we send an RTCP Receiver Report.
                 if (rr != null)
                 {
-                    var receiverReport = new RTCPReceiverReport(Ssrc, new List<ReceptionReportSample> {rr});
+                    var receiverReport = new RTCPReceiverReport(Ssrc, new List<ReceptionReportSample> { rr });
                     return new RTCPCompoundPacket(receiverReport, sdesReport);
                 }
                 else
@@ -402,13 +402,13 @@ namespace SIPSorcery.Net
         /// <returns>A value in milliseconds to use for the next RTCP report interval.</returns>
         private int GetNextRtcpInterval(int baseInterval)
         {
-            return Crypto.GetRandomInt((int) (RTCP_INTERVAL_LOW_RANDOMISATION_FACTOR * baseInterval),
-                (int) (RTCP_INTERVAL_HIGH_RANDOMISATION_FACTOR * baseInterval));
+            return Crypto.GetRandomInt((int)(RTCP_INTERVAL_LOW_RANDOMISATION_FACTOR * baseInterval),
+                (int)(RTCP_INTERVAL_HIGH_RANDOMISATION_FACTOR * baseInterval));
         }
 
         public static uint DateTimeToNtpTimestamp32(DateTime value)
         {
-            return (uint) ((DateTimeToNtpTimestamp(value) >> 16) & 0xFFFFFFFF);
+            return (uint)((DateTimeToNtpTimestamp(value) >> 16) & 0xFFFFFFFF);
         }
 
         /// <summary>
@@ -437,8 +437,8 @@ namespace SIPSorcery.Net
 
             long ticks = elapsedTime.Ticks;
 
-            return (ulong) (elapsedTime.Ticks / TimeSpan.TicksPerSecond << 32) |
-                   (ulong) (elapsedTime.Ticks % TimeSpan.TicksPerSecond);
+            return (ulong)(elapsedTime.Ticks / TimeSpan.TicksPerSecond << 32) |
+                   (ulong)(elapsedTime.Ticks % TimeSpan.TicksPerSecond);
         }
     }
 }

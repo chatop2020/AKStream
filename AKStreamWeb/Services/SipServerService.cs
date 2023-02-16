@@ -156,6 +156,19 @@ namespace AKStreamWeb.Services
 
             if (videoChannel == null)
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x => x.DeviceId.Equals(deviceId))
+                        .Where(x => x.ChannelId.Equals(channelId)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->CheckIt->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.DeviceId.Equals(deviceId))
                     .Where(x => x.ChannelId.Equals(channelId))
                     .First();
@@ -309,7 +322,7 @@ namespace AKStreamWeb.Services
 
                     mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
                     mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        (ushort) mediaInfo.MediaServerStreamInfo.RptPort,
+                        (ushort)mediaInfo.MediaServerStreamInfo.RptPort,
                         out rs); //释放rtp端口
                 }
 
@@ -402,7 +415,8 @@ namespace AKStreamWeb.Services
                                 if (d.Stream_Id.Trim().Equals(sipChannel.Stream.Trim()))
                                 {
                                     found = true;
-                                    GCommon.Logger.Debug($"[{Common.LoggerHead}]->发现此流依然在MediaServer的Rtp列表中，要进行断开处理->{deviceId}-{channelId}-{d.Stream_Id}-{d.Port}");
+                                    GCommon.Logger.Debug(
+                                        $"[{Common.LoggerHead}]->发现此流依然在MediaServer的Rtp列表中，要进行断开处理->{deviceId}-{channelId}-{d.Stream_Id}-{d.Port}");
                                     break;
                                 }
                             }
@@ -417,7 +431,8 @@ namespace AKStreamWeb.Services
                                 Stream = sipChannel.Stream,
                                 Vhost = sipChannel.Vhost
                             };
-                            GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造断流请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseStreams,Formatting.Indented)}");
+                            GCommon.Logger.Debug(
+                                $"[{Common.LoggerHead}]->重新构造断流请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseStreams, Formatting.Indented)}");
 
                             mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs2); //关掉流  
                             if (videoChannel.DefaultRtpPort == false)
@@ -426,16 +441,17 @@ namespace AKStreamWeb.Services
                                 {
                                     Stream_Id = sipChannel.Stream,
                                 };
-                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造关闭rtp服务请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseRtpPort,Formatting.Indented)}");
+                                GCommon.Logger.Debug(
+                                    $"[{Common.LoggerHead}]->重新构造关闭rtp服务请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseRtpPort, Formatting.Indented)}");
 
                                 mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs2); //关掉rtp端口
                                 GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造释放rtp端口请求->{sipChannel.RtpPort}");
 
                                 mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                    (ushort) sipChannel.RtpPort,
+                                    (ushort)sipChannel.RtpPort,
                                     out rs2); //释放rtp端口
-                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新断流执行返回情况->{JsonHelper.ToJson(rs2,Formatting.Indented)}");
-
+                                GCommon.Logger.Debug(
+                                    $"[{Common.LoggerHead}]->重新断流执行返回情况->{JsonHelper.ToJson(rs2, Formatting.Indented)}");
                             }
                         }
                     }
@@ -472,7 +488,7 @@ namespace AKStreamWeb.Services
 
                     mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
                     mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        (ushort) mediaInfo.MediaServerStreamInfo.RptPort,
+                        (ushort)mediaInfo.MediaServerStreamInfo.RptPort,
                         out rs); //释放rtp端口
                 }
 
@@ -606,7 +622,7 @@ namespace AKStreamWeb.Services
                     {
                         openRtpPort = new ResMediaServerOpenRtpPort()
                         {
-                            Port = (ushort) mediaServer.Config.Data[0].Rtp_Proxy_Port,
+                            Port = (ushort)mediaServer.Config.Data[0].Rtp_Proxy_Port,
                             Stream = record.Stream,
                         };
                     }
@@ -624,7 +640,7 @@ namespace AKStreamWeb.Services
             {
                 openRtpPort = new ResMediaServerOpenRtpPort()
                 {
-                    Port = (ushort) rtpPort,
+                    Port = (ushort)rtpPort,
                     Stream = record.Stream,
                 };
             }
@@ -660,7 +676,8 @@ namespace AKStreamWeb.Services
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) && (UtilsHelper.IsIpAddr(mediaServer.Candidate) ||
+                                                                 UtilsHelper.IsDomain(mediaServer.Candidate)))
             {
                 pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
             }
@@ -668,7 +685,7 @@ namespace AKStreamWeb.Services
             {
                 pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             }
-            
+
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
@@ -800,7 +817,7 @@ namespace AKStreamWeb.Services
             }
 
 
-            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish) taskWait.OtherObj;
+            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish)taskWait.OtherObj;
             Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
                 out WebHookNeedReturnTask task);
             if (task != null)
@@ -846,7 +863,7 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
             videoChannelMediaInfo.MediaServerStreamInfo.StartTime = DateTime.Now;
             videoChannelMediaInfo.MediaServerStreamInfo.RptPort = openRtpPort.Port;
-            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort) onPublishWebhook.Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort)onPublishWebhook.Port;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerId = onPublishWebhook.MediaServerId;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerIp = mediaServer.IpV4Address;
             videoChannelMediaInfo.MediaServerStreamInfo.PushSocketType = pushMediaInfo.PushStreamSocketType;
@@ -1014,7 +1031,7 @@ namespace AKStreamWeb.Services
                     {
                         openRtpPort = new ResMediaServerOpenRtpPort()
                         {
-                            Port = (ushort) mediaServer.Config.Data[0].Rtp_Proxy_Port,
+                            Port = (ushort)mediaServer.Config.Data[0].Rtp_Proxy_Port,
                             Stream = videoChannel.MainId,
                         };
                     }
@@ -1032,7 +1049,7 @@ namespace AKStreamWeb.Services
             {
                 openRtpPort = new ResMediaServerOpenRtpPort()
                 {
-                    Port = (ushort) rtpPort,
+                    Port = (ushort)rtpPort,
                     Stream = videoChannel.MainId,
                 };
             }
@@ -1068,7 +1085,8 @@ namespace AKStreamWeb.Services
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) && (UtilsHelper.IsIpAddr(mediaServer.Candidate) ||
+                                                                 UtilsHelper.IsDomain(mediaServer.Candidate)))
             {
                 pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
             }
@@ -1216,7 +1234,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish) taskWait.OtherObj;
+            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish)taskWait.OtherObj;
             Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
                 out WebHookNeedReturnTask task);
             if (task != null)
@@ -1262,7 +1280,7 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.MediaServerStreamInfo.PlayerList = new List<MediaServerStreamPlayerInfo>();
             videoChannelMediaInfo.MediaServerStreamInfo.StartTime = DateTime.Now;
             videoChannelMediaInfo.MediaServerStreamInfo.RptPort = openRtpPort.Port;
-            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort) onPublishWebhook.Port;
+            videoChannelMediaInfo.MediaServerStreamInfo.StreamPort = (ushort)onPublishWebhook.Port;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerId = onPublishWebhook.MediaServerId;
             videoChannelMediaInfo.MediaServerStreamInfo.MediaServerIp = mediaServer.IpV4Address;
             videoChannelMediaInfo.MediaServerStreamInfo.PushSocketType = pushMediaInfo.PushStreamSocketType;
@@ -1673,13 +1691,14 @@ namespace AKStreamWeb.Services
             ResMediaServerOpenRtpPort openRtpPort;
             openRtpPort = new ResMediaServerOpenRtpPort()
             {
-                Port = (ushort) vBack.MediaServerStreamInfo.StreamPort,
+                Port = (ushort)vBack.MediaServerStreamInfo.StreamPort,
                 Stream = record.Stream,
             };
 
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
-            if (!string.IsNullOrEmpty(mediaServer.Candidate) &&( UtilsHelper.IsIpAddr(mediaServer.Candidate) || UtilsHelper.IsDomain(mediaServer.Candidate)))
+            if (!string.IsNullOrEmpty(mediaServer.Candidate) && (UtilsHelper.IsIpAddr(mediaServer.Candidate) ||
+                                                                 UtilsHelper.IsDomain(mediaServer.Candidate)))
             {
                 pushMediaInfo.MediaServerIpAddress = mediaServer.Candidate;
             }
@@ -1708,7 +1727,7 @@ namespace AKStreamWeb.Services
 
             var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
 
-            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish) taskWait.OtherObj;
+            ReqForWebHookOnPublish onPublishWebhook = (ReqForWebHookOnPublish)taskWait.OtherObj;
             Common.WebHookNeedReturnTask.TryRemove($"WAITONPUBLISH_{videoChannel.MainId}",
                 out WebHookNeedReturnTask task);
             if (task != null)

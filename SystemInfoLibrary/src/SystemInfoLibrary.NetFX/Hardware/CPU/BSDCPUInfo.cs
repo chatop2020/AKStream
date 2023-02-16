@@ -13,6 +13,6 @@
         public override int LogicalCores => Utils.GetSysCtlPropertyInt32("hw.logicalcpu");
 
         public override double Frequency =>
-            (double) Utils.GetSysCtlPropertyInt64("hw.cpufrequency") / (double) 1024 / (double) 1024;
+            (double)Utils.GetSysCtlPropertyInt64("hw.cpufrequency") / (double)1024 / (double)1024;
     }
 }

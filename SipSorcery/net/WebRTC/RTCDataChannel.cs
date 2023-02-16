@@ -141,13 +141,13 @@ namespace SIPSorcery.Net
                     if (string.IsNullOrEmpty(message))
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint) DataChannelPayloadProtocols.WebRTC_String_Empty,
-                            new byte[] {0x00});
+                            (uint)DataChannelPayloadProtocols.WebRTC_String_Empty,
+                            new byte[] { 0x00 });
                     }
                     else
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint) DataChannelPayloadProtocols.WebRTC_String,
+                            (uint)DataChannelPayloadProtocols.WebRTC_String,
                             Encoding.UTF8.GetBytes(message));
                     }
                 }
@@ -178,13 +178,13 @@ namespace SIPSorcery.Net
                     if (data?.Length == 0)
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint) DataChannelPayloadProtocols.WebRTC_Binary_Empty,
-                            new byte[] {0x00});
+                            (uint)DataChannelPayloadProtocols.WebRTC_Binary_Empty,
+                            new byte[] { 0x00 });
                     }
                     else
                     {
                         _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                            (uint) DataChannelPayloadProtocols.WebRTC_Binary,
+                            (uint)DataChannelPayloadProtocols.WebRTC_Binary,
                             data);
                     }
                 }
@@ -199,15 +199,15 @@ namespace SIPSorcery.Net
         {
             var dcepOpen = new DataChannelOpenMessage()
             {
-                MessageType = (byte) DataChannelMessageTypes.OPEN,
-                ChannelType = (byte) DataChannelTypes.DATA_CHANNEL_RELIABLE_UNORDERED,
+                MessageType = (byte)DataChannelMessageTypes.OPEN,
+                ChannelType = (byte)DataChannelTypes.DATA_CHANNEL_RELIABLE_UNORDERED,
                 Label = label
             };
 
             lock (this)
             {
                 _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                    (uint) DataChannelPayloadProtocols.WebRTC_DCEP,
+                    (uint)DataChannelPayloadProtocols.WebRTC_DCEP,
                     dcepOpen.GetBytes());
             }
         }
@@ -221,8 +221,8 @@ namespace SIPSorcery.Net
             lock (this)
             {
                 _transport.RTCSctpAssociation.SendData(id.GetValueOrDefault(),
-                    (uint) DataChannelPayloadProtocols.WebRTC_DCEP,
-                    new byte[] {(byte) DataChannelMessageTypes.ACK});
+                    (uint)DataChannelPayloadProtocols.WebRTC_DCEP,
+                    new byte[] { (byte)DataChannelMessageTypes.ACK });
             }
         }
 
@@ -245,10 +245,10 @@ namespace SIPSorcery.Net
 
             if (Enum.IsDefined(typeof(DataChannelPayloadProtocols), ppID))
             {
-                payloadType = (DataChannelPayloadProtocols) ppID;
+                payloadType = (DataChannelPayloadProtocols)ppID;
             }
 
-            onmessage?.Invoke(this, (DataChannelPayloadProtocols) ppID, data);
+            onmessage?.Invoke(this, (DataChannelPayloadProtocols)ppID, data);
         }
     }
 }

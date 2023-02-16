@@ -131,7 +131,7 @@ namespace SystemInfoLibrary
         {
             var ptr = GetSysCtlPropertyPtr(propName);
 
-            return ptr == IntPtr.Zero ? (short) 0 : Marshal.ReadInt16(ptr);
+            return ptr == IntPtr.Zero ? (short)0 : Marshal.ReadInt16(ptr);
         }
 
         public static int GetSysCtlPropertyInt32(string propName)
@@ -145,7 +145,7 @@ namespace SystemInfoLibrary
         {
             var ptr = GetSysCtlPropertyPtr(propName);
 
-            return ptr == IntPtr.Zero ? (long) 0 : Marshal.ReadInt64(ptr);
+            return ptr == IntPtr.Zero ? (long)0 : Marshal.ReadInt64(ptr);
         }
 
         #endregion OS X

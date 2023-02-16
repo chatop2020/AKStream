@@ -28,7 +28,7 @@ namespace SIPSorcery.Net
     {
         public static ushort PadTo4ByteBoundary(int val)
         {
-            return (ushort) (val % 4 == 0 ? val : val + 4 - val % 4);
+            return (ushort)(val % 4 == 0 ? val : val + 4 - val % 4);
         }
     }
 
@@ -132,7 +132,7 @@ namespace SIPSorcery.Net
             {
                 if (Enum.IsDefined(typeof(SctpChunkType), ChunkType))
                 {
-                    return (SctpChunkType) ChunkType;
+                    return (SctpChunkType)ChunkType;
                 }
                 else
                 {
@@ -149,7 +149,7 @@ namespace SIPSorcery.Net
 
         public SctpChunk(SctpChunkType chunkType, byte chunkFlags = 0x00)
         {
-            ChunkType = (byte) chunkType;
+            ChunkType = (byte)chunkType;
             ChunkFlags = chunkFlags;
         }
 
@@ -171,8 +171,8 @@ namespace SIPSorcery.Net
         /// <returns>The length of the chunk.</returns>
         public virtual ushort GetChunkLength(bool padded)
         {
-            var len = (ushort) (SCTP_CHUNK_HEADER_LENGTH
-                                + (ChunkValue == null ? 0 : ChunkValue.Length));
+            var len = (ushort)(SCTP_CHUNK_HEADER_LENGTH
+                               + (ChunkValue == null ? 0 : ChunkValue.Length));
 
             return (padded) ? SctpPadding.PadTo4ByteBoundary(len) : len;
         }
@@ -329,7 +329,7 @@ namespace SIPSorcery.Net
 
             if (Enum.IsDefined(typeof(SctpChunkType), chunkType))
             {
-                switch ((SctpChunkType) chunkType)
+                switch ((SctpChunkType)chunkType)
                 {
                     case SctpChunkType.ABORT:
                         return SctpAbortChunk.ParseChunk(buffer, posn, true);
@@ -353,7 +353,7 @@ namespace SIPSorcery.Net
                         return SctpShutdownChunk.ParseChunk(buffer, posn);
                     default:
                         logger.LogDebug(
-                            $"TODO: Implement parsing logic for well known chunk type {(SctpChunkType) chunkType}.");
+                            $"TODO: Implement parsing logic for well known chunk type {(SctpChunkType)chunkType}.");
                         return ParseBaseChunk(buffer, posn);
                 }
             }
@@ -381,7 +381,7 @@ namespace SIPSorcery.Net
         /// SCTP packet should be handled.
         /// </summary>
         public static SctpUnrecognisedChunkActions GetUnrecognisedChunkAction(ushort chunkType) =>
-            (SctpUnrecognisedChunkActions) (chunkType >> 14 & 0x03);
+            (SctpUnrecognisedChunkActions)(chunkType >> 14 & 0x03);
 
         /// <summary>
         /// Copies an unrecognised chunk to a byte buffer and returns it. This method is

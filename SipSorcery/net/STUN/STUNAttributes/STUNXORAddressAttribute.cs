@@ -42,14 +42,14 @@ namespace SIPSorcery.Net
             if (BitConverter.IsLittleEndian)
             {
                 Port = NetConvert.DoReverseEndian(BitConverter.ToUInt16(attributeValue, 2)) ^
-                       (UInt16) (STUNHeader.MAGIC_COOKIE >> 16);
+                       (UInt16)(STUNHeader.MAGIC_COOKIE >> 16);
                 UInt32 address = NetConvert.DoReverseEndian(BitConverter.ToUInt32(attributeValue, 4)) ^
                                  STUNHeader.MAGIC_COOKIE;
                 Address = new IPAddress(NetConvert.DoReverseEndian(address));
             }
             else
             {
-                Port = BitConverter.ToUInt16(attributeValue, 2) ^ (UInt16) (STUNHeader.MAGIC_COOKIE >> 16);
+                Port = BitConverter.ToUInt16(attributeValue, 2) ^ (UInt16)(STUNHeader.MAGIC_COOKIE >> 16);
                 UInt32 address = BitConverter.ToUInt32(attributeValue, 4) ^ STUNHeader.MAGIC_COOKIE;
                 Address = new IPAddress(address);
             }
@@ -66,19 +66,19 @@ namespace SIPSorcery.Net
         {
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16) base.AttributeType)), 0,
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16)base.AttributeType)), 0,
                     buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer,
                     startIndex + 2, 2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((UInt16) base.AttributeType), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((UInt16)base.AttributeType), 0, buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(ADDRESS_ATTRIBUTE_LENGTH), 0, buffer, startIndex + 2, 2);
             }
 
             buffer[startIndex + 4] = 0x00;
-            buffer[startIndex + 5] = (byte) Family;
+            buffer[startIndex + 5] = (byte)Family;
 
             if (BitConverter.IsLittleEndian)
             {

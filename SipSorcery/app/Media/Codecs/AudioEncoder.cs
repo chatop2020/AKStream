@@ -94,12 +94,12 @@ namespace SIPSorcery.Media
                 //return MemoryMarshal.Cast<short, byte>(pcm)
 
                 // Put on the wire in network byte order (big endian).
-                return pcm.SelectMany(x => new byte[] {(byte) (x >> 8), (byte) (x)}).ToArray();
+                return pcm.SelectMany(x => new byte[] { (byte)(x >> 8), (byte)(x) }).ToArray();
             }
             else if (format.Codec == AudioCodecsEnum.PCM_S16LE)
             {
                 // Put on the wire as little endian.
-                return pcm.SelectMany(x => new byte[] {(byte) (x), (byte) (x >> 8)}).ToArray();
+                return pcm.SelectMany(x => new byte[] { (byte)(x), (byte)(x >> 8) }).ToArray();
             }
             else
             {
@@ -141,14 +141,14 @@ namespace SIPSorcery.Media
             {
                 // Samples are on the wire as big endian.
                 return encodedSample.Where((x, i) => i % 2 == 0)
-                    .Select((y, i) => (short) (encodedSample[i * 2] << 8 | encodedSample[i * 2 + 1])).ToArray();
+                    .Select((y, i) => (short)(encodedSample[i * 2] << 8 | encodedSample[i * 2 + 1])).ToArray();
             }
             else if (format.Codec == AudioCodecsEnum.PCM_S16LE)
             {
                 // Samples are on the wire as little endian (well unlikely to be on the wire in this case but when they 
                 // arrive from somewhere like the SkypeBot SDK they will be in little endian format).
                 return encodedSample.Where((x, i) => i % 2 == 0)
-                    .Select((y, i) => (short) (encodedSample[i * 2 + 1] << 8 | encodedSample[i * 2])).ToArray();
+                    .Select((y, i) => (short)(encodedSample[i * 2 + 1] << 8 | encodedSample[i * 2])).ToArray();
             }
             else
             {
@@ -165,12 +165,12 @@ namespace SIPSorcery.Media
             else if (inRate == 8000 && outRate == 16000)
             {
                 // Crude up-sample to 16Khz by doubling each sample.
-                return pcm.SelectMany(x => new short[] {x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x }).ToArray();
             }
             else if (inRate == 8000 && outRate == 48000)
             {
                 // Crude up-sample to 48Khz by 6x each sample. This sounds bad, use for testing only.
-                return pcm.SelectMany(x => new short[] {x, x, x, x, x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x, x, x, x, x }).ToArray();
             }
             else if (inRate == 16000 && outRate == 8000)
             {
@@ -180,7 +180,7 @@ namespace SIPSorcery.Media
             else if (inRate == 16000 && outRate == 48000)
             {
                 // Crude up-sample to 48Khz by 3x each sample. This sounds bad, use for testing only.
-                return pcm.SelectMany(x => new short[] {x, x, x}).ToArray();
+                return pcm.SelectMany(x => new short[] { x, x, x }).ToArray();
             }
             else
             {

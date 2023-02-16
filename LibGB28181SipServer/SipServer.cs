@@ -149,11 +149,11 @@ namespace LibGB28181SipServer
 
                 if (commandType == CommandType.Playback && obj != null)
                 {
-                    ((RecordInfo.RecItem) obj).InviteSipRequest = req;
-                    ((RecordInfo.RecItem) obj).CallId = req.Header.CallId;
-                    ((RecordInfo.RecItem) obj).CSeq = -1;
-                    ((RecordInfo.RecItem) obj).ToTag = "";
-                    ((RecordInfo.RecItem) obj).FromTag = req.Header.From.FromTag;
+                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem)obj).CallId = req.Header.CallId;
+                    ((RecordInfo.RecItem)obj).CSeq = -1;
+                    ((RecordInfo.RecItem)obj).ToTag = "";
+                    ((RecordInfo.RecItem)obj).FromTag = req.Header.From.FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -304,8 +304,8 @@ namespace LibGB28181SipServer
                 req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
                 req.Header.ContentType = contentType;
                 req.Header.Subject = string.IsNullOrEmpty(subject) ? null : subject;
-                req.Header.CallId = ((RecordInfo.RecItem) obj).CallId;
-                req.Header.CSeq = ((RecordInfo.RecItem) obj).CSeq;
+                req.Header.CallId = ((RecordInfo.RecItem)obj).CallId;
+                req.Header.CSeq = ((RecordInfo.RecItem)obj).CSeq;
                 req.Body = xmlBody;
                 if (needResponse)
                 {
@@ -326,11 +326,11 @@ namespace LibGB28181SipServer
 
                 if (commandType == CommandType.Playback && obj != null)
                 {
-                    ((RecordInfo.RecItem) obj).InviteSipRequest = req;
-                    ((RecordInfo.RecItem) obj).CallId = ((RecordInfo.RecItem) obj).CallId;
-                    ((RecordInfo.RecItem) obj).CSeq = ((RecordInfo.RecItem) obj).CSeq;
-                    ((RecordInfo.RecItem) obj).ToTag = ((RecordInfo.RecItem) obj).ToTag;
-                    ((RecordInfo.RecItem) obj).FromTag = ((RecordInfo.RecItem) obj).FromTag;
+                    ((RecordInfo.RecItem)obj).InviteSipRequest = req;
+                    ((RecordInfo.RecItem)obj).CallId = ((RecordInfo.RecItem)obj).CallId;
+                    ((RecordInfo.RecItem)obj).CSeq = ((RecordInfo.RecItem)obj).CSeq;
+                    ((RecordInfo.RecItem)obj).ToTag = ((RecordInfo.RecItem)obj).ToTag;
+                    ((RecordInfo.RecItem)obj).FromTag = ((RecordInfo.RecItem)obj).FromTag;
                 }
                 else if (commandType == CommandType.Play)
                 {
@@ -952,7 +952,7 @@ namespace LibGB28181SipServer
             var body = new RecordQuery()
             {
                 DeviceID = sipChannel.DeviceId,
-                SN = (int) sipQueryRecordFile.TaskId, //跟进去一个sn
+                SN = (int)sipQueryRecordFile.TaskId, //跟进去一个sn
                 CmdType = CommandType.RecordInfo,
                 Secrecy = 0,
                 StartTime = sipQueryRecordFile.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -1391,6 +1391,7 @@ namespace LibGB28181SipServer
                     {
                         tmpId = "0" + tmpId;
                     }
+
                     var subject =
                         $"{sipChannel.DeviceId}:{tmpId},{Common.SipServerConfig.ServerSipDeviceId}:{new Random().Next(100, ushort.MaxValue)}";
                     try

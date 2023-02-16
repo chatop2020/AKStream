@@ -26,7 +26,7 @@ namespace AKStreamKeeper
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            IPAddress ip = (IPAddress) value!;
+            IPAddress ip = (IPAddress)value!;
             writer.WriteValue(ip.ToString());
         }
 
@@ -47,7 +47,7 @@ namespace AKStreamKeeper
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            IPEndPoint ep = (IPEndPoint) value!;
+            IPEndPoint ep = (IPEndPoint)value!;
             writer.WriteStartObject();
             writer.WritePropertyName("Address");
             serializer.Serialize(writer, ep.Address);
@@ -91,7 +91,7 @@ namespace AKStreamKeeper
             services.AddSwaggerGen(c =>
             {
                 // 添加文档信息
-                c.SwaggerDoc("v1", new OpenApiInfo {Title = "AKStreamKeeper", Version = "v1"});
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AKStreamKeeper", Version = "v1" });
                 if (File.Exists(Path.Combine(GCommon.BaseStartPath, "AKStreamKeeper.xml")))
                     c.IncludeXmlComments(Path.Combine(GCommon.BaseStartPath, "AKStreamKeeper.xml"));
                 if (File.Exists(Path.Combine(GCommon.BaseStartPath, "LibCommon.xml")))
@@ -112,7 +112,7 @@ namespace AKStreamKeeper
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                     //修改时间的序列化方式
                     options.SerializerSettings.Converters.Add(new IsoDateTimeConverter()
-                        {DateTimeFormat = "yyyy-MM-dd HH:mm:ss"});
+                        { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" });
                     options.SerializerSettings.Converters.Add(new IpAddressConverter());
                     options.SerializerSettings.Converters.Add(new IpEndPointConverter());
                 }

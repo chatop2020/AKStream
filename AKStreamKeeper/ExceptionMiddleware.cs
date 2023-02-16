@@ -60,7 +60,7 @@ namespace AKStreamKeeper
             string error = "";
             if (environment.IsDevelopment())
             {
-                var json = new {message = e.Message};
+                var json = new { message = e.Message };
                 error = JsonConvert.SerializeObject(json);
             }
             else error = "抱歉，出错了\r\n" + e.Message + "\r\n" + e.StackTrace;

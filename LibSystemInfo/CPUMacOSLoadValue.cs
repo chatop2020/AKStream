@@ -41,7 +41,7 @@ namespace LibSystemInfo
                         {
                             if (tmps.ToLower().Contains("idle"))
                             {
-                                string tmps2 = tmps.TrimEnd(new[] {'%', ' ', 'i', 'd', 'l', 'e'});
+                                string tmps2 = tmps.TrimEnd(new[] { '%', ' ', 'i', 'd', 'l', 'e' });
 
                                 if (double.TryParse(tmps2, out double a))
                                 {

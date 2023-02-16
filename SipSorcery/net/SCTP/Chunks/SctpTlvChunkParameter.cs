@@ -121,7 +121,7 @@ namespace SIPSorcery.Net
         /// how it should handle it.
         /// </summary>
         public SctpUnrecognisedParameterActions UnrecognisedAction =>
-            (SctpUnrecognisedParameterActions) (ParameterType >> 14 & 0x03);
+            (SctpUnrecognisedParameterActions)(ParameterType >> 14 & 0x03);
 
         protected SctpTlvChunkParameter()
         {
@@ -144,8 +144,8 @@ namespace SIPSorcery.Net
         /// that each have their own fields that determine the length.</returns>
         public virtual ushort GetParameterLength(bool padded)
         {
-            ushort len = (ushort) (SCTP_PARAMETER_HEADER_LENGTH
-                                   + (ParameterValue == null ? 0 : ParameterValue.Length));
+            ushort len = (ushort)(SCTP_PARAMETER_HEADER_LENGTH
+                                  + (ParameterValue == null ? 0 : ParameterValue.Length));
 
             return (padded) ? SctpPadding.PadTo4ByteBoundary(len) : len;
         }

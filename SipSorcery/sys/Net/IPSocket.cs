@@ -83,7 +83,7 @@ namespace SIPSorcery.Sys
                     (uint.TryParse(s.Substring(addressLength + 1), NumberStyles.None, CultureInfo.InvariantCulture,
                         out port) && port <= MaxPort))
                 {
-                    result = new IPEndPoint(address, (int) port);
+                    result = new IPEndPoint(address, (int)port);
                     return true;
                 }
             }
@@ -232,11 +232,11 @@ namespace SIPSorcery.Sys
             string[] values = null;
             if (endpointstring.IndexOf(';') > 0)
             {
-                values = endpointstring.Substring(0, endpointstring.IndexOf(';')).Split(new char[] {':'});
+                values = endpointstring.Substring(0, endpointstring.IndexOf(';')).Split(new char[] { ':' });
             }
             else
             {
-                values = endpointstring.Split(new char[] {':'});
+                values = endpointstring.Split(new char[] { ':' });
             }
 
             IPAddress ipaddr;
@@ -316,7 +316,7 @@ namespace SIPSorcery.Sys
                 throw new ArgumentException(string.Format("Invalid default port '{0}'", defaultport));
             }
 
-            string[] values = endpointstring.Split(new char[] {':'});
+            string[] values = endpointstring.Split(new char[] { ':' });
             IPAddress ipaddr;
             int port = -1;
 

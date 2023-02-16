@@ -139,7 +139,7 @@ namespace SIPSorcery.Net
             byte[] buffer =
                 new byte[RTCPHeader.HEADER_BYTES_LENGTH +
                          GetPaddedLength(cnameBytes.Length)]; // Array automatically initialised with 0x00 values.
-            Header.SetLength((ushort) (buffer.Length / 4 - 1));
+            Header.SetLength((ushort)(buffer.Length / 4 - 1));
 
             Buffer.BlockCopy(Header.GetBytes(), 0, buffer, 0, RTCPHeader.HEADER_BYTES_LENGTH);
             int payloadIndex = RTCPHeader.HEADER_BYTES_LENGTH;
@@ -154,7 +154,7 @@ namespace SIPSorcery.Net
             }
 
             buffer[payloadIndex + 4] = CNAME_ID;
-            buffer[payloadIndex + 5] = (byte) cnameBytes.Length;
+            buffer[payloadIndex + 5] = (byte)cnameBytes.Length;
             Buffer.BlockCopy(cnameBytes, 0, buffer, payloadIndex + 6, cnameBytes.Length);
 
             return buffer;

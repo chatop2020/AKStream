@@ -130,7 +130,7 @@ namespace SIPSorcery.Net
             PPID = ppid;
             UserData = data;
 
-            ChunkFlags = (byte) (
+            ChunkFlags = (byte)(
                 (Unordered ? 0x04 : 0x0) +
                 (Begining ? 0x02 : 0x0) +
                 (Ending ? 0x01 : 0x0));
@@ -144,7 +144,7 @@ namespace SIPSorcery.Net
         public override ushort GetChunkLength(bool padded)
         {
             ushort len = SCTP_CHUNK_HEADER_LENGTH + FIXED_PARAMETERS_LENGTH;
-            len += (ushort) (UserData != null ? UserData.Length : 0);
+            len += (ushort)(UserData != null ? UserData.Length : 0);
             return (padded) ? SctpPadding.PadTo4ByteBoundary(len) : len;
         }
 

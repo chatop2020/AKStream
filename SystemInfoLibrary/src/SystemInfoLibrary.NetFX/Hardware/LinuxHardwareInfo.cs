@@ -82,7 +82,7 @@ namespace SystemInfoLibrary.Hardware
         public override IList<CPUInfo> CPUs => _CPUs;
 
         public override IList<GPUInfo> GPUs =>
-            _GPUs ?? (_GPUs = new List<GPUInfo> {new LinuxGPUInfo()}); // No idea how to detect multiple GPUs
+            _GPUs ?? (_GPUs = new List<GPUInfo> { new LinuxGPUInfo() }); // No idea how to detect multiple GPUs
 
         public override RAMInfo RAM => _RAM ?? (_RAM = new LinuxRAMInfo());
     }

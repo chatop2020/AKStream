@@ -45,7 +45,7 @@ namespace SIPSorcery.Net
             }
 
             Address = new IPAddress(new byte[]
-                {attributeValue[4], attributeValue[5], attributeValue[6], attributeValue[7]});
+                { attributeValue[4], attributeValue[5], attributeValue[6], attributeValue[7] });
         }
 
         public STUNAddressAttribute(STUNAttributeTypesEnum attributeType, int port, IPAddress address)
@@ -62,18 +62,18 @@ namespace SIPSorcery.Net
         {
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16) base.AttributeType)), 0,
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16)base.AttributeType)), 0,
                     buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(ADDRESS_ATTRIBUTE_LENGTH)), 0, buffer,
                     startIndex + 2, 2);
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((UInt16) base.AttributeType), 0, buffer, startIndex, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((UInt16)base.AttributeType), 0, buffer, startIndex, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(ADDRESS_ATTRIBUTE_LENGTH), 0, buffer, startIndex + 2, 2);
             }
 
-            buffer[startIndex + 5] = (byte) Family;
+            buffer[startIndex + 5] = (byte)Family;
 
             if (BitConverter.IsLittleEndian)
             {

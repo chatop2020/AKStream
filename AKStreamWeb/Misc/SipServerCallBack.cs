@@ -152,6 +152,20 @@ namespace AKStreamWeb.Misc
             if (sipChannel.SipChannelType.Equals(SipChannelType.VideoChannel) &&
                 sipChannel.SipChannelStatus != DevStatus.OFF) //只有视频设备并且是可用状态的进数据库
             {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<VideoChannel>().Where(x =>
+                        x.ChannelId.Equals(sipChannel.DeviceId) && x.DeviceId.Equals(sipChannel.ParentId) &&
+                        x.DeviceStreamType.Equals(DeviceStreamType.GB28181)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnCatalogReceived->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 var obj = ORMHelper.Db.Select<VideoChannel>().Where(x =>
                     x.ChannelId.Equals(sipChannel.DeviceId) && x.DeviceId.Equals(sipChannel.ParentId) &&
                     x.DeviceStreamType.Equals(DeviceStreamType.GB28181)).First();
@@ -199,6 +213,18 @@ namespace AKStreamWeb.Misc
                 videoChannel.VideoDeviceType = VideoDeviceType.UNKNOW;
                 try
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Insert(videoChannel).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->OnCatalogReceived->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     var ret = ORMHelper.Db.Insert(videoChannel).ExecuteAffrows();
                     if (ret > 0)
                     {

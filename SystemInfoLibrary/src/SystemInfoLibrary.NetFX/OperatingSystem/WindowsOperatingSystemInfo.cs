@@ -40,10 +40,10 @@ namespace SystemInfoLibrary.OperatingSystem
             }
         }
 
-        public override string Architecture => (String) _win32_OperatingSystem.GetPropertyValue("OSArchitecture");
+        public override string Architecture => (String)_win32_OperatingSystem.GetPropertyValue("OSArchitecture");
 
         public override string Name =>
-            $"{(String) _win32_OperatingSystem.GetPropertyValue("Caption")} SP{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMajorVersion")}.{(UInt16) _win32_OperatingSystem.GetPropertyValue("ServicePackMinorVersion")}";
+            $"{(String)_win32_OperatingSystem.GetPropertyValue("Caption")} SP{(UInt16)_win32_OperatingSystem.GetPropertyValue("ServicePackMajorVersion")}.{(UInt16)_win32_OperatingSystem.GetPropertyValue("ServicePackMinorVersion")}";
 
         public override Version JavaVersion
         {
@@ -54,9 +54,9 @@ namespace SystemInfoLibrary.OperatingSystem
                     try
                     {
                         var javaVersion = Architecture == "x86"
-                            ? (string) Utils.GetRegistryValue(Registry.LocalMachine,
+                            ? (string)Utils.GetRegistryValue(Registry.LocalMachine,
                                 @"Software\JavaSoft\Java Runtime Environment", "CurrentVersion", "")
-                            : (string) Utils.GetRegistryValue(Registry.LocalMachine,
+                            : (string)Utils.GetRegistryValue(Registry.LocalMachine,
                                 @"Software\Wow6432Node\JavaSoft\Java Runtime Environment", "CurrentVersion", "");
                         _javaVersion = new Version(javaVersion);
                     }

@@ -16,7 +16,7 @@ namespace LibCommon
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            bool b = (bool) value!;
+            bool b = (bool)value!;
             if (b)
             {
                 writer.WriteValue("1");
@@ -51,7 +51,7 @@ namespace LibCommon
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            IPAddress ip = (IPAddress) value!;
+            IPAddress ip = (IPAddress)value!;
             writer.WriteValue(ip.ToString());
         }
 
@@ -72,7 +72,7 @@ namespace LibCommon
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            IPEndPoint ep = (IPEndPoint) value!;
+            IPEndPoint ep = (IPEndPoint)value!;
             writer.WriteStartObject();
             writer.WritePropertyName("Address");
             serializer.Serialize(writer, ep.Address);

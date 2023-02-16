@@ -146,7 +146,7 @@ namespace SIPSorcery.Net
         public ulong Priority =>
             ((2 << 32) * Math.Min(LocalPriority, RemotePriority) +
              2 * Math.Max(LocalPriority, RemotePriority) +
-             (ulong) ((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
+             (ulong)((IsLocalController) ? LocalPriority > RemotePriority ? 1 : 0
                  : RemotePriority > LocalPriority ? 1 : 0));
 
         /// <summary>

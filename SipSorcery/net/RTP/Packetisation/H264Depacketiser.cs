@@ -170,7 +170,7 @@ namespace SIPSorcery.Net
                             byte[] nal = new byte[size];
                             Buffer.BlockCopy(rtp_payloads[payload_index].Value, ptr, nal, 0, size); // copy the NAL
 
-                            byte reconstructed_nal_type = (byte) ((nal[0] >> 0) & 0x1F);
+                            byte reconstructed_nal_type = (byte)((nal[0] >> 0) & 0x1F);
                             //Check if is Key Frame
                             CheckKeyFrame(reconstructed_nal_type, ref isKeyFrameNullable);
 
@@ -213,13 +213,13 @@ namespace SIPSorcery.Net
                         // Initialise the fragmented_nal byte array
                         // Build the NAL header with the original F and NRI flags but use the the Type field from the fu_header_type
                         byte reconstructed_nal_type =
-                            (byte) ((nal_header_f_bit << 7) + (nal_header_nri << 5) + fu_header_type);
+                            (byte)((nal_header_f_bit << 7) + (nal_header_nri << 5) + fu_header_type);
 
                         // Empty the stream
                         fragmented_nal.SetLength(0);
 
                         // Add reconstructed_nal_type byte to the memory stream
-                        fragmented_nal.WriteByte((byte) reconstructed_nal_type);
+                        fragmented_nal.WriteByte((byte)reconstructed_nal_type);
 
                         // copy the rest of the RTP payload to the memory stream
                         fragmented_nal.Write(rtp_payloads[payload_index].Value, 2,
@@ -244,7 +244,7 @@ namespace SIPSorcery.Net
                             rtp_payloads[payload_index].Value.Length - 2);
 
                         var fragmeted_nal_array = fragmented_nal.ToArray();
-                        byte reconstructed_nal_type = (byte) ((fragmeted_nal_array[0] >> 0) & 0x1F);
+                        byte reconstructed_nal_type = (byte)((fragmeted_nal_array[0] >> 0) & 0x1F);
 
                         //Check if is Key Frame
                         CheckKeyFrame(reconstructed_nal_type, ref isKeyFrameNullable);

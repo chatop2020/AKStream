@@ -127,7 +127,7 @@ namespace SIPSorcery.Net
                 data.Position = i + off;
                 var byteToWrite = data.ReadByte();
                 data.Position = i + off;
-                data.WriteByte((byte) (byteToWrite ^ cipherStream[i]));
+                data.WriteByte((byte)(byteToWrite ^ cipherStream[i]));
             }
         }
 
@@ -150,15 +150,15 @@ namespace SIPSorcery.Net
             for (ctr = 0; ctr < length / BLKLEN; ctr++)
             {
                 // compute the cipher stream
-                cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
-                cipherInBlock[15] = (byte) ((ctr & 0x00FF));
+                cipherInBlock[14] = (byte)((ctr & 0xFF00) >> 8);
+                cipherInBlock[15] = (byte)((ctr & 0x00FF));
 
                 aesCipher.ProcessBlock(cipherInBlock, 0, _out, ctr * BLKLEN);
             }
 
             // Treat the last bytes:
-            cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
-            cipherInBlock[15] = (byte) ((ctr & 0x00FF));
+            cipherInBlock[14] = (byte)((ctr & 0xFF00) >> 8);
+            cipherInBlock[15] = (byte)((ctr & 0x00FF));
 
             aesCipher.ProcessBlock(cipherInBlock, 0, tmpCipherBlock, 0);
             Array.Copy(tmpCipherBlock, 0, _out, ctr * BLKLEN, length % BLKLEN);

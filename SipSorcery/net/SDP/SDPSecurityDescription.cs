@@ -43,7 +43,7 @@ namespace SIPSorcery.Net
     public class SDPSecurityDescription
     {
         public const string CRYPTO_ATTRIBUE_PREFIX = "a=crypto:";
-        private readonly char[] WHITE_SPACES = new char[] {' ', '\t'};
+        private readonly char[] WHITE_SPACES = new char[] { ' ', '\t' };
         private const char SEMI_COLON = ';';
         private const string COLON = ":";
         private const string WHITE_SPACE = " ";
@@ -224,8 +224,8 @@ namespace SIPSorcery.Net
                             "LifeTimeString value must be power of 2");
                     }
 
-                    this.m_lifeTime = (ulong) Math.Pow(2, d);
-                    this.m_sLifeTime = $"2^{(ulong) d}";
+                    this.m_lifeTime = (ulong)Math.Pow(2, d);
+                    this.m_sLifeTime = $"2^{(ulong)d}";
                 }
             }
 
@@ -774,7 +774,7 @@ namespace SIPSorcery.Net
                         uint kdr = 0;
                         if (uint.TryParse(sKdr, out kdr))
                         {
-                            return new SessionParameter(SrtpSessionParams.kdr) {Kdr = kdr};
+                            return new SessionParameter(SrtpSessionParams.kdr) { Kdr = kdr };
                         }
                     }
                     else if (p.StartsWith(WSH_PREFIX))
@@ -783,14 +783,14 @@ namespace SIPSorcery.Net
                         uint wsh = 0;
                         if (uint.TryParse(sWsh, out wsh))
                         {
-                            return new SessionParameter(SrtpSessionParams.wsh) {Wsh = wsh};
+                            return new SessionParameter(SrtpSessionParams.wsh) { Wsh = wsh };
                         }
                     }
                     else if (p.StartsWith(FEC_KEY_PREFIX))
                     {
                         string sFecKey = p.Substring(FEC_KEY_PREFIX.Length);
                         KeyParameter fecKey = KeyParameter.Parse(sFecKey, cryptoSuite);
-                        return new SessionParameter(SrtpSessionParams.fec_key) {FecKey = fecKey};
+                        return new SessionParameter(SrtpSessionParams.fec_key) { FecKey = fecKey };
                     }
                     else if (p.StartsWith(FEC_ORDER_PREFIX))
                     {
@@ -798,20 +798,20 @@ namespace SIPSorcery.Net
                         FecTypes fecOrder =
                             (from e in Enum.GetNames(typeof(FecTypes))
                                 where e.CompareTo(sFecOrder) == 0
-                                select (FecTypes) Enum.Parse(typeof(FecTypes), e)).FirstOrDefault();
+                                select (FecTypes)Enum.Parse(typeof(FecTypes), e)).FirstOrDefault();
                         if (fecOrder == FecTypes.unknown)
                         {
                             throw new FormatException(
                                 $"sessionParam '{sessionParam}' is not recognized as a valid SRTP_SESSION_PARAM ");
                         }
 
-                        return new SessionParameter(SrtpSessionParams.fec_order) {FecOrder = fecOrder};
+                        return new SessionParameter(SrtpSessionParams.fec_order) { FecOrder = fecOrder };
                     }
                     else
                     {
                         paramType = (from e in Enum.GetNames(typeof(SrtpSessionParams))
                             where e.CompareTo(p) == 0
-                            select (SrtpSessionParams) Enum.Parse(typeof(SrtpSessionParams), e)).FirstOrDefault();
+                            select (SrtpSessionParams)Enum.Parse(typeof(SrtpSessionParams), e)).FirstOrDefault();
                         if (paramType == SrtpSessionParams.unknown)
                         {
                             throw new FormatException(
@@ -954,7 +954,7 @@ namespace SIPSorcery.Net
                 sdpCryptoAttribute.CryptoSuite =
                     (from e in Enum.GetNames(typeof(CryptoSuites))
                         where e.CompareTo(sCryptoParts[1]) == 0
-                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
+                        select (CryptoSuites)Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
 
                 if (sdpCryptoAttribute.CryptoSuite == CryptoSuites.unknown)
                 {
@@ -1023,7 +1023,7 @@ namespace SIPSorcery.Net
                 securityDescription.CryptoSuite =
                     (from e in Enum.GetNames(typeof(CryptoSuites))
                         where e.CompareTo(sCryptoParts[1]) == 0
-                        select (CryptoSuites) Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
+                        select (CryptoSuites)Enum.Parse(typeof(CryptoSuites), e)).FirstOrDefault();
 
                 if (securityDescription.CryptoSuite == CryptoSuites.unknown)
                 {

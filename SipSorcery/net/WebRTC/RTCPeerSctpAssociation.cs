@@ -93,13 +93,13 @@ namespace SIPSorcery.Net
         {
             switch (dataFrame)
             {
-                case var frame when frame.PPID == (uint) DataChannelPayloadProtocols.WebRTC_DCEP:
+                case var frame when frame.PPID == (uint)DataChannelPayloadProtocols.WebRTC_DCEP:
                     switch (frame.UserData[0])
                     {
-                        case (byte) DataChannelMessageTypes.ACK:
+                        case (byte)DataChannelMessageTypes.ACK:
                             OnDataChannelOpened?.Invoke(frame.StreamID);
                             break;
-                        case (byte) DataChannelMessageTypes.OPEN:
+                        case (byte)DataChannelMessageTypes.OPEN:
                             var dcepOpen = DataChannelOpenMessage.Parse(frame.UserData, 0);
 
                             logger.LogDebug(
@@ -109,7 +109,7 @@ namespace SIPSorcery.Net
                             DataChannelTypes channelType = DataChannelTypes.DATA_CHANNEL_RELIABLE;
                             if (Enum.IsDefined(typeof(DataChannelTypes), dcepOpen.ChannelType))
                             {
-                                channelType = (DataChannelTypes) dcepOpen.ChannelType;
+                                channelType = (DataChannelTypes)dcepOpen.ChannelType;
                             }
                             else
                             {

@@ -218,7 +218,7 @@ namespace LibGB28181SipClient
             var keepaliveBody = new KeepAlive();
             keepaliveBody.Status = "OK";
             keepaliveBody.CmdType = CommandType.Keepalive;
-            keepaliveBody.SN = (int) Sn;
+            keepaliveBody.SN = (int)Sn;
             keepaliveBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             req.Body = KeepAlive.Instance.Save<KeepAlive>(keepaliveBody);
             return req;
@@ -377,7 +377,7 @@ namespace LibGB28181SipClient
             deviceInfoBody.Result = "OK";
             deviceInfoBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             deviceInfoBody.DeviceName = "AKStream SipClient";
-            deviceInfoBody.SN = (int) Sn;
+            deviceInfoBody.SN = (int)Sn;
             ResponseStruct rs;
             var ret = WebApiHelper.ShareChannelSumCount(out rs);
             if (ret > -1 && rs.Code.Equals(ErrorNumber.None))
@@ -441,7 +441,7 @@ namespace LibGB28181SipClient
             deviceStatusBody.Status = "OK";
             deviceStatusBody.DeviceTime = DateTime.Now;
             deviceStatusBody.Record = "OFF";
-            deviceStatusBody.SN = (int) Sn;
+            deviceStatusBody.SN = (int)Sn;
             req.Body = DeviceStatus.Instance.Save<DeviceStatus>(deviceStatusBody);
             return req;
         }
@@ -496,7 +496,7 @@ namespace LibGB28181SipClient
             var catalogBody = new Catalog();
             catalogBody.CmdType = CommandType.Catalog;
             catalogBody.SumNum = total;
-            catalogBody.SN = (int) Sn;
+            catalogBody.SN = (int)Sn;
             catalogBody.DeviceID = Common.SipClientConfig.SipDeviceId;
             catalogBody.DeviceList = new Catalog.DevList();
             foreach (var obj in tmpList)
@@ -575,7 +575,7 @@ namespace LibGB28181SipClient
                 ushort mediaport = 0;
                 string ssrc = "";
                 string channelid =
-                    req.Header.Subject.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries)[
+                    req.Header.Subject.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)[
                         0];
                 channelid = channelid.Substring(0, channelid.IndexOf(':'));
                 Console.WriteLine(channelid);
@@ -680,7 +680,7 @@ namespace LibGB28181SipClient
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                {new SIPContactHeader(reqold.Header.From.FromName, reqold.Header.From.FromURI)};
+                { new SIPContactHeader(reqold.Header.From.FromName, reqold.Header.From.FromURI) };
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = reqold.Header.Vias;
@@ -971,7 +971,7 @@ namespace LibGB28181SipClient
                             _isRegister = true;
                             _oldSipResponse = sipResponse;
                             _registerDateTime = DateTime.Now;
-                            Common.SipClientConfig.Expiry = (ushort) sipResponse.Header.Expires;
+                            Common.SipClientConfig.Expiry = (ushort)sipResponse.Header.Expires;
                             _pauseThread.Close();
                             new Thread(new ThreadStart(delegate
                             {

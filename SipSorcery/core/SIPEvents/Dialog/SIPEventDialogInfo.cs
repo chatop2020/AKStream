@@ -91,10 +91,10 @@ namespace SIPSorcery.SIP
                 XNamespace ns = m_dialogXMLNS;
                 XDocument eventDialogDoc = XDocument.Parse(dialogInfoXMLStr);
 
-                Version = Convert.ToInt32(((XElement) eventDialogDoc.FirstNode).Attribute("version").Value);
-                State = (SIPEventDialogInfoStateEnum) Enum.Parse(typeof(SIPEventDialogInfoStateEnum),
-                    ((XElement) eventDialogDoc.FirstNode).Attribute("state").Value, true);
-                Entity = SIPURI.ParseSIPURI(((XElement) eventDialogDoc.FirstNode).Attribute("entity").Value);
+                Version = Convert.ToInt32(((XElement)eventDialogDoc.FirstNode).Attribute("version").Value);
+                State = (SIPEventDialogInfoStateEnum)Enum.Parse(typeof(SIPEventDialogInfoStateEnum),
+                    ((XElement)eventDialogDoc.FirstNode).Attribute("state").Value, true);
+                Entity = SIPURI.ParseSIPURI(((XElement)eventDialogDoc.FirstNode).Attribute("entity").Value);
 
                 var dialogElements = eventDialogDoc.Root.Elements(ns + "dialog");
                 foreach (XElement dialogElement in dialogElements)

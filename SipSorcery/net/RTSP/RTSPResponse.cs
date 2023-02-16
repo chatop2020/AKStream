@@ -59,7 +59,7 @@ namespace SIPSorcery.Net
 
         public RTSPResponse(RTSPResponseStatusCodesEnum responseType, string reasonPhrase)
         {
-            StatusCode = (int) responseType;
+            StatusCode = (int)responseType;
             Status = responseType;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseType.ToString();

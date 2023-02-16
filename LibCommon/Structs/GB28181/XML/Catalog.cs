@@ -169,7 +169,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string ParentalValue
             {
                 get => Parental.HasValue ? Parental.Value.ToString() : null;
-                set => Parental = int.TryParse(value, out int result) ? result : (int?) null;
+                set => Parental = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -198,7 +198,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SafetyWayValue
             {
                 get => SafetyWay.HasValue ? SafetyWay.Value.ToString() : null;
-                set => SafetyWay = int.TryParse(value, out int result) ? result : (int?) null;
+                set => SafetyWay = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -214,7 +214,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string RegisterWayValue
             {
                 get => RegisterWay.HasValue ? RegisterWay.Value.ToString() : null;
-                set => RegisterWay = int.TryParse(value, out int result) ? result : (int?) null;
+                set => RegisterWay = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -235,7 +235,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string CertifiableValue
             {
                 get { return Certifiable.HasValue ? Certifiable.Value.ToString() : null; }
-                set { Certifiable = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { Certifiable = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -248,7 +248,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string ErrCodeValue
             {
                 get { return ErrCode.HasValue ? ErrCode.Value.ToString() : null; }
-                set { ErrCode = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { ErrCode = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -269,7 +269,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SecrecyValue
             {
                 get { return Secrecy.HasValue ? Secrecy.Value.ToString() : null; }
-                set { Secrecy = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { Secrecy = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -288,7 +288,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PortValue
             {
                 get { return Port.HasValue ? Port.Value.ToString() : null; }
-                set { Port = ushort.TryParse(value, out ushort result) ? result : (ushort?) null; }
+                set { Port = ushort.TryParse(value, out ushort result) ? result : (ushort?)null; }
             }
 
             /// <summary>
@@ -314,7 +314,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string LongitudeValue
             {
                 get { return Longitude.HasValue ? Longitude.Value.ToString() : null; }
-                set { Longitude = double.TryParse(value, out double result) ? result : (double?) null; }
+                set { Longitude = double.TryParse(value, out double result) ? result : (double?)null; }
             }
 
             /// <summary>
@@ -327,7 +327,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string LatitudeValue
             {
                 get { return Latitude.HasValue ? Latitude.Value.ToString() : null; }
-                set { Latitude = double.TryParse(value, out double result) ? result : (double?) null; }
+                set { Latitude = double.TryParse(value, out double result) ? result : (double?)null; }
             }
 
             /// <summary>
@@ -363,7 +363,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PTZTypeValue
             {
                 get { return PTZType.HasValue ? PTZType.Value.ToString() : null; }
-                set { PTZType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { PTZType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -387,7 +387,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PositionTypeValue
             {
                 get { return PositionType.HasValue ? PositionType.Value.ToString() : null; }
-                set { PositionType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { PositionType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
 
@@ -404,7 +404,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string RoomTypeValue
             {
                 get { return RoomType.HasValue ? RoomType.Value.ToString() : null; }
-                set { RoomType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { RoomType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -421,7 +421,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string UseTypeValue
             {
                 get { return UseType.HasValue ? UseType.Value.ToString() : null; }
-                set { UseType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { UseType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -438,7 +438,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SupplyLightTypeValue
             {
                 get { return SupplyLightType.HasValue ? SupplyLightType.Value.ToString() : null; }
-                set { SupplyLightType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { SupplyLightType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -460,7 +460,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string DirectionTypeValue
             {
                 get { return DirectionType.HasValue ? DirectionType.Value.ToString() : null; }
-                set { DirectionType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { DirectionType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -501,7 +501,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SVCSpaceSupportModeValue
             {
                 get { return SVCSpaceSupportMode.HasValue ? SVCSpaceSupportMode.Value.ToString() : null; }
-                set { SVCSpaceSupportMode = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { SVCSpaceSupportMode = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -518,7 +518,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SVCTimeSupportModeValue
             {
                 get { return SVCTimeSupportMode.HasValue ? SVCTimeSupportMode.Value.ToString() : null; }
-                set { SVCTimeSupportMode = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { SVCTimeSupportMode = int.TryParse(value, out int result) ? result : (int?)null; }
             }
         }
     }
@@ -663,7 +663,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string ParentalValue
             {
                 get { return Parental.HasValue ? Parental.Value.ToString() : null; }
-                set { Parental = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { Parental = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -692,7 +692,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SafetyWayValue
             {
                 get { return SafetyWay.HasValue ? SafetyWay.Value.ToString() : null; }
-                set { SafetyWay = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { SafetyWay = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -708,7 +708,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string RegisterWayValue
             {
                 get { return RegisterWay.HasValue ? RegisterWay.Value.ToString() : null; }
-                set { RegisterWay = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { RegisterWay = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -729,7 +729,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string CertifiableValue
             {
                 get { return Certifiable.HasValue ? Certifiable.Value.ToString() : null; }
-                set { Certifiable = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { Certifiable = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -742,7 +742,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string ErrCodeValue
             {
                 get { return ErrCode.HasValue ? ErrCode.Value.ToString() : null; }
-                set { ErrCode = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { ErrCode = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -763,7 +763,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SecrecyValue
             {
                 get { return Secrecy.HasValue ? Secrecy.Value.ToString() : null; }
-                set { Secrecy = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { Secrecy = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -782,7 +782,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PortValue
             {
                 get { return Port.HasValue ? Port.Value.ToString() : null; }
-                set { Port = ushort.TryParse(value, out ushort result) ? result : (ushort?) null; }
+                set { Port = ushort.TryParse(value, out ushort result) ? result : (ushort?)null; }
             }
 
             /// <summary>
@@ -808,7 +808,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string LongitudeValue
             {
                 get => Longitude.HasValue ? Longitude.Value.ToString() : null;
-                set => Longitude = double.TryParse(value, out double result) ? result : (double?) null;
+                set => Longitude = double.TryParse(value, out double result) ? result : (double?)null;
             }
 
             /// <summary>
@@ -821,7 +821,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string LatitudeValue
             {
                 get { return Latitude.HasValue ? Latitude.Value.ToString() : null; }
-                set { Latitude = double.TryParse(value, out double result) ? result : (double?) null; }
+                set { Latitude = double.TryParse(value, out double result) ? result : (double?)null; }
             }
 
             /// <summary>
@@ -856,7 +856,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PTZTypeValue
             {
                 get { return PTZType.HasValue ? PTZType.Value.ToString() : null; }
-                set { PTZType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { PTZType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -880,7 +880,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string PositionTypeValue
             {
                 get => PositionType.HasValue ? PositionType.Value.ToString() : null;
-                set => PositionType = int.TryParse(value, out int result) ? result : (int?) null;
+                set => PositionType = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
 
@@ -897,7 +897,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string RoomTypeValue
             {
                 get { return RoomType.HasValue ? RoomType.Value.ToString() : null; }
-                set { RoomType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { RoomType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -914,7 +914,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string UseTypeValue
             {
                 get { return UseType.HasValue ? UseType.Value.ToString() : null; }
-                set { UseType = int.TryParse(value, out int result) ? result : (int?) null; }
+                set { UseType = int.TryParse(value, out int result) ? result : (int?)null; }
             }
 
             /// <summary>
@@ -931,7 +931,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SupplyLightTypeValue
             {
                 get => SupplyLightType.HasValue ? SupplyLightType.Value.ToString() : null;
-                set => SupplyLightType = int.TryParse(value, out int result) ? result : (int?) null;
+                set => SupplyLightType = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -953,7 +953,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string DirectionTypeValue
             {
                 get => DirectionType.HasValue ? DirectionType.Value.ToString() : null;
-                set => DirectionType = int.TryParse(value, out int result) ? result : (int?) null;
+                set => DirectionType = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -994,7 +994,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SVCSpaceSupportModeValue
             {
                 get => SVCSpaceSupportMode.HasValue ? SVCSpaceSupportMode.Value.ToString() : null;
-                set => SVCSpaceSupportMode = int.TryParse(value, out int result) ? result : (int?) null;
+                set => SVCSpaceSupportMode = int.TryParse(value, out int result) ? result : (int?)null;
             }
 
             /// <summary>
@@ -1011,7 +1011,7 @@ namespace LibCommon.Structs.GB28181.XML
             public string SVCTimeSupportModeValue
             {
                 get => SVCTimeSupportMode.HasValue ? SVCTimeSupportMode.Value.ToString() : null;
-                set => SVCTimeSupportMode = int.TryParse(value, out int result) ? result : (int?) null;
+                set => SVCTimeSupportMode = int.TryParse(value, out int result) ? result : (int?)null;
             }
         }
     }

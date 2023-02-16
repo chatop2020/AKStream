@@ -96,7 +96,7 @@ namespace SIPSorcery.Net
                 {
                     if (attr.AttributeType == STUNAttributeTypesEnum.ChangeRequest)
                     {
-                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute) attr;
+                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute)attr;
                         changeAddress = changeReqAttr.ChangeAddress;
                         changePort = changeReqAttr.ChangePort;
                         break;
@@ -167,7 +167,7 @@ namespace SIPSorcery.Net
                 {
                     if (attr.AttributeType == STUNAttributeTypesEnum.ChangeRequest)
                     {
-                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute) attr;
+                        STUNChangeRequestAttribute changeReqAttr = (STUNChangeRequestAttribute)attr;
                         changeAddress = changeReqAttr.ChangeAddress;
                         changePort = changeReqAttr.ChangePort;
                         break;

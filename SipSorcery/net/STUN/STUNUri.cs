@@ -239,7 +239,7 @@ namespace SIPSorcery.Net
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (STUNUri) obj);
+            return AreEqual(this, (STUNUri)obj);
         }
 
         public static bool operator ==(STUNUri uri1, STUNUri uri2)

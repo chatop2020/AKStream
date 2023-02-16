@@ -50,7 +50,7 @@ namespace SIPSorcery.SIP
                 XNamespace ns = m_pidfXMLNS;
                 XDocument presenceDoc = XDocument.Parse(presenceXMLStr);
 
-                Entity = SIPURI.ParseSIPURI(((XElement) presenceDoc.FirstNode).Attribute("entity").Value);
+                Entity = SIPURI.ParseSIPURI(((XElement)presenceDoc.FirstNode).Attribute("entity").Value);
 
                 var tupleElements = presenceDoc.Root.Elements(ns + "tuple");
                 foreach (XElement tupleElement in tupleElements)

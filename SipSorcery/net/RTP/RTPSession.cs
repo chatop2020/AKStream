@@ -1763,8 +1763,8 @@ namespace SIPSorcery.Net
                         //logger.LogDebug($"send audio { audioRtpChannel.RTPLocalEndPoint}->{AudioDestinationEndPoint}.");
 
                         payloadDuration =
-                            (uint) (((decimal) payloadLength / buffer.Length) *
-                                    duration); // Get the percentage duration of this payload.
+                            (uint)(((decimal)payloadLength / buffer.Length) *
+                                   duration); // Get the percentage duration of this payload.
                     }
 
                     audioTrack.Timestamp += duration;
@@ -1813,7 +1813,7 @@ namespace SIPSorcery.Net
                             ? RTP_MAX_PAYLOAD
                             : buffer.Length - offset;
 
-                        byte[] vp8HeaderBytes = (index == 0) ? new byte[] {0x10} : new byte[] {0x00};
+                        byte[] vp8HeaderBytes = (index == 0) ? new byte[] { 0x10 } : new byte[] { 0x00 };
                         byte[] payload = new byte[payloadLength + vp8HeaderBytes.Length];
                         Buffer.BlockCopy(vp8HeaderBytes, 0, payload, 0, vp8HeaderBytes.Length);
                         Buffer.BlockCopy(buffer, offset, payload, vp8HeaderBytes.Length, payloadLength);
@@ -2070,7 +2070,7 @@ namespace SIPSorcery.Net
                     // The RTP timestamp step corresponding to the sampling period. This can change depending
                     // on the codec being used. For example using PCMU with a sampling frequency of 8000Hz and a sample period of 50ms
                     // the timestamp step is 400 (8000 / (1000 / 50)). For a sample period of 20ms it's 160 (8000 / (1000 / 20)).
-                    ushort rtpTimestampStep = (ushort) (clockRate * samplePeriod / 1000);
+                    ushort rtpTimestampStep = (ushort)(clockRate * samplePeriod / 1000);
 
                     // If only the minimum number of packets are being sent then they are both the start and end of the event.
                     rtpEvent.EndOfEvent = (rtpEvent.TotalDuration <= rtpTimestampStep);

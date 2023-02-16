@@ -47,10 +47,10 @@ namespace AKStreamWeb.Controllers
         /// <returns></returns>
         [Route("GetVersions")]
         [HttpPost]
-        public AKStreamVersions GetVersions([FromHeader(Name = "AccessKey")] string AccessKey,string mediaServerId)
+        public AKStreamVersions GetVersions([FromHeader(Name = "AccessKey")] string AccessKey, string mediaServerId)
         {
             ResponseStruct rs;
-            var ret = SystemService.GetVersions(mediaServerId,out rs);
+            var ret = SystemService.GetVersions(mediaServerId, out rs);
             if (rs.Code != ErrorNumber.None)
             {
                 throw new AkStreamException(rs);

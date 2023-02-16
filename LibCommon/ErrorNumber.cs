@@ -79,7 +79,7 @@ namespace LibCommon
         MediaServer_VideoSrcExcept = -3015, //源流地址异常
         MediaServer_InputObjectAlredayExists = -3016, //传入对象已经存在
         MediaServer_ObjectNotExists = -3017, //对象不存在
-        MediaServer_RecordFileExcept = -3018,//录制文件异常
+        MediaServer_RecordFileExcept = -3018, //录制文件异常
 
 
         Other = -6000 //其他异常

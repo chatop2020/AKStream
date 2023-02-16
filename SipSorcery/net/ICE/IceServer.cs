@@ -200,7 +200,7 @@ namespace SIPSorcery.Net
             if (type == RTCIceCandidateType.srflx && ServerReflexiveEndPoint != null)
             {
                 candidate.SetAddressProperties(RTCIceProtocol.udp, ServerReflexiveEndPoint.Address,
-                    (ushort) ServerReflexiveEndPoint.Port,
+                    (ushort)ServerReflexiveEndPoint.Port,
                     type, null, 0);
                 candidate.IceServer = this;
 
@@ -208,7 +208,7 @@ namespace SIPSorcery.Net
             }
             else if (type == RTCIceCandidateType.relay && RelayEndPoint != null)
             {
-                candidate.SetAddressProperties(RTCIceProtocol.udp, RelayEndPoint.Address, (ushort) RelayEndPoint.Port,
+                candidate.SetAddressProperties(RTCIceProtocol.udp, RelayEndPoint.Address, (ushort)RelayEndPoint.Port,
                     type, null, 0);
                 candidate.IceServer = this;
 

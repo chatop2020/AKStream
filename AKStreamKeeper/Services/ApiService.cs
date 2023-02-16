@@ -716,7 +716,7 @@ namespace AKStreamKeeper.Services
             }
             else
             {
-                port = _guessAnRtpPort((ushort) min, (ushort) max);
+                port = _guessAnRtpPort((ushort)min, (ushort)max);
             }
 
             if (port > 0)
@@ -752,7 +752,7 @@ namespace AKStreamKeeper.Services
             }
             else
             {
-                port = _guessAnRtpPortForSender((ushort) min, (ushort) max);
+                port = _guessAnRtpPortForSender((ushort)min, (ushort)max);
             }
 
             if (port > 0)

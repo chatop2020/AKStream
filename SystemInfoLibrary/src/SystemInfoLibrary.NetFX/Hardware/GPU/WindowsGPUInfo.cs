@@ -12,11 +12,11 @@ namespace SystemInfoLibrary.Hardware.GPU
             _win32_videoController = win32_videoController;
         }
 
-        public override string Name => (String) _win32_videoController.GetPropertyValue("VideoProcessor");
+        public override string Name => (String)_win32_videoController.GetPropertyValue("VideoProcessor");
 
-        public override string Brand => (String) _win32_videoController.GetPropertyValue("Name");
+        public override string Brand => (String)_win32_videoController.GetPropertyValue("Name");
 
-        public override ulong MemoryTotal => (UInt32) _win32_videoController.GetPropertyValue("AdapterRAM");
+        public override ulong MemoryTotal => (UInt32)_win32_videoController.GetPropertyValue("AdapterRAM");
 
         protected enum GPUArchitectureType
         {

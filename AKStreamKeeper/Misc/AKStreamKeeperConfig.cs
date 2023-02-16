@@ -59,7 +59,6 @@ namespace AKStreamKeeper.Misc
             set => _webApiPort = value;
         }
 
-      
 
         /// <summary>
         /// 流媒体服务器路径
@@ -70,7 +69,7 @@ namespace AKStreamKeeper.Misc
             set => _mediaServerPath = value;
         }
 
-        
+
         /// <summary>
         /// keeper对外服务的ip地址（公网ip地址）
         /// </summary>

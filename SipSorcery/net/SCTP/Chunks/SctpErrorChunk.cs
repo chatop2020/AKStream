@@ -144,14 +144,14 @@ namespace SIPSorcery.Net
                 {
                     switch (varParam.ParameterType)
                     {
-                        case (ushort) SctpErrorCauseCode.InvalidStreamIdentifier:
-                            ushort streamID = (ushort) ((varParam.ParameterValue != null)
+                        case (ushort)SctpErrorCauseCode.InvalidStreamIdentifier:
+                            ushort streamID = (ushort)((varParam.ParameterValue != null)
                                 ? NetConvert.ParseUInt16(varParam.ParameterValue, 0)
                                 : 0);
-                            var invalidStreamID = new SctpErrorInvalidStreamIdentifier {StreamID = streamID};
+                            var invalidStreamID = new SctpErrorInvalidStreamIdentifier { StreamID = streamID };
                             errorChunk.AddErrorCause(invalidStreamID);
                             break;
-                        case (ushort) SctpErrorCauseCode.MissingMandatoryParameter:
+                        case (ushort)SctpErrorCauseCode.MissingMandatoryParameter:
                             List<ushort> missingIDs = new List<ushort>();
                             if (varParam.ParameterValue != null)
                             {
@@ -162,66 +162,66 @@ namespace SIPSorcery.Net
                             }
 
                             var missingMandatory = new SctpErrorMissingMandatoryParameter
-                                {MissingParameters = missingIDs};
+                                { MissingParameters = missingIDs };
                             errorChunk.AddErrorCause(missingMandatory);
                             break;
-                        case (ushort) SctpErrorCauseCode.StaleCookieError:
-                            uint staleness = (uint) ((varParam.ParameterValue != null)
+                        case (ushort)SctpErrorCauseCode.StaleCookieError:
+                            uint staleness = (uint)((varParam.ParameterValue != null)
                                 ? NetConvert.ParseUInt32(varParam.ParameterValue, 0)
                                 : 0);
-                            var staleCookie = new SctpErrorStaleCookieError {MeasureOfStaleness = staleness};
+                            var staleCookie = new SctpErrorStaleCookieError { MeasureOfStaleness = staleness };
                             errorChunk.AddErrorCause(staleCookie);
                             break;
-                        case (ushort) SctpErrorCauseCode.OutOfResource:
+                        case (ushort)SctpErrorCauseCode.OutOfResource:
                             errorChunk.AddErrorCause(new SctpCauseOnlyError(SctpErrorCauseCode.OutOfResource));
                             break;
-                        case (ushort) SctpErrorCauseCode.UnresolvableAddress:
+                        case (ushort)SctpErrorCauseCode.UnresolvableAddress:
                             var unresolvable = new SctpErrorUnresolvableAddress
-                                {UnresolvableAddress = varParam.ParameterValue};
+                                { UnresolvableAddress = varParam.ParameterValue };
                             errorChunk.AddErrorCause(unresolvable);
                             break;
-                        case (ushort) SctpErrorCauseCode.UnrecognizedChunkType:
+                        case (ushort)SctpErrorCauseCode.UnrecognizedChunkType:
                             var unrecognised = new SctpErrorUnrecognizedChunkType
-                                {UnrecognizedChunk = varParam.ParameterValue};
+                                { UnrecognizedChunk = varParam.ParameterValue };
                             errorChunk.AddErrorCause(unrecognised);
                             break;
-                        case (ushort) SctpErrorCauseCode.InvalidMandatoryParameter:
+                        case (ushort)SctpErrorCauseCode.InvalidMandatoryParameter:
                             errorChunk.AddErrorCause(
                                 new SctpCauseOnlyError(SctpErrorCauseCode.InvalidMandatoryParameter));
                             break;
-                        case (ushort) SctpErrorCauseCode.UnrecognizedParameters:
+                        case (ushort)SctpErrorCauseCode.UnrecognizedParameters:
                             var unrecognisedParams = new SctpErrorUnrecognizedParameters
-                                {UnrecognizedParameters = varParam.ParameterValue};
+                                { UnrecognizedParameters = varParam.ParameterValue };
                             errorChunk.AddErrorCause(unrecognisedParams);
                             break;
-                        case (ushort) SctpErrorCauseCode.NoUserData:
-                            uint tsn = (uint) ((varParam.ParameterValue != null)
+                        case (ushort)SctpErrorCauseCode.NoUserData:
+                            uint tsn = (uint)((varParam.ParameterValue != null)
                                 ? NetConvert.ParseUInt32(varParam.ParameterValue, 0)
                                 : 0);
-                            var noData = new SctpErrorNoUserData {TSN = tsn};
+                            var noData = new SctpErrorNoUserData { TSN = tsn };
                             errorChunk.AddErrorCause(noData);
                             break;
-                        case (ushort) SctpErrorCauseCode.CookieReceivedWhileShuttingDown:
+                        case (ushort)SctpErrorCauseCode.CookieReceivedWhileShuttingDown:
                             errorChunk.AddErrorCause(
                                 new SctpCauseOnlyError(SctpErrorCauseCode.CookieReceivedWhileShuttingDown));
                             break;
-                        case (ushort) SctpErrorCauseCode.RestartAssociationWithNewAddress:
+                        case (ushort)SctpErrorCauseCode.RestartAssociationWithNewAddress:
                             var restartAddress = new SctpErrorRestartAssociationWithNewAddress
-                                {NewAddressTLVs = varParam.ParameterValue};
+                                { NewAddressTLVs = varParam.ParameterValue };
                             errorChunk.AddErrorCause(restartAddress);
                             break;
-                        case (ushort) SctpErrorCauseCode.UserInitiatedAbort:
+                        case (ushort)SctpErrorCauseCode.UserInitiatedAbort:
                             string reason = (varParam.ParameterValue != null)
                                 ? Encoding.UTF8.GetString(varParam.ParameterValue)
                                 : null;
-                            var userAbort = new SctpErrorUserInitiatedAbort {AbortReason = reason};
+                            var userAbort = new SctpErrorUserInitiatedAbort { AbortReason = reason };
                             errorChunk.AddErrorCause(userAbort);
                             break;
-                        case (ushort) SctpErrorCauseCode.ProtocolViolation:
+                        case (ushort)SctpErrorCauseCode.ProtocolViolation:
                             string info = (varParam.ParameterValue != null)
                                 ? Encoding.UTF8.GetString(varParam.ParameterValue)
                                 : null;
-                            var protocolViolation = new SctpErrorProtocolViolation {AdditionalInformation = info};
+                            var protocolViolation = new SctpErrorProtocolViolation { AdditionalInformation = info };
                             errorChunk.AddErrorCause(protocolViolation);
                             break;
                         default:

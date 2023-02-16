@@ -107,7 +107,7 @@ namespace SIPSorcery.SIP
                 ? dialogElement.Attribute("remote-tag").Value
                 : null;
             eventDialog.Direction = (dialogElement.Attribute("direction") != null)
-                ? (SIPEventDialogDirectionEnum) Enum.Parse(typeof(SIPEventDialogDirectionEnum),
+                ? (SIPEventDialogDirectionEnum)Enum.Parse(typeof(SIPEventDialogDirectionEnum),
                     dialogElement.Attribute("direction").Value, true)
                 : SIPEventDialogDirectionEnum.none;
 

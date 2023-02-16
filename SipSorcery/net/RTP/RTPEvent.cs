@@ -80,8 +80,8 @@ namespace SIPSorcery.Net
             byte[] payload = new byte[DTMF_PACKET_LENGTH];
 
             payload[0] = EventID;
-            payload[1] = (byte) (EndOfEvent ? 0x80 : 0x00);
-            payload[1] += (byte) (Volume & 0xcf); // The Volume field uses 6 bits.
+            payload[1] = (byte)(EndOfEvent ? 0x80 : 0x00);
+            payload[1] += (byte)(Volume & 0xcf); // The Volume field uses 6 bits.
 
             if (BitConverter.IsLittleEndian)
             {
@@ -109,7 +109,7 @@ namespace SIPSorcery.Net
 
             EventID = packet[0];
             EndOfEvent = (packet[1] & 0x80) > 1;
-            Volume = (ushort) (packet[1] & 0xcf);
+            Volume = (ushort)(packet[1] & 0xcf);
 
             if (BitConverter.IsLittleEndian)
             {

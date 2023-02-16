@@ -36,7 +36,44 @@ namespace AKStreamWeb.Services
             List<RecordPlan> retSelect = null!;
             int retDelete = -1;
 
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->DeleteRecordPlanByName->执行SQL:->{sql}");
+            }
+
+            #endregion
+
             retSelect = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(name)).ToList();
+
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Delete<RecordPlan>().Where(x => x.Name.Equals(name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->DeleteRecordPlanByName->执行SQL:->{sql}");
+            }
+
+            #endregion
+
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Delete<RecordPlan>().Where(x => x.Name.Equals(name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->DeleteRecordPlanByName->执行SQL:->{sql}");
+            }
+
+            #endregion
+
             retDelete = ORMHelper.Db.Delete<RecordPlan>().Where(x => x.Name.Equals(name)).ExecuteAffrows();
 
 
@@ -44,6 +81,19 @@ namespace AKStreamWeb.Services
             {
                 foreach (var select in retSelect)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Delete<RecordPlanRange>().Where(x => x.RecordPlanId == select.Id)
+                            .ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->DeleteRecordPlanByName->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     ORMHelper.Db.Delete<RecordPlanRange>().Where(x => x.RecordPlanId == select.Id)
                         .ExecuteAffrows();
                 }
@@ -81,6 +131,18 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Update<RecordPlan>().Set(x => x.Enable, enable)
+                    .Where(x => x.Name.Equals(name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->OnOrOffRecordPlanByName->执行SQL:->{sql}");
+            }
+
+            #endregion
 
             var retUpdate = ORMHelper.Db.Update<RecordPlan>().Set(x => x.Enable, enable)
                 .Where(x => x.Name.Equals(name))
@@ -102,6 +164,19 @@ namespace AKStreamWeb.Services
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<RecordPlan>().IncludeMany(a => a.TimeRangeList)
+                    .WhereIf(!UtilsHelper.StringIsNullEx(name),
+                        x => x.Name.Equals(name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->GetRecordPlanList->执行SQL:->{sql}");
+            }
+
+            #endregion
 
             /*联同子类一起查出*/
             return ORMHelper.Db.Select<RecordPlan>().IncludeMany(a => a.TimeRangeList)
@@ -153,12 +228,50 @@ namespace AKStreamWeb.Services
                 RecordPlan retSelect = null!;
                 int retDelete = -1;
 
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(name)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->SetRecordPlanByName->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 retSelect = ORMHelper.Db.Select<RecordPlan>().Where(x => x.Name.Equals(name)).First();
+
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Delete<RecordPlan>().Where(x => x.Name.Equals(name)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->SetRecordPlanByName->执行SQL:->{sql}");
+                }
+
+                #endregion
+
                 retDelete = ORMHelper.Db.Delete<RecordPlan>().Where(x => x.Name.Equals(name)).ExecuteAffrows();
 
 
                 if (retDelete > 0)
                 {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Delete<RecordPlanRange>()
+                            .Where(x => x.RecordPlanId == retSelect.Id).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->SetRecordPlanByName->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
                     ORMHelper.Db.Delete<RecordPlanRange>()
                         .Where(x => x.RecordPlanId == retSelect.Id).ExecuteAffrows();
 
@@ -225,6 +338,19 @@ namespace AKStreamWeb.Services
 
             RecordPlan retSelect = null!;
 
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<RecordPlan>().Where(x =>
+                    x.Name.Equals(sdp.Name)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->CreateRecordPlan->执行SQL:->{sql}");
+            }
+
+            #endregion
+
             retSelect = ORMHelper.Db.Select<RecordPlan>().Where(x =>
                     x.Name.Equals(sdp.Name))
                 .First();
@@ -261,6 +387,7 @@ namespace AKStreamWeb.Services
                         });
                     }
                 }
+
 
                 /*联同子类一起插入*/
                 var repo = ORMHelper.Db.GetRepository<RecordPlan>();

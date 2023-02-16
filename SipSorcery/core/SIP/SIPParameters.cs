@@ -104,7 +104,7 @@ namespace SIPSorcery.SIP
                 }
                 else if (quotedString.IndexOf(delimiter) == -1)
                 {
-                    return new string[] {quotedString};
+                    return new string[] { quotedString };
                 }
                 else
                 {
@@ -114,7 +114,7 @@ namespace SIPSorcery.SIP
 
                     while (inParameterPosn != -1 && inParameterPosn < quotedString.Length)
                     {
-                        inParameterPosn = quotedString.IndexOfAny(new char[] {delimiter, QUOTE}, inParameterPosn);
+                        inParameterPosn = quotedString.IndexOfAny(new char[] { delimiter, QUOTE }, inParameterPosn);
 
                         // Determine if the delimiter position represents the end of the parameter or is in a quoted string.
                         if (inParameterPosn != -1)
@@ -332,7 +332,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPParameters) obj);
+            return AreEqual(this, (SIPParameters)obj);
         }
 
         /// <summary>

@@ -86,12 +86,12 @@ namespace SIPSorcery.Net
         }
 
         //static byte[] dc_luminance = { 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
-        static byte[] bits_dc_luminance = {0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
+        static byte[] bits_dc_luminance = { 0, 1, 5, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 };
 
-        static byte[] val_dc = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        static byte[] val_dc = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
         //static byte[] lum_ac_codelens = { 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d };
-        static byte[] bits_ac_luminance = {0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d};
+        static byte[] bits_ac_luminance = { 0, 2, 1, 3, 3, 2, 4, 3, 5, 5, 4, 4, 0, 0, 1, 0x7d };
 
         static byte[] val_ac_luminance =
         {
@@ -119,12 +119,12 @@ namespace SIPSorcery.Net
         };
 
         //static byte[] dc_chrominance = { 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
-        static byte[] bits_dc_chrominance = {0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0};
+        static byte[] bits_dc_chrominance = { 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
 
-        static byte[] chm_dc_symbols = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        static byte[] chm_dc_symbols = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
         //static byte[] bits_ac_chrominance = { 0, 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77 };
-        static byte[] bits_ac_chrominance = {0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77};
+        static byte[] bits_ac_chrominance = { 0, 2, 1, 2, 4, 4, 3, 4, 7, 5, 4, 4, 0, 1, 2, 0x77 };
 
         static byte[] val_ac_chrominance =
         {
@@ -185,10 +185,10 @@ namespace SIPSorcery.Net
             result.Add(Tags.AppFirst); //AppFirst
             result.Add(0x00);
             result.Add(0x10); //length
-            result.Add((byte) 'J'); //Always equals "JFXX" (with zero following) (0x4A46585800)
-            result.Add((byte) 'F');
-            result.Add((byte) 'I');
-            result.Add((byte) 'F');
+            result.Add((byte)'J'); //Always equals "JFXX" (with zero following) (0x4A46585800)
+            result.Add((byte)'F');
+            result.Add((byte)'I');
+            result.Add((byte)'F');
             result.Add(0x00);
 
             result.Add(0x01); //Version Major
@@ -215,16 +215,16 @@ namespace SIPSorcery.Net
             result.AddRange(CreateQuantizationTablesMarker(tables, precision));
 
             //Huffman Tables
-            ushort huffmanLength = (ushort) (6 +
-                                             bits_dc_luminance.Length + val_dc.Length +
-                                             bits_dc_chrominance.Length + val_dc.Length +
-                                             bits_ac_luminance.Length + val_ac_luminance.Length +
-                                             bits_ac_chrominance.Length + val_ac_chrominance.Length);
+            ushort huffmanLength = (ushort)(6 +
+                                            bits_dc_luminance.Length + val_dc.Length +
+                                            bits_dc_chrominance.Length + val_dc.Length +
+                                            bits_ac_luminance.Length + val_ac_luminance.Length +
+                                            bits_ac_chrominance.Length + val_ac_chrominance.Length);
 
             result.Add(Tags.Prefix);
             result.Add(Tags.HuffmanTable);
-            result.Add((byte) (huffmanLength >> 8));
-            result.Add((byte) huffmanLength);
+            result.Add((byte)(huffmanLength >> 8));
+            result.Add((byte)huffmanLength);
             result.AddRange(CreateHuffmanTableMarker(bits_dc_luminance, val_dc, 0, 0));
             result.AddRange(CreateHuffmanTableMarker(bits_dc_chrominance, val_dc, 0, 1));
             result.AddRange(CreateHuffmanTableMarker(bits_ac_luminance, val_ac_luminance, 1, 0));
@@ -236,14 +236,14 @@ namespace SIPSorcery.Net
             result.Add(0x00); //Length
             result.Add(0x11); // 17
             result.Add(0x08); //Bits Per Component
-            result.Add((byte) (height >> 8)); //Height
-            result.Add((byte) height);
-            result.Add((byte) (width >> 8)); //Width
-            result.Add((byte) width);
+            result.Add((byte)(height >> 8)); //Height
+            result.Add((byte)height);
+            result.Add((byte)(width >> 8)); //Width
+            result.Add((byte)width);
 
             result.Add(0x03); //Number of components
             result.Add(0x01); //Component Number
-            result.Add((byte) (type > 0 ? 0x22 : 0x21)); //Horizontal or Vertical Sample  
+            result.Add((byte)(type > 0 ? 0x22 : 0x21)); //Horizontal or Vertical Sample  
 
             result.Add(0x00); //Matrix Number (Quant Table Id)?
             result.Add(0x02); //Component Number
@@ -288,7 +288,7 @@ namespace SIPSorcery.Net
             Q &= 128;
 
             //Factor restricted to range of 1 and 99
-            int factor = (int) Math.Max(Math.Min(1, Q), 99);
+            int factor = (int)Math.Max(Math.Min(1, Q), 99);
 
             //Seed quantization value
             int q = (Q < 50 ? q = 5000 / factor : 200 - factor * 2);
@@ -303,24 +303,24 @@ namespace SIPSorcery.Net
                     //Clamp with Min, Max
                     //Luma
                     resultTables[i] =
-                        (byte) Math.Min(Math.Max((defaultQuantizers[i] * q + 50) / 100, 1), byte.MaxValue);
+                        (byte)Math.Min(Math.Max((defaultQuantizers[i] * q + 50) / 100, 1), byte.MaxValue);
                     //Chroma
                     resultTables[j] =
-                        (byte) Math.Min(Math.Max((defaultQuantizers[j] * q + 50) / 100, 1), byte.MaxValue);
+                        (byte)Math.Min(Math.Max((defaultQuantizers[j] * q + 50) / 100, 1), byte.MaxValue);
                 }
                 else
                 {
                     //Luma
                     BitConverter
                         .GetBytes(NetConvert.DoReverseEndian(
-                            (ushort) Math.Min(Math.Max((defaultQuantizers[i] * q + 50) / 100, 1), byte.MaxValue)))
+                            (ushort)Math.Min(Math.Max((defaultQuantizers[i] * q + 50) / 100, 1), byte.MaxValue)))
                         .CopyTo(resultTables, i);
                     i++;
 
                     //Chroma
                     BitConverter
                         .GetBytes(NetConvert.DoReverseEndian(
-                            (ushort) Math.Min(Math.Max((defaultQuantizers[j] * q + 50) / 100, 1), byte.MaxValue)))
+                            (ushort)Math.Min(Math.Max((defaultQuantizers[j] * q + 50) / 100, 1), byte.MaxValue)))
                         .CopyTo(resultTables, j);
                     j++;
                 }
@@ -354,8 +354,8 @@ namespace SIPSorcery.Net
             result[0] = Tags.Prefix;
             result[1] = Tags.QuantizationTable;
             result[2] = 0; //Len
-            result[3] = (byte) (tableSize + 3);
-            result[4] = (byte) (precision << 4 | 0); // Precision and TableId
+            result[3] = (byte)(tableSize + 3);
+            result[4] = (byte)(precision << 4 | 0); // Precision and TableId
 
             //First table. Type - Luminance usually when two
             Array.Copy(tables.Array, tables.Offset, result, 5, tableSize);
@@ -365,8 +365,8 @@ namespace SIPSorcery.Net
                 result[tableSize + 5] = Tags.Prefix;
                 result[tableSize + 6] = Tags.QuantizationTable;
                 result[tableSize + 7] = 0; //Len
-                result[tableSize + 8] = (byte) (tableSize + 3);
-                result[tableSize + 9] = (byte) (precision << 4 | 1); //Precision 0, and table Id
+                result[tableSize + 8] = (byte)(tableSize + 3);
+                result[tableSize + 9] = (byte)(precision << 4 | 1); //Precision 0, and table Id
 
                 //Second Table. Type - Chrominance usually when two
                 Array.Copy(tables.Array, tables.Offset + tableSize, result, 10 + tableSize, tableSize);
@@ -382,7 +382,7 @@ namespace SIPSorcery.Net
             //result.Add(Tags.HuffmanTable);
             //result.Add(0x00); //Length
             //result.Add((byte)(3 + codeLens.Length + symbols.Length)); //Length
-            result.Add((byte) ((tableClass << 4) | tableID)); //Id
+            result.Add((byte)((tableClass << 4) | tableID)); //Id
             result.AddRange(codeLens); //Data
             result.AddRange(symbols);
             return result.ToArray();
@@ -390,7 +390,7 @@ namespace SIPSorcery.Net
 
         static byte[] CreateDataRestartIntervalMarker(ushort dri)
         {
-            return new byte[] {Tags.Prefix, Tags.DataRestartInterval, 0x00, 0x04, (byte) (dri >> 8), (byte) (dri)};
+            return new byte[] { Tags.Prefix, Tags.DataRestartInterval, 0x00, 0x04, (byte)(dri >> 8), (byte)(dri) };
         }
 
         /// <summary>
@@ -426,9 +426,9 @@ namespace SIPSorcery.Net
 
                     //Decode RtpJpeg Header
 
-                    TypeSpecific = (uint) (packet.Payload[offset++]);
-                    FragmentOffset = (uint) (packet.Payload[offset++] << 16 | packet.Payload[offset++] << 8 |
-                                             packet.Payload[offset++]);
+                    TypeSpecific = (uint)(packet.Payload[offset++]);
+                    FragmentOffset = (uint)(packet.Payload[offset++] << 16 | packet.Payload[offset++] << 8 |
+                                            packet.Payload[offset++]);
 
                     #region RFC2435 -  The Type Field
 
@@ -511,7 +511,7 @@ namespace SIPSorcery.Net
 
                     #endregion
 
-                    Type = (uint) (packet.Payload[offset++]);
+                    Type = (uint)(packet.Payload[offset++]);
                     type = Type & 1;
                     if (type > 3 || type > 6)
                     {
@@ -519,11 +519,11 @@ namespace SIPSorcery.Net
                             "Type numbers 2-5 are reserved and SHOULD NOT be used.  Applications on RFC 2035 should be updated to indicate the presence of restart markers with type 64 or 65 and the Restart Marker header.");
                     }
 
-                    Quality = (uint) packet.Payload[offset++];
-                    Width = (uint) (packet.Payload[offset++] *
-                                    8); // This should have been 128 or > and the standard would have worked for all resolutions
-                    Height = (uint) (packet.Payload[offset++] *
-                                     8); // Now in certain highres profiles you will need an OnVif extension before the RtpJpeg Header
+                    Quality = (uint)packet.Payload[offset++];
+                    Width = (uint)(packet.Payload[offset++] *
+                                   8); // This should have been 128 or > and the standard would have worked for all resolutions
+                    Height = (uint)(packet.Payload[offset++] *
+                                    8); // Now in certain highres profiles you will need an OnVif extension before the RtpJpeg Header
                     //It is worth noting Rtp does not care what you send and more tags such as comments and or higher resolution pictures may be sent and these values will simply be ignored.
 
                     if (Width == 0 || Height == 0)
@@ -547,8 +547,8 @@ namespace SIPSorcery.Net
                            |       Restart Interval        |F|L|       Restart Count       |
                            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                          */
-                        RestartInterval = (ushort) (packet.Payload[offset++] << 8 | packet.Payload[offset++]);
-                        RestartCount = (ushort) ((packet.Payload[offset++] << 8 | packet.Payload[offset++]) & 0x3fff);
+                        RestartInterval = (ushort)(packet.Payload[offset++] << 8 | packet.Payload[offset++]);
+                        RestartCount = (ushort)((packet.Payload[offset++] << 8 | packet.Payload[offset++]) & 0x3fff);
                     }
 
                     //QTables Only occur in the first packet
@@ -602,13 +602,13 @@ namespace SIPSorcery.Net
                             #endregion
 
                             //Length of all tables
-                            ushort Length = (ushort) (packet.Payload[offset++] << 8 | packet.Payload[offset++]);
+                            ushort Length = (ushort)(packet.Payload[offset++] << 8 | packet.Payload[offset++]);
 
                             //If there is Table Data Read it
                             if (Length > 0)
                             {
-                                tables = new ArraySegment<byte>(packet.Payload, offset, (int) Length);
-                                offset += (int) Length;
+                                tables = new ArraySegment<byte>(packet.Payload, offset, (int)Length);
+                                offset += (int)Length;
                             }
                             else if (Length > packet.Payload.Length - offset)
                             {

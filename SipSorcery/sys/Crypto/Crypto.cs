@@ -207,11 +207,11 @@ namespace SIPSorcery.Sys
                 m_randomProvider.GetBytes(uint32Buffer);
                 UInt32 rand = BitConverter.ToUInt32(uint32Buffer, 0);
 
-                Int64 max = (1 + (Int64) UInt32.MaxValue);
+                Int64 max = (1 + (Int64)UInt32.MaxValue);
                 Int64 remainder = max % diff;
                 if (rand <= max - remainder)
                 {
-                    return (Int32) (minValue + (rand % diff));
+                    return (Int32)(minValue + (rand % diff));
                 }
 
                 attempts++;
@@ -274,7 +274,7 @@ namespace SIPSorcery.Sys
 
             // Buffer to read in plain text blocks.
             byte[] fileBuffer = new byte[fileStream.Length];
-            fileStream.Read(fileBuffer, 0, (int) fileStream.Length);
+            fileStream.Read(fileBuffer, 0, (int)fileStream.Length);
             fileStream.Close();
 
             byte[] overallHash = shaM.ComputeHash(fileBuffer);

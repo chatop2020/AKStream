@@ -229,7 +229,6 @@ namespace LibGB28181SipServer
                                             newSipChannel.DeviceId);
                                         newSipChannel.SsrcId = ret.Key;
                                         newSipChannel.Stream = ret.Value;
-                                      
                                     }
 
                                     tmpSipDevice.SipChannels.Add(newSipChannel);
@@ -485,15 +484,15 @@ namespace LibGB28181SipServer
                             var ret = Common.NeedResponseRequests.TryRemove(callId, out NeedReturnTask _task);
                             if (ret && _task != null)
                             {
-                                ((RecordInfo.RecItem) _task.Obj).PushStatus = PushStatus.IDLE;
-                                ((RecordInfo.RecItem) _task.Obj).MediaServerStreamInfo = null;
+                                ((RecordInfo.RecItem)_task.Obj).PushStatus = PushStatus.IDLE;
+                                ((RecordInfo.RecItem)_task.Obj).MediaServerStreamInfo = null;
                                 Task.Run(() =>
                                 {
-                                    OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem) _task.Obj);
+                                    OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem)_task.Obj);
                                 }); //抛线程出去处理
 
                                 GCommon.Logger.Debug(
-                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的点播结束消息->{_task.SipDevice.DeviceId}->{_task.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem) _task.Obj).SsrcId}:{((RecordInfo.RecItem) _task.Obj).Stream}");
+                                    $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的点播结束消息->{_task.SipDevice.DeviceId}->{_task.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem)_task.Obj).SsrcId}:{((RecordInfo.RecItem)_task.Obj).Stream}");
                             }
                         }
 
@@ -843,7 +842,7 @@ namespace LibGB28181SipServer
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
+                { new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI) };
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
@@ -872,7 +871,7 @@ namespace LibGB28181SipServer
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
+                { new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI) };
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
@@ -900,7 +899,7 @@ namespace LibGB28181SipServer
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
+                { new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI) };
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
@@ -946,7 +945,7 @@ namespace LibGB28181SipServer
                 new SIPToHeader(to.ToName, to.ToURI, to.ToTag),
                 new SIPFromHeader("", from.FromURI, from.FromTag));
             req.Header.Contact = new List<SIPContactHeader>()
-                {new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI)};
+                { new SIPContactHeader(sipResponse.Header.From.FromName, sipResponse.Header.From.FromURI) };
             req.Header.UserAgent = ConstString.SIP_USERAGENT_STRING;
             req.Header.Allow = null;
             req.Header.Vias = sipResponse.Header.Vias;
@@ -1033,7 +1032,7 @@ namespace LibGB28181SipServer
                                 }
                                 else
                                 {
-                                    var record = (RecordInfo.RecItem) _task.Obj;
+                                    var record = (RecordInfo.RecItem)_task.Obj;
 
                                     await InviteOk(sipResponse, record);
                                     if (_task.TimeoutCheckTimer != null && _task.TimeoutCheckTimer.Enabled == true)
@@ -1055,21 +1054,21 @@ namespace LibGB28181SipServer
                                 }
                                 else
                                 {
-                                    var record = (RecordInfo.RecItem) _task.Obj;
+                                    var record = (RecordInfo.RecItem)_task.Obj;
                                     await InviteEnd(sipResponse, record);
                                     var ret1 = Common.NeedResponseRequests.TryRemove(
                                         "MEDIASTATUS" + sipResponse.Header.CallId,
                                         out NeedReturnTask _task1);
                                     if (ret1 && _task1 != null)
                                     {
-                                        ((RecordInfo.RecItem) _task1.Obj).PushStatus = PushStatus.IDLE;
-                                        ((RecordInfo.RecItem) _task1.Obj).MediaServerStreamInfo = null;
+                                        ((RecordInfo.RecItem)_task1.Obj).PushStatus = PushStatus.IDLE;
+                                        ((RecordInfo.RecItem)_task1.Obj).MediaServerStreamInfo = null;
                                         Task.Run(() =>
                                         {
-                                            OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem) _task1.Obj);
+                                            OnInviteHistoryVideoFinished?.Invoke((RecordInfo.RecItem)_task1.Obj);
                                         }); //抛线程出去处理
                                         GCommon.Logger.Debug(
-                                            $"[{Common.LoggerHead}]->结束点播->{_task1.SipDevice.DeviceId}->{_task1.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem) _task1.Obj).SsrcId}:{((RecordInfo.RecItem) _task1.Obj).Stream}");
+                                            $"[{Common.LoggerHead}]->结束点播->{_task1.SipDevice.DeviceId}->{_task1.SipChannel.DeviceId}->Stream->{((RecordInfo.RecItem)_task1.Obj).SsrcId}:{((RecordInfo.RecItem)_task1.Obj).Stream}");
                                     }
                                 }
 
@@ -1090,7 +1089,7 @@ namespace LibGB28181SipServer
                                 case CommandType.RecordInfo:
                                     Common.NeedResponseRequests.TryAdd(
                                         _task.CommandType.ToString().ToUpper() + ":" + _task.SipDevice.DeviceId + ":" +
-                                        _task.SipChannel.DeviceId + ":" + ((SipQueryRecordFile) _task.Obj).TaskId,
+                                        _task.SipChannel.DeviceId + ":" + ((SipQueryRecordFile)_task.Obj).TaskId,
                                         _task); //再次加入等待列表,obj.TaskId中是外部生成的sn
 
                                     break;

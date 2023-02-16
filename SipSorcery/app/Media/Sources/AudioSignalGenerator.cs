@@ -252,11 +252,11 @@ namespace SIPSorcery.Media
                 {
                     if (PhaseReverse[i])
                     {
-                        buffer[outIndex++] = (float) -sampleValue;
+                        buffer[outIndex++] = (float)-sampleValue;
                     }
                     else
                     {
-                        buffer[outIndex++] = (float) sampleValue;
+                        buffer[outIndex++] = (float)sampleValue;
                     }
                 }
             }

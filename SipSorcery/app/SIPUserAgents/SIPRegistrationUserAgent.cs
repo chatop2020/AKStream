@@ -524,7 +524,7 @@ namespace SIPSorcery.SIP.App
                             ? sipResponse.Status.ToString()
                             : sipResponse.ReasonPhrase;
                         RegistrationFailed?.Invoke(m_sipAccountAOR,
-                            "Registration failed with " + (int) sipResponse.Status + " " + reasonPhrase + ".");
+                            "Registration failed with " + (int)sipResponse.Status + " " + reasonPhrase + ".");
 
                         m_waitForRegistrationMRE.Set();
                     }
@@ -598,7 +598,7 @@ namespace SIPSorcery.SIP.App
                         ? sipResponse.Status.ToString()
                         : sipResponse.ReasonPhrase;
                     RegistrationFailed?.Invoke(m_sipAccountAOR,
-                        "Registration failed with " + (int) sipResponse.Status + " " + reasonPhrase + ".");
+                        "Registration failed with " + (int)sipResponse.Status + " " + reasonPhrase + ".");
 
                     m_waitForRegistrationMRE.Set();
                 }
@@ -614,7 +614,7 @@ namespace SIPSorcery.SIP.App
                         ? sipResponse.Status.ToString()
                         : sipResponse.ReasonPhrase;
                     RegistrationFailed?.Invoke(m_sipAccountAOR,
-                        "Registration failed with " + (int) sipResponse.Status + " " + reasonPhrase + ".");
+                        "Registration failed with " + (int)sipResponse.Status + " " + reasonPhrase + ".");
 
                     m_waitForRegistrationMRE.Set();
                 }
@@ -722,7 +722,7 @@ namespace SIPSorcery.SIP.App
                 new SIPFromHeader(this.UserDisplayName, m_sipAccountAOR, CallProperties.CreateNewTag()));
 
             registerRequest.Header.Contact = new List<SIPContactHeader>
-                {new SIPContactHeader(this.UserDisplayName, m_contactURI)};
+                { new SIPContactHeader(this.UserDisplayName, m_contactURI) };
             registerRequest.Header.CSeq = ++m_cseq;
             registerRequest.Header.CallId = m_callID;
             registerRequest.Header.UserAgent =

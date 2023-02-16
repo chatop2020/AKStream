@@ -15,7 +15,7 @@ namespace LibCommon.Structs.GB28181.Net.SDP
     {
         public static SDPMediaTypesEnum GetSDPMediaType(string mediaType)
         {
-            return (SDPMediaTypesEnum) Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
+            return (SDPMediaTypesEnum)Enum.Parse(typeof(SDPMediaTypesEnum), mediaType, true);
         }
     }
 }

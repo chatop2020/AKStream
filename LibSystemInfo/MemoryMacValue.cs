@@ -40,21 +40,21 @@ namespace LibSystemInfo
                         string l3;
                         //取出wired值
                         var tmpStr1 = UtilsHelper.GetValue(lines[0], "\\(", "\\)");
-                        var posLetter = tmpStr1.IndexOfAny(new char[] {'M', 'K', 'B', 'G'});
+                        var posLetter = tmpStr1.IndexOfAny(new char[] { 'M', 'K', 'B', 'G' });
                         if (posLetter > 0)
                         {
                             l1 = tmpStr1.Substring(posLetter, 1);
                             tmpStr1 = tmpStr1.Remove(posLetter);
                             //取出unused值
                             lines[1] = lines[1].Replace("unused.", "").Trim();
-                            posLetter = lines[1].IndexOfAny(new char[] {'M', 'K', 'B', 'G'});
+                            posLetter = lines[1].IndexOfAny(new char[] { 'M', 'K', 'B', 'G' });
                             if (posLetter > 0)
                             {
                                 l2 = lines[1].Substring(posLetter, 1);
                                 var tmpStr2 = lines[1].Remove(posLetter);
                                 //取出used值  
                                 lines[0] = lines[0].Remove(0, lines[0].IndexOf(':') + 1).Trim();
-                                posLetter = lines[0].IndexOfAny(new char[] {'M', 'K', 'B', 'G'});
+                                posLetter = lines[0].IndexOfAny(new char[] { 'M', 'K', 'B', 'G' });
                                 l3 = lines[0].Substring(posLetter, 1);
                                 var tmpStr3 = lines[0].Substring(0, posLetter);
 
@@ -174,9 +174,9 @@ namespace LibSystemInfo
                                 }
 
 
-                                _memoryInfo.Total = (ulong) (tmpint3 + tmpint2);
-                                _memoryInfo.Used = (ulong) (tmpint3 - tmpint2 - tmpint1);
-                                _memoryInfo.Free = (ulong) (tmpint2 + tmpint1);
+                                _memoryInfo.Total = (ulong)(tmpint3 + tmpint2);
+                                _memoryInfo.Used = (ulong)(tmpint3 - tmpint2 - tmpint1);
+                                _memoryInfo.Free = (ulong)(tmpint2 + tmpint1);
                                 _memoryInfo.FreePercent =
                                     Math.Round(
                                         double.Parse(_memoryInfo.Free.ToString()) * 100.00 /

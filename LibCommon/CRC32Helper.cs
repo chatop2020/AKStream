@@ -44,7 +44,7 @@ namespace LibCommon
         public static uint GetCRC32(string sInputString)
         {
             byte[] buffer = ASCIIEncoding.ASCII.GetBytes(sInputString);
-            uint iCount = (uint) buffer.Length;
+            uint iCount = (uint)buffer.Length;
             uint crc = 0xFFFFFFFF;
 
             for (uint i = 0; i < iCount; i++)

@@ -55,6 +55,7 @@ namespace LibCommon.Structs.WebRequest
             get => _ipV6Address;
             set => _ipV6Address = value ?? throw new ArgumentNullException(nameof(value));
         }
+
         /// <summary>
         /// keeper对外服务的ip地址（公网ip地址）
         /// </summary>

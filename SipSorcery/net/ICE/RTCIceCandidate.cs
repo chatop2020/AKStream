@@ -278,19 +278,19 @@ namespace SIPSorcery.Net
 
         private string GetFoundation()
         {
-            int addressVal = !String.IsNullOrEmpty(address) ? Crypto.GetSHAHash(address).Sum(x => (byte) x) : 0;
+            int addressVal = !String.IsNullOrEmpty(address) ? Crypto.GetSHAHash(address).Sum(x => (byte)x) : 0;
             int svrVal = (type == RTCIceCandidateType.relay || type == RTCIceCandidateType.srflx)
-                ? Crypto.GetSHAHash(IceServer != null ? IceServer._uri.ToString() : "").Sum(x => (byte) x)
+                ? Crypto.GetSHAHash(IceServer != null ? IceServer._uri.ToString() : "").Sum(x => (byte)x)
                 : 0;
             return (type.GetHashCode() + addressVal + svrVal + protocol.GetHashCode()).ToString();
         }
 
         private uint GetPriority()
         {
-            return (uint) ((2 ^ 24) * (126 - type.GetHashCode()) +
-                           (2 ^ 8) *
-                           (65535) + // TODO: Add some kind of priority to different local IP addresses if needed.
-                           (2 ^ 0) * (256 - component.GetHashCode()));
+            return (uint)((2 ^ 24) * (126 - type.GetHashCode()) +
+                          (2 ^ 8) *
+                          (65535) + // TODO: Add some kind of priority to different local IP addresses if needed.
+                          (2 ^ 0) * (256 - component.GetHashCode()));
         }
 
         public string toJSON()

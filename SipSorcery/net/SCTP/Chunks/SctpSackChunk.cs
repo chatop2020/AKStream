@@ -80,10 +80,10 @@ namespace SIPSorcery.Net
         /// <returns>The length of the chunk.</returns>
         public override ushort GetChunkLength(bool padded)
         {
-            var len = (ushort) (SCTP_CHUNK_HEADER_LENGTH +
-                                FIXED_PARAMETERS_LENGTH +
-                                GapAckBlocks.Count * GAP_REPORT_LENGTH +
-                                DuplicateTSN.Count * DUPLICATE_TSN_LENGTH);
+            var len = (ushort)(SCTP_CHUNK_HEADER_LENGTH +
+                               FIXED_PARAMETERS_LENGTH +
+                               GapAckBlocks.Count * GAP_REPORT_LENGTH +
+                               DuplicateTSN.Count * DUPLICATE_TSN_LENGTH);
 
             // Guaranteed to be in a 4 byte boundary so no need to pad.
             return len;
@@ -100,12 +100,12 @@ namespace SIPSorcery.Net
         {
             WriteChunkHeader(buffer, posn);
 
-            ushort startPosn = (ushort) (posn + SCTP_CHUNK_HEADER_LENGTH);
+            ushort startPosn = (ushort)(posn + SCTP_CHUNK_HEADER_LENGTH);
 
             NetConvert.ToBuffer(CumulativeTsnAck, buffer, startPosn);
             NetConvert.ToBuffer(ARwnd, buffer, startPosn + 4);
-            NetConvert.ToBuffer((ushort) GapAckBlocks.Count, buffer, startPosn + 8);
-            NetConvert.ToBuffer((ushort) DuplicateTSN.Count, buffer, startPosn + 10);
+            NetConvert.ToBuffer((ushort)GapAckBlocks.Count, buffer, startPosn + 8);
+            NetConvert.ToBuffer((ushort)DuplicateTSN.Count, buffer, startPosn + 10);
 
             int reportPosn = startPosn + FIXED_PARAMETERS_LENGTH;
 
@@ -135,7 +135,7 @@ namespace SIPSorcery.Net
             var sackChunk = new SctpSackChunk();
             ushort chunkLen = sackChunk.ParseFirstWord(buffer, posn);
 
-            ushort startPosn = (ushort) (posn + SCTP_CHUNK_HEADER_LENGTH);
+            ushort startPosn = (ushort)(posn + SCTP_CHUNK_HEADER_LENGTH);
 
             sackChunk.CumulativeTsnAck = NetConvert.ParseUInt32(buffer, startPosn);
             sackChunk.ARwnd = NetConvert.ParseUInt32(buffer, startPosn + 4);
@@ -148,7 +148,7 @@ namespace SIPSorcery.Net
             {
                 ushort start = NetConvert.ParseUInt16(buffer, reportPosn);
                 ushort end = NetConvert.ParseUInt16(buffer, reportPosn + 2);
-                sackChunk.GapAckBlocks.Add(new SctpTsnGapBlock {Start = start, End = end});
+                sackChunk.GapAckBlocks.Add(new SctpTsnGapBlock { Start = start, End = end });
                 reportPosn += GAP_REPORT_LENGTH;
             }
 

@@ -12,8 +12,8 @@ namespace SystemInfoLibrary.Hardware.RAM
             _win32_OperatingSystem = win32_OperatingSystem;
         }
 
-        public override ulong Free => (UInt64) _win32_OperatingSystem.GetPropertyValue("FreePhysicalMemory");
+        public override ulong Free => (UInt64)_win32_OperatingSystem.GetPropertyValue("FreePhysicalMemory");
 
-        public override ulong Total => (UInt64) _win32_OperatingSystem.GetPropertyValue("TotalVisibleMemorySize");
+        public override ulong Total => (UInt64)_win32_OperatingSystem.GetPropertyValue("TotalVisibleMemorySize");
     }
 }

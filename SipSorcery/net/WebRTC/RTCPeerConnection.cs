@@ -545,8 +545,8 @@ namespace SIPSorcery.Net
                     _dtlsHandle = new DtlsSrtpTransport(
                         IceRole == IceRolesEnum.active
                             ? new DtlsSrtpClient(_dtlsCertificate, _dtlsPrivateKey)
-                            : (IDtlsSrtpPeer) new DtlsSrtpServer(_dtlsCertificate, _dtlsPrivateKey)
-                                {ForceUseExtendedMasterSecret = !disableDtlsExtendedMasterSecret}
+                            : (IDtlsSrtpPeer)new DtlsSrtpServer(_dtlsCertificate, _dtlsPrivateKey)
+                                { ForceUseExtendedMasterSecret = !disableDtlsExtendedMasterSecret }
                     );
 
                     _dtlsHandle.OnAlert += OnDtlsAlert;
@@ -644,7 +644,7 @@ namespace SIPSorcery.Net
         /// </param>
         public Task setLocalDescription(RTCSessionDescriptionInit init)
         {
-            localDescription = new RTCSessionDescription {type = init.type, sdp = SDP.ParseSDPDescription(init.sdp)};
+            localDescription = new RTCSessionDescription { type = init.type, sdp = SDP.ParseSDPDescription(init.sdp) };
 
             if (init.type == RTCSdpType.offer)
             {
@@ -692,7 +692,7 @@ namespace SIPSorcery.Net
         /// <param name="init">The answer/offer SDP from the remote party.</param>
         public SetDescriptionResultEnum setRemoteDescription(RTCSessionDescriptionInit init)
         {
-            remoteDescription = new RTCSessionDescription {type = init.type, sdp = SDP.ParseSDPDescription(init.sdp)};
+            remoteDescription = new RTCSessionDescription { type = init.type, sdp = SDP.ParseSDPDescription(init.sdp) };
 
             SDP remoteSdp = SDP.ParseSDPDescription(init.sdp);
 
@@ -790,7 +790,7 @@ namespace SIPSorcery.Net
                 {
                     foreach (var iceCandidate in remoteSdp.IceCandidates)
                     {
-                        addIceCandidate(new RTCIceCandidateInit {candidate = iceCandidate});
+                        addIceCandidate(new RTCIceCandidateInit { candidate = iceCandidate });
                     }
                 }
 
@@ -800,7 +800,7 @@ namespace SIPSorcery.Net
                     {
                         foreach (var iceCandidate in media.IceCandidates)
                         {
-                            addIceCandidate(new RTCIceCandidateInit {candidate = iceCandidate});
+                            addIceCandidate(new RTCIceCandidateInit { candidate = iceCandidate });
                         }
                     }
                 }
@@ -1171,7 +1171,8 @@ namespace SIPSorcery.Net
                     SDPMediaAnnouncement dataChannelAnnouncement = new SDPMediaAnnouncement(
                         SDPMediaTypesEnum.application,
                         SDP.IGNORE_RTP_PORT_NUMBER,
-                        new List<SDPApplicationMediaFormat> {new SDPApplicationMediaFormat(SDP_DATACHANNEL_FORMAT_ID)});
+                        new List<SDPApplicationMediaFormat>
+                            { new SDPApplicationMediaFormat(SDP_DATACHANNEL_FORMAT_ID) });
                     dataChannelAnnouncement.Transport = RTP_MEDIA_DATACHANNEL_UDPDTLS_PROFILE;
                     dataChannelAnnouncement.Connection = new SDPConnectionInformation(IPAddress.Any);
 
@@ -1457,7 +1458,7 @@ namespace SIPSorcery.Net
 
             // TODO: Set reliability, priority etc. properties on the data channel.
             var dc = new RTCDataChannel(sctp)
-                {id = streamID, label = label, IsOpened = true, readyState = RTCDataChannelState.open};
+                { id = streamID, label = label, IsOpened = true, readyState = RTCDataChannelState.open };
 
             dc.SendDcepAck();
 
@@ -1647,7 +1648,7 @@ namespace SIPSorcery.Net
             var lastAssignedDC = DataChannels.Where(x => x.id != null && x.id % 2 == (eventStreamID ? 0 : 1))
                 .OrderByDescending(x => x.id.GetValueOrDefault()).FirstOrDefault();
             bool canCreateStream = true;
-            ushort nextID = (ushort) (eventStreamID ? 0 : 1);
+            ushort nextID = (ushort)(eventStreamID ? 0 : 1);
             if (lastAssignedDC != null)
             {
                 //  The SCTP stream identifier 65535 is reserved due to SCTP INIT and
@@ -1661,7 +1662,7 @@ namespace SIPSorcery.Net
                 }
                 else
                 {
-                    nextID = (ushort) (lastAssignedDC.id.Value + 2);
+                    nextID = (ushort)(lastAssignedDC.id.Value + 2);
                 }
             }
 

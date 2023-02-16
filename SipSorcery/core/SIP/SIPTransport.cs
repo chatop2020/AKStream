@@ -1119,7 +1119,7 @@ namespace SIPSorcery.SIP
                                                      SIPMethodsEnum.INVITE)) != null)
                                         {
                                             UASInviteTransaction inviteTransaction =
-                                                (UASInviteTransaction) GetTransaction(
+                                                (UASInviteTransaction)GetTransaction(
                                                     SIPTransaction.GetRequestTransactionId(
                                                         sipRequest.Header.Vias.TopViaHeader.Branch,
                                                         SIPMethodsEnum.INVITE));

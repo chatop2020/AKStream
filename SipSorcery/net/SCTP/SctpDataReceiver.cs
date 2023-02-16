@@ -145,7 +145,7 @@ namespace SIPSorcery.Net
         /// It represents the most recent in order TSN that has been received. If no in order
         /// TSN's have been received then null will be returned.
         /// </summary>
-        public uint? CumulativeAckTSN => (_inOrderReceiveCount > 0) ? _lastInOrderTSN : (uint?) null;
+        public uint? CumulativeAckTSN => (_inOrderReceiveCount > 0) ? _lastInOrderTSN : (uint?)null;
 
         /// <summary>
         /// A count of the total entries in the receive dictionary. Note that if chunks
@@ -173,7 +173,7 @@ namespace SIPSorcery.Net
             _initialTSN = initialTSN;
 
             mtu = mtu != 0 ? mtu : SctpUdpTransport.DEFAULT_UDP_MTU;
-            _windowSize = (ushort) (_receiveWindow / mtu);
+            _windowSize = (ushort)(_receiveWindow / mtu);
             _windowSize = (_windowSize < WINDOW_SIZE_MINIMUM) ? WINDOW_SIZE_MINIMUM : _windowSize;
 
             logger.LogDebug($"SCTP windows size for data receiver set at {_windowSize}.");
@@ -350,14 +350,14 @@ namespace SIPSorcery.Net
                     {
                         if (start == null)
                         {
-                            start = (ushort) (tsn - tsnAck);
+                            start = (ushort)(tsn - tsnAck);
                             prev = tsn;
                         }
                         else if (tsn != prev + 1)
                         {
-                            ushort end = (ushort) (prev - tsnAck);
-                            gaps.Add(new SctpTsnGapBlock {Start = start.Value, End = end});
-                            start = (ushort) (tsn - tsnAck);
+                            ushort end = (ushort)(prev - tsnAck);
+                            gaps.Add(new SctpTsnGapBlock { Start = start.Value, End = end });
+                            start = (ushort)(tsn - tsnAck);
                             prev = tsn;
                         }
                         else
@@ -366,7 +366,7 @@ namespace SIPSorcery.Net
                         }
                     }
 
-                    gaps.Add(new SctpTsnGapBlock {Start = start.Value, End = (ushort) (prev - tsnAck)});
+                    gaps.Add(new SctpTsnGapBlock { Start = start.Value, End = (ushort)(prev - tsnAck) });
                 }
             }
 
@@ -394,7 +394,7 @@ namespace SIPSorcery.Net
                     _streamLatestSeqNums.Add(frame.StreamID, frame.StreamSeqNum);
                     sortedFrames.Add(frame);
                 }
-                else if ((ushort) (_streamLatestSeqNums[frame.StreamID] + 1) == frame.StreamSeqNum)
+                else if ((ushort)(_streamLatestSeqNums[frame.StreamID] + 1) == frame.StreamSeqNum)
                 {
                     // Expected seqnum for stream.
                     _streamLatestSeqNums[frame.StreamID] = frame.StreamSeqNum;
@@ -406,7 +406,7 @@ namespace SIPSorcery.Net
                     {
                         var outOfOrder = _streamOutOfOrderFrames[frame.StreamID];
 
-                        ushort nextSeqnum = (ushort) (_streamLatestSeqNums[frame.StreamID] + 1);
+                        ushort nextSeqnum = (ushort)(_streamLatestSeqNums[frame.StreamID] + 1);
                         while (outOfOrder.ContainsKey(nextSeqnum) &&
                                outOfOrder.TryGetValue(nextSeqnum, out var nextFrame))
                         {
@@ -454,8 +454,8 @@ namespace SIPSorcery.Net
         {
             unchecked
             {
-                uint? beginTSN = fragments[tsn].Begining ? (uint?) tsn : null;
-                uint? endTSN = fragments[tsn].Ending ? (uint?) tsn : null;
+                uint? beginTSN = fragments[tsn].Begining ? (uint?)tsn : null;
+                uint? endTSN = fragments[tsn].Ending ? (uint?)tsn : null;
 
                 uint revTSN = tsn - 1;
                 while (beginTSN == null && fragments.ContainsKey(revTSN))

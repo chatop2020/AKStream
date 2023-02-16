@@ -61,7 +61,7 @@ namespace SIPSorcery.Net
     {
         public static RTCPReportTypesEnum GetRTCPReportTypeForId(ushort rtcpReportTypeId)
         {
-            return (RTCPReportTypesEnum) Enum.Parse(typeof(RTCPReportTypesEnum), rtcpReportTypeId.ToString(), true);
+            return (RTCPReportTypesEnum)Enum.Parse(typeof(RTCPReportTypesEnum), rtcpReportTypeId.ToString(), true);
         }
     }
 
@@ -155,17 +155,17 @@ namespace SIPSorcery.Net
 
             Version = Convert.ToInt32(firstWord >> 14);
             PaddingFlag = Convert.ToInt32((firstWord >> 13) & 0x1);
-            PacketType = (RTCPReportTypesEnum) (firstWord & 0x00ff);
+            PacketType = (RTCPReportTypesEnum)(firstWord & 0x00ff);
 
             if (IsFeedbackReport())
             {
                 if (PacketType == RTCPReportTypesEnum.RTPFB)
                 {
-                    FeedbackMessageType = (RTCPFeedbackTypesEnum) ((firstWord >> 8) & 0x1f);
+                    FeedbackMessageType = (RTCPFeedbackTypesEnum)((firstWord >> 8) & 0x1f);
                 }
                 else
                 {
-                    PayloadFeedbackMessageType = (PSFBFeedbackTypesEnum) ((firstWord >> 8) & 0x1f);
+                    PayloadFeedbackMessageType = (PSFBFeedbackTypesEnum)((firstWord >> 8) & 0x1f);
                 }
             }
             else
@@ -201,22 +201,22 @@ namespace SIPSorcery.Net
         {
             byte[] header = new byte[4];
 
-            UInt32 firstWord = ((uint) Version << 30) + ((uint) PaddingFlag << 29) + ((uint) PacketType << 16) + Length;
+            UInt32 firstWord = ((uint)Version << 30) + ((uint)PaddingFlag << 29) + ((uint)PacketType << 16) + Length;
 
             if (IsFeedbackReport())
             {
                 if (PacketType == RTCPReportTypesEnum.RTPFB)
                 {
-                    firstWord += (uint) FeedbackMessageType << 24;
+                    firstWord += (uint)FeedbackMessageType << 24;
                 }
                 else
                 {
-                    firstWord += (uint) PayloadFeedbackMessageType << 24;
+                    firstWord += (uint)PayloadFeedbackMessageType << 24;
                 }
             }
             else
             {
-                firstWord += (uint) ReceptionReportCount << 24;
+                firstWord += (uint)ReceptionReportCount << 24;
             }
 
             if (BitConverter.IsLittleEndian)

@@ -135,7 +135,7 @@ namespace LibCommon.Structs.GB28181.XML
                 set
                 {
                     ushort result;
-                    Port = ushort.TryParse(value, out result) ? result : (ushort?) null;
+                    Port = ushort.TryParse(value, out result) ? result : (ushort?)null;
                 }
             }
 
@@ -155,7 +155,7 @@ namespace LibCommon.Structs.GB28181.XML
                 set
                 {
                     int result;
-                    RegisterWay = int.TryParse(value, out result) ? result : (int?) null;
+                    RegisterWay = int.TryParse(value, out result) ? result : (int?)null;
                 }
             }
 
@@ -174,7 +174,7 @@ namespace LibCommon.Structs.GB28181.XML
                 set
                 {
                     int result;
-                    Secrecy = int.TryParse(value, out result) ? result : (int?) null;
+                    Secrecy = int.TryParse(value, out result) ? result : (int?)null;
                 }
             }
 
@@ -346,7 +346,7 @@ namespace LibCommon.Structs.GB28181.XML
                     Guid = guidItem.Guid;
             }
 
-            return (ushort) (Guid + 1);
+            return (ushort)(Guid + 1);
         }
 
         public ushort MatchParent(ushort guid)

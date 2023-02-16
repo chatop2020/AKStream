@@ -32,7 +32,7 @@ namespace SIPSorcery.Media
             short amp16;
 
             // Hopefully this is optimised for the common case - not clipping
-            amp16 = (short) amp;
+            amp16 = (short)amp;
             if (amp == amp16)
             {
                 return amp16;
@@ -151,8 +151,8 @@ namespace SIPSorcery.Media
             s.Band[band].s = Saturate(s.Band[band].sp + s.Band[band].sz);
         }
 
-        static readonly int[] wl = {-60, -30, 58, 172, 334, 538, 1198, 3042};
-        static readonly int[] rl42 = {0, 7, 6, 5, 4, 3, 2, 1, 7, 6, 5, 4, 3, 2, 1, 0};
+        static readonly int[] wl = { -60, -30, 58, 172, 334, 538, 1198, 3042 };
+        static readonly int[] rl42 = { 0, 7, 6, 5, 4, 3, 2, 1, 7, 6, 5, 4, 3, 2, 1, 0 };
 
         static readonly int[] ilb =
         {
@@ -160,12 +160,12 @@ namespace SIPSorcery.Media
             3025, 3091, 3158, 3228, 3298, 3371, 3444, 3520, 3597, 3676, 3756, 3838, 3922, 4008
         };
 
-        static readonly int[] wh = {0, -214, 798};
-        static readonly int[] rh2 = {2, 1, 2, 1};
-        static readonly int[] qm2 = {-7408, -1616, 7408, 1616};
+        static readonly int[] wh = { 0, -214, 798 };
+        static readonly int[] rh2 = { 2, 1, 2, 1 };
+        static readonly int[] qm2 = { -7408, -1616, 7408, 1616 };
 
         static readonly int[] qm4 =
-            {0, -20456, -12896, -8968, -6288, -4240, -2584, -1200, 20456, 12896, 8968, 6288, 4240, 2584, 1200, 0};
+            { 0, -20456, -12896, -8968, -6288, -4240, -2584, -1200, 20456, 12896, 8968, 6288, 4240, 2584, 1200, 0 };
 
         static readonly int[] qm5 =
         {
@@ -182,7 +182,7 @@ namespace SIPSorcery.Media
             -136
         };
 
-        static readonly int[] qmf_coeffs = {3, -11, 12, 32, -210, 951, 3876, -805, 362, -156, 53, -11,};
+        static readonly int[] qmf_coeffs = { 3, -11, 12, 32, -210, 951, 3876, -805, 362, -156, 53, -11, };
 
         static readonly int[] q6 =
         {
@@ -202,8 +202,8 @@ namespace SIPSorcery.Media
             35, 34, 33, 32, 0
         };
 
-        static readonly int[] ihn = {0, 1, 0};
-        static readonly int[] ihp = {0, 3, 2};
+        static readonly int[] ihn = { 0, 1, 0 };
+        static readonly int[] ihp = { 0, 3, 2 };
 
         /// <summary>
         /// Decodes a buffer of G722
@@ -239,11 +239,11 @@ namespace SIPSorcery.Media
                     // Unpack the code bits
                     if (state.InBits < state.BitsPerSample)
                     {
-                        state.InBuffer |= (uint) (inputG722Data[j++] << state.InBits);
+                        state.InBuffer |= (uint)(inputG722Data[j++] << state.InBits);
                         state.InBits += 8;
                     }
 
-                    code = (int) state.InBuffer & ((1 << state.BitsPerSample) - 1);
+                    code = (int)state.InBuffer & ((1 << state.BitsPerSample) - 1);
                     state.InBuffer >>= state.BitsPerSample;
                     state.InBits -= state.BitsPerSample;
                 }
@@ -362,14 +362,14 @@ namespace SIPSorcery.Media
 
                 if (state.ItuTestMode)
                 {
-                    outputBuffer[outlen++] = (short) (rlow << 1);
-                    outputBuffer[outlen++] = (short) (rhigh << 1);
+                    outputBuffer[outlen++] = (short)(rlow << 1);
+                    outputBuffer[outlen++] = (short)(rhigh << 1);
                 }
                 else
                 {
                     if (state.EncodeFrom8000Hz)
                     {
-                        outputBuffer[outlen++] = (short) (rlow << 1);
+                        outputBuffer[outlen++] = (short)(rlow << 1);
                     }
                     else
                     {
@@ -390,8 +390,8 @@ namespace SIPSorcery.Media
                             xout1 += state.QmfSignalHistory[2 * i + 1] * qmf_coeffs[11 - i];
                         }
 
-                        outputBuffer[outlen++] = (short) (xout1 >> 11);
-                        outputBuffer[outlen++] = (short) (xout2 >> 11);
+                        outputBuffer[outlen++] = (short)(xout1 >> 11);
+                        outputBuffer[outlen++] = (short)(xout2 >> 11);
                     }
                 }
             }
@@ -564,18 +564,18 @@ namespace SIPSorcery.Media
                 if (state.Packed)
                 {
                     // Pack the code bits
-                    state.OutBuffer |= (uint) (code << state.OutBits);
+                    state.OutBuffer |= (uint)(code << state.OutBits);
                     state.OutBits += state.BitsPerSample;
                     if (state.OutBits >= 8)
                     {
-                        outputBuffer[g722_bytes++] = (byte) (state.OutBuffer & 0xFF);
+                        outputBuffer[g722_bytes++] = (byte)(state.OutBuffer & 0xFF);
                         state.OutBits -= 8;
                         state.OutBuffer >>= 8;
                     }
                 }
                 else
                 {
-                    outputBuffer[g722_bytes++] = (byte) code;
+                    outputBuffer[g722_bytes++] = (byte)code;
                 }
             }
 
@@ -649,7 +649,7 @@ namespace SIPSorcery.Media
         /// <param name="options">Special options</param>
         public G722CodecState(int rate, G722Flags options)
         {
-            this.Band = new Band[2] {new Band(), new Band()};
+            this.Band = new Band[2] { new Band(), new Band() };
             this.QmfSignalHistory = new int[24];
             this.ItuTestMode = false;
 

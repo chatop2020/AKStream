@@ -26,7 +26,7 @@ namespace LibCommon.Structs.GB28181.Sys
         {
             try
             {
-                return (StorageTypes) Enum.Parse(typeof(StorageTypes), storageType, true);
+                return (StorageTypes)Enum.Parse(typeof(StorageTypes), storageType, true);
             }
             catch
             {

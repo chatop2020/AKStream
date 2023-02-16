@@ -288,7 +288,7 @@ namespace SIPSorcery.SIP
         /// <param name="e">The socket args for the completed receive operation.</param>
         private void ProcessReceive(SocketAsyncEventArgs e)
         {
-            SIPStreamConnection streamConn = (SIPStreamConnection) e.UserToken;
+            SIPStreamConnection streamConn = (SIPStreamConnection)e.UserToken;
 
             try
             {
@@ -330,7 +330,7 @@ namespace SIPSorcery.SIP
         /// <param name="e">The socket args for the completed send operation.</param>
         private void ProcessSend(SocketAsyncEventArgs e)
         {
-            SIPStreamConnection streamConn = (SIPStreamConnection) e.UserToken;
+            SIPStreamConnection streamConn = (SIPStreamConnection)e.UserToken;
 
             if (e.BytesTransferred == 0 || e.SocketError != SocketError.Success)
             {

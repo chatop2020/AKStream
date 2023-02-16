@@ -201,9 +201,9 @@ namespace SIPSorcery.SIP.App
             {
                 if (!IsUASAnswered)
                 {
-                    if ((int) progressStatus >= 200)
+                    if ((int)progressStatus >= 200)
                     {
-                        logger.LogDebug("UAS call was passed an invalid response status of " + (int) progressStatus +
+                        logger.LogDebug("UAS call was passed an invalid response status of " + (int)progressStatus +
                                         ", ignoring.");
                     }
                     else
@@ -217,7 +217,7 @@ namespace SIPSorcery.SIP.App
                             !(progressStatus == SIPResponseStatusCodesEnum.SessionProgress && progressBody != null))
                         {
                             logger.LogDebug("UAS call ignoring progress response with status of " +
-                                            (int) progressStatus + " as already in " +
+                                            (int)progressStatus + " as already in " +
                                             m_uasTransaction.TransactionState + ".");
                         }
                         else
@@ -376,9 +376,9 @@ namespace SIPSorcery.SIP.App
             {
                 if (m_uasTransaction.TransactionFinalResponse == null)
                 {
-                    if ((int) failureStatus < 400)
+                    if ((int)failureStatus < 400)
                     {
-                        logger.LogDebug("UAS Reject was passed an invalid response status of " + (int) failureStatus +
+                        logger.LogDebug("UAS Reject was passed an invalid response status of " + (int)failureStatus +
                                         ", ignoring.");
                     }
                     else
@@ -387,7 +387,7 @@ namespace SIPSorcery.SIP.App
 
                         string failureReason = (!reasonPhrase.IsNullOrBlank()) ? " and " + reasonPhrase : null;
 
-                        logger.LogWarning("UAS call failed with a response status of " + (int) failureStatus +
+                        logger.LogWarning("UAS call failed with a response status of " + (int)failureStatus +
                                           failureReason + ".");
                         SIPResponse failureResponse = SIPResponse.GetResponse(m_uasTransaction.TransactionRequest,
                             failureStatus, reasonPhrase);

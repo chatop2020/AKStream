@@ -39,7 +39,7 @@ namespace LibSystemInfo
                         {
                             if (str.ToLower().Contains("id"))
                             {
-                                string s = str.TrimEnd(new[] {'i', 'd'});
+                                string s = str.TrimEnd(new[] { 'i', 'd' });
                                 s = s.Trim();
                                 if (double.TryParse(s, out double f))
                                 {

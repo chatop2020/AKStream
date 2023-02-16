@@ -38,7 +38,7 @@ namespace SIPSorcery.Net
         public const int DYNAMIC_ID_MAX = 127;
         public const int DEFAULT_AUDIO_CHANNEL_COUNT = 1;
 
-        public static SDPAudioVideoMediaFormat Empty = new SDPAudioVideoMediaFormat() {_isEmpty = true};
+        public static SDPAudioVideoMediaFormat Empty = new SDPAudioVideoMediaFormat() { _isEmpty = true };
 
         /// <summary>
         /// Indicates whether the format is for audio or video.
@@ -117,7 +117,7 @@ namespace SIPSorcery.Net
             Kind = AudioVideoWellKnown.WellKnownAudioFormats.ContainsKey(knownFormat)
                 ? SDPMediaTypesEnum.audio
                 : SDPMediaTypesEnum.video;
-            ID = (int) knownFormat;
+            ID = (int)knownFormat;
             Rtpmap = null;
             Fmtp = null;
             _isEmpty = false;

@@ -105,7 +105,7 @@ namespace LibCommon.Structs.GB28181.XML
                 object obj;
                 try
                 {
-                    obj = (T) s.Deserialize(r);
+                    obj = (T)s.Deserialize(r);
                 }
                 catch (Exception)
                 {
@@ -146,7 +146,7 @@ namespace LibCommon.Structs.GB28181.XML
             object obj;
             try
             {
-                obj = (T) s.Deserialize(sr);
+                obj = (T)s.Deserialize(sr);
             }
             catch
             {

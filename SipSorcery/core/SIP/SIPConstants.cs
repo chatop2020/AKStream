@@ -165,7 +165,7 @@ namespace SIPSorcery.SIP
     {
         public static SIPSchemesEnum GetSchemeType(string schemeType)
         {
-            return (SIPSchemesEnum) Enum.Parse(typeof(SIPSchemesEnum), schemeType, true);
+            return (SIPSchemesEnum)Enum.Parse(typeof(SIPSchemesEnum), schemeType, true);
         }
 
         public static bool IsAllowedScheme(string schemeType)
@@ -218,12 +218,12 @@ namespace SIPSorcery.SIP
     {
         public static SIPProtocolsEnum GetProtocolType(string protocolType)
         {
-            return (SIPProtocolsEnum) Enum.Parse(typeof(SIPProtocolsEnum), protocolType, true);
+            return (SIPProtocolsEnum)Enum.Parse(typeof(SIPProtocolsEnum), protocolType, true);
         }
 
         public static SIPProtocolsEnum GetProtocolTypeFromId(int protocolTypeId)
         {
-            return (SIPProtocolsEnum) Enum.Parse(typeof(SIPProtocolsEnum), protocolTypeId.ToString(), true);
+            return (SIPProtocolsEnum)Enum.Parse(typeof(SIPProtocolsEnum), protocolTypeId.ToString(), true);
         }
 
         public static bool IsAllowedProtocol(string protocol)
@@ -426,7 +426,7 @@ namespace SIPSorcery.SIP
 
             try
             {
-                sipMethod = (SIPMethodsEnum) Enum.Parse(typeof(SIPMethodsEnum), method, true);
+                sipMethod = (SIPMethodsEnum)Enum.Parse(typeof(SIPMethodsEnum), method, true);
             }
             catch { }
 
@@ -522,7 +522,7 @@ namespace SIPSorcery.SIP
     {
         public static SIPResponseStatusCodesEnum GetStatusTypeForCode(int statusCode)
         {
-            return (SIPResponseStatusCodesEnum) Enum.Parse(typeof(SIPResponseStatusCodesEnum), statusCode.ToString(),
+            return (SIPResponseStatusCodesEnum)Enum.Parse(typeof(SIPResponseStatusCodesEnum), statusCode.ToString(),
                 true);
         }
     }

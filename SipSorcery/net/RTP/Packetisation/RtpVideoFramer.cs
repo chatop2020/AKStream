@@ -134,7 +134,7 @@ namespace SIPSorcery.Net
         /// <returns></returns>
         public static byte[] CreateLowQualityRtpJpegHeader(uint fragmentOffset, int quality, int width, int height)
         {
-            byte[] rtpJpegHeader = new byte[8] {0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00};
+            byte[] rtpJpegHeader = new byte[8] { 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 };
 
             // Byte 0: Type specific
             //http://tools.ietf.org/search/rfc2435#section-3.1.1
@@ -156,13 +156,13 @@ namespace SIPSorcery.Net
             //http://tools.ietf.org/search/rfc2435#section-3.1.3
 
             //Byte 5: http://tools.ietf.org/search/rfc2435#section-3.1.4 (Q)
-            rtpJpegHeader[5] = (byte) quality;
+            rtpJpegHeader[5] = (byte)quality;
 
             // Byte 6: http://tools.ietf.org/search/rfc2435#section-3.1.5 (Width)
-            rtpJpegHeader[6] = (byte) (width / 8);
+            rtpJpegHeader[6] = (byte)(width / 8);
 
             // Byte 7: http://tools.ietf.org/search/rfc2435#section-3.1.6 (Height)
-            rtpJpegHeader[7] = (byte) (height / 8);
+            rtpJpegHeader[7] = (byte)(height / 8);
 
             return rtpJpegHeader;
         }

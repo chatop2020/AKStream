@@ -12,7 +12,7 @@ namespace SystemInfoLibrary.Hardware.RAM
             : _vmStats;
 
 
-        public override ulong Total => (ulong) Utils.GetSysCtlPropertyInt64("hw.memsize") / 1024;
+        public override ulong Total => (ulong)Utils.GetSysCtlPropertyInt64("hw.memsize") / 1024;
 
         public override ulong Free
         {
@@ -21,7 +21,7 @@ namespace SystemInfoLibrary.Hardware.RAM
                 var matches = new Regex(@"Pages free:\s*(\d+)").Matches(VMStats);
                 return ulong.TryParse(matches[0].Groups[1].Value, NumberStyles.AllowDecimalPoint,
                     CultureInfo.InvariantCulture, out var value)
-                    ? value * (ulong) Utils.GetPageSize() / 1024
+                    ? value * (ulong)Utils.GetPageSize() / 1024
                     : 0;
             }
         }

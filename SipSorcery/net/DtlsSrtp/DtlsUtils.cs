@@ -235,7 +235,7 @@ namespace SIPSorcery.Net
         public static TlsSignerCredentials LoadSignerCredentials(TlsContext context, IList supportedSignatureAlgorithms,
             byte signatureAlgorithm, string certResource, string keyResource)
         {
-            Certificate certificate = LoadCertificateChain(new string[] {certResource, "x509-ca.pem"});
+            Certificate certificate = LoadCertificateChain(new string[] { certResource, "x509-ca.pem" });
             AsymmetricKeyParameter privateKey = LoadPrivateKeyResource(keyResource);
 
             return LoadSignerCredentials(context, supportedSignatureAlgorithms, signatureAlgorithm, certificate,
@@ -255,7 +255,7 @@ namespace SIPSorcery.Net
 
         public static Certificate LoadCertificateChain(X509Certificate2 certificate)
         {
-            return LoadCertificateChain(new X509Certificate2[] {certificate});
+            return LoadCertificateChain(new X509Certificate2[] { certificate });
         }
 
         public static Certificate LoadCertificateChain(string[] resources)
@@ -365,7 +365,7 @@ namespace SIPSorcery.Net
                     new GeneralName(GeneralName.DnsName, "localhost"), new GeneralName(GeneralName.DnsName, "127.0.0.1")
                 }));
             certificateGenerator.AddExtension(X509Extensions.ExtendedKeyUsage, true,
-                new ExtendedKeyUsage(new List<DerObjectIdentifier>() {new DerObjectIdentifier("1.3.6.1.5.5.7.3.1")}));
+                new ExtendedKeyUsage(new List<DerObjectIdentifier>() { new DerObjectIdentifier("1.3.6.1.5.5.7.3.1") }));
 
             // Serial Number
             var serialNumber =
@@ -428,7 +428,7 @@ namespace SIPSorcery.Net
                 // merge into X509Certificate2
                 var x509 = new X509Certificate2(certificate.GetEncoded());
 
-                var seq = (Asn1Sequence) Asn1Object.FromByteArray(info.ParsePrivateKey().GetDerEncoded());
+                var seq = (Asn1Sequence)Asn1Object.FromByteArray(info.ParsePrivateKey().GetDerEncoded());
                 if (seq.Count != 9)
                 {
                     throw new PemException("malformed sequence in RSA private key");
@@ -478,7 +478,7 @@ namespace SIPSorcery.Net
                     new GeneralName(GeneralName.DnsName, "localhost"), new GeneralName(GeneralName.DnsName, "127.0.0.1")
                 }));
             certificateGenerator.AddExtension(X509Extensions.ExtendedKeyUsage, true,
-                new ExtendedKeyUsage(new List<DerObjectIdentifier>() {new DerObjectIdentifier("1.3.6.1.5.5.7.3.1")}));
+                new ExtendedKeyUsage(new List<DerObjectIdentifier>() { new DerObjectIdentifier("1.3.6.1.5.5.7.3.1") }));
 
             // Serial Number
             var serialNumber =
@@ -509,7 +509,8 @@ namespace SIPSorcery.Net
             // self sign certificate
             var certificate = certificateGenerator.Generate(signatureFactory);
 
-            var chain = new X509CertificateStructure[] {X509CertificateStructure.GetInstance(certificate.GetEncoded())};
+            var chain = new X509CertificateStructure[]
+                { X509CertificateStructure.GetInstance(certificate.GetEncoded()) };
             var tlsCertificate = new Certificate(chain);
 
             return (tlsCertificate, subjectKeyPair.Private);
@@ -525,7 +526,7 @@ namespace SIPSorcery.Net
 
             pkcs12Store.SetCertificateEntry(bouncyCert.SerialNumber.ToString(), certEntry);
             pkcs12Store.SetKeyEntry(bouncyCert.SerialNumber.ToString(),
-                new AsymmetricKeyEntry(keyPair.Private), new[] {certEntry});
+                new AsymmetricKeyEntry(keyPair.Private), new[] { certEntry });
 
             X509Certificate2 keyedCert;
 

@@ -154,7 +154,7 @@ namespace SIPSorcery.Net
 
             if (BitConverter.IsLittleEndian)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16) Header.MessageType)), 0,
+                Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian((UInt16)Header.MessageType)), 0,
                     buffer, 0, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(attributesLength)), 0, buffer, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(STUNHeader.MAGIC_COOKIE)), 0, buffer,
@@ -162,7 +162,7 @@ namespace SIPSorcery.Net
             }
             else
             {
-                Buffer.BlockCopy(BitConverter.GetBytes((UInt16) Header.MessageType), 0, buffer, 0, 2);
+                Buffer.BlockCopy(BitConverter.GetBytes((UInt16)Header.MessageType), 0, buffer, 0, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(attributesLength), 0, buffer, 2, 2);
                 Buffer.BlockCopy(BitConverter.GetBytes(STUNHeader.MAGIC_COOKIE), 0, buffer, 4, 4);
             }
@@ -255,8 +255,8 @@ namespace SIPSorcery.Net
                                          - FINGERPRINT_ATTRIBUTE_CRC32_LENGTH;
 
                     // Need to adjust the STUN message length field for to remove the fingerprint.
-                    ushort length = (ushort) (Header.MessageLength - STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH -
-                                              FINGERPRINT_ATTRIBUTE_CRC32_LENGTH);
+                    ushort length = (ushort)(Header.MessageLength - STUNAttribute.STUNATTRIBUTE_HEADER_LENGTH -
+                                             FINGERPRINT_ATTRIBUTE_CRC32_LENGTH);
                     if (BitConverter.IsLittleEndian)
                     {
                         Buffer.BlockCopy(BitConverter.GetBytes(NetConvert.DoReverseEndian(length)), 0, _receivedBuffer,

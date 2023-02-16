@@ -76,7 +76,7 @@ namespace SIPSorcery.SIP
             string reasonPhrase)
         {
             SIPVersion = m_sipFullVersion;
-            StatusCode = (int) responseStatus;
+            StatusCode = (int)responseStatus;
             Status = responseStatus;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseStatus.ToString();
@@ -96,7 +96,7 @@ namespace SIPSorcery.SIP
             Encoding sipBodyEncoding) : base(sipEncoding, sipBodyEncoding)
         {
             SIPVersion = m_sipFullVersion;
-            StatusCode = (int) responseStatus;
+            StatusCode = (int)responseStatus;
             Status = responseStatus;
             ReasonPhrase = reasonPhrase;
             ReasonPhrase = responseStatus.ToString();

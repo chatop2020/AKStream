@@ -10,8 +10,6 @@ namespace AKStreamWeb.Services
 {
     public static class SystemService
     {
-        
-        
         public static AKStreamVersions GetVersions(string mediaServerId, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
@@ -35,10 +33,9 @@ namespace AKStreamWeb.Services
             result.AKStreamKeeperVersion = mediaServer.AKStreamKeeperVersion;
             result.AKStreamWebVersion = Common.Version;
             return result;
-          
         }
-        
-        
+
+
         /// <summary>
         /// 获取日志级别
         /// </summary>
@@ -115,6 +112,22 @@ namespace AKStreamWeb.Services
                     return null;
                 }
             }
+
+            #region debug sql output
+
+            if (Common.IsDebug)
+            {
+                var sql = ORMHelper.Db.Select<VideoChannel>().Where("1=1").WhereIf(req.IncludeSubDepartment == true,
+                        x => x.PDepartmentId.Equals(req.DepartmentId))
+                    .WhereIf(
+                        (req.IncludeSubDepartment == null || req.IncludeSubDepartment == false) &&
+                        !string.IsNullOrEmpty(req.DepartmentId), x => x.DepartmentId.Equals(req.DepartmentId)).ToSql();
+
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->GetDeptartmentInfoList->执行SQL:->{sql}");
+            }
+
+            #endregion
 
             var ret = ORMHelper.Db.Select<VideoChannel>().Where("1=1").WhereIf(req.IncludeSubDepartment == true,
                     x => x.PDepartmentId.Equals(req.DepartmentId))

@@ -211,7 +211,7 @@ namespace SIPSorcery.SIP.App
                             logger.LogDebug(
                                 $"Rescheduling next attempt for a successful subscription to {m_resourceURI} in {m_expiry - RESCHEDULE_SUBSCRIBE_MARGIN}s.");
                             int expiry =
-                                (m_expiry >= UInt32.MaxValue) ? -1 : (int) m_expiry; // In case m_expiry is set to
+                                (m_expiry >= UInt32.MaxValue) ? -1 : (int)m_expiry; // In case m_expiry is set to
 
                             if (expiry == -1)
                             {
@@ -275,12 +275,12 @@ namespace SIPSorcery.SIP.App
                     if (contactURI != null)
                     {
                         subscribeRequest.Header.Contact = new List<SIPContactHeader>()
-                            {new SIPContactHeader(null, contactURI)};
+                            { new SIPContactHeader(null, contactURI) };
                     }
                     else
                     {
                         subscribeRequest.Header.Contact = new List<SIPContactHeader>()
-                            {SIPContactHeader.GetDefaultSIPContactHeader(subscribeRequest.URI.Scheme)};
+                            { SIPContactHeader.GetDefaultSIPContactHeader(subscribeRequest.URI.Scheme) };
                     }
 
                     subscribeRequest.Header.CSeq = m_localCSeq;

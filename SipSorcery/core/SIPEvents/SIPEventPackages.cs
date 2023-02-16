@@ -217,7 +217,7 @@ namespace SIPSorcery.SIP
 
         public override bool Equals(object obj)
         {
-            return AreEqual(this, (SIPEventDialogStateEvent) obj);
+            return AreEqual(this, (SIPEventDialogStateEvent)obj);
         }
 
         public static bool AreEqual(SIPEventDialogStateEvent x, SIPEventDialogStateEvent y)

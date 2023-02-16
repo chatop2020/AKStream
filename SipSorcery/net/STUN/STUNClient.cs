@@ -82,7 +82,7 @@ namespace SIPSorcery.Net
                                     {
                                         if (stunAttribute.AttributeType == STUNAttributeTypesEnum.MappedAddress)
                                         {
-                                            STUNAddressAttribute stunAddress = (STUNAddressAttribute) stunAttribute;
+                                            STUNAddressAttribute stunAddress = (STUNAddressAttribute)stunAttribute;
                                             publicEndPoint = new IPEndPoint(stunAddress.Address, stunAddress.Port);
                                             logger.LogDebug(
                                                 $"STUNClient Public IP={publicEndPoint.Address} Port={publicEndPoint.Port}.");

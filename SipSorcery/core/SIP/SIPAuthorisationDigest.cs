@@ -47,7 +47,7 @@ namespace SIPSorcery.SIP
 
         private static ILogger logger = Log.Logger;
 
-        private static char[] m_headerFieldRemoveChars = new char[] {' ', '"', '\''};
+        private static char[] m_headerFieldRemoveChars = new char[] { ' ', '"', '\'' };
         public string Algorithhm;
 
         public SIPAuthorisationHeadersEnum
