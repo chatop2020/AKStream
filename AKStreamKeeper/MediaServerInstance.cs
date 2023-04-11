@@ -1652,6 +1652,7 @@ namespace AKStreamKeeper
         {
             _pid = -1;
             OnMediaKilled?.Invoke(_isSelfClose);
+       
         }
 
         public static void p_StdOutputDataReceived(object sender, DataReceivedEventArgs e)

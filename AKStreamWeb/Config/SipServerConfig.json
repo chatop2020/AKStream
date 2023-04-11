@@ -13,6 +13,7 @@
   "KeepAliveLostNumber": 3,
   "IpV6Enable": true,
   "EncodingType": "UTF8",
+  "IsPassive": true,
   "NoAuthenticationRequireds": [
     {
       "IpV4Address": "192.168.2.92",

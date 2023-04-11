@@ -29,6 +29,8 @@ namespace LibCommon.Structs.GB28181
         private string? _sipUsername;
         private EncodingType _encodingType;
         private Encoding _encoding;
+        private bool? _isPassive = true;
+        
 
 
         /// <summary>
@@ -169,6 +171,15 @@ namespace LibCommon.Structs.GB28181
         {
             get => _encodingType;
             set => _encodingType = value;
+        }
+
+        /// <summary>
+        /// 是否采用被动模式（被动模式：由被请求方主动发送流到zlm,主动模式：由请求方主动拉取被请求方的流）
+        /// </summary>
+        public bool? IsPassive
+        {
+            get => _isPassive;
+            set => _isPassive = value;
         }
 
         /// <summary>
