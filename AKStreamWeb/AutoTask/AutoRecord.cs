@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using AKStreamWeb.Services;
 using LibCommon;
@@ -262,6 +264,7 @@ namespace AKStreamWeb.AutoTask
         {
             while (true)
             {
+
                 try
                 {
                     ResponseStruct rs = null;
@@ -420,56 +423,105 @@ namespace AKStreamWeb.AutoTask
                                                 }
                                                 else if (stopIt && obj.MediaServerStreamInfo.IsRecorded == false)
                                                 {
-                                                    //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
-                                                    if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
+                                                    var diskUseage = true;
+                                                    string dirName = "";
+                                                    if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
                                                     {
-                                                        if (recordPlan.LimitDays < fileDateList.Count)
+                                                        diskUseage = false;
+                                                        var mediaServer = Common.MediaServerList.FindLast(x =>
+                                                            x.MediaServerId.Equals(obj.MediaServerId));
+                                                        if (mediaServer != null && mediaServer.RecordPathList != null &&
+                                                            mediaServer.RecordPathList.Count > 0)
                                                         {
-                                                            string info2 =
-                                                                $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
-                                                            info2 += (recordPlan.LimitDays < fileDateList.Count)
-                                                                ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
-                                                                : "";
-                                                            info2 +=
-                                                                $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
-                                                            GCommon.Logger.Info(
-                                                                $"[{Common.LoggerHead}]->{info2}");
-                                                            bool p = false;
-                                                            if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                            var tmpPath = mediaServer.RecordPathList[0];
+                                                            dirName = tmpPath.Value;
+                                                            if (!string.IsNullOrEmpty(tmpPath.Value) &&
+                                                                Directory.Exists(tmpPath.Value))
                                                             {
-                                                                int? loopCount = fileDateList.Count -
-                                                                    recordPlan.LimitDays;
-
-                                                                List<string> willDeleteDays = new List<string>();
-                                                                for (int i = 0; i < loopCount; i++)
+                                                                try
                                                                 {
-                                                                    willDeleteDays.Add(fileDateList[i]!);
+                                                                    File.WriteAllText(
+                                                                        $"{tmpPath.Value.TrimEnd('/')}/test.txt", "ok");
+                                                                    var msg = File.ReadAllText(
+                                                                        $"{tmpPath.Value.TrimEnd('/')}/test.txt");
+                                                                    if (msg.Trim().Equals("ok"))
+                                                                    {
+                                                                        diskUseage = true;
+                                                                        File.Delete($"{tmpPath.Value.TrimEnd('/')}/test.txt");
+                                                                    }
+                                                                }
+                                                                catch (Exception ex)
+                                                                {
+                                                                    GCommon.Logger.Error(
+                                                                        $"[{Common.LoggerHead}]->{dirName}写入测试异常，磁盘不可写->{ex.Message}->{ex.StackTrace}");
+                                                                    diskUseage = false;
                                                                 }
 
-                                                                DeleteFileByDay(willDeleteDays,
-                                                                    obj.MediaServerStreamInfo);
-                                                                p = true;
                                                             }
+                                                        }
+                                                    }
 
-                                                            if (p)
+                                                    if (diskUseage)
+                                                    {
+                                                        //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
+                                                        if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
+                                                        {
+                                                            if (recordPlan.LimitDays < fileDateList.Count)
                                                             {
-                                                                fileSize = GetRecordFileSize(videoChannel
-                                                                    .MainId); //删除完一天以后再取一下文件总长度
+                                                                string info2 =
+                                                                    $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                                info2 += (recordPlan.LimitDays < fileDateList.Count)
+                                                                    ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                                    : "";
+                                                                info2 +=
+                                                                    $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                                GCommon.Logger.Info(
+                                                                    $"[{Common.LoggerHead}]->{info2}");
+                                                                bool p = false;
+                                                                if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                                {
+                                                                    int? loopCount = fileDateList.Count -
+                                                                        recordPlan.LimitDays;
+
+                                                                    List<string> willDeleteDays = new List<string>();
+                                                                    for (int i = 0; i < loopCount; i++)
+                                                                    {
+                                                                        willDeleteDays.Add(fileDateList[i]!);
+                                                                    }
+
+                                                                    DeleteFileByDay(willDeleteDays,
+                                                                        obj.MediaServerStreamInfo);
+                                                                    p = true;
+                                                                }
+
+                                                                if (p)
+                                                                {
+                                                                    fileSize = GetRecordFileSize(videoChannel
+                                                                        .MainId); //删除完一天以后再取一下文件总长度
+                                                                }
+
+                                                                if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                                {
+                                                                    DeleteFileOneByOne(fileSize,
+                                                                        obj.MediaServerStreamInfo,
+                                                                        recordPlan);
+                                                                }
                                                             }
-
-                                                            if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                            else if (recordPlan.LimitSpace < fileSize)
                                                             {
+                                                                //如果文件天数不足，则删除一个文件
                                                                 DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
                                                                     recordPlan);
                                                             }
                                                         }
-                                                        else if (recordPlan.LimitSpace < fileSize)
-                                                        {
-                                                            //如果文件天数不足，则删除一个文件
-                                                            DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
-                                                                recordPlan);
-                                                        }
                                                     }
+                                                    else
+                                                    {
+                                                        GCommon.Logger.Error(
+                                                            $"[{Common.LoggerHead}]->当前磁盘{dirName}不可写，暂时不执行文件删除操作");
+                                                    }
+
+
                                                 }
                                             }
                                         }
