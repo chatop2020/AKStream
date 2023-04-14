@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Web;
 using LibCommon;
 using LibCommon.Structs.WebRequest.AKStreamKeeper;
 using LibCommon.Structs.WebResponse.AKStreamKeeper;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 
 namespace LibZLMediaKitMediaServer
 {
@@ -47,6 +49,67 @@ namespace LibZLMediaKitMediaServer
             set => _httpClientTimeout = value;
         }
 
+
+        /// <summary>
+        /// 检查磁盘是否可写
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public bool CheckDiskWriteable(string dirPath, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            string url = $"{_baseUrl}/ApiService/CheckDiskWriteable?dirPath=" + HttpUtility.UrlEncode(dirPath);
+            try
+            {
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+                var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return false;
+                    }
+
+                    bool isOk = false;
+                    var ret = bool.TryParse(httpRet, out isOk);
+                    if (ret)
+                    {
+                        return isOk;
+                    }
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// 修改ffmpeg模板

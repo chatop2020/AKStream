@@ -80,6 +80,7 @@ namespace LibCommon
         MediaServer_InputObjectAlredayExists = -3016, //传入对象已经存在
         MediaServer_ObjectNotExists = -3017, //对象不存在
         MediaServer_RecordFileExcept = -3018, //录制文件异常
+        MediaServer_DiskExcept = -3019, //磁盘异常
 
 
         Other = -6000 //其他异常
@@ -167,6 +168,7 @@ namespace LibCommon
             ErrorDic[ErrorNumber.MediaServer_InputObjectAlredayExists] = "传入对象已经存在";
             ErrorDic[ErrorNumber.MediaServer_ObjectNotExists] = "指定对象不存在";
             ErrorDic[ErrorNumber.MediaServer_RecordFileExcept] = "录制文件异常";
+            ErrorDic[ErrorNumber.MediaServer_DiskExcept] = "磁盘异常";
             ErrorDic[ErrorNumber.Other] = "未知错误";
         }
     }

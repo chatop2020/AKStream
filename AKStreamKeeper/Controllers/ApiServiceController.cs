@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Web;
 using AKStreamKeeper.Attributes;
 using AKStreamKeeper.Services;
 using LibCommon;
@@ -16,6 +17,27 @@ namespace AKStreamKeeper.Controllers
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
+        /// <summary>
+        /// 检查磁盘是否可写
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="dirPath"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("CheckDiskWriteable")]
+        [HttpGet]
+        public bool CheckDiskWriteable([FromHeader(Name = "AccessKey")] string AccessKey, string dirPath)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.CheckDiskWritable(HttpUtility.UrlDecode(dirPath), out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
         /// <summary>
         /// 删除ffmpeg模板
         /// </summary>

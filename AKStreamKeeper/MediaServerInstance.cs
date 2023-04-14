@@ -304,6 +304,54 @@ namespace AKStreamKeeper
 
 
         /// <summary>
+        /// 检查磁盘是否可写入
+        /// </summary>
+        /// <param name="dirPath"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public bool CheckDiskWritable(string dirPath, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (Directory.Exists(dirPath))
+            {
+                string filePath = dirPath + "/test.txt";
+                try
+                {
+                    File.WriteAllText(filePath, "ok");
+                    var msg = File.ReadAllText(filePath);
+                    if (!string.IsNullOrEmpty(msg) && msg.Trim().Equals("ok"))
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_DiskExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    return false;
+                }
+                finally
+                {
+                    if (File.Exists(filePath))
+                    {
+                        File.Delete(filePath);
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 修改一个ffmpeg模板
         /// </summary>
         /// <param name="tmplate"></param>
@@ -1652,7 +1700,6 @@ namespace AKStreamKeeper
         {
             _pid = -1;
             OnMediaKilled?.Invoke(_isSelfClose);
-       
         }
 
         public static void p_StdOutputDataReceived(object sender, DataReceivedEventArgs e)
