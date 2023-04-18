@@ -1648,6 +1648,7 @@ namespace AKStreamWeb.Services
             VideoChannel videoChannel;
             SipDevice sipDevice;
             SipChannel sipChannel;
+            bool liveVideoRet = false;
             RecordInfo.RecItem record = null;
             rs = new ResponseStruct()
             {
@@ -1711,8 +1712,8 @@ namespace AKStreamWeb.Services
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
             {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
-                var liveVideoRet = sipMethodProxy.InviteRecordPosition(record, pushMediaInfo, time, out rs);
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec); 
+                liveVideoRet = sipMethodProxy.InviteRecordPosition(record, pushMediaInfo, time, out rs);
             }
             catch (Exception ex)
             {
@@ -1735,10 +1736,18 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
-            GCommon.Logger.Debug(
-                $"[{Common.LoggerHead}]->拖拽Sip回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+            if (liveVideoRet)
+            {
+                GCommon.Logger.Debug(
+                    $"[{Common.LoggerHead}]->拖拽Sip回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
+            }
+            else
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->拖拽Sip回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->liveVideoRet:{liveVideoRet}");  
+            }
 
-            return true;
+            return liveVideoRet;
         }
     }
 }
