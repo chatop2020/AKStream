@@ -12,6 +12,7 @@
 *.tar.gz
 *.swp
 *.vsidx
+*.v2
 read.lock
 *.suo
 ._*
