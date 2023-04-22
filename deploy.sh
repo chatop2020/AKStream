@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#作者:自动畅
-#微信号:auto-chang
-#公众号：畅聊了个科技(IT-chang)
-#Time：Saturday, April 22, 2023
-#Describe：Power Generation for Love
+#作者(author):自动畅(auto-chang)
+#微信号(WeChat):自动畅(auto-chang)
+#公众号(WeChat official account)：畅聊了个科技(IT-chang)
+#时间(Time)：2023年4月22日，星期六(Saturday, April 22, 2023)
+#描述(Describe：为爱发电(Power Generation for Love)
 
 usage() {
   cat << EOF >&2
