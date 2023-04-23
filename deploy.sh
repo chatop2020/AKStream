@@ -88,7 +88,8 @@ if [ "$ACTION" == deploy-keeper ]; then
     -v ./AKStreamKeeper/Config/logconfig.xml:/root/AKStreamKeeper/Config/logconfig.xml \
     --name=$APP_KEEPER_NAME \
     --restart=always \
-    -d $APP_KEEPER_NAME
+    -d $APP_KEEPER_NAME \
+    dotnet AKStreamKeeper.dll
 fi
 
 if [ "$ACTION" == run-keeper ]; then
@@ -109,7 +110,8 @@ if [ "$ACTION" == run-keeper ]; then
     -v ./AKStreamKeeper/Config/logconfig.xml:/root/AKStreamKeeper/Config/logconfig.xml \
     --name=$APP_KEEPER_NAME \
     --restart=always \
-    -d $APP_KEEPER_NAME
+    -d $APP_KEEPER_NAME \
+    dotnet AKStreamKeeper.dll
 fi
 
 
