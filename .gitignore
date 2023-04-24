@@ -11,6 +11,10 @@
 *.zip
 *.tar.gz
 *.swp
+*.vsidx
+*.v2
+read.lock
+*.suo
 ._*
 .Spotlight-V100
 .Trashes

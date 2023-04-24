@@ -1,0 +1,19 @@
+#作者(author):自动畅(auto-chang)
+#微信号(WeChat):自动畅(auto-chang)
+#公众号(WeChat official account)：畅聊了个科技(IT-chang)
+#时间(Time)：2023年4月22日，星期六(Saturday, April 22, 2023)
+#描述(Describe：为爱发电(Power Generation for Love)
+
+FROM ubuntu-zlm-ffmpeg-dotnet AS keeper
+WORKDIR /root/src
+COPY . .
+RUN mkdir -p /root/AKStreamKeeper 
+WORKDIR /root/src/AKStreamKeeper
+RUN ln -s $HOME/dotnet/dotnet /usr/bin/dotnet -f
+RUN dotnet build "AKStreamKeeper.csproj" -c Release  -o /app/build
+RUN dotnet publish  "AKStreamKeeper.csproj" -c Release  -o /app/publish
+EXPOSE 80
+EXPOSE 443
+EXPOSE 6880
+RUN mv  /app/publish/* /root/AKStreamKeeper
+WORKDIR /root/AKStreamKeeper

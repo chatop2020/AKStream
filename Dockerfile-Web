@@ -1,0 +1,37 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+#作者(author):自动畅(auto-chang)
+#微信号(WeChat):自动畅(auto-chang)
+#公众号(WeChat official account)：畅聊了个科技(IT-chang)
+#时间(Time)：2023年4月22日，星期六(Saturday, April 22, 2023)
+#描述(Describe：为爱发电(Power Generation for Love)
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["AKStreamWeb/AKStreamWeb.csproj", "AKStreamWeb/"]
+COPY ["LibCommon/LibCommon.csproj", "LibCommon/"]
+COPY ["LibLogger/LibLogger.csproj", "LibLogger/"]
+COPY ["SipSorcery/SIPSorcery.csproj", "SipSorcery/"]
+COPY ["LibGB28181SipClient/LibGB28181SipClient.csproj", "LibGB28181SipClient/"]
+COPY ["LibSystemInfo/LibSystemInfo.csproj", "LibSystemInfo/"]
+COPY ["SystemInfoLibrary/src/SystemInfoLibrary.Standard/SystemInfoLibrary.Standard.csproj", "SystemInfoLibrary/src/SystemInfoLibrary.Standard/"]
+COPY ["LibGB28181SipServer/LibGB28181SipServer.csproj", "LibGB28181SipServer/"]
+COPY ["LibZLMediaKitMediaServer/LibZLMediaKitMediaServer.csproj", "LibZLMediaKitMediaServer/"]
+RUN dotnet restore "AKStreamWeb/AKStreamWeb.csproj"
+COPY . .
+WORKDIR "/src/AKStreamWeb"
+RUN dotnet build "AKStreamWeb.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "AKStreamWeb.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "AKStreamWeb.dll"]
