@@ -316,17 +316,18 @@ namespace AKStreamKeeper
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (Directory.Exists(dirPath))
+
+            if (_akStreamKeeperConfig.CheckLinuxDiskMount == null || _akStreamKeeperConfig.CheckLinuxDiskMount == false)
             {
-                string filePath = dirPath + "/test.txt";
+                return true;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                int ret = -1;
                 try
                 {
-                    File.WriteAllText(filePath, "ok");
-                    var msg = File.ReadAllText(filePath);
-                    if (!string.IsNullOrEmpty(msg) && msg.Trim().Equals("ok"))
-                    {
-                        return true;
-                    }
+                    ret = UtilsHelper.DirAreMounttedAndWriteableForLinux(dirPath);
                 }
                 catch (Exception ex)
                 {
@@ -339,16 +340,34 @@ namespace AKStreamKeeper
                     };
                     return false;
                 }
-                finally
+
+                if (ret != 0)
                 {
-                    if (File.Exists(filePath))
+                    switch (ret)
                     {
-                        File.Delete(filePath);
+                        case -1:
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.MediaServer_DiskExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                                ExceptMessage = $"{dirPath}所在磁盘未挂载或未就绪",
+                            };
+                            return false;
+                            break;
+                        case -2:
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.MediaServer_DiskExcept,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                                ExceptMessage = $"{dirPath}所在磁盘已挂载，但不可写入",
+                            };
+                            return false;
+                            break;
                     }
                 }
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
