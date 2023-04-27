@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,151 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+        /// <summary>
+        /// 目录是否为外部挂载，并且可写状态
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns>
+        ///  0：挂载并可写
+        ///  -1:未挂载
+        /// -2:挂载但不可写
+        /// </returns>
+        public static int DirAreMounttedAndWriteableForLinux(string dir)
+        {
+            #region 获取挂载列表
+
+            ProcessHelper ps = new ProcessHelper();
+            List<Dictionary<string, string>> dirDevList = new List<Dictionary<string, string>>();
+            string std;
+            string err;
+            try
+            {
+                var cmd = " -h " + dir;
+                Console.WriteLine("/bin/df " + cmd);
+                ps.RunProcess("/bin/df", cmd, 1000, out std, out err);
+                if (!string.IsNullOrEmpty(std))
+                {
+                    string[] tmpStrArr = std.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                    if (tmpStrArr != null && tmpStrArr.Length > 0)
+                    {
+                        foreach (var str in tmpStrArr)
+                        {
+                            if (str.ToLower().Trim().Contains("filesystem") || str.ToLower().Trim().Contains("size") ||
+                                str.ToLower().Trim().Contains("mount"))
+                            {
+                                continue;
+                            }
+
+                            if (str.Trim().ToLower().StartsWith("df:")) //如果报错，则说明没挂载
+                            {
+                                return -1;
+                            }
+
+                            string driverName = "";
+                            string rootPath = "";
+                            if (str.Trim().ToLower().StartsWith("/dev/sd"))
+                            {
+                                var tmpStrArr2 = str.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                                if (tmpStrArr2 != null && tmpStrArr2.Length >= 6)
+                                {
+                                    driverName = tmpStrArr2[0];
+                                    rootPath = tmpStrArr2[5];
+                                }
+                                if (string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(driverName))
+                                {
+                                    return -1;
+                                }
+
+                                try
+                                {
+                                    File.WriteAllText(dir.TrimEnd('/') + "/check.txt", "ok");
+                                    var tmp = File.ReadAllText(dir.TrimEnd('/') + "/check.txt");
+                                    if (tmp.Trim().Equals("ok"))
+                                    {
+                                        File.Delete(dir.TrimEnd('/') + "/check.txt");
+                                        return 0;
+                                    }
+                                }
+                                catch
+                                {
+                                    return -2;
+                                }
+
+
+                                return 0;
+                            }
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(err))
+                {
+                    string[] tmpStrArr = err.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                    if (tmpStrArr != null && tmpStrArr.Length > 0)
+                    {
+                        foreach (var str in tmpStrArr)
+                        {
+                            if (str.ToLower().Trim().Contains("filesystem") || str.ToLower().Trim().Contains("size") ||
+                                str.ToLower().Trim().Contains("mount"))
+                            {
+                                continue;
+                            }
+
+                            if (str.Trim().ToLower().StartsWith("df:")) //如果报错，则说明没挂载
+                            {
+                                return -1;
+                            }
+
+                            string driverName = "";
+                            string rootPath = "";
+                            if (str.Trim().ToLower().StartsWith("/dev"))
+                            {
+                                var tmpStrArr2 = str.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                                if (tmpStrArr2 != null && tmpStrArr2.Length >= 6)
+                                {
+                                    driverName = tmpStrArr2[0];
+                                    rootPath = tmpStrArr2[5];
+                                }
+
+                                if (string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(driverName))
+                                {
+                                    return -1;
+                                }
+
+                                try
+                                {
+                                    File.WriteAllText(dir.TrimEnd('/') + "/check.txt", "ok");
+                                    var tmp = File.ReadAllText(dir.TrimEnd('/') + "/check.txt");
+                                    if (tmp.Trim().Equals("ok"))
+                                    {
+                                        File.Delete(dir.TrimEnd('/') + "/check.txt");
+                                        return 0;
+                                    }
+                                }
+                                catch
+                                {
+                                    return -2;
+                                }
+
+
+                                return 0;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            #endregion
+
+
+            return -1;
+        }
+
+
         /// <summary>
         /// 是否为ushort类型
         /// </summary>

@@ -26,6 +26,7 @@ namespace AKStreamKeeper.Misc
         private ushort _maxSendRtpPort = 20200;
         private bool _randomPort = false;
         private int? _recordSec = 120;
+        private bool? _checkLinuxDiskMount = false;
         private int _rtpPortCDTime;
         private bool _useSSL = false;
         private ushort _webApiPort;
@@ -222,6 +223,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _maxSendRtpPort;
             set => _maxSendRtpPort = value;
+        }
+
+        /// <summary>
+        /// linux下是否检查存储盘挂载情况
+        /// </summary>
+        public bool? CheckLinuxDiskMount
+        {
+            get => _checkLinuxDiskMount;
+            set => _checkLinuxDiskMount = value;
         }
     }
 }

@@ -20,5 +20,6 @@
   "RtpPortCdTime": 3600,
   "HttpClientTimeoutSec": 5,
   "DisableShell": true,
+  "CheckLinuxDiskMount": false,
   "ZLMediakitSSLFilePath": "./sslfiles/"
 }

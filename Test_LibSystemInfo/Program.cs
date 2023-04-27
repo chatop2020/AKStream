@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
+using LibCommon;
 using LibCommon.Structs;
 using LibSystemInfo;
 using Newtonsoft.Json;
@@ -14,6 +16,11 @@ namespace Test_LibSystemInfo
 
         static void Main(string[] args)
         {
+
+
+           Console.WriteLine(UtilsHelper.DirAreMounttedAndWriteableForLinux("/home/disk/record/record/rtsp/E56A7514"));
+          
+            
             while (true)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
