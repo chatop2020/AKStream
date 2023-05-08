@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AKStreamWeb.Services;
 using LibCommon;
 using LibCommon.Structs.DBModels;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
@@ -251,8 +252,20 @@ namespace AKStreamWeb.AutoTask
                         Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(retList[0].MediaServerId));
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
-                        var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
+                        ResponseStruct   rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.None,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+                        };
+                       var delRet= AKStreamKeeperService.DeleteFileList(mediaServer.MediaServerId, deleteFileList, out rs);
+                       // var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
 
+                       if (rs.Code == ErrorNumber.MediaServer_DiskExcept)
+                       {
+                           GCommon.Logger.Warn(
+                               $"[{Common.LoggerHead}]->删除24小时前被软删除记录文件时发生异常->{JsonHelper.ToJson(rs)}");
+                           return;
+                       }
                         #region debug sql output
 
                         if (Common.IsDebug)

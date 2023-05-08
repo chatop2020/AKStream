@@ -98,6 +98,55 @@ namespace AKStreamWeb.Services
 
             #endregion
 
+            bool diskuseage = true;
+            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
+            {
+                foreach (var disk in mediaServer.DisksUseable)
+                {
+                    if (disk.Value != 0)
+                    {
+                        diskuseage = false;
+                        GCommon.Logger.Error(
+                            $"[{Common.LoggerHead}]->磁盘挂载异常->{disk.Key}->异常代码：{disk.Value}->{JsonHelper.ToJson(req)}");
+                        break;
+                    }
+                }
+            }
+
+            if (!diskuseage)
+            {
+                ResponseStruct rs = null;
+                try
+                {
+                    try
+                    {
+                        AKStreamKeeperService.DeleteFileWithoutCheckDiskUseage(mediaServer.MediaServerId, req.File_Path,
+                            out _);
+                    }
+                    catch
+                    {
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_DiskExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        ExceptMessage = "录制文件异常，磁盘挂载异常",
+                        ExceptStackTrace =
+                            $"磁盘挂载异常不能实现文件录制功能->{JsonHelper.ToJson(req)}",
+                    };
+                    return new ResToWebHookOnRecordMP4()
+                    {
+                        Code = 0,
+                        Msg = "success"
+                    };
+                }
+
+                finally
+                {
+                    throw new AkStreamException(rs);
+                }
+            }
 
             var recordInfo = ORMHelper.Db.Select<RecordFile>().Where(x => x.Streamid.Equals(req.Stream) &&
                                                                           x.VideoPath.Equals(req.File_Path) &&
@@ -133,11 +182,23 @@ namespace AKStreamWeb.Services
             int _intLen = (int)Math.Ceiling(_len); //四舍五入后取整
             tmpDvrVideo.EndTime = st.AddSeconds(_intLen);
             tmpDvrVideo.Duration = _intLen;
+
+
             if (tmpDvrVideo.Duration <= 0 || req.File_Size > 103881427200) //大概720p下60个小时的录制量，单文件超过这个值，就不再保存
             {
                 ResponseStruct rs = null;
                 try
                 {
+                    try
+                    {
+                        AKStreamKeeperService.DeleteFileWithoutCheckDiskUseage(mediaServer.MediaServerId,
+                            tmpDvrVideo.VideoPath, out _);
+                        // mediaServer.KeeperWebApi.DeleteFile(out _, tmpDvrVideo.VideoPath); //从磁盘中删除这个文件
+                    }
+                    catch
+                    {
+                    }
+
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.MediaServer_RecordFileExcept,
@@ -1034,6 +1095,15 @@ namespace AKStreamWeb.Services
                     mediaServer.RecordSec = req.RecordSec;
                     mediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
                     mediaServer.AKStreamKeeperVersion = req.Version;
+                    mediaServer.DisksUseable.Clear();
+                    if (req.DisksUseable != null && req.DisksUseable.Count > 0)
+                    {
+                        foreach (var disk in req.DisksUseable)
+                        {
+                            mediaServer.DisksUseable.Add(disk.Key, disk.Value);
+                        }
+                    }
+
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {
@@ -1077,7 +1147,14 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.RecordSec = req.RecordSec;
                     tmpMediaServer.AKStreamKeeperVersion = req.Version;
                     tmpMediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
-
+                    tmpMediaServer.DisksUseable.Clear();
+                    if (req.DisksUseable != null && req.DisksUseable.Count > 0)
+                    {
+                        foreach (var disk in req.DisksUseable)
+                        {
+                            tmpMediaServer.DisksUseable.Add(disk.Key, disk.Value);
+                        }
+                    }
 
                     if (req.PerformanceInfo != null) //更新性能信息
                     {

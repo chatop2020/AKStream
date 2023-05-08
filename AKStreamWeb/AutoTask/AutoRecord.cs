@@ -264,6 +264,7 @@ namespace AKStreamWeb.AutoTask
         {
             while (true)
             {
+                bool diskuseage = true;
                 try
                 {
                     ResponseStruct rs = null;
@@ -298,8 +299,74 @@ namespace AKStreamWeb.AutoTask
 
                             foreach (var obj in retlist)
                             {
+                               
                                 if (obj != null && obj.MediaServerStreamInfo != null)
                                 {
+                                   
+                                        var MediaServerTmp =
+                                            Common.MediaServerList.FindLast(x =>
+                                                x.MediaServerId.Equals(obj.MediaServerId));
+                                        if (MediaServerTmp != null)
+                                        {
+                                            if (MediaServerTmp.DisksUseable != null &&
+                                                MediaServerTmp.DisksUseable.Count > 0)
+                                            {
+                                                foreach (var disk in MediaServerTmp.DisksUseable)
+                                                {
+                                                    if (disk.Value != 0)
+                                                    {
+                                                        GCommon.Logger.Warn(
+                                                            $"[{Common.LoggerHead}]->{disk.Key}所在的磁盘挂载有异常，异常值为：{disk.Value},将中断{obj.MainId}的录制计划，待磁盘挂载正常后恢复录制计划");
+                                                        diskuseage = false;
+                                                        ResponseStruct rs2 = new ResponseStruct();
+
+                                                        if (obj.MediaServerStreamInfo.IsRecorded!=null && obj.MediaServerStreamInfo.IsRecorded==true)
+                                                        {
+                                                            try
+                                                            {
+
+                                                                var ret = MediaServerService.StopRecord(
+                                                                    obj.MediaServerId,
+                                                                    obj.MainId,
+                                                                    out rs2);
+                                                                if (!ret.Result || ret.Code != 0 ||
+                                                                    rs.Code != ErrorNumber.None)
+                                                                {
+                                                                    GCommon.Logger.Warn(
+                                                                        $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{JsonHelper.ToJson(rs2)}");
+                                                                }
+                                                                else
+                                                                {
+                                                                    GCommon.Logger.Info(
+                                                                        $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划成功->{JsonHelper.ToJson(rs2)}");
+                                                                }
+                                                            }
+                                                            catch (Exception ex)
+                                                            {
+                                                                GCommon.Logger.Error(
+                                                                    $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{ex.Message}->{ex.StackTrace}");
+
+                                                            }
+
+                                                        }
+
+                                                        break;
+
+                                                    }
+
+                                                    diskuseage = true;
+                                                }
+                                            }
+                                        }
+                                    
+
+
+                                    if (!diskuseage)
+                                    {
+                                        Thread.Sleep(100);
+                                        continue;  
+                                    }
+                                    
                                     var videoChannel = videoChannelList.FindLast(x => x.MainId.Equals(obj.MainId));
                                     if (videoChannel != null)
                                     {
@@ -365,32 +432,7 @@ namespace AKStreamWeb.AutoTask
                                                         }
                                                         else
                                                         {
-                                                            var diskUseage = true;
-                                                            string dirName = "";
-                                                            if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                                                                Environment.OSVersion.Platform == PlatformID.MacOSX)
-                                                            {
-                                                                diskUseage = false;
-                                                                var mediaServer = Common.MediaServerList.FindLast(x =>
-                                                                    x.MediaServerId.Equals(obj.MediaServerId));
-                                                                if (mediaServer != null &&
-                                                                    mediaServer.RecordPathList != null &&
-                                                                    mediaServer.RecordPathList.Count > 0)
-                                                                {
-                                                                    var tmpPath = mediaServer.RecordPathList[0];
-                                                                    dirName = tmpPath.Value.TrimEnd('/');
-                                                                    diskUseage =
-                                                                        mediaServer.KeeperWebApi.CheckDiskWriteable(
-                                                                            dirName, out rs);
-                                                                    if (rs.Code != ErrorNumber.None)
-                                                                    {
-                                                                        diskUseage = false;
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            if (diskUseage)
-                                                            {
+                                                            
                                                                 string info2 =
                                                                     $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
                                                                 info2 += (recordPlan.LimitDays < fileDateList.Count)
@@ -429,12 +471,7 @@ namespace AKStreamWeb.AutoTask
                                                                         obj.MediaServerStreamInfo,
                                                                         recordPlan);
                                                                 }
-                                                            }
-                                                            else
-                                                            {
-                                                                GCommon.Logger.Error(
-                                                                    $"[{Common.LoggerHead}]->当前磁盘{dirName}不可写，暂时不执行文件删除操作");
-                                                            }
+                                                           
                                                         }
 
                                                         break;
@@ -455,31 +492,7 @@ namespace AKStreamWeb.AutoTask
                                                 }
                                                 else if (stopIt && obj.MediaServerStreamInfo.IsRecorded == false)
                                                 {
-                                                    var diskUseage = true;
-                                                    string dirName = "";
-                                                    if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                                                        Environment.OSVersion.Platform == PlatformID.MacOSX)
-                                                    {
-                                                        diskUseage = false;
-                                                        var mediaServer = Common.MediaServerList.FindLast(x =>
-                                                            x.MediaServerId.Equals(obj.MediaServerId));
-                                                        if (mediaServer != null && mediaServer.RecordPathList != null &&
-                                                            mediaServer.RecordPathList.Count > 0)
-                                                        {
-                                                            var tmpPath = mediaServer.RecordPathList[0];
-                                                            dirName = tmpPath.Value.TrimEnd('/');
-                                                            diskUseage =
-                                                                mediaServer.KeeperWebApi.CheckDiskWriteable(dirName,
-                                                                    out rs);
-                                                            if (rs.Code != ErrorNumber.None)
-                                                            {
-                                                                diskUseage = false;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (diskUseage)
-                                                    {
+                                                    
                                                         //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
                                                         if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
                                                         {
@@ -531,12 +544,7 @@ namespace AKStreamWeb.AutoTask
                                                                     recordPlan);
                                                             }
                                                         }
-                                                    }
-                                                    else
-                                                    {
-                                                        GCommon.Logger.Error(
-                                                            $"[{Common.LoggerHead}]->当前磁盘{dirName}不可写，暂时不执行文件删除操作");
-                                                    }
+                                                    
                                                 }
                                             }
                                         }
