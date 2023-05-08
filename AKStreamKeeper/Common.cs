@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Timers;
 using AKStreamKeeper.AutoTask;
@@ -35,6 +36,8 @@ namespace AKStreamKeeper
         private static DateTime _sendDataTick = DateTime.Now;
         private static ulong _timerCount = 0;
         private static string _oldMediaServerId = "";
+        private static Dictionary<string, int> _disksUseable = new Dictionary<string, int>();
+        private static DiskUseableChecker _diskUseableChecker;
 
         public static string OldMediaServerId
         {
@@ -78,6 +81,15 @@ namespace AKStreamKeeper
         public static bool IsDebug = false;
 
         public static MediaServerInstance MediaServerInstance;
+
+        /// <summary>
+        /// 挂载的硬盘是否可用
+        /// </summary>
+        public static Dictionary<string, int> DisksUseable
+        {
+            get => _disksUseable;
+            set => _disksUseable = value;
+        }
 
         static Common()
         {
@@ -743,6 +755,21 @@ namespace AKStreamKeeper
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
                 tmpKeepAlive.ZlmBuildDateTime = MediaServerInstance.ZlmBuildDateTime;
+                lock (DisksUseable)
+                {
+                    if (DisksUseable != null && DisksUseable.Count > 0)
+                    {
+                        tmpKeepAlive.DisksUseable = new Dictionary<string, int>();
+                        foreach (var dic in Common.DisksUseable)
+                        {
+                            tmpKeepAlive.DisksUseable.Add(dic.Key,dic.Value);
+                        }
+                    }
+                    else
+                    {
+                        tmpKeepAlive.DisksUseable = null;
+                    }
+                }
 
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
 
@@ -854,6 +881,7 @@ namespace AKStreamKeeper
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
             AutoRtpPortClean = new AutoRtpPortClean(); //启动不使用rtp端口自动清理
+            _diskUseableChecker = new DiskUseableChecker();//启动磁盘挂载监控
 
             if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
             {

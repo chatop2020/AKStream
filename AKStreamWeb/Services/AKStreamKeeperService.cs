@@ -882,6 +882,90 @@ namespace AKStreamWeb.Services
 
             return ret;
         }
+        
+        
+        /// <summary>
+        /// 删除一个文件不经过磁盘有效性校验
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="filePath"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool DeleteFileWithoutCheckDiskUseage(string mediaServerId, string filePath, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (UtilsHelper.StringIsNullEx(filePath))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.DeleteFile(out rs, filePath);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->删除指定文件成功->{mediaServerId}->{filePath}");
+
+            return ret;
+        }
 
         /// <summary>
         /// 删除一个指定文件
@@ -926,6 +1010,7 @@ namespace AKStreamWeb.Services
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
             if (mediaServer == null)
             {
+                
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
@@ -951,6 +1036,26 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
+            
+            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
+            {
+                foreach (var disk in mediaServer.DisksUseable)
+                {
+                    if (disk.Value != 0)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_DiskExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        };
+                        GCommon.Logger.Warn(
+                            $"[{Common.LoggerHead}]->删除指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                        return false;
+                    }
+                }
+            }
+            
             var ret = mediaServer.KeeperWebApi.DeleteFile(out rs, filePath);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
@@ -1184,6 +1289,26 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            
+            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
+            {
+                foreach (var disk in mediaServer.DisksUseable)
+                {
+                    if (disk.Value != 0)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_DiskExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        };
+                        GCommon.Logger.Warn(
+                            $"[{Common.LoggerHead}]->删除指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                        return null;
+                    }
+                }
+            }
+            
             var ret = mediaServer.KeeperWebApi.DeleteFileList(out rs, fileList);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
             {

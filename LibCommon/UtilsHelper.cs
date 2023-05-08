@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using LibCommon.Structs;
+using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
 
 namespace LibCommon
@@ -42,7 +43,6 @@ namespace LibCommon
             try
             {
                 var cmd = " -h " + dir;
-                Console.WriteLine("/bin/df " + cmd);
                 ps.RunProcess("/bin/df", cmd, 1000, out std, out err);
                 if (!string.IsNullOrEmpty(std))
                 {
@@ -92,7 +92,6 @@ namespace LibCommon
                                     return -2;
                                 }
 
-
                                 return 0;
                             }
                         }
@@ -119,7 +118,7 @@ namespace LibCommon
 
                             string driverName = "";
                             string rootPath = "";
-                            if (str.Trim().ToLower().StartsWith("/dev"))
+                            if (str.Trim().ToLower().StartsWith("/dev/sd"))
                             {
                                 var tmpStrArr2 = str.Split(" ", StringSplitOptions.RemoveEmptyEntries);
                                 if (tmpStrArr2 != null && tmpStrArr2.Length >= 6)
@@ -147,8 +146,7 @@ namespace LibCommon
                                 {
                                     return -2;
                                 }
-
-
+                                
                                 return 0;
                             }
                         }
@@ -161,8 +159,7 @@ namespace LibCommon
             }
 
             #endregion
-
-
+            
             return -1;
         }
 

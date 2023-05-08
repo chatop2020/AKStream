@@ -2428,7 +2428,8 @@ namespace AKStreamWeb.Services
                         continue;
                     }
 
-                    var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, dbRet.VideoPath);
+                    //var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, dbRet.VideoPath);
+                    var deleted = AKStreamKeeperService.DeleteFile(mediaServer.MediaServerId, dbRet.VideoPath, out rs);
                     if (!rs.Code.Equals(ErrorNumber.None) || !deleted)
                     {
                         result.PathList.Add(new KeyValuePair<long, string>(dbRet.Id, dbRet.VideoPath));
@@ -2568,7 +2569,8 @@ namespace AKStreamWeb.Services
                         return false;
                     }
 
-                    var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, row.VideoPath);
+                   // var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, row.VideoPath);
+                    var deleted = AKStreamKeeperService.DeleteFile(mediaServer.MediaServerId, row.VideoPath, out rs);
                     if (!rs.Code.Equals(ErrorNumber.None) || !deleted)
                     {
                         GCommon.Logger.Warn(

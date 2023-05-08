@@ -54,6 +54,7 @@ namespace LibZLMediaKitMediaServer
         private int? _recordSec;
         private DateTime? _zlmBuildDateTime;
         private string? _akstreamKeeperVersion;
+        private Dictionary<string,int>? _disksUseable=new Dictionary<string, int>();
 
 
         public ServerInstance()
@@ -300,6 +301,15 @@ namespace LibZLMediaKitMediaServer
         {
             get => _zlmBuildDateTime;
             set => _zlmBuildDateTime = value;
+        }
+
+        /// <summary>
+        /// 挂载硬盘是否可用
+        /// </summary>
+        public Dictionary<string, int> DisksUseable
+        {
+            get => _disksUseable;
+            set => _disksUseable = value;
         }
 
         public void Dispose()
