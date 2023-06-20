@@ -30,6 +30,7 @@ namespace LibCommon.Structs.GB28181
         private EncodingType _encodingType;
         private Encoding _encoding;
         private bool? _isPassive = true;
+        private string? _listenIp = "127.0.0.1";
         
 
 
@@ -210,6 +211,15 @@ namespace LibCommon.Structs.GB28181
 
                 return _en;
             }
+        }
+
+        /// <summary>
+        /// 监听ip地址
+        /// </summary>
+        public string ListenIp
+        {
+            get => _listenIp;
+            set => _listenIp = value;
         }
     }
 }

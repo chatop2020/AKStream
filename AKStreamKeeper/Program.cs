@@ -47,7 +47,16 @@ namespace AKStreamKeeper
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseUrls($"http://*:{Common.AkStreamKeeperConfig.WebApiPort}");
+                    if (string.IsNullOrEmpty(Common.AkStreamKeeperConfig.ListenIp))
+                    {
+                        webBuilder.UseStartup<Startup>().UseUrls($"http://*:{Common.AkStreamKeeperConfig.WebApiPort}");
+                    }
+                    else
+                    {
+                        var url = $"http://{Common.AkStreamKeeperConfig.ListenIp}:{Common.AkStreamKeeperConfig.WebApiPort}";
+                        webBuilder.UseStartup<Startup>().UseUrls(url);
+                    }
+                    
                 });
     }
 }

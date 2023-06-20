@@ -1878,13 +1878,30 @@ namespace LibGB28181SipServer
                 // _sipTransport = new SIPTransport();
 
                 // 创建ipv4 udp传输层
-                _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Any,
-                    Common.SipServerConfig.SipPort));
+                if (string.IsNullOrEmpty(Common.SipServerConfig.ListenIp))
+                {
+                    _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Any,
+                        Common.SipServerConfig.SipPort));
+                }
+                else
+                {
+                    _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
+                        Common.SipServerConfig.SipPort)); 
+                }
 
                 if (Common.SipServerConfig.MsgProtocol.Trim().ToUpper().Equals("TCP"))
                 {
-                    _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.Any,
-                        Common.SipServerConfig.SipPort));
+                    if (string.IsNullOrEmpty(Common.SipServerConfig.ListenIp))
+                    {
+                        _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.Any,
+                            Common.SipServerConfig.SipPort));
+                    }
+                    else
+                    {
+                        _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
+                            Common.SipServerConfig.SipPort));
+                    }
+                    
                     _sipTransport.AddSIPChannel(_sipTcpIpV4Channel);
                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipTcpIpV4Channel.ListeningEndPoint.Address}:{_sipTcpIpV4Channel.ListeningEndPoint.Port}(TCP via IPV4)");

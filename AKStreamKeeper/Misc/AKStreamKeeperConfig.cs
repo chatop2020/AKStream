@@ -31,6 +31,7 @@ namespace AKStreamKeeper.Misc
         private bool _useSSL = false;
         private ushort _webApiPort;
         private string? _zLMediakitSSLFilePath;
+        private string? _listenIP ="127.0.0.1";
 
 
         /// <summary>
@@ -232,6 +233,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _checkLinuxDiskMount;
             set => _checkLinuxDiskMount = value;
+        }
+
+        /// <summary>
+        /// 监听ip地址
+        /// </summary>
+        public string ListenIp
+        {
+            get => _listenIP;
+            set => _listenIP = value;
         }
     }
 }

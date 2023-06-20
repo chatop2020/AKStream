@@ -42,7 +42,15 @@ namespace AKStreamWeb
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseUrls($"http://*:{Common.AkStreamWebConfig.WebApiPort}");
+                    if (string.IsNullOrEmpty(Common.AkStreamWebConfig.ListenIp))
+                    {
+                        webBuilder.UseStartup<Startup>().UseUrls($"http://*:{Common.AkStreamWebConfig.WebApiPort}");
+                    }
+                    else
+                    {
+                        var url = $"http://{Common.AkStreamWebConfig.ListenIp}:{Common.AkStreamWebConfig.WebApiPort}";
+                        webBuilder.UseStartup<Startup>().UseUrls(url);
+                    }
                 });
     }
 }
