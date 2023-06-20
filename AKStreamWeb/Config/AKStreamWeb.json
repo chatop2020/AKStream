@@ -10,5 +10,6 @@
   "DeletedRecordsExpiredDays" : 30,
   "EnableGB28181Server": true,
   "EnableGB28181Client": false,
-  "ZlmFlvPrefix" : "live"
+  "ZlmFlvPrefix" : "live",
+  "ListenIp": "127.0.0.1"
 }
