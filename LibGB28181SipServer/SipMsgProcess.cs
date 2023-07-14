@@ -667,6 +667,7 @@ namespace LibGB28181SipServer
 
                             unAuthorizedResponse.Header.Allow = null;
                             unAuthorizedResponse.Header.Expires = 7200;
+                          
                             await Common.SipServer.SipTransport.SendResponseAsync(unAuthorizedResponse);
                             return;
                         }
