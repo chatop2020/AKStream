@@ -2,7 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -11,7 +10,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Debug\net5.0\AKStreamKeeper.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net6.0\AKStreamKeeper.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,9 +20,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.8" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.4.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.20" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
     </ItemGroup>
 
 
