@@ -487,8 +487,7 @@ namespace LibCommon
             try
             {
                 FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                MD5 md5 = new MD5CryptoServiceProvider();
-                byte[] retVal = md5.ComputeHash(file);
+                byte[] retVal = MD5.Create().ComputeHash(file);
                 file.Close();
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < retVal.Length; i++)
@@ -513,11 +512,9 @@ namespace LibCommon
         {
             try
             {
-                MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
                 byte[] bytValue, bytHash;
                 bytValue = Encoding.UTF8.GetBytes(str);
-                bytHash = md5.ComputeHash(bytValue);
-                md5.Clear();
+                bytHash = MD5.Create().ComputeHash(bytValue);
                 string sTemp = "";
                 for (int i = 0; i < bytHash.Length; i++)
                 {
