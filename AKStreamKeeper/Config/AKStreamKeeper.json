@@ -1,9 +1,9 @@
 {
-  "IpV4Address": "192.168.2.94",
+  "IpV4Address": "127.0.0.1",
   "IpV6Address": "fe80::8:807:2143:28a1%5",
-  "Candidate":"192.168.2.94",
+  "Candidate":"127.0.0.1",
   "WebApiPort": 6880,
-  "MediaServerPath": "/Users/qiuzhouwei/SourceTemp/ZLMediaKit/release/darwin/Debug/MediaServer",
+  "MediaServerPath": "/Users/qiuzhouwei/Sources/ZLMediaKit/release/darwin/Debug/MediaServer",
   "AkStreamWebRegisterUrl": "http://127.0.0.1:5800/MediaServer/WebHook/MediaServerKeepAlive",
   "CutMergeFilePath": "/Users/qiuzhouwei/Downloads/CutMergeFile",
   "CustomRecordPathList": [
@@ -15,11 +15,12 @@
   "MinSendRtpPort": 20002,
   "MaxSendRtpPort": 20200,
   "RandomPort": false,
-  "FFmpegPath": "/usr/local/bin/ffmpeg",
-  "AccessKey": "O7O4S089-PGDW6HTM-T4CV6K74-V6RIP1I6-9300G54F-Z03TI40Q",
+  "FFmpegPath": "/opt/homebrew/bin/ffmpeg",
+  "AccessKey": "047I4WS1-U51UBO6W-1J4BT21P-MF17IT99-92J8WIHU-944Q4KIW",
   "RtpPortCdTime": 3600,
   "HttpClientTimeoutSec": 5,
-  "DisableShell": true,
+  "DisableShell": false,
   "CheckLinuxDiskMount": false,
-  "ZLMediakitSSLFilePath": "./sslfiles/"
+  "ZLMediakitSSLFilePath": "./sslfiles/",
+  "ListenIp": "127.0.0.1"
 }

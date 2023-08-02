@@ -95,7 +95,7 @@ namespace AKStreamWeb.AutoTask
                                         {
                                             ResponseStruct rs = null;
                                             var mediaList =
-                                                mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(),
+                                                mediaServer.WebApiHelper.GetMediaList(new ReqZLMediaKitGetMediaList(),
                                                     out rs);
                                             if (mediaList.Data == null && mediaList != null && mediaList.Code == 0 &&
                                                 rs.Code.Equals(ErrorNumber.None))

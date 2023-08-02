@@ -6,7 +6,7 @@ namespace LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit
     /// 请求zlmediakit的流列表结构
     /// </summary>
     [Serializable]
-    public class ResZLMediaKitGetMediaList : ReqZLMediaKitRequestBase
+    public class ReqZLMediaKitGetMediaList : ReqZLMediaKitRequestBase
     {
         private string? _app;
         private string? _schema;

@@ -754,7 +754,7 @@ namespace AKStreamWeb.Services
                 try
                 {
                     var mediaList =
-                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
+                        mediaServer.WebApiHelper.GetMediaList(new ReqZLMediaKitGetMediaList(), out rs);
                     if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(record.App) &&
@@ -1165,7 +1165,7 @@ namespace AKStreamWeb.Services
                     sipChannel.Vhost = videoChannel.Vhost;
                     sipChannel.PushStatus = PushStatus.IDLE;
                     var mediaList =
-                        mediaServer.WebApiHelper.GetMediaList(new ResZLMediaKitGetMediaList(), out rs);
+                        mediaServer.WebApiHelper.GetMediaList(new ReqZLMediaKitGetMediaList(), out rs);
                     if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null && mediaList.Data.Count > 0)
                     {
                         var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
