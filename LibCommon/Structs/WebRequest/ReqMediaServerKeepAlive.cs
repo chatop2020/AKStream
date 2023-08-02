@@ -255,11 +255,12 @@ namespace LibCommon.Structs.WebRequest
             get => _zlmBuildDateTime;
             set => _zlmBuildDateTime = value;
         }
-
+        
+        
         /// <summary>
         /// 挂载的磁盘是否可用
         /// </summary>
-        public Dictionary<string, int> DisksUseable
+        public Dictionary<string, int>? DisksUseable
         {
             get => _disksUseable;
             set => _disksUseable = value;

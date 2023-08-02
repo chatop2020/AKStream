@@ -44,7 +44,6 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
-
             var ret = mediaServer.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out rs);
             if (ret != null && rs.Code.Equals(ErrorNumber.None))
             {
@@ -53,7 +52,6 @@ namespace AKStreamWeb.Services
                 {
                     return null;
                 }
-
                 foreach (var d in ret.Data)
                 {
                     if (d != null && d.Port > 0)
@@ -61,10 +59,8 @@ namespace AKStreamWeb.Services
                         tmpPortList.Add((ushort)d.Port);
                     }
                 }
-
                 return tmpPortList;
             }
-
             return null;
         }
 
@@ -5474,7 +5470,6 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
-
             if (!mediaServer.IsKeeperRunning)
             {
                 rs = new ResponseStruct()
@@ -5486,7 +5481,6 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
-
             if (!mediaServer.IsMediaServerRunning)
             {
                 rs = new ResponseStruct()
@@ -5498,10 +5492,8 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
-
             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->检查流媒体服务器状态成功->{mediaServerId}->{JsonHelper.ToJson(mediaServer)}");
-
             return mediaServer;
         }
     }
