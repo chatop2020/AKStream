@@ -86,6 +86,7 @@ namespace AKStreamWeb
                         .AllowAnyMethod()
                 );
             });
+#if(DEBUG)
             // 注册Swagger服务
             services.AddSwaggerGen(c =>
             {
@@ -100,6 +101,7 @@ namespace AKStreamWeb
                 if (File.Exists(Path.Combine(GCommon.BaseStartPath, "LibSystemInfo.xml")))
                     c.IncludeXmlComments(Path.Combine(GCommon.BaseStartPath, "LibSystemInfo.xml"));
             });
+#endif
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
@@ -132,11 +134,12 @@ namespace AKStreamWeb
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+#if(DEBUG)
             // 启用Swagger中间件
             app.UseSwagger();
             // 配置SwaggerUI
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "AKStreamWeb"); });
-
+#endif
             app.UseRouting();
 
             app.UseCors("cors");
