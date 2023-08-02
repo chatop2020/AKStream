@@ -14,6 +14,8 @@ namespace AKStreamKeeper.Controllers
     [AuthVerify]
     [ApiController]
     [Route("/ApiService")]
+    
+    
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {

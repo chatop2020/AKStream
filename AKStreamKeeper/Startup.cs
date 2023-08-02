@@ -87,6 +87,7 @@ namespace AKStreamKeeper
                         .AllowAnyMethod()
                 );
             });
+#if(DEBUG)
             // 注册Swagger服务
             services.AddSwaggerGen(c =>
             {
@@ -101,6 +102,7 @@ namespace AKStreamKeeper
                 if (File.Exists(Path.Combine(GCommon.BaseStartPath, "LibSystemInfo.xml")))
                     c.IncludeXmlComments(Path.Combine(GCommon.BaseStartPath, "LibSystemInfo.xml"));
             });
+#endif
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -128,11 +130,13 @@ namespace AKStreamKeeper
 
             app.UseHttpsRedirection();
 
+#if(DEBUG)
             // 启用Swagger中间件
             app.UseSwagger();
             // 配置SwaggerUI
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "AKStreamKeeper"); }
             );
+#endif
             app.UseRouting();
             app.UseCors("cors");
             app.UseMiddleware<ExceptionMiddleware>(); //ExceptionMiddleware 加入管道
