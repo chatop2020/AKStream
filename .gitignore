@@ -24,3 +24,6 @@ ehthumbs.db
 Thumbs.db
 .DS_Store
 */.DS_Store
+.vscode/**
+.vs/**
+*.csproj.user
