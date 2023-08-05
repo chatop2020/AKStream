@@ -2,10 +2,10 @@ using System;
 
 namespace LibCommon.Enums
 {
-    [Serializable]
     /// <summary>
     /// Sip通道类型
     /// </summary>
+    [Serializable]
     public enum SipChannelType
     {
         /// <summary>

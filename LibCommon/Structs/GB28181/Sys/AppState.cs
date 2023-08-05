@@ -52,7 +52,7 @@ namespace LibCommon.Structs.GB28181.Sys
                 // Initialise the string dictionary to hold the application settings.
                 m_appConfigSettings = new StringDictionary();
 
-                CurrentDirectory = Regex.Replace(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase),
+                CurrentDirectory = Regex.Replace(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                     @"^file:\\", ""); // There's undoubtedly a better way!
             }
             catch (Exception excp)
@@ -112,7 +112,7 @@ namespace LibCommon.Structs.GB28181.Sys
                                     setting = setting.Substring(2);
                                     byte[] encryptedBytes = Convert.FromBase64String(setting);
                                     RSACryptoServiceProvider rsa =
-                                        (RSACryptoServiceProvider)encryptedSettingsCertificate.PrivateKey;
+                                        (RSACryptoServiceProvider)encryptedSettingsCertificate.GetRSAPrivateKey();
                                     byte[] plainTextBytes = rsa.Decrypt(encryptedBytes, false);
                                     setting = Encoding.ASCII.GetString(plainTextBytes);
                                 }
