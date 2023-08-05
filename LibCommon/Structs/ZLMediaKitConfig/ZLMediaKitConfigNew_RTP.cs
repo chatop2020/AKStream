@@ -46,4 +46,11 @@ public class ZLMediaKitConfigNew_RTP
         get => _lowLatency;
         set => _lowLatency = value;
     }
+
+    /// <summary>
+    /// H264 rtp打包模式是否采用stap-a模式(为了在老版本浏览器上兼容webrtc)还是采用Single NAL unit packet per H.264 模式
+    /// 有些老的rtsp设备不支持stap-a rtp，设置此配置为0可提高兼容性
+    /// </summary>
+    /// <value></value>
+    public int? H264_Stap_A {get; set;}=1;
 }

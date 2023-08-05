@@ -82,15 +82,6 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
     }
 
     /// <summary>
-    /// rtp ts 负载的pt
-    /// </summary>
-    public string Ts_Pt
-    {
-        get => _ts_pt;
-        set => _ts_pt = value;
-    }
-
-    /// <summary>
     /// rtp opus 负载的pt
     /// </summary>
     public string Opus_Pt
@@ -100,20 +91,7 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
     }
 
     /// <summary>
-    /// rtp g711u 负载的pt
-    /// </summary>
-    public string G711U_Pt
-    {
-        get => _g711u_pt;
-        set => _g711u_pt = value;
-    }
-
-    /// <summary>
     /// rtp g711a 负载的pt
     /// </summary>
-    public string G711A_Pt
-    {
-        get => _g711a_pt;
-        set => _g711a_pt = value;
-    }
+    public string? Gop_Cache { get; set; } = "1";
 }
