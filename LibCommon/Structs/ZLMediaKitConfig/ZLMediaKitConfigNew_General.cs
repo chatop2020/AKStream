@@ -15,6 +15,10 @@ public class ZLMediaKitConfigNew_General
     private int? _wait_track_ready_ms;
     private int? _wait_add_track_ms;
     private int? _unready_frame_cache;
+    private int? _check_nvidia_dev;
+    private int? _enable_ffmpeg_log;
+    
+
 
     /// <summary>
     /// 是否启用虚拟主机
@@ -113,5 +117,23 @@ public class ZLMediaKitConfigNew_General
     {
         get => _unready_frame_cache;
         set => _unready_frame_cache = value;
+    }
+
+    /// <summary>
+    /// 是否检测nvidia设备
+    /// </summary>
+    public int? Check_Nvidia_Dev
+    {
+        get => _check_nvidia_dev;
+        set => _check_nvidia_dev = value;
+    }
+
+    /// <summary>
+    /// 是否开启ffmpeg日志
+    /// </summary>
+    public int? Enable_FFmpeg_Log
+    {
+        get => _enable_ffmpeg_log;
+        set => _enable_ffmpeg_log = value;
     }
 }

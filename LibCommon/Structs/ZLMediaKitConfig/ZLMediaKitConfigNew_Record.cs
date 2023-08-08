@@ -6,10 +6,10 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 public class ZLMediaKitConfigNew_Record
 {
     private string? _appName;
-    private int? _fileBufSize;
-    private int? _sampleMS;
     private int? _fastStart;
+    private int? _fileBufSize;
     private int? _fileRepeat;
+    private int? _sampleMS;
 
     /// <summary>
     /// mp4录制或mp4点播的应用名，通过限制应用名，可以防止随意点播

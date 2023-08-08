@@ -6,9 +6,11 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 public class ZLMediaKitConfigNew_RTP
 {
     private int? _audioMtuSize;
-    private int? _videoMtuSize;
-    private int? _rtpMaxSize;
+    private int? _h264_stap_a;
     private int? _lowLatency;
+    private int? _rtpMaxSize;
+    private int? _videoMtuSize;
+    
 
     /// <summary>
     /// 音频mtu大小，该参数限制rtp最大字节数，推荐不要超过1400
@@ -52,5 +54,11 @@ public class ZLMediaKitConfigNew_RTP
     /// 有些老的rtsp设备不支持stap-a rtp，设置此配置为0可提高兼容性
     /// </summary>
     /// <value></value>
-    public int? H264_Stap_A {get; set;}=1;
+    public int? H264_Stap_A
+    {
+        get => _h264_stap_a;
+        set => _h264_stap_a = value;
+    }
+
+ 
 }

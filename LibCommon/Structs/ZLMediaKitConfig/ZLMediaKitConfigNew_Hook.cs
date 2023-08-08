@@ -5,7 +5,7 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 [Serializable]
 public class ZLMediaKitConfigNew_Hook
 {
-    private string? _admin_params;
+    private float? _alive_interval;
     private int? _enable;
     private string? _on_flow_report;
     private string? _on_http_access;
@@ -13,30 +13,22 @@ public class ZLMediaKitConfigNew_Hook
     private string? _on_publish;
     private string? _on_record_mp4;
     private string? _on_record_ts;
+    private string? _on_rtp_server_timeout;
     private string? _on_rtsp_auth;
     private string? _on_rtsp_realm;
+    private string? _on_send_rtp_stopped;
+    private string? _on_server_exited;
+    private string? _on_server_keepalive;
+    private string? _on_server_started;
     private string? _on_shell_login;
     private string? _on_stream_changed;
     private string? _on_stream_none_reader;
     private string? _on_stream_not_found;
-    private string? _on_server_started;
-    private string? _on_server_keepalive;
-    private string? _on_send_rtp_stopped;
-    private string? _on_rtp_server_timeout;
-    private int? _timeoutSec;
-    private float? _alive_interval;
     private int? _retry;
     private float? _retry_delay;
-
-    /// <summary>
-    /// #在推流时，如果url参数匹对admin_params，那么可以不经过hook鉴权直接推流成功，播放时亦然
-    /// 该配置项的目的是为了开发者自己调试测试，该参数暴露后会有泄露隐私的安全隐患
-    /// </summary>
-    public string Admin_Params
-    {
-        get => _admin_params;
-        set => _admin_params = value;
-    }
+    private int? _timeoutSec;
+ 
+    
 
     /// <summary>
     /// 是否启用hook事件，启用后，推拉流都将进行鉴权
@@ -183,6 +175,16 @@ public class ZLMediaKitConfigNew_Hook
         get => _on_send_rtp_stopped;
         set => _on_send_rtp_stopped = value;
     }
+
+    /// <summary>
+    /// 服务器退出报告，当服务器正常退出时触发
+    /// </summary>
+    public string? On_Server_Exited
+    {
+        get => _on_server_exited;
+        set => _on_server_exited = value;
+    }
+
 
     /// <summary>
     /// rtp server 超时未收到数据

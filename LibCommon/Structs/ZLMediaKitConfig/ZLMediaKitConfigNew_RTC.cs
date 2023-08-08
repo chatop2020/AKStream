@@ -5,13 +5,13 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 [Serializable]
 public class ZLMediaKitConfigNew_RTC
 {
-    private int? _timeoutSec;
     private string? _externIP;
     private ushort? _port;
-    private ushort? _tcpPort;
-    private int? _rembBitRate;
     private string? _preferredCodecA;
     private string? _preferredCodecV;
+    private int? _rembBitRate;
+    private ushort? _tcpPort;
+    private int? _timeoutSec;
 
     /// <summary>
     /// rtc播放推流、播放超时时间

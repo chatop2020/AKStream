@@ -7,7 +7,6 @@ public class ZLMediaKitConfigNew_RTMP
 {
     private int? _handshakeSecond;
     private int? _keepAliveSecond;
-    private int? _modifyStamp;
     private ushort? _port;
     private ushort? _sslport;
 
