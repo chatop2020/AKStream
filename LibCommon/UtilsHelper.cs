@@ -15,6 +15,7 @@ using System.Xml.Serialization;
 using LibCommon.Structs;
 using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
+using StreamWriter = System.IO.StreamWriter;
 
 namespace LibCommon
 {
@@ -23,6 +24,39 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+        /// <summary>
+        /// 移除bom头
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public static bool WithOutBomHeader(string filePath)
+        {
+            string config = File.ReadAllText(filePath);
+            var utf8WithoutBom = new UTF8Encoding(false); //使用构造函数布尔参数指定是否含BOM头，示例false为不含。
+            using (var sink = new StreamWriter(filePath, false, utf8WithoutBom))
+            {
+                sink.WriteLine(config);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// 是否有bom头
+        /// </summary>
+        /// <param name="bs"></param>
+        /// <returns></returns>
+        public static bool IsBomHeader(byte[] bs)
+        {
+            int len = bs.Length;
+            if (len >= 3 && bs[0] == 0xEF && bs[1] == 0xBB && bs[2] == 0xBF)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
         /// <summary>
         /// 目录是否为外部挂载，并且可写状态
         /// </summary>
@@ -72,6 +106,7 @@ namespace LibCommon
                                     driverName = tmpStrArr2[0];
                                     rootPath = tmpStrArr2[5];
                                 }
+
                                 if (string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(driverName))
                                 {
                                     return -1;
@@ -146,7 +181,7 @@ namespace LibCommon
                                 {
                                     return -2;
                                 }
-                                
+
                                 return 0;
                             }
                         }
@@ -159,7 +194,7 @@ namespace LibCommon
             }
 
             #endregion
-            
+
             return -1;
         }
 
