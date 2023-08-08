@@ -6,16 +6,16 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 public class ZLMediaKitConfigNew_Rtp_Proxy
 {
     private string? _dumpDir;
-    private ushort? _port;
-    private int? _timeoutSec;
-    private string? _port_range;
+    private int? _gop_cache;
     private string? _h264_pt;
     private string? _h265_pt;
-    private string? _ps_pt;
-    private string? _ts_pt;
     private string? _opus_pt;
-    private string? _g711u_pt;
-    private string? _g711a_pt;
+    private ushort? _port;
+    private string? _port_range;
+    private string? _ps_pt;
+    private int? _timeoutSec;
+    
+   
 
     /// <summary>
     /// 导出调试数据(包括rtp/ps/h264)至该目录,置空则关闭数据导出
@@ -89,9 +89,13 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
         get => _opus_pt;
         set => _opus_pt = value;
     }
-
     /// <summary>
     /// rtp g711a 负载的pt
     /// </summary>
-    public string? Gop_Cache { get; set; } = "1";
+    public int? Gop_Cache
+    {
+        get => _gop_cache;
+        set => _gop_cache = value;
+    }
+   
 }

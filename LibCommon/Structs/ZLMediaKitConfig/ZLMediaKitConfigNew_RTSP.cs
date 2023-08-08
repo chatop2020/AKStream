@@ -9,9 +9,12 @@ public class ZLMediaKitConfigNew_RTSP
     private int? _directProxy;
     private int? _handshakeSecond;
     private int? _keepAliveSecond;
-    private ushort? _port;
-    private ushort? _sslport;
     private int? _lowLatency;
+    private ushort? _port;
+    private int? _rtpTransportType;
+    private ushort? _sslport;
+  
+   
 
     /// <summary>
     /// rtsp专有鉴权方式是采用base64还是md5方式
@@ -89,5 +92,11 @@ public class ZLMediaKitConfigNew_RTSP
     /// 迫使客户端重新SETUP并切换到对应协议。目前支持FFMPEG和VLC
     /// </summary>
     /// <value></value>
-    public int? RtpTransportType { get; set; } = -1;
+    public int? RtpTransportType
+    {
+        get => _rtpTransportType;
+        set => _rtpTransportType = value;
+    }
+
+  
 }

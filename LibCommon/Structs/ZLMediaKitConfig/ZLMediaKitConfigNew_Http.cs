@@ -5,7 +5,12 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 [Serializable]
 public class ZLMediaKitConfigNew_Http
 {
+    private string? _allow_cross_domains;
+    private string? _allow_ip_range;
     private string? _charSet;
+    private int? _dirMenu;
+    private string? _forbidCacheSuffix;
+    private string? _forwarded_ip_header;
     private int? _keepAliveSecond;
     private int? _maxReqSize;
     private string? _notFound;
@@ -13,10 +18,10 @@ public class ZLMediaKitConfigNew_Http
     private string? _rootPath;
     private int? _sendBufSize;
     private ushort? _sslport;
-    private int? _dirMenu;
     private string? _virtualPath;
-    private string? _forbidCacheSuffix;
-    private string? _forwarded_ip_header;
+  
+
+ 
 
     /// <summary>
     /// http服务器字符编码，windows上默认gb2312
@@ -137,10 +142,18 @@ public class ZLMediaKitConfigNew_Http
     /// <summary>
     /// 默认允许所有跨域请求
     /// </summary>
-    public string? Allow_Cross_Domains { get; set; } = "";
-
+    public string? Allow_Cross_Domains
+    {
+        get => _allow_cross_domains;
+        set => _allow_cross_domains = value;
+    }
     /// <summary>
     /// 允许访问http api和http文件索引的ip地址范围白名单，置空情况下不做限制
     /// </summary>
-    public string? Allow_Ip_Range { get; set; } = "";
+    public string? Allow_Ip_Range
+    {
+        get => _allow_ip_range;
+        set => _allow_ip_range = value;
+    }
+    
 }

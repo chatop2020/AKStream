@@ -12,7 +12,8 @@ public class ZLMediaKitConfigNew_HLS
     private int? _broadcastRecordTs;
     private int? _deleteDelaySec;
     private int? _segKeep;
-
+    
+    
     /// <summary>
     /// hls写文件的buf大小，调整参数可以提高文件io性能
     /// </summary>
