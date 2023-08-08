@@ -31,15 +31,6 @@ public class ZLMediaKitConfigNew_RTMP
     }
 
     /// <summary>
-    /// 在接收rtmp推流时，是否重新生成时间戳(很多推流器的时间戳着实很烂)
-    /// </summary>
-    public int? ModifyStamp
-    {
-        get => _modifyStamp;
-        set => _modifyStamp = value;
-    }
-
-    /// <summary>
     /// rtmp服务器监听端口
     /// </summary>
     public ushort? Port
