@@ -805,6 +805,16 @@ namespace AKStreamKeeper
                         }
 
                         parser.WriteFile(_configPath, data);
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                            if (UtilsHelper.IsBomHeader(fileByte))
+                            {
+                                UtilsHelper.WithOutBomHeader(_configPath);
+                            }
+                        }
+
+                        
                         return true;
                     }
                     catch (Exception ex)
@@ -961,6 +971,16 @@ namespace AKStreamKeeper
                         }
 
                         parser.WriteFile(_configPath, data);
+
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                            if (UtilsHelper.IsBomHeader(fileByte))
+                            {
+                                UtilsHelper.WithOutBomHeader(_configPath);
+                            }
+                        }
+
                         return ok;
                     }
                     catch (Exception ex)
