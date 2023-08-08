@@ -133,4 +133,14 @@ public class ZLMediaKitConfigNew_Http
         get => _forwarded_ip_header;
         set => _forwarded_ip_header = value;
     }
+
+    /// <summary>
+    /// 默认允许所有跨域请求
+    /// </summary>
+    public string? Allow_Cross_Domains { get; set; } = "";
+
+    /// <summary>
+    /// 允许访问http api和http文件索引的ip地址范围白名单，置空情况下不做限制
+    /// </summary>
+    public string? Allow_Ip_Range { get; set; } = "";
 }

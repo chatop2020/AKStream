@@ -222,6 +222,11 @@ public class ZLMediaKitConfigNew
                     data["protocol"]["add_mute_audio"] = Protocol.Add_Mute_Audio.ToString();
                 }
 
+                if (Protocol.Auto_Close != null && UtilsHelper.IsInteger(Protocol.Auto_Close.ToString()))
+                {
+                    data["protocol"]["auto_close"] = Protocol.Auto_Close.ToString();
+                }
+
                 if (Protocol.Continue_Push_Ms != null && UtilsHelper.IsInteger(Protocol.Continue_Push_Ms.ToString()))
                 {
                     data["protocol"]["continue_push_ms"] = Protocol.Continue_Push_Ms.ToString();
@@ -230,6 +235,11 @@ public class ZLMediaKitConfigNew
                 if (Protocol.Enable_Hls != null && UtilsHelper.IsInteger(Protocol.Enable_Hls.ToString()))
                 {
                     data["protocol"]["enable_hls"] = Protocol.Enable_Hls.ToString();
+                }
+
+                if (Protocol.Enable_Hls_Fmp4 != null && UtilsHelper.IsInteger(Protocol.Enable_Hls_Fmp4.ToString()))
+                {
+                    data["protocol"]["enable_hls_fmp4"] = Protocol.Enable_Hls_Fmp4.ToString();
                 }
 
                 if (Protocol.Enable_Mp4 != null && UtilsHelper.IsInteger(Protocol.Enable_Mp4.ToString()))
@@ -604,6 +614,16 @@ public class ZLMediaKitConfigNew
                 {
                     data["http"]["forwarded_ip_header"] = Http.Forwarded_Ip_Header.Trim();
                 }
+
+                if (!string.IsNullOrEmpty(Http.Allow_Cross_Domains))
+                {
+                    data["http"]["allow_cross_domains"] = Http.Allow_Cross_Domains.Trim();
+                }
+
+                if (!string.IsNullOrEmpty(Http.Allow_Ip_Range))
+                {
+                    data["http"]["allow_ip_range"] = Http.Allow_Ip_Range.Trim();
+                }
             }
 
             #endregion
@@ -676,11 +696,6 @@ public class ZLMediaKitConfigNew
                     data["rtmp"]["keepAliveSecond"] = Rtmp.KeepAliveSecond.ToString();
                 }
 
-                if (Rtmp.ModifyStamp != null && UtilsHelper.IsInteger(Rtmp.ModifyStamp.ToString()))
-                {
-                    data["rtmp"]["modifyStamp"] = Rtmp.ModifyStamp.ToString();
-                }
-
                 if (Rtmp.Port != null && UtilsHelper.IsUShort(Rtmp.Port.ToString()))
                 {
                     data["rtmp"]["port"] = Rtmp.Port.ToString();
@@ -716,6 +731,11 @@ public class ZLMediaKitConfigNew
                 if (Rtp.LowLatency != null && UtilsHelper.IsInteger(Rtp.LowLatency.ToString()))
                 {
                     data["rtp"]["lowLatency"] = Rtp.LowLatency.ToString();
+                }
+
+                if (Rtp.H264_Stap_A != null && UtilsHelper.IsInteger(Rtp.H264_Stap_A.ToString()))
+                {
+                    data["rtp"]["h264_stap_a"] = Rtp.H264_Stap_A.ToString();
                 }
             }
 
@@ -760,24 +780,9 @@ public class ZLMediaKitConfigNew
                     data["rtp_proxy"]["ps_pt"] = Rtp_Proxy.Ps_Pt.Trim();
                 }
 
-                if (!string.IsNullOrEmpty(Rtp_Proxy.Ts_Pt))
-                {
-                    data["rtp_proxy"]["ts_pt"] = Rtp_Proxy.Ts_Pt.Trim();
-                }
-
                 if (!string.IsNullOrEmpty(Rtp_Proxy.Opus_Pt))
                 {
                     data["rtp_proxy"]["opus_pt"] = Rtp_Proxy.Opus_Pt.Trim();
-                }
-
-                if (!string.IsNullOrEmpty(Rtp_Proxy.G711U_Pt))
-                {
-                    data["rtp_proxy"]["g711u_pt"] = Rtp_Proxy.G711U_Pt.Trim();
-                }
-
-                if (!string.IsNullOrEmpty(Rtp_Proxy.G711A_Pt))
-                {
-                    data["rtp_proxy"]["g711a_pt"] = Rtp_Proxy.G711A_Pt.Trim();
                 }
             }
 
@@ -890,6 +895,11 @@ public class ZLMediaKitConfigNew
                 {
                     data["rtsp"]["lowLatency"] = Rtsp.LowLatency.ToString();
                 }
+
+                if (Rtsp.RtpTransportType != null && UtilsHelper.IsInteger(Rtsp.RtpTransportType.ToString()))
+                {
+                    data["rtsp"]["rtpTransportType"] = Rtsp.RtpTransportType.ToString();
+                }
             }
 
             #endregion
@@ -908,7 +918,7 @@ public class ZLMediaKitConfigNew
 
             #endregion
 
-            parser.WriteFile(configPath, data);
+            parser.WriteFile(configPath, data, Encoding.UTF8);
             return true;
         }
         catch (Exception ex)
@@ -1066,6 +1076,13 @@ public class ZLMediaKitConfigNew
                 Protocol.Add_Mute_Audio = int.Parse(add_mute_audio);
             }
 
+            var auto_close = data["protocol"]["auto_close"];
+            if (auto_close != null && !string.IsNullOrEmpty(auto_close) &&
+                UtilsHelper.IsInteger(auto_close))
+            {
+                Protocol.Auto_Close = int.Parse(auto_close);
+            }
+
             var continue_push_ms = data["protocol"]["continue_push_ms"];
             if (continue_push_ms != null && !string.IsNullOrEmpty(continue_push_ms) &&
                 UtilsHelper.IsInteger(continue_push_ms))
@@ -1077,6 +1094,12 @@ public class ZLMediaKitConfigNew
             if (enable_hls != null && !string.IsNullOrEmpty(enable_hls) && UtilsHelper.IsInteger(enable_hls))
             {
                 Protocol.Enable_Hls = int.Parse(enable_hls);
+            }
+
+            var enable_hls_fmp4 = data["protocol"]["enable_hls_fmp4"];
+            if (enable_hls_fmp4 != null && !string.IsNullOrEmpty(enable_hls_fmp4) && UtilsHelper.IsInteger(enable_hls_fmp4))
+            {
+                Protocol.Enable_Hls_Fmp4 = int.Parse(enable_hls_fmp4);
             }
 
             var enable_mp4 = data["protocol"]["enable_mp4"];
@@ -1546,6 +1569,18 @@ public class ZLMediaKitConfigNew
                 Http.Forwarded_Ip_Header = forwarded_ip_header.Trim();
             }
 
+            var allow_cross_domains = data["http"]["allow_cross_domains"];
+            if (allow_cross_domains != null && !string.IsNullOrEmpty(allow_cross_domains))
+            {
+                Http.Allow_Cross_Domains = allow_cross_domains.Trim();
+            }
+
+            var allow_ip_range = data["http"]["allow_ip_range"];
+            if (allow_ip_range != null && !string.IsNullOrEmpty(allow_ip_range))
+            {
+                Http.Allow_Ip_Range = allow_ip_range.Trim();
+            }
+
             #endregion
 
             #region multicast 部分
@@ -1636,12 +1671,6 @@ public class ZLMediaKitConfigNew
                 Rtmp.KeepAliveSecond = int.Parse(rtmp_keepAliveSecond);
             }
 
-            var modifyStamp = data["rtmp"]["modifyStamp"];
-            if (modifyStamp != null && !string.IsNullOrEmpty(modifyStamp) && UtilsHelper.IsInteger(modifyStamp))
-            {
-                Rtmp.ModifyStamp = int.Parse(modifyStamp);
-            }
-
             var rtmp_port = data["rtmp"]["port"];
             if (rtmp_port != null && !string.IsNullOrEmpty(rtmp_port) && UtilsHelper.IsUShort(rtmp_port))
             {
@@ -1688,6 +1717,12 @@ public class ZLMediaKitConfigNew
             if (lowLatency != null && !string.IsNullOrEmpty(lowLatency) && UtilsHelper.IsInteger(lowLatency))
             {
                 Rtp.LowLatency = int.Parse(lowLatency);
+            }
+
+            var h264_stap_a = data["rtp"]["h264_stap_a"];
+            if (h264_stap_a != null && !string.IsNullOrEmpty(h264_stap_a) && UtilsHelper.IsInteger(h264_stap_a))
+            {
+                Rtp.H264_Stap_A = int.Parse(h264_stap_a);
             }
 
             #endregion
@@ -1743,28 +1778,10 @@ public class ZLMediaKitConfigNew
                 Rtp_Proxy.Ps_Pt = ps_pt.Trim();
             }
 
-            var ts_pt = data["rtp_proxy"]["ts_pt"];
-            if (ts_pt != null && !string.IsNullOrEmpty(ts_pt))
-            {
-                Rtp_Proxy.Ts_Pt = ts_pt.Trim();
-            }
-
             var opus_pt = data["rtp_proxy"]["opus_pt"];
             if (opus_pt != null && !string.IsNullOrEmpty(opus_pt))
             {
                 Rtp_Proxy.Opus_Pt = opus_pt.Trim();
-            }
-
-            var g711u_pt = data["rtp_proxy"]["g711u_pt"];
-            if (g711u_pt != null && !string.IsNullOrEmpty(g711u_pt))
-            {
-                Rtp_Proxy.G711A_Pt = g711u_pt.Trim();
-            }
-
-            var g711a_pt = data["rtp_proxy"]["g711a_pt"];
-            if (g711a_pt != null && !string.IsNullOrEmpty(g711a_pt))
-            {
-                Rtp_Proxy.G711A_Pt = g711a_pt.Trim();
             }
 
             #endregion
@@ -1906,6 +1923,13 @@ public class ZLMediaKitConfigNew
                 UtilsHelper.IsInteger(rtsp_lowLatency))
             {
                 Rtsp.LowLatency = int.Parse(rtsp_lowLatency);
+            }
+
+            var rtpTransportType = data["rtsp"]["rtpTransportType"];
+            if (rtpTransportType != null && !string.IsNullOrEmpty(rtpTransportType) &&
+                UtilsHelper.IsInteger(rtpTransportType))
+            {
+                Rtsp.RtpTransportType = int.Parse(rtpTransportType);
             }
 
             #endregion
