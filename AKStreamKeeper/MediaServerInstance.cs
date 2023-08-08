@@ -941,6 +941,11 @@ namespace AKStreamKeeper
                             _zlmNewConfig.Record.FastStart = 1;
                         }
 
+                        if (string.IsNullOrEmpty(_zlmNewConfig.Api.Secret) || _zlmNewConfig.Api.Secret.Trim().ToLower()
+                                .Equals("035c73f7-bb6b-4889-a715-d9eb2d1925cc"))
+                        {
+                            _zlmNewConfig.Api.Secret = UtilsHelper.GeneralGuid();
+                        }
 
                         var ok = _zlmNewConfig.SetConfig(_configPath);
                         var parser = new FileIniDataParser();
@@ -1569,6 +1574,8 @@ namespace AKStreamKeeper
                         };
                         throw new AkStreamException(rs);
                     }
+
+                   
                 }
 
 
@@ -1579,6 +1586,8 @@ namespace AKStreamKeeper
                 catch
                 {
                 }
+                
+             
 
                 return true;
             }
