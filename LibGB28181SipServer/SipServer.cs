@@ -54,6 +54,8 @@ namespace LibGB28181SipServer
                 Common.SipServerConfigPath = outConfigPath + "SipServerConfig.json";
             }
 
+            Common.SipServerConfigPath = UtilsHelper.FindPreferredConfigFile(Common.SipServerConfigPath);//查找优先使用的配置文件
+
             var ret = Common.ReadSipServerConfig(out rs);
 
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))

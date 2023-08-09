@@ -87,6 +87,7 @@ namespace AKStreamWeb
 
                 _configPath = GCommon.OutConfigPath + "AKStreamWeb.json";
             }
+            _configPath = UtilsHelper.FindPreferredConfigFile(_configPath);//查找优先使用的配置文件
 
             StartupDateTime = DateTime.Now;
             string supportDataBaseList = "MySql\r\n" +

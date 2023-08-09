@@ -1004,6 +1004,7 @@ namespace LibGB28181SipClient
                 Common.SipClientConfigPath = outConfigPath + "SipClientConfig.json";
             }
 
+            Common.SipClientConfigPath = UtilsHelper.FindPreferredConfigFile(Common.SipClientConfigPath);//查找优先使用的配置文件
             var ret = Common.ReadSipClientConfig(out rs);
             if (ret < 0 || !rs.Code.Equals(ErrorNumber.None))
             {

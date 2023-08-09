@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,6 +25,50 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
+
+        /// <summary>
+        /// 查找优先使用的config文件
+        /// Config文件名同名，但后缀包含.local的将被优先使用
+        /// 比如：AKStreamKeeperConfig.json这个配置文件，如果在同目录下发现有AKStreamKeeperConfig.json.local文件
+        /// 将被优先使用
+        /// 不存在.lcaol文件，将使用本文件，如上述例子将使用AKStreamKeeperConfig.json文件
+        /// </summary>
+        /// <param name="configPath"></param>
+        /// <returns></returns>
+        public static string FindPreferredConfigFile(string configPath)
+        {
+            var path = Path.GetDirectoryName(configPath);
+            var fileName = Path.GetFileName(configPath);
+            var isWindows = false;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                path = path.Trim().TrimEnd('\\');
+                isWindows = true;
+            }
+            else
+            {
+                path = path.Trim().TrimEnd('/');
+            }
+            
+            if (Directory.Exists(path) && File.Exists(configPath))
+            {
+                if (isWindows)
+                {
+                    if (File.Exists($"{path}\\{fileName}.local"))
+                    {
+                        return $"{path}\\{fileName}.local";
+                    } 
+                }
+                else
+                {
+                    if (File.Exists($"{path}/{fileName}.local"))
+                    {
+                        return $"{path}/{fileName}.local";
+                    }  
+                }
+            }
+            return configPath;
+        }
         /// <summary>
         /// 移除bom头
         /// </summary>
