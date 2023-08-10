@@ -1,20 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <Nullable>disable</Nullable>
-        <LangVersion>default</LangVersion>
-    </PropertyGroup>
+      <TargetFramework>net6.0</TargetFramework>
+      <Nullable>disable</Nullable>
+      <LangVersion>default</LangVersion>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin/Debug/net6.0/LibSystemInfo.xml</DocumentationFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin/Release/net6.0/LibSystemInfo.xml</DocumentationFile>
-    </PropertyGroup>
-
-    <ItemGroup>
+	<ItemGroup>
       <ProjectReference Include="..\LibCommon\LibCommon.csproj" />
       <ProjectReference Include="..\SystemInfoLibrary\src\SystemInfoLibrary.Standard\SystemInfoLibrary.Standard.csproj" />
     </ItemGroup>

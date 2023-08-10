@@ -1,17 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <RootNamespace>LibMediaServer</RootNamespace>
-        <LangVersion>default</LangVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\LibMediaServer.xml</DocumentationFile>
-    </PropertyGroup>
-
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\LibMediaServer.xml</DocumentationFile>
+      <TargetFramework>net6.0</TargetFramework>
+      <RootNamespace>LibMediaServer</RootNamespace>
+      <LangVersion>default</LangVersion>
+      <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
