@@ -10,12 +10,13 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamKeeper.Controllers
 {
+    /// <summary>
+    /// 流媒体服务器相关接口
+    /// </summary>
     [Log]
     [AuthVerify]
     [ApiController]
     [Route("/ApiService")]
-    
-    
     [SwaggerTag("流媒体服务器相关接口")]
     public class ApiServiceController : ControllerBase
     {
