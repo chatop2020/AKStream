@@ -8,6 +8,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamKeeper.Controllers
 {
+    /// <summary>
+    /// 裁剪与合并视频相关接口
+    /// </summary>
     [Log]
     [AuthVerify]
     [ApiController]

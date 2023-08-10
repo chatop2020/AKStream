@@ -8,6 +8,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamWeb.Controllers
 {
+    /// <summary>
+    /// 流媒体服务器治理的相关接口
+    /// </summary>
     [Log]
     [AuthVerify]
     [ApiController]
