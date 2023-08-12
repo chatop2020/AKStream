@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using AKStreamWeb.Services;
 using LibCommon;
+using LibCommon.Enums;
 using LibCommon.Structs.DBModels;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
 
@@ -15,6 +18,9 @@ namespace AKStreamWeb.AutoTask
         private DateTime _deleteOldVideoTick = DateTime.Now;
         private DateTime _cleanUpEmptyDirTick = DateTime.Now;
         private DateTime _mediaListCleanTick = DateTime.Now;
+        private Thread RunDeleteOrphanDataHandle = null;
+        private bool canSuspend = true;
+        private ThreadState oldState = ThreadState.Running;
 
         public AutoTaskOther()
         {
@@ -28,6 +34,211 @@ namespace AKStreamWeb.AutoTask
                 {
                 }
             })).Start();
+
+            ThreadStart entry = new ThreadStart(RunDeleteOrphanData);
+            RunDeleteOrphanDataHandle = new Thread(entry);
+            RunDeleteOrphanDataHandle.Start();
+
+            new Thread(new ThreadStart(delegate
+            {
+                try
+                {
+                    CheckIdleRun();
+                }
+                catch
+                {
+                }
+            })).Start();
+        }
+
+
+        /// <summary>
+        /// 检测资源是否空闲，cpu占用率低于35%时认为是空闲状态
+        /// </summary>
+        private void CheckIdleRun()
+        {
+            ResponseStruct rs = null;
+            var oldStatus = false;
+
+            while (true)
+            {
+                if (Common.WebPerformanceInfo != null && Common.WebPerformanceInfo.CpuLoad < 35f)
+                {
+                    if (RunDeleteOrphanDataHandle.ThreadState == ThreadState.Suspended)
+                    {
+                        RunDeleteOrphanDataHandle.Resume();
+                    }
+                }
+                else
+                {
+                    while (!canSuspend)
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    if (RunDeleteOrphanDataHandle.ThreadState == ThreadState.Running)
+                    {
+                        RunDeleteOrphanDataHandle.Suspend();
+                    }
+                }
+
+                if (oldState != RunDeleteOrphanDataHandle.ThreadState)
+                {
+                    oldState = RunDeleteOrphanDataHandle.ThreadState;
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->当前双向清理孤立数据功能状态为：{RunDeleteOrphanDataHandle.ThreadState}->CPUUsage:{Common.WebPerformanceInfo.CpuLoad}%");
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
+        /// <summary>
+        /// 当相对空闲时双向清理孤立数据，（双向孤立数据：mysql中存在而磁盘不存在，磁盘存在而mysql不存在的数据）
+        /// </summary>
+        private void RunDeleteOrphanData()
+        {
+            canSuspend = true;
+            int i = 0;
+            DeleteOrphanDataDir.DataDir dir;
+            while (true)
+            {
+                i++;
+                dir = UtilsHelper.IsOdd(i) ? (DeleteOrphanDataDir.DataDir.MySql) : (DeleteOrphanDataDir.DataDir.Disk);
+                switch (dir)
+                {
+                    case DeleteOrphanDataDir.DataDir.Disk:
+                        try
+                        {
+                            List<string> fileRecordDropList = new List<string>();
+                            foreach (var mediaServer in Common.MediaServerList)
+                            {
+                                canSuspend = false;
+                                if (mediaServer != null && mediaServer.IsKeeperRunning)
+                                {
+                                    canSuspend = true;
+                                    if (mediaServer.RecordPathList != null && mediaServer.RecordPathList.Count > 0)
+                                    {
+                                        foreach (var recordPath in mediaServer.RecordPathList)
+                                        {
+                                            var dirPath = recordPath.Value;
+                                            if (Directory.Exists(dirPath))
+                                            {
+                                                DirectoryInfo di = new DirectoryInfo(dirPath);
+                                                canSuspend = false;
+                                                FileInfo[] fis = di.GetFiles("*.mp4", SearchOption.AllDirectories);
+                                                canSuspend = true;
+                                                if (fis != null && fis.Length > 0)
+                                                {
+                                                    foreach (var f in fis)
+                                                    {
+                                                        if (f.Exists)
+                                                        {
+                                                            canSuspend = false;
+                                                            var exists = ORMHelper.Db.Select<RecordFile>()
+                                                                .Where(x => x.VideoPath.Equals(f.FullName.Trim()))
+                                                                .ToOne();
+                                                            canSuspend = true;
+                                                            if (exists == null || (exists.Deleted == true &&
+                                                                    exists.Undo == false)) //记录不存在，或者被硬删除
+                                                            {
+                                                                fileRecordDropList.Add(f.FullName);
+                                                            }
+                                                        }
+
+                                                        Thread.Sleep(200);
+                                                    }
+
+                                                    if (fileRecordDropList != null && fileRecordDropList.Count > 0)
+                                                    {
+                                                        foreach (var file in fileRecordDropList)
+                                                        {
+                                                            canSuspend = false;
+                                                            var s = mediaServer.KeeperWebApi.DeleteFile(out _, file);
+                                                            GCommon.Logger.Debug(
+                                                                $"[{Common.LoggerHead}]->双向清理孤立数据->Disk->{file}->{(s ? "成功" : "失败")}");
+                                                            canSuspend = true;
+                                                            Thread.Sleep(200);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Thread.Sleep(200);
+                                        }
+                                    }
+                                }
+
+                                canSuspend = true;
+                                Thread.Sleep(200);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            canSuspend = true;
+                            GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
+                        }
+
+                        break;
+                    case DeleteOrphanDataDir.DataDir.MySql:
+                        try
+                        {
+                            List<long> mysqlRecordDropList = new List<long>();
+                            canSuspend = false;
+                            var recordList = ORMHelper.Db.Select<RecordFile>().Where(x => x.Deleted == false).ToList();
+                            canSuspend = true;
+                            foreach (var record in recordList)
+                            {
+                                if (record != null)
+                                {
+                                    var filePath = record.VideoPath;
+                                    var mediaserver2 = Common.MediaServerList.FindLast(x =>
+                                        x.MediaServerId.Equals(record.MediaServerId));
+                                    if (mediaserver2 != null && mediaserver2.IsKeeperRunning &&
+                                        !string.IsNullOrEmpty(filePath))
+                                    {
+                                        canSuspend = false;
+                                        var exists = mediaserver2.KeeperWebApi.FileExists(out _, filePath);
+                                        Thread.Sleep(150);
+                                        canSuspend = true;
+                                        if (!exists)
+                                        {
+                                            mysqlRecordDropList.Add(record.Id);
+                                        }
+                                    }
+                                }
+
+                                Thread.Sleep(200);
+                            }
+
+                            if (mysqlRecordDropList != null && mysqlRecordDropList.Count > 0)
+                            {
+                                foreach (var id in mysqlRecordDropList)
+                                {
+                                    canSuspend = false;
+                                    var s2 = ORMHelper.Db.Delete<RecordFile>().Where(x => x.Id.Equals(id))
+                                        .ExecuteAffrows();
+                                    GCommon.Logger.Debug(
+                                        $"[{Common.LoggerHead}]->双向清理孤立数据->MySQL->{id}->{(s2 > 0 ? "成功" : "失败")}");
+                                    canSuspend = true;
+                                    Thread.Sleep(200);
+                                }
+                            }
+
+                            canSuspend = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            canSuspend = true;
+                            GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
+                        }
+
+                        break;
+                }
+
+                canSuspend = true;
+                Thread.Sleep(10000);
+            }
         }
 
         private void Run()
@@ -252,20 +463,22 @@ namespace AKStreamWeb.AutoTask
                         Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(retList[0].MediaServerId));
                     if (mediaServer != null && mediaServer.IsKeeperRunning)
                     {
-                        ResponseStruct   rs = new ResponseStruct()
+                        ResponseStruct rs = new ResponseStruct()
                         {
                             Code = ErrorNumber.None,
                             Message = ErrorMessage.ErrorDic![ErrorNumber.None],
                         };
-                       var delRet= AKStreamKeeperService.DeleteFileList(mediaServer.MediaServerId, deleteFileList, out rs);
-                       // var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
+                        var delRet =
+                            AKStreamKeeperService.DeleteFileList(mediaServer.MediaServerId, deleteFileList, out rs);
+                        // var delRet = mediaServer.KeeperWebApi.DeleteFileList(out _, deleteFileList);
 
-                       if (rs.Code == ErrorNumber.MediaServer_DiskExcept)
-                       {
-                           GCommon.Logger.Warn(
-                               $"[{Common.LoggerHead}]->删除24小时前被软删除记录文件时发生异常->{JsonHelper.ToJson(rs)}");
-                           return;
-                       }
+                        if (rs.Code == ErrorNumber.MediaServer_DiskExcept)
+                        {
+                            GCommon.Logger.Warn(
+                                $"[{Common.LoggerHead}]->删除24小时前被软删除记录文件时发生异常->{JsonHelper.ToJson(rs)}");
+                            return;
+                        }
+
                         #region debug sql output
 
                         if (Common.IsDebug)
