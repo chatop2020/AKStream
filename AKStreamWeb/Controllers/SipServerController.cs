@@ -10,6 +10,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamWeb.Controllers
 {
+    /// <summary>
+    /// Sip网关相关接口
+    /// </summary>
     [Log]
     [AuthVerify]
     [ApiController]

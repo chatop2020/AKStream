@@ -17,6 +17,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamWeb.Controllers
 {
+    /// <summary>
+    /// 流媒体相关接口
+    /// </summary>
     [Log]
     [ApiController]
     [Route("/MediaServer")]
