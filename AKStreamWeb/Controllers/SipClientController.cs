@@ -8,6 +8,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamWeb.Controllers
 {
+    /// <summary>
+    /// Sip客户端需要用的接口，第三方应用不需要关心此类接口
+    /// </summary>
     [Log]
     [ApiController]
     [Route("/SipClient")]

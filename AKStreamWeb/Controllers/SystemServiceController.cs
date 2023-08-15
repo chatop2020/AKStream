@@ -9,6 +9,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AKStreamWeb.Controllers
 {
+    /// <summary>
+    /// 系统相关API
+    /// </summary>
     [Log]
     [AuthVerify]
     [ApiController]
@@ -93,7 +96,7 @@ namespace AKStreamWeb.Controllers
 
         /// <summary>
         /// 获取部门信息
-        /// </summary> 
+        /// </summary>
         /// <param name="AccessKey"></param>
         /// <param name="req"></param>
         /// <returns></returns>
