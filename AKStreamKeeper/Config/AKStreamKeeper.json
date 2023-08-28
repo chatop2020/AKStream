@@ -22,5 +22,6 @@
   "DisableShell": false,
   "CheckLinuxDiskMount": false,
   "ZLMediakitSSLFilePath": "./sslfiles/",
-  "ListenIp": "127.0.0.1"
+  "ListenIp": "127.0.0.1",
+  "EnableRtspAuth": true
 }

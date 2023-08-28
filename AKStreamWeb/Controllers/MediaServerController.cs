@@ -27,6 +27,71 @@ namespace AKStreamWeb.Controllers
     public class MediaServerController : ControllerBase
     {
         /// <summary>
+        /// 添加一个rtsp鉴权记录
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("AddRtspAuthData")]
+        [HttpPost]
+        [AuthVerify]
+        public bool AddRtspAuthData([FromHeader(Name = "AccessKey")] UserAuth req)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.AddRtspAuthData(req, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+        
+        /// <summary>
+        /// 删除一个rtsp鉴权记录
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("DeleteRtspAuthData")]
+        [HttpPost]
+        [AuthVerify]
+        public bool DeleteRtspAuthData([FromHeader(Name = "AccessKey")] UserAuth req)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.DeleteRtspAuthData(req, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 获取rtsp鉴权列表
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("GetRtspAuthData")]
+        [HttpPost]
+        [AuthVerify]
+        public List<UserAuth> GetRtspAuthData([FromHeader(Name = "AccessKey")] UserAuth? req)
+        {
+            ResponseStruct rs;
+            var ret = MediaServerService.GetRtspAuthData(req, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
         /// 获取当前的开放的rtpServer列表
         /// </summary>
         /// <param name="AccessKey"></param>
