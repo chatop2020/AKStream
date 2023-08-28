@@ -44,6 +44,7 @@ namespace LibCommon
         Sys_DvrCutMergeFileNotFound = -1031, //时间周期内没有找到相关视频文件
         Sys_DvrCutProcessQueueLimit = -1032, //处理队列已满，请稍后再试
         Sys_AutoResetEventExcept = -1033, //AutoResetEventExcept
+        Sys_DB_UserAuthAlreadyExists = -1034, //数据库中指定鉴权记录已经存在
         Sip_StartExcept = -2000, //启动Sip服务异常
         Sip_StopExcept = -2001, //停止Sip服务异常
         Sip_Except_DisposeSipDevice = -2002, //Sip网关内部异常(销毁Sip设备时)
@@ -169,6 +170,7 @@ namespace LibCommon
             ErrorDic[ErrorNumber.MediaServer_ObjectNotExists] = "指定对象不存在";
             ErrorDic[ErrorNumber.MediaServer_RecordFileExcept] = "录制文件异常";
             ErrorDic[ErrorNumber.MediaServer_DiskExcept] = "磁盘异常";
+            ErrorDic[ErrorNumber.Sys_DB_UserAuthAlreadyExists] = "数据库中指定鉴权记录已存在";
             ErrorDic[ErrorNumber.Other] = "未知错误";
         }
     }

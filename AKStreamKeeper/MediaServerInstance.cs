@@ -773,8 +773,19 @@ namespace AKStreamKeeper
                             $"http://{h}:{p}/MediaServer/WebHook/OnRecordMp4"; //当录制mp4完成时
                         data["hook"]["on_record_ts"] =
                             $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
-                        data["hook"]["on_rtsp_auth"] = "";
-                        data["hook"]["on_rtsp_realm"] = "";
+                        if (Common.AkStreamKeeperConfig.EnableRtspAuth == true)
+                        {
+                            data["hook"]["on_rtsp_auth"] = $"http://{h}:{p}/MediaServer/WebHook/OnRtspAuth";
+                            data["hook"]["on_rtsp_realm"] = $"http://{h}:{p}/MediaServer/WebHook/OnRtspRealm";
+                            data["rtsp"]["authBasic"] = "1";
+
+                        }
+                        else
+                        {
+                            data["hook"]["on_rtsp_auth"] = "";
+                            data["hook"]["on_rtsp_realm"] = "";
+                            data["rtsp"]["authBasic"] = "0";
+                        }
                         data["hook"]["on_shell_login"] =
                             $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
                         data["hook"]["on_stream_changed"] =
@@ -805,16 +816,14 @@ namespace AKStreamKeeper
                         }
 
                         parser.WriteFile(_configPath, data);
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+
+                        var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                        if (UtilsHelper.IsBomHeader(fileByte))
                         {
-                            var fileByte = System.IO.File.ReadAllBytes(_configPath);
-                            if (UtilsHelper.IsBomHeader(fileByte))
-                            {
-                                UtilsHelper.WithOutBomHeader(_configPath);
-                            }
+                            UtilsHelper.WithOutBomHeader(_configPath);
                         }
 
-                        
+
                         return true;
                     }
                     catch (Exception ex)
@@ -909,8 +918,19 @@ namespace AKStreamKeeper
                         _zlmNewConfig.Hook.On_Record_Mp4 =
                             $"http://{h}:{p}/MediaServer/WebHook/OnRecordMp4"; //当录制mp4完成时
                         _zlmNewConfig.Hook.On_Record_Ts = $"http://{h}:{p}/MediaServer/WebHook/OnRecordTs"; //当录制ts完成时
-                        _zlmNewConfig.Hook.On_Rtsp_Auth = "";
-                        _zlmNewConfig.Hook.On_Rtsp_Realm = "";
+                        if (Common.AkStreamKeeperConfig.EnableRtspAuth == true)
+                        {
+                            _zlmNewConfig.Hook.On_Rtsp_Auth = $"http://{h}:{p}/MediaServer/WebHook/OnRtspAuth";
+                            _zlmNewConfig.Hook.On_Rtsp_Realm = $"http://{h}:{p}/MediaServer/WebHook/OnRtspRealm";
+                            _zlmNewConfig.Rtsp.AuthBasic = 1;
+                        }
+                        else
+                        {
+                            _zlmNewConfig.Hook.On_Rtsp_Auth = "";
+                            _zlmNewConfig.Hook.On_Rtsp_Realm = "";
+                            _zlmNewConfig.Rtsp.AuthBasic = 0;
+                        }
+
                         _zlmNewConfig.Hook.On_Shell_Login =
                             $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
                         _zlmNewConfig.Hook.On_Stream_Changed =
@@ -977,14 +997,13 @@ namespace AKStreamKeeper
 
                         parser.WriteFile(_configPath, data);
 
-                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+
+                        var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                        if (UtilsHelper.IsBomHeader(fileByte))
                         {
-                            var fileByte = System.IO.File.ReadAllBytes(_configPath);
-                            if (UtilsHelper.IsBomHeader(fileByte))
-                            {
-                                UtilsHelper.WithOutBomHeader(_configPath);
-                            }
+                            UtilsHelper.WithOutBomHeader(_configPath);
                         }
+
 
                         return ok;
                     }
@@ -1574,8 +1593,6 @@ namespace AKStreamKeeper
                         };
                         throw new AkStreamException(rs);
                     }
-
-                   
                 }
 
 
@@ -1586,8 +1603,7 @@ namespace AKStreamKeeper
                 catch
                 {
                 }
-                
-             
+
 
                 return true;
             }

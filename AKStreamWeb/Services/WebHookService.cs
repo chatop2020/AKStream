@@ -42,6 +42,120 @@ namespace AKStreamWeb.Services
         }
 
 
+        /// <summary>
+        /// 当需要rtsp鉴权时，返回该rtsp鉴权的专用盐（盐就是项目名称）
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public static ResToWebHookOnRtspRealm OnRtspRealm(ReqForWebHookOnRtspRealm req)
+        {
+            if (req != null && !string.IsNullOrEmpty(req.MediaServerId) && !string.IsNullOrEmpty(req.Params))
+            {
+                Uri uri = null;
+                try
+                {
+                    uri = new Uri(req.Params);
+                }
+                catch (Exception ex)
+                {
+                    ResponseStruct rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->解析Rtsp URI时发生异常->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
+                }
+
+                var userinfo = uri.UserInfo;
+                if (!string.IsNullOrEmpty(userinfo) && userinfo.Contains(':'))
+                {
+                    var strArr = userinfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                    if (strArr.Length == 2 && !string.IsNullOrEmpty(strArr[0]))
+                    {
+                        #region debug sql output
+
+                        if (Common.IsDebug)
+                        {
+                            var sql = ORMHelper.Db.Select<UserAuth>()
+                                .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
+                                .Where(x => x.Username.Equals(strArr[0].Trim())).ToSql();
+
+                            GCommon.Logger.Debug(
+                                $"[{Common.LoggerHead}]->OnRtspRealm->执行SQL:->{sql}");
+                        }
+
+                        #endregion
+
+                        var ret = ORMHelper.Db.Select<UserAuth>()
+                            .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
+                            .Where(x => x.Username.Equals(strArr[0].Trim())).First();
+                        if (ret != null && !string.IsNullOrEmpty(ret.ProjectName))
+                        {
+                            return new ResToWebHookOnRtspRealm()
+                            {
+                                Code = 0,
+                                Realm = ret.ProjectName
+                            };
+                        }
+                    }
+                }
+            }
+
+            return new ResToWebHookOnRtspRealm()
+            {
+                Code = -1,
+                Realm = "error"
+            };
+        }
+
+        /// <summary>
+        /// rtsp鉴权事件处理
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public static ResToWebHookOnRtspAuth OnRtspAuth(ReqForWebHookOnRtspAuth req)
+        {
+            if (req != null && !string.IsNullOrEmpty(req.MediaServerId))
+            {
+                var username = req.UserName;
+                var realm = req.Realm;
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Select<UserAuth>()
+                        .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
+                        .Where(x => x.Username.Equals(username.Trim()))
+                        .Where(x => x.ProjectName.Equals(realm.Trim())).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnRtspRealm->执行SQL:->{sql}");
+                }
+
+                var ret = ORMHelper.Db.Select<UserAuth>()
+                    .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
+                    .Where(x => x.Username.Equals(username.Trim()))
+                    .Where(x => x.ProjectName.Equals(realm.Trim())).First();
+                if (ret != null && !string.IsNullOrEmpty(ret.Password))
+                {
+                    return new ResToWebHookOnRtspAuth()
+                    {
+                        Code = 0,
+                        Encrypted = true,
+                        Passwd = ret.Password,
+                        Msg = "success"
+                    };
+                }
+            }
+
+            return new ResToWebHookOnRtspAuth()
+            {
+                Code = -1,
+                Msg = "failed"
+            };
+        }
+
         public static ResToWebHookOnRecordMP4 OnRecordMp4(ReqForWebHookOnRecordMP4 req)
         {
             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRecordMp4回调->{JsonHelper.ToJson(req)}");
@@ -1069,6 +1183,7 @@ namespace AKStreamWeb.Services
                         return result;
                     }
 
+
                     mediaServer.Candidate = req.Candidate;
                     mediaServer.Secret = req.Secret;
                     mediaServer.IpV4Address = req.IpV4Address;
@@ -1109,6 +1224,45 @@ namespace AKStreamWeb.Services
                     {
                         mediaServer.PerformanceInfo = req.PerformanceInfo;
                     }
+
+                    if (mediaServer.IsInitRtspAuthData == false)
+                    {
+                        #region debug sql output
+
+                        if (Common.IsDebug)
+                        {
+                            var sql = ORMHelper.Db.Select<UserAuth>()
+                                .Where(x => x.MediaServerId.Equals(mediaServer.MediaServerId)).ToSql();
+
+                            GCommon.Logger.Debug(
+                                $"[{Common.LoggerHead}]->MediaServerKeepAlive->执行SQL:->{sql}");
+                        }
+
+                        #endregion
+
+                        var tmp_list_count = ORMHelper.Db.Select<UserAuth>()
+                            .Where(x => x.MediaServerId.Equals(mediaServer.MediaServerId)).Count();
+                        if (tmp_list_count <= 0)
+                        {
+                            UserAuth auth = new UserAuth()
+                            {
+                                MediaServerId = mediaServer.MediaServerId,
+                                ProjectName = "hik",
+                                Username = "gdnbox",
+                                Password = UtilsHelper.Md5($"gdnboxrtsp:hik:rtsp2thirdparty"),
+                            };
+                            var b = MediaServerService.AddRtspAuthData(auth, out _);
+                            if (b)
+                            {
+                                mediaServer.IsInitRtspAuthData = true;
+                            }
+                        }
+                        else
+                        {
+                            mediaServer.IsInitRtspAuthData = true;
+                        }
+                    }
+
 
                     result = new ResMediaServerKeepAlive()
                     {
@@ -1168,6 +1322,8 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.KeeperWebApi = new KeeperWebApi(tmpMediaServer.IpV4Address,
                         tmpMediaServer.KeeperPort, tmpMediaServer.AccessKey,
                         Common.AkStreamWebConfig.HttpClientTimeoutSec);
+
+
                     Common.MediaServerList.Add(tmpMediaServer);
                     result = new ResMediaServerKeepAlive()
                     {
@@ -1181,6 +1337,7 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
+
 
             return result;
         }

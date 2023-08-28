@@ -32,6 +32,7 @@ namespace AKStreamKeeper.Misc
         private ushort _webApiPort;
         private string? _zLMediakitSSLFilePath;
         private string? _listenIP ="127.0.0.1";
+        private bool? _enableRtspAuth=false;
 
 
         /// <summary>
@@ -242,6 +243,15 @@ namespace AKStreamKeeper.Misc
         {
             get => _listenIP;
             set => _listenIP = value;
+        }
+
+        /// <summary>
+        /// 是否开启rtsp鉴权
+        /// </summary>
+        public bool? EnableRtspAuth
+        {
+            get => _enableRtspAuth;
+            set => _enableRtspAuth = value;
         }
     }
 }

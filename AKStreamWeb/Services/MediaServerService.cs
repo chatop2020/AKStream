@@ -24,6 +24,214 @@ namespace AKStreamWeb.Services
     public static class MediaServerService
     {
         /// <summary>
+        /// 获取rtsp鉴权列表
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static List<UserAuth> GetRtspAuthData(UserAuth? req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            List<UserAuth> list = null;
+            if (req != null)
+            {
+                try
+                {
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Select<UserAuth>().WhereIf(!string.IsNullOrEmpty(req.MediaServerId),
+                                x => x.MediaServerId.Equals(req.MediaServerId))
+                            .WhereIf(!string.IsNullOrEmpty(req.ProjectName), x => x.ProjectName.Equals(req.ProjectName))
+                            .WhereIf(!string.IsNullOrEmpty(req.Username), x => x.Username.Equals(req.Username))
+                            .WhereIf(!string.IsNullOrEmpty(req.Password), x => x.Password.Equals(req.Password))
+                            .WhereIf(req.Id > 0, x => x.Id.Equals(req.Id)).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->GetRtspAuthData->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
+
+                    list = ORMHelper.Db.Select<UserAuth>().WhereIf(!string.IsNullOrEmpty(req.MediaServerId),
+                            x => x.MediaServerId.Equals(req.MediaServerId))
+                        .WhereIf(!string.IsNullOrEmpty(req.ProjectName), x => x.ProjectName.Equals(req.ProjectName))
+                        .WhereIf(!string.IsNullOrEmpty(req.Username), x => x.Username.Equals(req.Username))
+                        .WhereIf(!string.IsNullOrEmpty(req.Password), x => x.Password.Equals(req.Password))
+                        .WhereIf(req.Id > 0, x => x.Id.Equals(req.Id)).ToList<UserAuth>();
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    return null;
+                }
+            }
+            else
+            {
+                try
+                {
+                    list = ORMHelper.Db.Select<UserAuth>().ToList<UserAuth>();
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    return null;
+                }
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// 删除rtsp鉴权数据
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool DeleteRtspAuthData(UserAuth req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            int ret = 0;
+            try
+            {
+                #region debug sql output
+
+                if (Common.IsDebug)
+                {
+                    var sql = ORMHelper.Db.Delete<UserAuth>().Where(x => x.MediaServerId.Equals(req.MediaServerId))
+                        .Where(x => x.ProjectName.Equals(req.ProjectName))
+                        .Where(x => x.Username.Equals(req.Username)).ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->DeleteRtspAuthData->执行SQL:->{sql}");
+                }
+
+                #endregion
+
+
+                ret = ORMHelper.Db.Delete<UserAuth>().Where(x => x.MediaServerId.Equals(req.MediaServerId))
+                    .Where(x => x.ProjectName.Equals(req.ProjectName))
+                    .Where(x => x.Username.Equals(req.Username)).ExecuteAffrows();
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DataBaseExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace
+                };
+                return false;
+            }
+
+            if (ret > 0)
+            {
+                return true;
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.Sys_DB_RecordNotExists,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
+            };
+
+            return false;
+        }
+
+        /// <summary>
+        /// 添加rtsp授权数据
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool AddRtspAuthData(UserAuth req, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var mediaServer = CheckMediaServer(req.MediaServerId, out rs);
+            if (mediaServer != null)
+            {
+                int ret = 0;
+                try
+                {
+                    var auth = new UserAuth()
+                    {
+                        MediaServerId = req.MediaServerId,
+                        ProjectName = req.ProjectName,
+                        Username = req.Username,
+                        Password = UtilsHelper.Md5($"{req.Username}:{req.ProjectName}:{req.Password}"),
+                    };
+
+                    #region debug sql output
+
+                    if (Common.IsDebug)
+                    {
+                        var sql = ORMHelper.Db.Insert<UserAuth>(auth).ToSql();
+
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->AddRtspAuthData->执行SQL:->{sql}");
+                    }
+
+                    #endregion
+
+                    ret = ORMHelper.Db.Insert<UserAuth>(auth).ExecuteAffrows();
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.Sys_DataBaseExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace
+                    };
+                    return false;
+                }
+
+                if (ret > 0)
+                {
+                    return true;
+                }
+
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_DB_UserAuthAlreadyExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_UserAuthAlreadyExists],
+                };
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 获取rtpServer列表
         /// </summary>
         /// <param name="mediaServerId"></param>
@@ -44,6 +252,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
             var ret = mediaServer.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out rs);
             if (ret != null && rs.Code.Equals(ErrorNumber.None))
             {
@@ -52,6 +261,7 @@ namespace AKStreamWeb.Services
                 {
                     return null;
                 }
+
                 foreach (var d in ret.Data)
                 {
                     if (d != null && d.Port > 0)
@@ -59,8 +269,10 @@ namespace AKStreamWeb.Services
                         tmpPortList.Add((ushort)d.Port);
                     }
                 }
+
                 return tmpPortList;
             }
+
             return null;
         }
 
@@ -2565,7 +2777,7 @@ namespace AKStreamWeb.Services
                         return false;
                     }
 
-                   // var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, row.VideoPath);
+                    // var deleted = mediaServer.KeeperWebApi.DeleteFile(out rs, row.VideoPath);
                     var deleted = AKStreamKeeperService.DeleteFile(mediaServer.MediaServerId, row.VideoPath, out rs);
                     if (!rs.Code.Equals(ErrorNumber.None) || !deleted)
                     {
@@ -5470,6 +5682,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
             if (!mediaServer.IsKeeperRunning)
             {
                 rs = new ResponseStruct()
@@ -5481,6 +5694,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
             if (!mediaServer.IsMediaServerRunning)
             {
                 rs = new ResponseStruct()
@@ -5492,6 +5706,7 @@ namespace AKStreamWeb.Services
 
                 return null;
             }
+
             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->检查流媒体服务器状态成功->{mediaServerId}->{JsonHelper.ToJson(mediaServer)}");
             return mediaServer;
