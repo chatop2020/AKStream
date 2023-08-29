@@ -49,64 +49,32 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnRtspRealm OnRtspRealm(ReqForWebHookOnRtspRealm req)
         {
-            return new ResToWebHookOnRtspRealm()
-            {
-                Code = 0,
-                Realm = "default"
-            };
             GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRtspRealm回调->{JsonHelper.ToJson(req)}");
-            if (req != null && !string.IsNullOrEmpty(req.MediaServerId) && !string.IsNullOrEmpty(req.Params))
+            if (req != null && !string.IsNullOrEmpty(req.MediaServerId))
             {
-                Uri uri = null;
-                try
+                #region debug sql output
+
+                if (Common.IsDebug)
                 {
-                    uri = new Uri(req.Params);
+                    var sql = ORMHelper.Db.Select<UserAuth>()
+                        .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
+                        .ToSql();
+
+                    GCommon.Logger.Debug(
+                        $"[{Common.LoggerHead}]->OnRtspRealm->执行SQL:->{sql}");
                 }
-                catch (Exception ex)
+
+                #endregion
+
+                var ret = ORMHelper.Db.Select<UserAuth>()
+                    .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim())).First();
+                if (ret != null)
                 {
-                    ResponseStruct rs = new ResponseStruct()
+                    return new ResToWebHookOnRtspRealm()
                     {
-                        Code = ErrorNumber.Sys_DataBaseExcept,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DataBaseExcept],
-                        ExceptMessage = ex.Message,
-                        ExceptStackTrace = ex.StackTrace,
+                        Code = 0,
+                        Realm = "default"
                     };
-                    GCommon.Logger.Warn(
-                        $"[{Common.LoggerHead}]->解析Rtsp URI时发生异常->{JsonHelper.ToJson(req)}->{JsonHelper.ToJson(rs)}");
-                }
-
-                var userinfo = uri.UserInfo;
-                if (!string.IsNullOrEmpty(userinfo) && userinfo.Contains(':'))
-                {
-                    var strArr = userinfo.Split(':', StringSplitOptions.RemoveEmptyEntries);
-                    if (strArr.Length == 2 && !string.IsNullOrEmpty(strArr[0]))
-                    {
-                        #region debug sql output
-
-                        if (Common.IsDebug)
-                        {
-                            var sql = ORMHelper.Db.Select<UserAuth>()
-                                .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
-                                .Where(x => x.Username.Equals(strArr[0].Trim())).ToSql();
-
-                            GCommon.Logger.Debug(
-                                $"[{Common.LoggerHead}]->OnRtspRealm->执行SQL:->{sql}");
-                        }
-
-                        #endregion
-
-                        var ret = ORMHelper.Db.Select<UserAuth>()
-                            .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
-                            .Where(x => x.Username.Equals(strArr[0].Trim())).First();
-                        if (ret != null && !string.IsNullOrEmpty(ret.ProjectName))
-                        {
-                            return new ResToWebHookOnRtspRealm()
-                            {
-                                Code = 0,
-                                Realm = ret.ProjectName
-                            };
-                        }
-                    }
                 }
             }
 
@@ -134,7 +102,7 @@ namespace AKStreamWeb.Services
                     var sql = ORMHelper.Db.Select<UserAuth>()
                         .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
                         .Where(x => x.Username.Equals(username.Trim()))
-                        .Where(x => x.ProjectName.Equals(realm.Trim())).ToSql();
+                        .ToSql();
 
                     GCommon.Logger.Debug(
                         $"[{Common.LoggerHead}]->OnRtspRealm->执行SQL:->{sql}");
@@ -143,7 +111,7 @@ namespace AKStreamWeb.Services
                 var ret = ORMHelper.Db.Select<UserAuth>()
                     .Where(x => x.MediaServerId.Equals(req.MediaServerId.Trim()))
                     .Where(x => x.Username.Equals(username.Trim()))
-                    .Where(x => x.ProjectName.Equals(realm.Trim())).First();
+                    .First();
                 if (ret != null && !string.IsNullOrEmpty(ret.Password))
                 {
                     return new ResToWebHookOnRtspAuth()
@@ -1254,9 +1222,8 @@ namespace AKStreamWeb.Services
                             UserAuth auth = new UserAuth()
                             {
                                 MediaServerId = mediaServer.MediaServerId,
-                                ProjectName = "default",
                                 Username = "defaultuser",
-                                Password = UtilsHelper.Md5($"defaultuser:default:defautlpasswd" ),
+                                Password = UtilsHelper.Md5($"defaultuser:default:defautlpasswd"),
                             };
                             var b = MediaServerService.AddRtspAuthData(auth, out _);
                             if (b)

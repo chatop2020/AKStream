@@ -48,7 +48,6 @@ namespace AKStreamWeb.Services
                     {
                         var sql = ORMHelper.Db.Select<UserAuth>().WhereIf(!string.IsNullOrEmpty(req.MediaServerId),
                                 x => x.MediaServerId.Equals(req.MediaServerId))
-                            .WhereIf(!string.IsNullOrEmpty(req.ProjectName), x => x.ProjectName.Equals(req.ProjectName))
                             .WhereIf(!string.IsNullOrEmpty(req.Username), x => x.Username.Equals(req.Username))
                             .WhereIf(!string.IsNullOrEmpty(req.Password), x => x.Password.Equals(req.Password))
                             .WhereIf(req.Id > 0, x => x.Id.Equals(req.Id)).ToSql();
@@ -62,7 +61,6 @@ namespace AKStreamWeb.Services
 
                     list = ORMHelper.Db.Select<UserAuth>().WhereIf(!string.IsNullOrEmpty(req.MediaServerId),
                             x => x.MediaServerId.Equals(req.MediaServerId))
-                        .WhereIf(!string.IsNullOrEmpty(req.ProjectName), x => x.ProjectName.Equals(req.ProjectName))
                         .WhereIf(!string.IsNullOrEmpty(req.Username), x => x.Username.Equals(req.Username))
                         .WhereIf(!string.IsNullOrEmpty(req.Password), x => x.Password.Equals(req.Password))
                         .WhereIf(req.Id > 0, x => x.Id.Equals(req.Id)).ToList<UserAuth>();
@@ -123,7 +121,6 @@ namespace AKStreamWeb.Services
                 if (Common.IsDebug)
                 {
                     var sql = ORMHelper.Db.Delete<UserAuth>().Where(x => x.MediaServerId.Equals(req.MediaServerId))
-                        .Where(x => x.ProjectName.Equals(req.ProjectName))
                         .Where(x => x.Username.Equals(req.Username)).ToSql();
 
                     GCommon.Logger.Debug(
@@ -134,7 +131,6 @@ namespace AKStreamWeb.Services
 
 
                 ret = ORMHelper.Db.Delete<UserAuth>().Where(x => x.MediaServerId.Equals(req.MediaServerId))
-                    .Where(x => x.ProjectName.Equals(req.ProjectName))
                     .Where(x => x.Username.Equals(req.Username)).ExecuteAffrows();
             }
             catch (Exception ex)
@@ -185,9 +181,8 @@ namespace AKStreamWeb.Services
                     var auth = new UserAuth()
                     {
                         MediaServerId = req.MediaServerId,
-                        ProjectName = req.ProjectName,
                         Username = req.Username,
-                        Password = UtilsHelper.Md5($"{req.Username}:{req.ProjectName}:{req.Password}"),
+                        Password = UtilsHelper.Md5($"{req.Username}:default:{req.Password}"),
                     };
 
                     #region debug sql output

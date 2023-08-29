@@ -777,14 +777,14 @@ namespace AKStreamKeeper
                         {
                             data["hook"]["on_rtsp_auth"] = $"http://{h}:{p}/MediaServer/WebHook/OnRtspAuth";
                             data["hook"]["on_rtsp_realm"] = $"http://{h}:{p}/MediaServer/WebHook/OnRtspRealm";
-                            data["rtsp"]["authBasic"] = "1";
+                            data["rtsp"]["authBasic"] = "0";
 
                         }
                         else
                         {
                             data["hook"]["on_rtsp_auth"] = "";
                             data["hook"]["on_rtsp_realm"] = "";
-                            data["rtsp"]["authBasic"] = "0";
+                            data["rtsp"]["authBasic"] = "1";
                         }
                         data["hook"]["on_shell_login"] =
                             $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
@@ -922,13 +922,13 @@ namespace AKStreamKeeper
                         {
                             _zlmNewConfig.Hook.On_Rtsp_Auth = $"http://{h}:{p}/MediaServer/WebHook/OnRtspAuth";
                             _zlmNewConfig.Hook.On_Rtsp_Realm = $"http://{h}:{p}/MediaServer/WebHook/OnRtspRealm";
-                            _zlmNewConfig.Rtsp.AuthBasic = 1;
+                            _zlmNewConfig.Rtsp.AuthBasic = 0;
                         }
                         else
                         {
                             _zlmNewConfig.Hook.On_Rtsp_Auth = "";
                             _zlmNewConfig.Hook.On_Rtsp_Realm = "";
-                            _zlmNewConfig.Rtsp.AuthBasic = 0;
+                            _zlmNewConfig.Rtsp.AuthBasic = 1;
                         }
 
                         _zlmNewConfig.Hook.On_Shell_Login =

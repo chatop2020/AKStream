@@ -32,10 +32,7 @@ public class UserAuth
     /// projectName
     /// 为md5的盐，也是on_rtsp_realm的值
     /// </summary>
-    public string ProjectName { get; set; }
-    /// <summary>
-    /// 用户名
-    /// </summary>
+  
     public string Username { get; set; }
 
     /// <summary>
