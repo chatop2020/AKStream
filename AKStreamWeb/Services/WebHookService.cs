@@ -1223,7 +1223,7 @@ namespace AKStreamWeb.Services
                             {
                                 MediaServerId = mediaServer.MediaServerId,
                                 Username = "defaultuser",
-                                Password = UtilsHelper.Md5($"defaultuser:default:defautlpasswd"),
+                                Password = UtilsHelper.Md5New($"defaultuser:default:defautlpasswd"),
                             };
                             var b = MediaServerService.AddRtspAuthData(auth, out _);
                             if (b)

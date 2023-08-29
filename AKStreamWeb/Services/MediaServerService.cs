@@ -182,7 +182,7 @@ namespace AKStreamWeb.Services
                     {
                         MediaServerId = req.MediaServerId,
                         Username = req.Username,
-                        Password = UtilsHelper.Md5($"{req.Username}:default:{req.Password}"),
+                        Password = UtilsHelper.Md5New($"{req.Username}:default:{req.Password}"),
                     };
 
                     #region debug sql output
