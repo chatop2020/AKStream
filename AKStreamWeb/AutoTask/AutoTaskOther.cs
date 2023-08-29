@@ -132,9 +132,19 @@ namespace AKStreamWeb.AutoTask
                                                 {
                                                     foreach (var f in fis)
                                                     {
-                                                        if (f.Exists)
+                                                        if (f.Exists && !f.Name.StartsWith("."))
                                                         {
                                                             canSuspend = false;
+                                                            if (Common.IsDebug)
+                                                            {
+                                                                var sql = ORMHelper.Db.Select<RecordFile>()
+                                                                    .Where(x => x.VideoPath.Equals(f.FullName.Trim()))
+                                                                    .ToSql();
+
+                                                                GCommon.Logger.Debug(
+                                                                    $"[{Common.LoggerHead}]->RunDeleteOrphanData->执行SQL:->{sql}");
+                                                            }
+
                                                             var exists = ORMHelper.Db.Select<RecordFile>()
                                                                 .Where(x => x.VideoPath.Equals(f.FullName.Trim()))
                                                                 .ToOne();
@@ -198,6 +208,7 @@ namespace AKStreamWeb.AutoTask
                                         !string.IsNullOrEmpty(filePath))
                                     {
                                         canSuspend = false;
+
                                         var exists = mediaserver2.KeeperWebApi.FileExists(out _, filePath);
                                         Thread.Sleep(150);
                                         canSuspend = true;
@@ -216,6 +227,15 @@ namespace AKStreamWeb.AutoTask
                                 foreach (var id in mysqlRecordDropList)
                                 {
                                     canSuspend = false;
+                                    if (Common.IsDebug)
+                                    {
+                                        var sql = ORMHelper.Db.Delete<RecordFile>().Where(x => x.Id.Equals(id))
+                                            .ToSql();
+
+                                        GCommon.Logger.Debug(
+                                            $"[{Common.LoggerHead}]->RunDeleteOrphanData->执行SQL:->{sql}");
+                                    }
+
                                     var s2 = ORMHelper.Db.Delete<RecordFile>().Where(x => x.Id.Equals(id))
                                         .ExecuteAffrows();
                                     GCommon.Logger.Debug(
