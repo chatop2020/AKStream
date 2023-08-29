@@ -10,7 +10,6 @@ namespace LibCommon.Structs.DBModels;
 [Serializable]
 [Table(Name = "UserAuth")]
 [Index("idx_uah_msid", "MediaServerId", false)]
-[Index("idx_uah_pname", "ProjectName", false)]
 [Index("idx_uah_puser", "Username", false)]
 /// <summary>
 /// 用于每周的记录时间
