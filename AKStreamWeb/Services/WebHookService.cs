@@ -1247,9 +1247,9 @@ namespace AKStreamWeb.Services
                             UserAuth auth = new UserAuth()
                             {
                                 MediaServerId = mediaServer.MediaServerId,
-                                ProjectName = "hik",
-                                Username = "gdnbox",
-                                Password = UtilsHelper.Md5($"gdnboxrtsp:hik:rtsp2thirdparty"),
+                                ProjectName = "default",
+                                Username = "defaultuser",
+                                Password = UtilsHelper.Md5($"defaultuser:default:defautlpasswd" ),
                             };
                             var b = MediaServerService.AddRtspAuthData(auth, out _);
                             if (b)
