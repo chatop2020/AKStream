@@ -585,11 +585,11 @@ namespace LibCommon
         }
 
         /// <summary>
-        /// 获取MD5加密码值
+        /// 获取MD5加密码值,用于和zlm交互
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string Md5(string source)
+        public static string Md5New(string source)
 
         {
             string rule = "";
@@ -603,7 +603,13 @@ namespace LibCommon
 
             return rule;
         }
-        /*public static string Md5(string str)
+        
+        /// <summary>
+        /// 获取MD5加密码值
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string Md5(string str)
         {
             try
             {
@@ -624,7 +630,7 @@ namespace LibCommon
             }
 
             return str;
-        }*/
+        }
 
         /// <summary>
         /// XML转类实例
