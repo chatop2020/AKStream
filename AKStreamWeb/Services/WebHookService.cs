@@ -49,6 +49,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnRtspRealm OnRtspRealm(ReqForWebHookOnRtspRealm req)
         {
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRtspRealm回调->{JsonHelper.ToJson(req)}");
             if (req != null && !string.IsNullOrEmpty(req.MediaServerId) && !string.IsNullOrEmpty(req.Params))
             {
                 Uri uri = null;
@@ -118,6 +119,7 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         public static ResToWebHookOnRtspAuth OnRtspAuth(ReqForWebHookOnRtspAuth req)
         {
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->收到WebHook-OnRtspAuth回调->{JsonHelper.ToJson(req)}");
             if (req != null && !string.IsNullOrEmpty(req.MediaServerId))
             {
                 var username = req.UserName;
