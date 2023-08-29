@@ -25,7 +25,6 @@ namespace LibCommon
     /// </summary>
     public static class UtilsHelper
     {
-
         /// <summary>
         /// 查找优先使用的config文件
         /// Config文件名同名，但后缀包含.local的将被优先使用
@@ -49,7 +48,7 @@ namespace LibCommon
             {
                 path = path.Trim().TrimEnd('/');
             }
-            
+
             if (Directory.Exists(path) && File.Exists(configPath))
             {
                 if (isWindows)
@@ -57,18 +56,20 @@ namespace LibCommon
                     if (File.Exists($"{path}\\{fileName}.local"))
                     {
                         return $"{path}\\{fileName}.local";
-                    } 
+                    }
                 }
                 else
                 {
                     if (File.Exists($"{path}/{fileName}.local"))
                     {
                         return $"{path}/{fileName}.local";
-                    }  
+                    }
                 }
             }
+
             return configPath;
         }
+
         /// <summary>
         /// 移除bom头
         /// </summary>
@@ -588,7 +589,21 @@ namespace LibCommon
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string Md5(string str)
+        public static string Md5(string source)
+
+        {
+            string rule = "";
+            MD5 md5 = MD5.Create();
+            byte[] s = md5.ComputeHash(Encoding.UTF8.GetBytes(source));
+            // 通过使用循环，将字节类型的数组转换为字符串，此字符串是常规字符格式化所得
+            for (int i = 0; i < s.Length; i++)
+            {
+                rule = rule + s[i].ToString("x2"); // 将得到的字符串使用十六进制类型格式。格式后的字符是小写的字母，如果使用大写（X）则格式后的字符是大写字符 
+            }
+
+            return rule;
+        }
+        /*public static string Md5(string str)
         {
             try
             {
@@ -609,7 +624,7 @@ namespace LibCommon
             }
 
             return str;
-        }
+        }*/
 
         /// <summary>
         /// XML转类实例
