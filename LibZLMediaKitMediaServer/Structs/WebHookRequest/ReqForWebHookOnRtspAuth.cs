@@ -111,7 +111,7 @@ public class ReqForWebHookOnRtspAuth
     /// <summary>
     /// 用户名
     /// </summary>
-    public string UserName
+    public string User_Name
     {
         get => _user_name;
         set => _user_name = value;
