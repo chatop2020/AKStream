@@ -20,7 +20,8 @@ namespace AKStreamWeb.AutoTask
         private DateTime _mediaListCleanTick = DateTime.Now;
         private Thread RunDeleteOrphanDataHandle = null;
         private bool canSuspend = true;
-        private ThreadState oldState = ThreadState.Running;
+        private bool setSuspend = false;
+        private bool oldState = false;
 
         public AutoTaskOther()
         {
@@ -62,31 +63,40 @@ namespace AKStreamWeb.AutoTask
 
             while (true)
             {
-                if (Common.WebPerformanceInfo != null && Common.WebPerformanceInfo.CpuLoad < 35f)
+                try
                 {
-                    if (RunDeleteOrphanDataHandle.ThreadState == ThreadState.Suspended)
+                    if (Common.WebPerformanceInfo != null && Common.WebPerformanceInfo.CpuLoad < 35f && RunDeleteOrphanDataHandle!=null)
                     {
-                        RunDeleteOrphanDataHandle.Resume();
+                        setSuspend = false;
+                       // RunDeleteOrphanDataHandle.Resume();   //linux平台不支持此方法
                     }
-                }
-                else
-                {
-                    while (!canSuspend)
+                    else
                     {
-                        Thread.Sleep(100);
+                        while (!canSuspend)
+                        {
+                            Thread.Sleep(100);
+                        }
+
+                        if (RunDeleteOrphanDataHandle != null)
+                        {
+                            setSuspend = true;
+                          //  RunDeleteOrphanDataHandle.Suspend(); //linux平台不支持此方法
+                        }
                     }
 
-                    if (RunDeleteOrphanDataHandle.ThreadState == ThreadState.Running)
+                    if (oldState != setSuspend)
                     {
-                        RunDeleteOrphanDataHandle.Suspend();
+                        oldState = setSuspend;
+                        GCommon.Logger.Debug(
+                            $"[{Common.LoggerHead}]->当前双向清理孤立数据功能状态为：{(setSuspend?"挂起":"运行")}->CPUUsage:{Common.WebPerformanceInfo.CpuLoad}%");
                     }
-                }
 
-                if (oldState != RunDeleteOrphanDataHandle.ThreadState)
+                }
+                catch (Exception ex)
                 {
-                    oldState = RunDeleteOrphanDataHandle.ThreadState;
                     GCommon.Logger.Debug(
-                        $"[{Common.LoggerHead}]->当前双向清理孤立数据功能状态为：{RunDeleteOrphanDataHandle.ThreadState}->CPUUsage:{Common.WebPerformanceInfo.CpuLoad}%");
+                        $"[{Common.LoggerHead}]->发生异常情况：{ex.Message}->{ex.StackTrace}");
+
                 }
 
                 Thread.Sleep(1000);
@@ -117,6 +127,10 @@ namespace AKStreamWeb.AutoTask
                                 if (mediaServer != null && mediaServer.IsKeeperRunning)
                                 {
                                     canSuspend = true;
+                                    while (setSuspend)
+                                    {
+                                        Thread.Sleep(1000);
+                                    }
                                     if (mediaServer.RecordPathList != null && mediaServer.RecordPathList.Count > 0)
                                     {
                                         foreach (var recordPath in mediaServer.RecordPathList)
@@ -128,6 +142,10 @@ namespace AKStreamWeb.AutoTask
                                                 canSuspend = false;
                                                 FileInfo[] fis = di.GetFiles("*.mp4", SearchOption.AllDirectories);
                                                 canSuspend = true;
+                                                while (setSuspend)
+                                                {
+                                                    Thread.Sleep(1000);
+                                                }
                                                 if (fis != null && fis.Length > 0)
                                                 {
                                                     foreach (var f in fis)
@@ -149,6 +167,10 @@ namespace AKStreamWeb.AutoTask
                                                                 .Where(x => x.VideoPath.Equals(f.FullName.Trim()))
                                                                 .ToOne();
                                                             canSuspend = true;
+                                                            while (setSuspend)
+                                                            {
+                                                                Thread.Sleep(1000);
+                                                            }
                                                             if (exists == null || (exists.Deleted == true &&
                                                                     exists.Undo == false)) //记录不存在，或者被硬删除
                                                             {
@@ -168,6 +190,10 @@ namespace AKStreamWeb.AutoTask
                                                             GCommon.Logger.Debug(
                                                                 $"[{Common.LoggerHead}]->双向清理孤立数据->Disk->{file}->{(s ? "成功" : "失败")}");
                                                             canSuspend = true;
+                                                            while (setSuspend)
+                                                            {
+                                                                Thread.Sleep(1000);
+                                                            }
                                                             Thread.Sleep(200);
                                                         }
                                                     }
@@ -180,12 +206,20 @@ namespace AKStreamWeb.AutoTask
                                 }
 
                                 canSuspend = true;
+                                while (setSuspend)
+                                {
+                                    Thread.Sleep(1000);
+                                }
                                 Thread.Sleep(200);
                             }
                         }
                         catch (Exception ex)
                         {
                             canSuspend = true;
+                            while (setSuspend)
+                            {
+                                Thread.Sleep(1000);
+                            }
                             GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
                         }
 
@@ -197,6 +231,10 @@ namespace AKStreamWeb.AutoTask
                             canSuspend = false;
                             var recordList = ORMHelper.Db.Select<RecordFile>().Where(x => x.Deleted == false).ToList();
                             canSuspend = true;
+                            while (setSuspend)
+                            {
+                                Thread.Sleep(1000);
+                            }
                             foreach (var record in recordList)
                             {
                                 if (record != null)
@@ -212,6 +250,10 @@ namespace AKStreamWeb.AutoTask
                                         var exists = mediaserver2.KeeperWebApi.FileExists(out _, filePath);
                                         Thread.Sleep(150);
                                         canSuspend = true;
+                                        while (setSuspend)
+                                        {
+                                            Thread.Sleep(1000);
+                                        }
                                         if (!exists)
                                         {
                                             mysqlRecordDropList.Add(record.Id);
@@ -241,15 +283,27 @@ namespace AKStreamWeb.AutoTask
                                     GCommon.Logger.Debug(
                                         $"[{Common.LoggerHead}]->双向清理孤立数据->MySQL->{id}->{(s2 > 0 ? "成功" : "失败")}");
                                     canSuspend = true;
+                                    while (setSuspend)
+                                    {
+                                        Thread.Sleep(1000);
+                                    }
                                     Thread.Sleep(200);
                                 }
                             }
 
                             canSuspend = true;
+                            while (setSuspend)
+                            {
+                                Thread.Sleep(1000);
+                            }
                         }
                         catch (Exception ex)
                         {
                             canSuspend = true;
+                            while (setSuspend)
+                            {
+                                Thread.Sleep(1000);
+                            }
                             GCommon.Logger.Debug($"{ex.Message}\r\n{ex.StackTrace}");
                         }
 
@@ -257,6 +311,10 @@ namespace AKStreamWeb.AutoTask
                 }
 
                 canSuspend = true;
+                while (setSuspend)
+                {
+                    Thread.Sleep(1000);
+                }
                 Thread.Sleep(10000);
             }
         }
