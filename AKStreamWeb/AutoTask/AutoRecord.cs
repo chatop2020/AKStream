@@ -358,9 +358,6 @@ namespace AKStreamWeb.AutoTask
                                                 }
                                             }
                                         }
-                                    
-
-
                                     if (!diskuseage)
                                     {
                                         Thread.Sleep(100);

@@ -32,6 +32,7 @@ namespace LibCommon.Structs.GB28181
         private List<SipChannel> _sipChannels = new List<SipChannel>();
         private SipServerConfig _sipServerConfig;
         private string? _username;
+        private double? _keepAliveTimeSpentMS;
 
 
         /// <summary>
@@ -240,6 +241,15 @@ namespace LibCommon.Structs.GB28181
             set => _isReday = value;
         }
 
+        /// <summary>
+        /// 两次心跳的间隔时间，可以认为是设备的心跳周期（毫秒）
+        /// </summary>
+        public double? KeepAliveTimeSpentMS
+        {
+            get => _keepAliveTimeSpentMS;
+            set => _keepAliveTimeSpentMS = value;
+        }
+
         public void Dispose()
         {
             if (_keepAliveCheckTimer != null)
@@ -268,6 +278,8 @@ namespace LibCommon.Structs.GB28181
                 _keepAliveCheckTimer.Start(); //启动计时器
             }
         }
+        
+        
 
 
         /// <summary>
