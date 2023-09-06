@@ -959,8 +959,8 @@ namespace AKStreamWeb.Services
                 return new ResToWebHookOnPublish()
                 {
                     Code = -1,
-                    EnableHls = false,
-                    EnableMP4 = false,
+                    Enable_Hls = false,
+                    Enable_Mp4  = false,
                     Msg = "failed",
                 };
             }
@@ -988,8 +988,8 @@ namespace AKStreamWeb.Services
                     return new ResToWebHookOnPublish()
                     {
                         Code = -1,
-                        EnableHls = false,
-                        EnableMP4 = false,
+                        Enable_Hls = false,
+                        Enable_Mp4  = false,
                         Msg = "failed",
                     };
                 }
@@ -999,8 +999,8 @@ namespace AKStreamWeb.Services
                     return new ResToWebHookOnPublish()
                     {
                         Code = -1,
-                        EnableHls = false,
-                        EnableMP4 = false,
+                        Enable_Hls = false,
+                        Enable_Mp4  = false,
                         Msg = "failed",
                     };
                 }
@@ -1046,17 +1046,33 @@ namespace AKStreamWeb.Services
 
                 ResToWebHookOnPublish result = new ResToWebHookOnPublish();
                 result.Code = 0;
-                result.EnableHls = true;
                 result.Msg = "success";
-                result.EnableMP4 = false;
+                result.Enable_Hls = true;
+                result.Enable_Mp4 = false;
+                result.Enable_Hls_Fmp4 = true;
+                result.Enable_Rtsp = true;
+                result.Enable_Rtmp = true;
+                result.Enable_Ts = true;
+                result.Enable_Fmp4 = true;
+                result.Hls_Demand = true;
+                result.Rtsp_Demand = false;
+                result.Rtmp_Demand = false;
+                result.Ts_Demand = true;
+                result.Fmp4_Demand = true;
+                result.Enable_Audio = true;
+                result.Add_Mute_Audio = true;
+                result.Mp4_Save_Path = "";
+                result.Mp4_As_Player = false;
+                result.Hls_Save_Path = "";
+                result.Auto_Close = false;
                 return result;
             }
 
             return new ResToWebHookOnPublish()
             {
                 Code = -1,
-                EnableHls = false,
-                EnableMP4 = false,
+                Enable_Hls = false,
+                Enable_Mp4  = false,
                 Msg = "failed",
             };
         }
