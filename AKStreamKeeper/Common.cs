@@ -756,6 +756,7 @@ namespace AKStreamKeeper
                 tmpKeepAlive.MediaServerIsRunning = MediaServerInstance.IsRunning;
                 tmpKeepAlive.Version = Version;
                 tmpKeepAlive.ZlmBuildDateTime = MediaServerInstance.ZlmBuildDateTime;
+                tmpKeepAlive.CutMergeFilePath = _akStreamKeeperConfig.CutMergeFilePath;
                 lock (DisksUseable)
                 {
                     if (DisksUseable != null && DisksUseable.Count > 0)
