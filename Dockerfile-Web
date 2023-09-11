@@ -1,14 +1,21 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-#×÷Õß(author):×Ô¶¯³©(auto-chang)
-#Î¢ĞÅºÅ(WeChat):×Ô¶¯³©(auto-chang)
-#¹«ÖÚºÅ(WeChat official account)£º³©ÁÄÁË¸ö¿Æ¼¼(IT-chang)
-#Ê±¼ä(Time)£º2023Äê4ÔÂ22ÈÕ£¬ĞÇÆÚÁù(Saturday, April 22, 2023)
-#ÃèÊö(Describe£ºÎª°®·¢µç(Power Generation for Love)
+#ä½œè€…(author):è‡ªåŠ¨ç•…(auto-chang)
+#å¾®ä¿¡å·(WeChat):è‡ªåŠ¨ç•…(auto-chang)
+#å…¬ä¼—å·(WeChat official account)ï¼šç•…èŠäº†ä¸ªç§‘æŠ€(IT-chang)
+#æ—¶é—´(Time)ï¼š2023å¹´4æœˆ22æ—¥ï¼Œæ˜ŸæœŸå…­(Saturday, April 22, 2023)
+#æè¿°(Describeï¼šä¸ºçˆ±å‘ç”µ(Power Generation for Love)
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN apt-get update && apt-get install -q -y --no-install-recommends \
+    procps \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    ln -s /sbin/route /usr/sbin/route && \
+    ln -s /sbin/ifconfig /usr/sbin/ifconfig
 EXPOSE 80
 EXPOSE 443
 
