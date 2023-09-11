@@ -150,7 +150,7 @@ namespace AKStreamWeb.AutoTask
                                                 {
                                                     foreach (var f in fis)
                                                     {
-                                                        if (f.Exists && !f.Name.StartsWith("."))
+                                                        if (f.Exists && !f.Name.StartsWith(".") && !f.FullName.StartsWith(mediaServer.CutMergeFilePath))
                                                         {
                                                             canSuspend = false;
                                                             if (Common.IsDebug)

@@ -1201,6 +1201,7 @@ namespace AKStreamWeb.Services
                     mediaServer.RecordSec = req.RecordSec;
                     mediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
                     mediaServer.AKStreamKeeperVersion = req.Version;
+                    mediaServer.CutMergeFilePath = req.CutMergeFilePath;
                     mediaServer.DisksUseable.Clear();
                     if (req.DisksUseable != null && req.DisksUseable.Count > 0)
                     {
@@ -1292,6 +1293,7 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.RecordSec = req.RecordSec;
                     tmpMediaServer.AKStreamKeeperVersion = req.Version;
                     tmpMediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
+                    tmpMediaServer.CutMergeFilePath = req.CutMergeFilePath;
                     tmpMediaServer.DisksUseable.Clear();
                     if (req.DisksUseable != null && req.DisksUseable.Count > 0)
                     {
