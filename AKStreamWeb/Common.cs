@@ -33,12 +33,15 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
+      
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
 
         public static DateTime StartupDateTime;
+
+       
 
 
         /// <summary>

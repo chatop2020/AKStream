@@ -298,7 +298,7 @@ namespace LibCommon
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        public static string AddQuote(string str)
+        public static string AddQuote(string str,bool kingbase=false)
         {
             switch (ORMHelper.DBType.Trim().ToLower())
             {
@@ -306,7 +306,15 @@ namespace LibCommon
                     return $"`{str.Trim()}`";
                     break;
                 case "postgresql":
-                    return $"\"{str.Trim()}\"";
+                    if (!kingbase)
+                    {
+                        return $"\"{str.Trim()}\"";
+                    }
+                    else
+                    {
+                        return "${str.Trim()}";
+                    }
+
                     break;
                 default:
                     return $"`{str.Trim()}`";
