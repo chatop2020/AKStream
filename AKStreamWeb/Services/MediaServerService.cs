@@ -3591,16 +3591,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        if (Common.AkStreamWebConfig.LocalizationKingBaseDb)
-                        {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName, true) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
-                        else
-                        {
                             orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
                                        Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
                     }
                 }
 
@@ -3949,16 +3941,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        if (Common.AkStreamWebConfig.LocalizationKingBaseDb)
-                        {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName,true) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
-                        else
-                        {
                             orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
                                        Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
                     }
                 }
 
@@ -4364,16 +4348,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        if (Common.AkStreamWebConfig.LocalizationKingBaseDb)
-                        {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName,true) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ","; 
-                        }
-                        else
-                        {
                             orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
                                        Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
                        
                     }
                 }
@@ -5539,16 +5515,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                        if (Common.AkStreamWebConfig.LocalizationKingBaseDb)
-                        {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName,true) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ","; 
-                        }
-                        else
-                        {
                             orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
                                        Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                        }
                     }
                 }
 
