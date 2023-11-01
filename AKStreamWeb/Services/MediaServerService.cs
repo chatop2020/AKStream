@@ -300,12 +300,14 @@ namespace AKStreamWeb.Services
             DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
             DateTime _end = DateTime.Parse(rcmv.EndTime.ToString("yyyy-MM-dd HH:mm:ss"));
             var videoList = ORMHelper.Db.Select<RecordFile>()
-                .Where(x => x.StartTime > _start.AddMinutes(-60) && x.EndTime <= _end.AddMinutes(60))
+                 .Where(x => (x.StartTime <= _start && x.EndTime >= _start)
+                          || (x.StartTime <= _end && x.EndTime >= _end) ||
+                              (x.StartTime >= _start && x.EndTime <= _end))
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MediaServerId),
                     x => x.MediaServerId!.Trim().ToLower().Equals(rcmv.MediaServerId!.Trim().ToLower()))
                 .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
                     x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower())).OrderBy(x => x.StartTime)
-                .ToList(); //取条件范围的前60分钟及后60分钟内的所有数据
+                .ToList(); 
 
             List<RecordFile> cutMegerList = new List<RecordFile>();
             if (videoList != null && videoList.Count > 0)
