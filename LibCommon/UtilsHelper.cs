@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,9 +13,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using LibCommon.Structs;
-using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
-using StreamWriter = System.IO.StreamWriter;
 
 namespace LibCommon
 {
