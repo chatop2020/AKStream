@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Timers;
 using AKStreamKeeper.AutoTask;
@@ -762,7 +761,7 @@ namespace AKStreamKeeper
                     if (DisksUseable != null && DisksUseable.Count > 0)
                     {
                         tmpKeepAlive.DisksUseable = new Dictionary<string, int>();
-                        foreach (var dic in Common.DisksUseable)
+                        foreach (var dic in DisksUseable)
                         {
                             tmpKeepAlive.DisksUseable.Add(dic.Key,dic.Value);
                         }

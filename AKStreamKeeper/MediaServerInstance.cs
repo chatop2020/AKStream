@@ -817,7 +817,7 @@ namespace AKStreamKeeper
 
                         parser.WriteFile(_configPath, data);
 
-                        var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                        var fileByte = File.ReadAllBytes(_configPath);
                         if (UtilsHelper.IsBomHeader(fileByte))
                         {
                             UtilsHelper.WithOutBomHeader(_configPath);
@@ -998,7 +998,7 @@ namespace AKStreamKeeper
                         parser.WriteFile(_configPath, data);
 
 
-                        var fileByte = System.IO.File.ReadAllBytes(_configPath);
+                        var fileByte = File.ReadAllBytes(_configPath);
                         if (UtilsHelper.IsBomHeader(fileByte))
                         {
                             UtilsHelper.WithOutBomHeader(_configPath);
