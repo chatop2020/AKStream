@@ -557,7 +557,7 @@ namespace AKStreamKeeper
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();
             }
 
-            
+
             if (!File.Exists(_configPath))
             {
                 //创建文件 
@@ -763,7 +763,7 @@ namespace AKStreamKeeper
                         tmpKeepAlive.DisksUseable = new Dictionary<string, int>();
                         foreach (var dic in DisksUseable)
                         {
-                            tmpKeepAlive.DisksUseable.Add(dic.Key,dic.Value);
+                            tmpKeepAlive.DisksUseable.Add(dic.Key, dic.Value);
                         }
                     }
                     else
@@ -834,8 +834,8 @@ namespace AKStreamKeeper
 
                 _configPath = GCommon.OutConfigPath + "AKStreamKeeper.json";
             }
-            
-            _configPath = UtilsHelper.FindPreferredConfigFile(_configPath);//查找优先使用的配置文件
+
+            _configPath = UtilsHelper.FindPreferredConfigFile(_configPath); //查找优先使用的配置文件
 
             GCommon.Logger.Info(
                 $"[{LoggerHead}]->Let's Go...");
@@ -884,7 +884,7 @@ namespace AKStreamKeeper
                 $"[{LoggerHead}]->流媒体服务器启动成功->进程ID:{MediaServerInstance.GetPid()}");
 
             AutoRtpPortClean = new AutoRtpPortClean(); //启动不使用rtp端口自动清理
-            _diskUseableChecker = new DiskUseableChecker();//启动磁盘挂载监控
+            _diskUseableChecker = new DiskUseableChecker(); //启动磁盘挂载监控
 
             if (!string.IsNullOrEmpty(AkStreamKeeperConfig.CutMergeFilePath))
             {

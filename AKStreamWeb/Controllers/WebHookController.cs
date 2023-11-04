@@ -19,8 +19,6 @@ namespace AKStreamWeb.Controllers
     [SwaggerTag("WebHook相关接口，第三方应用不需要关心此类接口")]
     public class WebHookController : ControllerBase
     {
-
-
         /// <summary>
         /// rtsprealm事件
         /// </summary>
@@ -32,7 +30,7 @@ namespace AKStreamWeb.Controllers
         {
             return WebHookService.OnRtspRealm(req);
         }
-        
+
         /// <summary>
         /// rtspauth事件
         /// </summary>
@@ -44,7 +42,7 @@ namespace AKStreamWeb.Controllers
         {
             return WebHookService.OnRtspAuth(req);
         }
-        
+
         /// <summary>
         /// 当有TS文件录制时
         /// </summary>

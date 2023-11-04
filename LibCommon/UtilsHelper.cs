@@ -303,8 +303,8 @@ namespace LibCommon
                     return $"`{str.Trim()}`";
                     break;
                 case "postgresql":
-                        return $"\"{str.Trim()}\"";
-                        break;
+                    return $"\"{str.Trim()}\"";
+                    break;
                 default:
                     return $"`{str.Trim()}`";
                     break;
@@ -600,7 +600,7 @@ namespace LibCommon
 
             return rule;
         }
-        
+
         /// <summary>
         /// 获取MD5加密码值
         /// </summary>

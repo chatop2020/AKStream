@@ -31,8 +31,8 @@ namespace AKStreamKeeper.Misc
         private bool _useSSL = false;
         private ushort _webApiPort;
         private string? _zLMediakitSSLFilePath;
-        private string? _listenIP ="127.0.0.1";
-        private bool? _enableRtspAuth=false;
+        private string? _listenIP = "127.0.0.1";
+        private bool? _enableRtspAuth = false;
 
 
         /// <summary>

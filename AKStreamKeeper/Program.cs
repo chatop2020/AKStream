@@ -53,10 +53,10 @@ namespace AKStreamKeeper
                     }
                     else
                     {
-                        var url = $"http://{Common.AkStreamKeeperConfig.ListenIp}:{Common.AkStreamKeeperConfig.WebApiPort}";
+                        var url =
+                            $"http://{Common.AkStreamKeeperConfig.ListenIp}:{Common.AkStreamKeeperConfig.WebApiPort}";
                         webBuilder.UseStartup<Startup>().UseUrls(url);
                     }
-                    
                 });
     }
 }

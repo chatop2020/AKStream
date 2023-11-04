@@ -960,7 +960,7 @@ namespace AKStreamWeb.Services
                 {
                     Code = -1,
                     Enable_Hls = false,
-                    Enable_Mp4  = false,
+                    Enable_Mp4 = false,
                     Msg = "failed",
                 };
             }
@@ -989,7 +989,7 @@ namespace AKStreamWeb.Services
                     {
                         Code = -1,
                         Enable_Hls = false,
-                        Enable_Mp4  = false,
+                        Enable_Mp4 = false,
                         Msg = "failed",
                     };
                 }
@@ -1000,7 +1000,7 @@ namespace AKStreamWeb.Services
                     {
                         Code = -1,
                         Enable_Hls = false,
-                        Enable_Mp4  = false,
+                        Enable_Mp4 = false,
                         Msg = "failed",
                     };
                 }
@@ -1072,7 +1072,7 @@ namespace AKStreamWeb.Services
             {
                 Code = -1,
                 Enable_Hls = false,
-                Enable_Mp4  = false,
+                Enable_Mp4 = false,
                 Msg = "failed",
             };
         }

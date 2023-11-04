@@ -696,9 +696,9 @@ the FB is less critical when those algorithms are used than if they
    picture will use more bits.
 
    Both MPEG - 4 and H.263 define a binary format for the "payload" of an
-  
+
      RPSI message that includes information such as the temporal ID of the
-  
+
      damaged picture and the size of the damaged region.This bit string
      is typically small (a couple of dozen bits), of variable length, and
    self - contained, i.e., contains all information that is necessary to

@@ -54,7 +54,7 @@ namespace LibZLMediaKitMediaServer
         private int? _recordSec;
         private DateTime? _zlmBuildDateTime;
         private string? _akstreamKeeperVersion;
-        private Dictionary<string,int>? _disksUseable=new Dictionary<string, int>();
+        private Dictionary<string, int>? _disksUseable = new Dictionary<string, int>();
         private bool? _isInitRtspAuthData = false;
         private string? _cutMergeFilePath;
 

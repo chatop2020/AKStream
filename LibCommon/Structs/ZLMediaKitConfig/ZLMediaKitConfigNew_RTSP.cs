@@ -13,8 +13,7 @@ public class ZLMediaKitConfigNew_RTSP
     private ushort? _port;
     private int? _rtpTransportType;
     private ushort? _sslport;
-  
-   
+
 
     /// <summary>
     /// rtsp专有鉴权方式是采用base64还是md5方式
@@ -97,6 +96,4 @@ public class ZLMediaKitConfigNew_RTSP
         get => _rtpTransportType;
         set => _rtpTransportType = value;
     }
-
-  
 }

@@ -37,7 +37,7 @@
 * @author Damian Minkov
 * @author Boris Grozev
 * @author Lyubomir Marinov
-* 
+*
 */
 
 using System;
@@ -77,7 +77,7 @@ namespace SIPSorcery.Net
          * <tt>byte</tt> array buffer.
          *
          * @param buffer the <tt>byte</tt> array to be the buffer of the new
-         * instance 
+         * instance
          * @param offset the offset in <tt>buffer</tt> at which the actual data to
          * be represented by the new instance starts
          * @param length the number of <tt>byte</tt>s in <tt>buffer</tt> which
@@ -387,7 +387,7 @@ namespace SIPSorcery.Net
         /**
          * Read a byte region from specified offset in the RTP packet and with
          * specified length into a given buffer
-         * 
+         *
          * @param off
          *            start offset in the RTP packet of the region to be read
          * @param len

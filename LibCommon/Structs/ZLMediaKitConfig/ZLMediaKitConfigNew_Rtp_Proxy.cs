@@ -14,8 +14,7 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
     private string? _port_range;
     private string? _ps_pt;
     private int? _timeoutSec;
-    
-   
+
 
     /// <summary>
     /// 导出调试数据(包括rtp/ps/h264)至该目录,置空则关闭数据导出
@@ -89,6 +88,7 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
         get => _opus_pt;
         set => _opus_pt = value;
     }
+
     /// <summary>
     /// rtp g711a 负载的pt
     /// </summary>
@@ -97,5 +97,4 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
         get => _gop_cache;
         set => _gop_cache = value;
     }
-   
 }

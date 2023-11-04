@@ -10,7 +10,7 @@ public class ZLMediaKitConfigNew_RTP
     private int? _lowLatency;
     private int? _rtpMaxSize;
     private int? _videoMtuSize;
-    
+
 
     /// <summary>
     /// 音频mtu大小，该参数限制rtp最大字节数，推荐不要超过1400
@@ -59,6 +59,4 @@ public class ZLMediaKitConfigNew_RTP
         get => _h264_stap_a;
         set => _h264_stap_a = value;
     }
-
- 
 }

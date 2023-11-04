@@ -53,7 +53,7 @@ namespace AKStreamKeeper.Services
                         {
                             taskStatus.PlayUrl = taskReturn.Uri;
                         }
-                        
+
 
                         GCommon.Logger.Debug(
                             $"[{Common.LoggerHead}]->一个裁剪合并任务执行回调->TaskId:{taskReturn.Task.TaskId}->TaskStatus:{taskReturn.Status}->TimeConsuming:{taskReturn.TimeConsuming}->CallbakUrl:{taskReturn.Task.CallbakUrl}");

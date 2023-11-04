@@ -25,7 +25,7 @@ namespace SIPSorcery.Net
     {
         /**
          * Transforms a non-secure packet.
-         * 
+         *
          * @param pkt
          *            the packet to be transformed
          * @return The transformed packet. Returns null if the packet cannot be transformed.
@@ -34,7 +34,7 @@ namespace SIPSorcery.Net
 
         /**
          * Transforms a specific non-secure packet.
-         * 
+         *
          * @param pkt
          *            The packet to be secured
          * @param offset
@@ -49,7 +49,7 @@ namespace SIPSorcery.Net
         /**
          * Reverse-transforms a specific packet (i.e. transforms a transformed
          * packet back).
-         * 
+         *
          * @param pkt
          *            the transformed packet to be restored
          * @return Whether the packet was successfully restored
@@ -59,7 +59,7 @@ namespace SIPSorcery.Net
         /**
          * Reverse-transforms a specific packet (i.e. transforms a transformed
          * packet back).
-         * 
+         *
          * @param pkt
          *            the packet to be restored
          * @param offset
@@ -72,7 +72,7 @@ namespace SIPSorcery.Net
 
         /**
          * Close the transformer and underlying transform engine.
-         * 
+         *
          * The close functions closes all stored crypto contexts. This deletes key
          * data and forces a cleanup of the crypto contexts.
          */

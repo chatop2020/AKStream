@@ -2109,7 +2109,6 @@ namespace AKStreamWeb.Services
             {
                 if (ret != null && ret.Code != 0)
                 {
-                   
                     rs = new ResponseStruct()
                     {
                         Code = ErrorNumber.MediaServer_WebApiDataExcept,
@@ -3592,8 +3591,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
+                                   Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
@@ -3942,8 +3941,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
+                                   Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
@@ -4349,9 +4348,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
-                       
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
+                                   Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 
@@ -5516,8 +5514,8 @@ namespace AKStreamWeb.Services
                 {
                     if (order != null)
                     {
-                            orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
-                                       Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
+                        orderBy += UtilsHelper.AddQuote(order.FieldName) + " " +
+                                   Enum.GetName(typeof(OrderByDir), order.OrderByDir!) + ",";
                     }
                 }
 

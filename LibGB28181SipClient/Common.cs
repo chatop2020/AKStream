@@ -92,15 +92,15 @@ namespace LibGB28181SipClient
                     sipClientConfig.SipDeviceId = "33020000021190000002";
                     sipClientConfig.SipServerDeviceId = "33020000021180000001";
                     /*SipDeviceID 20位编码规则
-                       *1-2省级 33 浙江省
-                       *3-4市级 02 宁波市
-                       *5-6区级 00 宁波市区
-                       *7-8村级 00 宁波市区
-                       *9-10行业 02 社会治安内部接入
-                       *11-13设备类型 118 NVR
-                       *14 网络类型 0 监控专用网
-                       *15-20 设备序号 000001 1号设备 
-                       */
+                     *1-2省级 33 浙江省
+                     *3-4市级 02 宁波市
+                     *5-6区级 00 宁波市区
+                     *7-8村级 00 宁波市区
+                     *9-10行业 02 社会治安内部接入
+                     *11-13设备类型 118 NVR
+                     *14 网络类型 0 监控专用网
+                     *15-20 设备序号 000001 1号设备
+                     */
                     sipClientConfig.Realm = sipClientConfig.SipDeviceId.Substring(0, 10);
                     sipClientConfig.LocalPort = 5061;
                     sipClientConfig.SipPassword = "123#@!qwe";

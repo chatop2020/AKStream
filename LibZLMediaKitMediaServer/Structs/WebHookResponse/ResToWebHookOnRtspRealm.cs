@@ -2,9 +2,8 @@ using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 
 namespace LibZLMediaKitMediaServer.Structs.WebHookResponse;
 
-public class ResToWebHookOnRtspRealm: ResZLMediaKitResponseBase
+public class ResToWebHookOnRtspRealm : ResZLMediaKitResponseBase
 {
-
     private string? _realm;
 
     public string Realm
@@ -12,5 +11,4 @@ public class ResToWebHookOnRtspRealm: ResZLMediaKitResponseBase
         get => _realm;
         set => _realm = value;
     }
-  
 }

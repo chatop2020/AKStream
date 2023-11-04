@@ -53,7 +53,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-*/
+ */
 
 using System;
 using System.IO;
@@ -130,7 +130,7 @@ namespace SIPSorcery.Net
         /**
          * Construct an empty SRTPCryptoContext using ssrc.
          * The other parameters are set to default null value.
-         * 
+         *
          * @param ssrc SSRC of this SRTPCryptoContext
          */
         public SrtcpCryptoContext(long ssrcIn)
@@ -148,7 +148,7 @@ namespace SIPSorcery.Net
 
         /**
          * Construct a normal SRTPCryptoContext based on the given parameters.
-         * 
+         *
          * @param ssrc
          *            the RTP SSRC that this SRTP cryptographic context protects.
          * @param masterKey
@@ -234,14 +234,14 @@ namespace SIPSorcery.Net
 
         /**
          * Close the crypto context.
-         * 
-         * The close functions deletes key data and performs a cleanup of the 
+         *
+         * The close functions deletes key data and performs a cleanup of the
          * crypto context.
-         * 
+         *
          * Clean up key data, maybe this is the second time. However, sometimes
          * we cannot know if the CryptoContext was used and the application called
          * deriveSrtpKeys(...) that would have cleaned the key data.
-         * 
+         *
          */
         public void Close()
         {
@@ -251,7 +251,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the authentication tag length of this SRTP cryptographic context
-         * 
+         *
          * @return the authentication tag length of this SRTP cryptographic context
          */
         public int GetAuthTagLength()
@@ -261,7 +261,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the MKI length of this SRTP cryptographic context
-         * 
+         *
          * @return the MKI length of this SRTP cryptographic context
          */
         public int GetMKILength()
@@ -285,20 +285,20 @@ namespace SIPSorcery.Net
         }
 
         /**
-         * Transform a RTP packet into a SRTP packet. 
+         * Transform a RTP packet into a SRTP packet.
          * This method is called when a normal RTP packet ready to be sent.
-         * 
+         *
          * Operations done by the transformation may include: encryption, using
          * either Counter Mode encryption, or F8 Mode encryption, adding
          * authentication tag, currently HMC SHA1 method.
-         * 
+         *
          * Both encryption and authentication functionality can be turned off
          * as long as the SRTPPolicy used in this SRTPCryptoContext is requires no
          * encryption and no authentication. Then the packet will be sent out
          * untouched. However this is not encouraged. If no SRTP feature is enabled,
          * then we shall not use SRTP TransformConnector. We should use the original
-         * method (RTPManager managed transportation) instead.  
-         * 
+         * method (RTPManager managed transportation) instead.
+         *
          * @param pkt the RTP packet that is going to be sent out
          */
         public void TransformPacket(RawPacket pkt)
@@ -341,20 +341,20 @@ namespace SIPSorcery.Net
         /**
          * Transform a SRTCP packet into a RTCP packet.
          * This method is called when a SRTCP packet was received.
-         * 
+         *
          * Operations done by the this operation include:
          * Authentication check, Packet replay check and decryption.
-         * 
+         *
          * Both encryption and authentication functionality can be turned off
          * as long as the SRTPPolicy used in this SRTPCryptoContext requires no
          * encryption and no authentication. Then the packet will be sent out
          * untouched. However this is not encouraged. If no SRTCP feature is enabled,
          * then we shall not use SRTP TransformConnector. We should use the original
-         * method (RTPManager managed transportation) instead.  
-         * 
-         * @param pkt the received RTCP packet 
+         * method (RTPManager managed transportation) instead.
+         *
+         * @param pkt the received RTCP packet
          * @return true if the packet can be accepted
-         *         false if authentication or replay check failed 
+         *         false if authentication or replay check failed
          */
         public bool ReverseTransformPacket(RawPacket pkt)
         {
@@ -421,7 +421,7 @@ namespace SIPSorcery.Net
         }
 
         /**
-         * Perform Counter Mode AES encryption / decryption 
+         * Perform Counter Mode AES encryption / decryption
          * @param pkt the RTP packet to be encrypted / decrypted
          */
         public void ProcessPacketAESCM(RawPacket pkt, int index)
@@ -429,14 +429,14 @@ namespace SIPSorcery.Net
             long ssrc = pkt.GetRTCPSSRC();
 
             /* Compute the CM IV (refer to chapter 4.1.1 in RFC 3711):
-            *
-            * k_s   XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-            * SSRC              XX XX XX XX
-            * index                               XX XX XX XX
-            * ------------------------------------------------------XOR
-            * IV    XX XX XX XX XX XX XX XX XX XX XX XX XX XX 00 00
-            *        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
-            */
+             *
+             * k_s   XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+             * SSRC              XX XX XX XX
+             * index                               XX XX XX XX
+             * ------------------------------------------------------XOR
+             * IV    XX XX XX XX XX XX XX XX XX XX XX XX XX XX 00 00
+             *        0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+             */
             ivStore[0] = saltKey[0];
             ivStore[1] = saltKey[1];
             ivStore[2] = saltKey[2];
@@ -505,7 +505,7 @@ namespace SIPSorcery.Net
 
         /**
          * Authenticate a packet.
-         * 
+         *
          * Calculated authentication tag is stored in tagStore area.
          *
          * @param pkt the RTP packet to be authenticated
@@ -528,13 +528,13 @@ namespace SIPSorcery.Net
 
         /**
          * Checks if a packet is a replayed on based on its sequence number.
-         * 
+         *
          * This method supports a 64 packet history relative to the given
          * sequence number.
          *
-         * Sequence Number is guaranteed to be real (not faked) through 
+         * Sequence Number is guaranteed to be real (not faked) through
          * authentication.
-         * 
+         *
          * @param index index number of the SRTCP packet
          * @return true if this sequence number indicates the packet is not a
          * replayed one, false if not
@@ -576,8 +576,8 @@ namespace SIPSorcery.Net
         /**
          * Compute the initialization vector, used later by encryption algorithms,
          * based on the label.
-         * 
-         * @param label label specified for each type of iv 
+         *
+         * @param label label specified for each type of iv
          */
         private void ComputeIv(byte label)
         {
@@ -592,7 +592,7 @@ namespace SIPSorcery.Net
 
         /**
          * Derives the srtcp session keys from the master key.
-         * 
+         *
          */
         public void DeriveSrtcpKeys()
         {
@@ -646,9 +646,9 @@ namespace SIPSorcery.Net
 
         /**
          * Update the SRTP packet index.
-         * 
-         * This method is called after all checks were successful. 
-         * 
+         *
+         * This method is called after all checks were successful.
+         *
          * @param index index number of the accepted packet
          */
         private void Update(int index)
@@ -673,16 +673,16 @@ namespace SIPSorcery.Net
 
         /**
          * Derive a new SRTPCryptoContext for use with a new SSRC
-         * 
+         *
          * This method returns a new SRTPCryptoContext initialized with the data of
          * this SRTPCryptoContext. Replacing the SSRC, Roll-over-Counter, and the
          * key derivation rate the application cab use this SRTPCryptoContext to
          * encrypt / decrypt a new stream (Synchronization source) inside one RTP
          * session.
-         * 
+         *
          * Before the application can use this SRTPCryptoContext it must call the
          * deriveSrtpKeys method.
-         * 
+         *
          * @param ssrc
          *            The SSRC for this context
          * @return a new SRTPCryptoContext with all relevant data set.

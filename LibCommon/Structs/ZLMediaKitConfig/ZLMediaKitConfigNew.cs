@@ -416,13 +416,11 @@ public class ZLMediaKitConfigNew
 
             if (Hook != null)
             {
-               
-
                 if (!string.IsNullOrEmpty(Hook.On_Server_Exited))
                 {
                     data["hook"]["on_server_exited"] = Hook.On_Server_Exited.Trim();
                 }
-                
+
                 if (Hook.Enable != null && UtilsHelper.IsInteger(Hook.Enable.ToString()))
                 {
                     data["hook"]["enable"] = Hook.Enable.ToString();
@@ -786,6 +784,7 @@ public class ZLMediaKitConfigNew
                 {
                     data["rtp_proxy"]["opus_pt"] = Rtp_Proxy.Opus_Pt.Trim();
                 }
+
                 if (Rtp_Proxy.Gop_Cache != null && UtilsHelper.IsUShort(Rtp_Proxy.Gop_Cache.ToString()))
                 {
                     data["rtp_proxy"]["gop_cache"] = Rtp_Proxy.Gop_Cache.ToString();
@@ -1103,7 +1102,8 @@ public class ZLMediaKitConfigNew
             }
 
             var enable_hls_fmp4 = data["protocol"]["enable_hls_fmp4"];
-            if (enable_hls_fmp4 != null && !string.IsNullOrEmpty(enable_hls_fmp4) && UtilsHelper.IsInteger(enable_hls_fmp4))
+            if (enable_hls_fmp4 != null && !string.IsNullOrEmpty(enable_hls_fmp4) &&
+                UtilsHelper.IsInteger(enable_hls_fmp4))
             {
                 Protocol.Enable_Hls_Fmp4 = int.Parse(enable_hls_fmp4);
             }
@@ -1270,22 +1270,21 @@ public class ZLMediaKitConfigNew
             {
                 General.Unready_Frame_Cache = int.Parse(unready_frame_cache);
             }
+
             var check_nvidia_dev = data["general"]["check_nvidia_dev"];
             if (check_nvidia_dev != null && !string.IsNullOrEmpty(check_nvidia_dev) &&
                 UtilsHelper.IsInteger(check_nvidia_dev))
             {
                 General.Check_Nvidia_Dev = int.Parse(check_nvidia_dev);
-              
             }
-            
+
             var enable_ffmpeg_log = data["general"]["enable_ffmpeg_log"];
             if (enable_ffmpeg_log != null && !string.IsNullOrEmpty(enable_ffmpeg_log) &&
                 UtilsHelper.IsInteger(enable_ffmpeg_log))
             {
                 General.Enable_FFmpeg_Log = int.Parse(enable_ffmpeg_log);
-              
             }
-            
+
             #endregion
 
             #region hls部分
@@ -1353,6 +1352,7 @@ public class ZLMediaKitConfigNew
             {
                 Hook.On_Server_Exited = on_server_exited.Trim();
             }
+
             var enable = data["hook"]["enable"];
             if (enable != null && !string.IsNullOrEmpty(enable) && UtilsHelper.IsInteger(enable))
             {
@@ -1809,6 +1809,7 @@ public class ZLMediaKitConfigNew
             {
                 Rtp_Proxy.Gop_Cache = int.Parse(gop_cache);
             }
+
             #endregion
 
             #region rtc部分

@@ -36,7 +36,7 @@ namespace LibCommon.Structs.WebRequest
         private ushort _zlmRtspsPort;
         private int? _recordSec;
         private DateTime? _zlmBuildDateTime;
-        private Dictionary<string,int>? _disksUseable;
+        private Dictionary<string, int>? _disksUseable;
         private string? _cutMergeFilePath;
 
 
@@ -256,8 +256,8 @@ namespace LibCommon.Structs.WebRequest
             get => _zlmBuildDateTime;
             set => _zlmBuildDateTime = value;
         }
-        
-        
+
+
         /// <summary>
         /// 挂载的磁盘是否可用
         /// </summary>

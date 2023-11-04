@@ -53,30 +53,30 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-*/
+ */
 
 /**
  * SRTPCryptoContext class is the core class of SRTP implementation. There can
  * be multiple SRTP sources in one SRTP session. And each SRTP stream has a
  * corresponding SRTPCryptoContext object, identified by SSRC. In this way,
  * different sources can be protected independently.
- * 
+ *
  * SRTPCryptoContext class acts as a manager class and maintains all the
  * information used in SRTP transformation. It is responsible for deriving
  * encryption keys / salting keys / authentication keys from master keys. And it
  * will invoke certain class to encrypt / decrypt (transform / reverse
  * transform) RTP packets. It will hold a replay check db and do replay check
  * against incoming packets.
- * 
+ *
  * Refer to section 3.2 in RFC3711 for detailed description of cryptographic
  * context.
- * 
+ *
  * Cryptographic related parameters, i.e. encryption mode / authentication mode,
  * master encryption key and master salt key are determined outside the scope of
  * SRTP implementation. They can be assigned manually, or can be assigned
  * automatically using some key management protocol, such as MIKEY (RFC3830),
  * SDES (RFC4568) or Phil Zimmermann's ZRTP protocol (RFC6189).
- * 
+ *
  * @author Bing SU (nova.su@gmail.com)
  */
 
@@ -212,7 +212,7 @@ namespace SIPSorcery.Net
         /**
          * Construct an empty SRTPCryptoContext using ssrc. The other parameters are
          * set to default null value.
-         * 
+         *
          * @param ssrcIn
          *            SSRC of this SRTPCryptoContext
          */
@@ -236,7 +236,7 @@ namespace SIPSorcery.Net
 
         /**
          * Construct a normal SRTPCryptoContext based on the given parameters.
-         * 
+         *
          * @param ssrcIn
          *            the RTP SSRC that this SRTP cryptographic context protects.
          * @param rocIn
@@ -336,14 +336,14 @@ namespace SIPSorcery.Net
 
         /**
          * Close the crypto context.
-         * 
+         *
          * The close functions deletes key data and performs a cleanup of the crypto
          * context.
-         * 
+         *
          * Clean up key data, maybe this is the second time however, sometimes we
          * cannot know if the CryptoCOntext was used and the application called
          * deriveSrtpKeys(...) .
-         * 
+         *
          */
         public void Close()
         {
@@ -353,7 +353,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the authentication tag length of this SRTP cryptographic context
-         * 
+         *
          * @return the authentication tag length of this SRTP cryptographic context
          */
         public int GetAuthTagLength()
@@ -363,7 +363,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the MKI length of this SRTP cryptographic context
-         * 
+         *
          * @return the MKI length of this SRTP cryptographic context
          */
         public int GetMKILength()
@@ -373,7 +373,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the SSRC of this SRTP cryptographic context
-         * 
+         *
          * @return the SSRC of this SRTP cryptographic context
          */
         public long GetSSRC()
@@ -383,7 +383,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the Roll-Over-Counter of this SRTP cryptographic context
-         * 
+         *
          * @return the Roll-Over-Counter of this SRTP cryptographic context
          */
         public int GetROC()
@@ -393,7 +393,7 @@ namespace SIPSorcery.Net
 
         /**
          * Set the Roll-Over-Counter of this SRTP cryptographic context
-         * 
+         *
          * @param rocIn
          *            the Roll-Over-Counter of this SRTP cryptographic context
          */
@@ -405,18 +405,18 @@ namespace SIPSorcery.Net
         /**
          * Transform a RTP packet into a SRTP packet. This method is called when a
          * normal RTP packet ready to be sent.
-         * 
+         *
          * Operations done by the transformation may include: encryption, using
          * either Counter Mode encryption, or F8 Mode encryption, adding
          * authentication tag, currently HMC SHA1 method.
-         * 
+         *
          * Both encryption and authentication functionality can be turned off as
          * long as the SRTPPolicy used in this SRTPCryptoContext is requires no
          * encryption and no authentication. Then the packet will be sent out
          * untouched. However this is not encouraged. If no SRTP feature is enabled,
          * then we shall not use SRTP TransformConnector. We should use the original
          * method (RTPManager managed transportation) instead.
-         * 
+         *
          * @param pkt
          *            the RTP packet that is going to be sent out
          */
@@ -451,17 +451,17 @@ namespace SIPSorcery.Net
         /**
          * Transform a SRTP packet into a RTP packet. This method is called when a
          * SRTP packet is received.
-         * 
+         *
          * Operations done by the this operation include: Authentication check,
          * Packet replay check and Decryption.
-         * 
+         *
          * Both encryption and authentication functionality can be turned off as
          * long as the SRTPPolicy used in this SRTPCryptoContext requires no
          * encryption and no authentication. Then the packet will be sent out
          * untouched. However this is not encouraged. If no SRTP feature is enabled,
          * then we shall not use SRTP TransformConnector. We should use the original
          * method (RTPManager managed transportation) instead.
-         * 
+         *
          * @param pkt
          *            the RTP packet that is just received
          * @return true if the packet can be accepted false if the packet failed
@@ -533,7 +533,7 @@ namespace SIPSorcery.Net
 
         /**
          * Perform Counter Mode AES encryption / decryption
-         * 
+         *
          * @param pkt
          *            the RTP packet to be encrypted / decrypted
          */
@@ -571,7 +571,7 @@ namespace SIPSorcery.Net
 
         /**
          * Perform F8 Mode AES encryption / decryption
-         * 
+         *
          * @param pkt
          *            the RTP packet to be encrypted / decrypted
          */
@@ -599,7 +599,7 @@ namespace SIPSorcery.Net
 
         /**
          * Authenticate a packet. Calculated authentication tag is returned.
-         * 
+         *
          * @param pkt
          *            the RTP packet to be authenticated
          * @param rocIn
@@ -622,13 +622,13 @@ namespace SIPSorcery.Net
 
         /**
          * Checks if a packet is a replayed on based on its sequence number.
-         * 
+         *
          * This method supports a 64 packet history relative the the given sequence
          * number.
-         * 
+         *
          * Sequence Number is guaranteed to be real (not faked) through
          * authentication.
-         * 
+         *
          * @param seqNo
          *            sequence number of the packet
          * @param guessedIndex
@@ -677,7 +677,7 @@ namespace SIPSorcery.Net
          * Compute the initialization vector, used later by encryption algorithms,
          * based on the lable, the packet index, key derivation rate and master salt
          * key.
-         * 
+         *
          * @param label
          *            label specified for each type of iv
          * @param index
@@ -711,7 +711,7 @@ namespace SIPSorcery.Net
 
         /**
          * Derives the srtp session keys from the master key
-         * 
+         *
          * @param index
          *            the 48 bit SRTP packet index
          */
@@ -768,7 +768,7 @@ namespace SIPSorcery.Net
         /**
          * Compute (guess) the new SRTP index based on the sequence number of a
          * received RTP packet.
-         * 
+         *
          * @param seqNo
          *            sequence number of the received RTP packet
          * @return the new SRTP packet index
@@ -805,10 +805,10 @@ namespace SIPSorcery.Net
 
         /**
          * Update the SRTP packet index.
-         * 
+         *
          * This method is called after all checks were successful. See section 3.3.1
          * in RFC3711 for detailed description.
-         * 
+         *
          * @param seqNo
          *            sequence number of the accepted packet
          * @param guessedIndex
@@ -847,16 +847,16 @@ namespace SIPSorcery.Net
 
         /**
          * Derive a new SRTPCryptoContext for use with a new SSRC
-         * 
+         *
          * This method returns a new SRTPCryptoContext initialized with the data of
          * this SRTPCryptoContext. Replacing the SSRC, Roll-over-Counter, and the
          * key derivation rate the application cab use this SRTPCryptoContext to
          * encrypt / decrypt a new stream (Synchronization source) inside one RTP
          * session.
-         * 
+         *
          * Before the application can use this SRTPCryptoContext it must call the
          * deriveSrtpKeys method.
-         * 
+         *
          * @param ssrc
          *            The SSRC for this context
          * @param roc

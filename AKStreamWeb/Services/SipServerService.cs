@@ -1712,7 +1712,7 @@ namespace AKStreamWeb.Services
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
             {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec); 
+                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
                 liveVideoRet = sipMethodProxy.InviteRecordPosition(record, pushMediaInfo, time, out rs);
             }
             catch (Exception ex)
@@ -1744,7 +1744,7 @@ namespace AKStreamWeb.Services
             else
             {
                 GCommon.Logger.Warn(
-                    $"[{Common.LoggerHead}]->拖拽Sip回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->liveVideoRet:{liveVideoRet}");  
+                    $"[{Common.LoggerHead}]->拖拽Sip回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->liveVideoRet:{liveVideoRet}");
             }
 
             return liveVideoRet;

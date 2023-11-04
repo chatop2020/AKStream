@@ -27,8 +27,7 @@ public class ZLMediaKitConfigNew_Hook
     private int? _retry;
     private float? _retry_delay;
     private int? _timeoutSec;
- 
-    
+
 
     /// <summary>
     /// 是否启用hook事件，启用后，推拉流都将进行鉴权
