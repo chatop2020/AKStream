@@ -297,71 +297,67 @@ namespace AKStreamWeb.AutoTask
 
                             foreach (var obj in retlist)
                             {
-                               
                                 if (obj != null && obj.MediaServerStreamInfo != null)
                                 {
-                                   
-                                        var MediaServerTmp =
-                                            Common.MediaServerList.FindLast(x =>
-                                                x.MediaServerId.Equals(obj.MediaServerId));
-                                        if (MediaServerTmp != null)
+                                    var MediaServerTmp =
+                                        Common.MediaServerList.FindLast(x =>
+                                            x.MediaServerId.Equals(obj.MediaServerId));
+                                    if (MediaServerTmp != null)
+                                    {
+                                        if (MediaServerTmp.DisksUseable != null &&
+                                            MediaServerTmp.DisksUseable.Count > 0)
                                         {
-                                            if (MediaServerTmp.DisksUseable != null &&
-                                                MediaServerTmp.DisksUseable.Count > 0)
+                                            foreach (var disk in MediaServerTmp.DisksUseable)
                                             {
-                                                foreach (var disk in MediaServerTmp.DisksUseable)
+                                                if (disk.Value != 0)
                                                 {
-                                                    if (disk.Value != 0)
+                                                    GCommon.Logger.Warn(
+                                                        $"[{Common.LoggerHead}]->{disk.Key}所在的磁盘挂载有异常，异常值为：{disk.Value},将中断{obj.MainId}的录制计划，待磁盘挂载正常后恢复录制计划");
+                                                    diskuseage = false;
+                                                    ResponseStruct rs2 = new ResponseStruct();
+
+                                                    if (obj.MediaServerStreamInfo.IsRecorded != null &&
+                                                        obj.MediaServerStreamInfo.IsRecorded == true)
                                                     {
-                                                        GCommon.Logger.Warn(
-                                                            $"[{Common.LoggerHead}]->{disk.Key}所在的磁盘挂载有异常，异常值为：{disk.Value},将中断{obj.MainId}的录制计划，待磁盘挂载正常后恢复录制计划");
-                                                        diskuseage = false;
-                                                        ResponseStruct rs2 = new ResponseStruct();
-
-                                                        if (obj.MediaServerStreamInfo.IsRecorded!=null && obj.MediaServerStreamInfo.IsRecorded==true)
+                                                        try
                                                         {
-                                                            try
+                                                            var ret = MediaServerService.StopRecord(
+                                                                obj.MediaServerId,
+                                                                obj.MainId,
+                                                                out rs2);
+                                                            if (!ret.Result || ret.Code != 0 ||
+                                                                rs.Code != ErrorNumber.None)
                                                             {
-
-                                                                var ret = MediaServerService.StopRecord(
-                                                                    obj.MediaServerId,
-                                                                    obj.MainId,
-                                                                    out rs2);
-                                                                if (!ret.Result || ret.Code != 0 ||
-                                                                    rs.Code != ErrorNumber.None)
-                                                                {
-                                                                    GCommon.Logger.Warn(
-                                                                        $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{JsonHelper.ToJson(rs2)}");
-                                                                }
-                                                                else
-                                                                {
-                                                                    GCommon.Logger.Info(
-                                                                        $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划成功->{JsonHelper.ToJson(rs2)}");
-                                                                }
+                                                                GCommon.Logger.Warn(
+                                                                    $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{JsonHelper.ToJson(rs2)}");
                                                             }
-                                                            catch (Exception ex)
+                                                            else
                                                             {
-                                                                GCommon.Logger.Error(
-                                                                    $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{ex.Message}->{ex.StackTrace}");
-
+                                                                GCommon.Logger.Info(
+                                                                    $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划成功->{JsonHelper.ToJson(rs2)}");
                                                             }
-
                                                         }
-
-                                                        break;
-
+                                                        catch (Exception ex)
+                                                        {
+                                                            GCommon.Logger.Error(
+                                                                $"[{Common.LoggerHead}]->因磁盘挂载异常停止{obj.MainId}的录制计划失败->{ex.Message}->{ex.StackTrace}");
+                                                        }
                                                     }
 
-                                                    diskuseage = true;
+                                                    break;
                                                 }
+
+                                                diskuseage = true;
                                             }
                                         }
+                                    }
+
                                     if (!diskuseage)
                                     {
                                         Thread.Sleep(100);
-                                        continue;  
+                                        continue;
                                     }
-                                    
+
                                     var videoChannel = videoChannelList.FindLast(x => x.MainId.Equals(obj.MainId));
                                     if (videoChannel != null)
                                     {
@@ -427,46 +423,44 @@ namespace AKStreamWeb.AutoTask
                                                         }
                                                         else
                                                         {
-                                                            
-                                                                string info2 =
-                                                                    $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
-                                                                info2 += (recordPlan.LimitDays < fileDateList.Count)
-                                                                    ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
-                                                                    : "";
-                                                                info2 +=
-                                                                    $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
-                                                                GCommon.Logger.Info(
-                                                                    $"[{Common.LoggerHead}]->{info2}");
-                                                                bool p = false;
-                                                                if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                            string info2 =
+                                                                $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                            info2 += (recordPlan.LimitDays < fileDateList.Count)
+                                                                ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                                : "";
+                                                            info2 +=
+                                                                $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                            GCommon.Logger.Info(
+                                                                $"[{Common.LoggerHead}]->{info2}");
+                                                            bool p = false;
+                                                            if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                            {
+                                                                int? loopCount = fileDateList.Count -
+                                                                    recordPlan.LimitDays;
+
+                                                                List<string> willDeleteDays = new List<string>();
+                                                                for (int i = 0; i < loopCount; i++)
                                                                 {
-                                                                    int? loopCount = fileDateList.Count -
-                                                                        recordPlan.LimitDays;
-
-                                                                    List<string> willDeleteDays = new List<string>();
-                                                                    for (int i = 0; i < loopCount; i++)
-                                                                    {
-                                                                        willDeleteDays.Add(fileDateList[i]!);
-                                                                    }
-
-                                                                    DeleteFileByDay(willDeleteDays,
-                                                                        obj.MediaServerStreamInfo);
-                                                                    p = true;
+                                                                    willDeleteDays.Add(fileDateList[i]!);
                                                                 }
 
-                                                                if (p)
-                                                                {
-                                                                    fileSize = GetRecordFileSize(videoChannel
-                                                                        .MainId); //删除完一天以后再取一下文件总长度
-                                                                }
+                                                                DeleteFileByDay(willDeleteDays,
+                                                                    obj.MediaServerStreamInfo);
+                                                                p = true;
+                                                            }
 
-                                                                if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
-                                                                {
-                                                                    DeleteFileOneByOne(fileSize,
-                                                                        obj.MediaServerStreamInfo,
-                                                                        recordPlan);
-                                                                }
-                                                           
+                                                            if (p)
+                                                            {
+                                                                fileSize = GetRecordFileSize(videoChannel
+                                                                    .MainId); //删除完一天以后再取一下文件总长度
+                                                            }
+
+                                                            if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                            {
+                                                                DeleteFileOneByOne(fileSize,
+                                                                    obj.MediaServerStreamInfo,
+                                                                    recordPlan);
+                                                            }
                                                         }
 
                                                         break;
@@ -487,59 +481,57 @@ namespace AKStreamWeb.AutoTask
                                                 }
                                                 else if (stopIt && obj.MediaServerStreamInfo.IsRecorded == false)
                                                 {
-                                                    
-                                                        //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
-                                                        if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
+                                                    //既没启动录制，又不让启动录制，这时要查一下有没有需要删除的文件
+                                                    if (recordPlan.OverStepPlan == OverStepPlan.DeleteFile)
+                                                    {
+                                                        if (recordPlan.LimitDays < fileDateList.Count)
                                                         {
-                                                            if (recordPlan.LimitDays < fileDateList.Count)
+                                                            string info2 =
+                                                                $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
+                                                            info2 += (recordPlan.LimitDays < fileDateList.Count)
+                                                                ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
+                                                                : "";
+                                                            info2 +=
+                                                                $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
+                                                            GCommon.Logger.Info(
+                                                                $"[{Common.LoggerHead}]->{info2}");
+                                                            bool p = false;
+                                                            if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
                                                             {
-                                                                string info2 =
-                                                                    $"自动删除录制文件条件被触发->{obj.MediaServerId}->{obj.MainId}->{videoChannel.RecordPlanName}";
-                                                                info2 += (recordPlan.LimitDays < fileDateList.Count)
-                                                                    ? $"限制录制文件天数:{recordPlan.LimitDays}<实际录制文件天数:{fileDateList.Count}"
-                                                                    : "";
-                                                                info2 +=
-                                                                    $"->限制录制空间:{recordPlan.LimitSpace}Bytes<实际录制空间:{fileSize}Bytes";
-                                                                GCommon.Logger.Info(
-                                                                    $"[{Common.LoggerHead}]->{info2}");
-                                                                bool p = false;
-                                                                if (recordPlan.LimitDays < fileDateList.Count) //先一天一天删除
+                                                                int? loopCount = fileDateList.Count -
+                                                                    recordPlan.LimitDays;
+
+                                                                List<string> willDeleteDays = new List<string>();
+                                                                for (int i = 0; i < loopCount; i++)
                                                                 {
-                                                                    int? loopCount = fileDateList.Count -
-                                                                        recordPlan.LimitDays;
-
-                                                                    List<string> willDeleteDays = new List<string>();
-                                                                    for (int i = 0; i < loopCount; i++)
-                                                                    {
-                                                                        willDeleteDays.Add(fileDateList[i]!);
-                                                                    }
-
-                                                                    DeleteFileByDay(willDeleteDays,
-                                                                        obj.MediaServerStreamInfo);
-                                                                    p = true;
+                                                                    willDeleteDays.Add(fileDateList[i]!);
                                                                 }
 
-                                                                if (p)
-                                                                {
-                                                                    fileSize = GetRecordFileSize(videoChannel
-                                                                        .MainId); //删除完一天以后再取一下文件总长度
-                                                                }
-
-                                                                if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
-                                                                {
-                                                                    DeleteFileOneByOne(fileSize,
-                                                                        obj.MediaServerStreamInfo,
-                                                                        recordPlan);
-                                                                }
+                                                                DeleteFileByDay(willDeleteDays,
+                                                                    obj.MediaServerStreamInfo);
+                                                                p = true;
                                                             }
-                                                            else if (recordPlan.LimitSpace < fileSize)
+
+                                                            if (p)
                                                             {
-                                                                //如果文件天数不足，则删除一个文件
-                                                                DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                fileSize = GetRecordFileSize(videoChannel
+                                                                    .MainId); //删除完一天以后再取一下文件总长度
+                                                            }
+
+                                                            if (recordPlan.LimitSpace < fileSize) //还大，再删除一个文件
+                                                            {
+                                                                DeleteFileOneByOne(fileSize,
+                                                                    obj.MediaServerStreamInfo,
                                                                     recordPlan);
                                                             }
                                                         }
-                                                    
+                                                        else if (recordPlan.LimitSpace < fileSize)
+                                                        {
+                                                            //如果文件天数不足，则删除一个文件
+                                                            DeleteFileOneByOne(fileSize, obj.MediaServerStreamInfo,
+                                                                recordPlan);
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }

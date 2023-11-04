@@ -68,7 +68,7 @@ public class ZLMediaKitConfigNew_Protocol
         get => _auto_close;
         set => _auto_close = value;
     }
-  
+
 
     /// <summary>
     /// 推流断开后可以在超时时间内重新连接上继续推流，这样播放器会接着播放。
@@ -99,7 +99,7 @@ public class ZLMediaKitConfigNew_Protocol
         get => _enable_hls_fmp4;
         set => _enable_hls_fmp4 = value;
     }
-   
+
     /// <summary>
     /// 是否开启MP4录制
     /// </summary>

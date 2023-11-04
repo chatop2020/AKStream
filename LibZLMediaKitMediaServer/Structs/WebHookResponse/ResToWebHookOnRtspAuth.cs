@@ -2,7 +2,7 @@ using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 
 namespace LibZLMediaKitMediaServer.Structs.WebHookResponse;
 
-public class ResToWebHookOnRtspAuth: ResZLMediaKitResponseBase
+public class ResToWebHookOnRtspAuth : ResZLMediaKitResponseBase
 {
     private bool? _encrypted;
     private string? _passwd;

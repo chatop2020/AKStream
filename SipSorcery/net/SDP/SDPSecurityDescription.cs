@@ -663,30 +663,30 @@ namespace SIPSorcery.Net
                 set
                 {
                     /*if(value < 1 || value > Math.Pow(2, 24))
-						throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
-					ulong ul = value;
-					for(int i = 0; i < 64; i++)
-					{
-						if((ul & 0x1) == 0x1)
-						{
-							if(i == 0)//2^0 wollen wir nicht
-								throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
-							else
-							{
-								ul = ul >> 1;
-								break;
-							}
-						}
-						else
-						{
-							ul = ul >> 1;
-						}
-					}
-					if(ul == 0)
-						this.m_kdr = value;
-					else
-						throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
-					*/
+                        throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
+                    ulong ul = value;
+                    for(int i = 0; i < 64; i++)
+                    {
+                        if((ul & 0x1) == 0x1)
+                        {
+                            if(i == 0)//2^0 wollen wir nicht
+                                throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
+                            else
+                            {
+                                ul = ul >> 1;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            ul = ul >> 1;
+                        }
+                    }
+                    if(ul == 0)
+                        this.m_kdr = value;
+                    else
+                        throw new ArgumentOutOfRangeException("Kdr", "Kdr must be power of 2 and less than 2^24");
+                    */
                     if (value < 0 || value > 24)
                     {
                         throw new ArgumentOutOfRangeException("Kdr", "Kdr must be between 0 and 24");

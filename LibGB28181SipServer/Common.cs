@@ -162,15 +162,15 @@ namespace LibGB28181SipServer
                     sipServerConfig.KeepAliveInterval = 5;
                     sipServerConfig.KeepAliveLostNumber = 3;
                     /*SipDeviceID 20位编码规则
-                    *1-2省级 33 浙江省
-                    *3-4市级 02 宁波市
-                    *5-6区级 00 宁波市区
-                    *7-8村级 00 宁波市区
-                    *9-10行业 02 社会治安内部接入
-                    *11-13设备类型 118 NVR
-                    *14 网络类型 0 监控专用网
-                    *15-20 设备序号 000001 1号设备 
-                    */
+                     *1-2省级 33 浙江省
+                     *3-4市级 02 宁波市
+                     *5-6区级 00 宁波市区
+                     *7-8村级 00 宁波市区
+                     *9-10行业 02 社会治安内部接入
+                     *11-13设备类型 118 NVR
+                     *14 网络类型 0 监控专用网
+                     *15-20 设备序号 000001 1号设备
+                     */
                     sipServerConfig.ServerSipDeviceId = "33020000021180000001";
                     if (sipServerConfig.NoAuthenticationRequireds == null)
                     {

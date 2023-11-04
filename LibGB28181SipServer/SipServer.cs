@@ -54,7 +54,7 @@ namespace LibGB28181SipServer
                 Common.SipServerConfigPath = outConfigPath + "SipServerConfig.json";
             }
 
-            Common.SipServerConfigPath = UtilsHelper.FindPreferredConfigFile(Common.SipServerConfigPath);//查找优先使用的配置文件
+            Common.SipServerConfigPath = UtilsHelper.FindPreferredConfigFile(Common.SipServerConfigPath); //查找优先使用的配置文件
 
             var ret = Common.ReadSipServerConfig(out rs);
 
@@ -497,8 +497,9 @@ namespace LibGB28181SipServer
                 }
                 else
                 {
-                    media.AddExtra("a=setup:passive");  //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
                 }
+
                 if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
                 {
                     media.Transport = "TCP/RTP/AVP";
@@ -562,8 +563,9 @@ namespace LibGB28181SipServer
                 }
                 else
                 {
-                    media.AddExtra("a=setup:passive");  //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
                 }
+
                 if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
                 {
                     media.Transport = "TCP/RTP/AVP";
@@ -1887,8 +1889,9 @@ namespace LibGB28181SipServer
                 }
                 else
                 {
-                    _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
-                        Common.SipServerConfig.SipPort)); 
+                    _sipUdpIpV4Channel = new SIPUDPChannel(new IPEndPoint(
+                        IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
+                        Common.SipServerConfig.SipPort));
                 }
 
                 if (Common.SipServerConfig.MsgProtocol.Trim().ToUpper().Equals("TCP"))
@@ -1900,10 +1903,11 @@ namespace LibGB28181SipServer
                     }
                     else
                     {
-                        _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
+                        _sipTcpIpV4Channel = new SIPTCPChannel(new IPEndPoint(
+                            IPAddress.Parse(Common.SipServerConfig.ListenIp.Trim()),
                             Common.SipServerConfig.SipPort));
                     }
-                    
+
                     _sipTransport.AddSIPChannel(_sipTcpIpV4Channel);
                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->监听端口成功,监听情况->{_sipTcpIpV4Channel.ListeningEndPoint.Address}:{_sipTcpIpV4Channel.ListeningEndPoint.Port}(TCP via IPV4)");

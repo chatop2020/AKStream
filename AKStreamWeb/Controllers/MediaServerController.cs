@@ -45,7 +45,7 @@ namespace AKStreamWeb.Controllers
 
             return ret;
         }
-        
+
         /// <summary>
         /// 删除一个rtsp鉴权记录
         /// </summary>

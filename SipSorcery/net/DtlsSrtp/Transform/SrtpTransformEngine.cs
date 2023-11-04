@@ -25,9 +25,9 @@ namespace SIPSorcery.Net
     public class SrtpTransformEngine : ITransformEngine
     {
         /**
-	    * The default SRTPCryptoContext, which will be used to derivate other
-	    * contexts.
-	    */
+        * The default SRTPCryptoContext, which will be used to derivate other
+        * contexts.
+        */
         private SrtpCryptoContext defaultContext;
 
         /**
@@ -39,7 +39,7 @@ namespace SIPSorcery.Net
         /**
          * Construct a SRTPTransformEngine based on given master encryption key,
          * master salt key and SRTP/SRTCP policy.
-         * 
+         *
          * @param masterKey
          *            the master encryption key
          * @param masterSalt
@@ -57,7 +57,7 @@ namespace SIPSorcery.Net
 
         /**
          * Close the transformer engine.
-         * 
+         *
          * The close functions closes all stored default crypto contexts. This
          * deletes key data and forces a cleanup of the crypto contexts.
          */
@@ -78,7 +78,7 @@ namespace SIPSorcery.Net
 
         /**
          * Gets the <tt>PacketTransformer</tt> for RTCP packets.
-         * 
+         *
          * @return the <tt>PacketTransformer</tt> for RTCP packets
          */
         public IPacketTransformer GetRTCPTransformer()
@@ -88,7 +88,7 @@ namespace SIPSorcery.Net
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see net.java.sip.communicator.impl.media.transform.
          * TransformEngine#getRTPTransformer()
          */
@@ -99,7 +99,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the default SRTPCryptoContext
-         * 
+         *
          * @return the default SRTPCryptoContext
          */
         public SrtpCryptoContext GetDefaultContext()
@@ -109,7 +109,7 @@ namespace SIPSorcery.Net
 
         /**
          * Get the default SRTPCryptoContext
-         * 
+         *
          * @return the default SRTPCryptoContext
          */
         public SrtcpCryptoContext GetDefaultContextControl()

@@ -12,7 +12,6 @@ namespace Test_LibSystemInfo
 {
     class Program
     {
-        
         public static string MD5Encrypt32(string source)
 
         {
@@ -26,31 +25,26 @@ namespace Test_LibSystemInfo
 
             for (int i = 0; i < s.Length; i++)
 
-            { 
-
+            {
                 rule = rule + s[i].ToString("x2"); // 将得到的字符串使用十六进制类型格式。格式后的字符是小写的字母，如果使用大写（X）则格式后的字符是大写字符 
-
             }
 
 
-
             return rule;
-
         }
-        
-        
+
+
         public static PerformanceInfo KeeperPerformanceInfo = new PerformanceInfo();
         private static SystemInfo _keeperSystemInfo = new SystemInfo();
 
         static void Main(string[] args)
         {
-
             Console.WriteLine(MD5Encrypt32("defaultuser:default:defaultpasswd"));
             return;
 
-           Console.WriteLine(UtilsHelper.DirAreMounttedAndWriteableForLinux("/home/disk/record/record/rtsp/E56A7514"));
-          
-            
+            Console.WriteLine(UtilsHelper.DirAreMounttedAndWriteableForLinux("/home/disk/record/record/rtsp/E56A7514"));
+
+
             while (true)
             {
                 KeeperPerformanceInfo = _keeperSystemInfo.GetSystemInfoObject();

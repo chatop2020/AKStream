@@ -40,7 +40,5 @@ namespace LibZLMediaKitMediaServer.Structs.WebHookRequest
             get => _vhost;
             set => _vhost = value;
         }
-
-   
     }
 }

@@ -31,15 +31,12 @@ namespace AKStreamWeb
         private static AutoLive _autoLive;
         private static AutoRecord _autoRecord;
         private static AutoTaskOther _autoTaskOther;
-      
 
 
         private static ConcurrentDictionary<string, WebHookNeedReturnTask> _webHookNeedReturnTask =
             new ConcurrentDictionary<string, WebHookNeedReturnTask>();
 
         public static DateTime StartupDateTime;
-
-       
 
 
         /// <summary>
@@ -90,7 +87,8 @@ namespace AKStreamWeb
 
                 _configPath = GCommon.OutConfigPath + "AKStreamWeb.json";
             }
-            _configPath = UtilsHelper.FindPreferredConfigFile(_configPath);//查找优先使用的配置文件
+
+            _configPath = UtilsHelper.FindPreferredConfigFile(_configPath); //查找优先使用的配置文件
 
             StartupDateTime = DateTime.Now;
             string supportDataBaseList = "MySql\r\n" +

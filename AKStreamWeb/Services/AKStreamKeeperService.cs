@@ -882,8 +882,8 @@ namespace AKStreamWeb.Services
 
             return ret;
         }
-        
-        
+
+
         /// <summary>
         /// 删除一个文件不经过磁盘有效性校验
         /// </summary>
@@ -891,7 +891,8 @@ namespace AKStreamWeb.Services
         /// <param name="filePath"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public static bool DeleteFileWithoutCheckDiskUseage(string mediaServerId, string filePath, out ResponseStruct rs)
+        public static bool DeleteFileWithoutCheckDiskUseage(string mediaServerId, string filePath,
+            out ResponseStruct rs)
         {
             rs = new ResponseStruct()
             {
@@ -927,7 +928,6 @@ namespace AKStreamWeb.Services
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
             if (mediaServer == null)
             {
-                
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
@@ -1010,7 +1010,6 @@ namespace AKStreamWeb.Services
             var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
             if (mediaServer == null)
             {
-                
                 rs = new ResponseStruct()
                 {
                     Code = ErrorNumber.MediaServer_InstanceIsNull,
@@ -1036,7 +1035,7 @@ namespace AKStreamWeb.Services
                 return false;
             }
 
-            
+
             if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
             {
                 foreach (var disk in mediaServer.DisksUseable)
@@ -1055,7 +1054,7 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
-            
+
             var ret = mediaServer.KeeperWebApi.DeleteFile(out rs, filePath);
             if (!rs.Code.Equals(ErrorNumber.None))
             {
@@ -1289,7 +1288,7 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
-            
+
             if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
             {
                 foreach (var disk in mediaServer.DisksUseable)
@@ -1308,7 +1307,7 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
-            
+
             var ret = mediaServer.KeeperWebApi.DeleteFileList(out rs, fileList);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
             {

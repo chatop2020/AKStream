@@ -20,23 +20,23 @@
 //-----------------------------------------------------------------------------
 
 /**
-* 
+*
 * Code derived and adapted from the Jitsi client side SRTP framework.
-* 
+*
 * Distributed under LGPL license.
 * See terms of license at gnu.org.
 */ /**
 * SRTPTransformer implements PacketTransformer and provides implementations for
 * RTP packet to SRTP packet transformation and SRTP packet to RTP packet
 * transformation logic.
-* 
+*
 * It will first find the corresponding SRTPCryptoContext for each packet based
 * on their SSRC and then invoke the context object to perform the
 * transformation and reverse transformation operation.
-* 
+*
 * @author Bing SU (nova.su@gmail.com)
 * @author Rafael Soares (raf.csoares@kyubinteractive.com)
-* 
+*
 */
 
 using System.Collections.Concurrent;
@@ -54,8 +54,8 @@ namespace SIPSorcery.Net
         private SrtpTransformEngine reverseEngine;
 
         /**
-	     * All the known SSRC's corresponding SRTPCryptoContexts
-	     */
+         * All the known SSRC's corresponding SRTPCryptoContexts
+         */
         private ConcurrentDictionary<long, SrtpCryptoContext> contexts;
 
         public SrtpTransformer(SrtpTransformEngine engine) : this(engine, engine)
@@ -116,7 +116,7 @@ namespace SIPSorcery.Net
         /**
          * Reverse-transforms a specific packet (i.e. transforms a transformed
          * packet back).
-         * 
+         *
          * @param pkt
          *            the transformed packet to be restored
          * @return the restored packet
@@ -167,7 +167,7 @@ namespace SIPSorcery.Net
 
         /**
          * Close the transformer and underlying transform engine.
-         * 
+         *
          * The close functions closes all stored crypto contexts. This deletes key
          * data and forces a cleanup of the crypto contexts.
          */

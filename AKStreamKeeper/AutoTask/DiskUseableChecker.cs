@@ -31,7 +31,6 @@ public class DiskUseableChecker
     {
         while (true)
         {
-            
             try
             {
                 lock (Common.DisksUseable)

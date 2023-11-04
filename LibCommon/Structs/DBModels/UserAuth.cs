@@ -27,11 +27,12 @@ public class UserAuth
     /// 流媒体服务器id
     /// </summary>
     public string MediaServerId { get; set; }
+
     /// <summary>
     /// projectName
     /// 为md5的盐，也是on_rtsp_realm的值
     /// </summary>
-  
+
     public string Username { get; set; }
 
     /// <summary>

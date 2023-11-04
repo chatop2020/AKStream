@@ -278,8 +278,6 @@ namespace LibCommon.Structs.GB28181
                 _keepAliveCheckTimer.Start(); //启动计时器
             }
         }
-        
-        
 
 
         /// <summary>

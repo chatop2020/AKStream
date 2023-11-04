@@ -19,9 +19,7 @@ public class ZLMediaKitConfigNew_Http
     private int? _sendBufSize;
     private ushort? _sslport;
     private string? _virtualPath;
-  
 
- 
 
     /// <summary>
     /// http服务器字符编码，windows上默认gb2312
@@ -147,6 +145,7 @@ public class ZLMediaKitConfigNew_Http
         get => _allow_cross_domains;
         set => _allow_cross_domains = value;
     }
+
     /// <summary>
     /// 允许访问http api和http文件索引的ip地址范围白名单，置空情况下不做限制
     /// </summary>
@@ -155,5 +154,4 @@ public class ZLMediaKitConfigNew_Http
         get => _allow_ip_range;
         set => _allow_ip_range = value;
     }
-    
 }

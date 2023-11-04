@@ -17,7 +17,6 @@ public class ZLMediaKitConfigNew_General
     private int? _unready_frame_cache;
     private int? _check_nvidia_dev;
     private int? _enable_ffmpeg_log;
-    
 
 
     /// <summary>

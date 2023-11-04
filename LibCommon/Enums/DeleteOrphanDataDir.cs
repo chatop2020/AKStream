@@ -10,8 +10,7 @@ public class DeleteOrphanDataDir
     [Serializable]
     public enum DataDir
     {
-        MySql=0,
-        Disk=1,
+        MySql = 0,
+        Disk = 1,
     }
-    
 }
