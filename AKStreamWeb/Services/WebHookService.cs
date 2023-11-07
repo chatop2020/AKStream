@@ -748,6 +748,17 @@ namespace AKStreamWeb.Services
                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->收到WebHook-OnStreamChanged回调(流移除)->{JsonHelper.ToJson(req)}");
 
+                    mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(req.MediaServerId));
+                    if (mediaServer == null)
+                    {
+                        return new ResToWebHookOnStreamChange()
+                        {
+                            Code = 0,
+                            Msg = "success",
+                        };
+                    }
+
+
                     #region debug sql output
 
                     if (Common.IsDebug)
@@ -759,6 +770,20 @@ namespace AKStreamWeb.Services
                     }
 
                     #endregion
+
+                    try
+                    {
+                        ///如果是留移除，就要断掉录制
+                        mediaServer.WebApiHelper.StopRecord(new ReqZLMediaKitStopRecord()
+                        {
+                            App = req.App,
+                            Stream = req.Stream,
+                            Vhost = req.Vhost,
+                        }, out _);
+                    }
+                    catch
+                    {
+                    }
 
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
