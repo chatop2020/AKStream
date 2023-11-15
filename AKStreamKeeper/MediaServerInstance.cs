@@ -931,6 +931,19 @@ namespace AKStreamKeeper
                             _zlmNewConfig.Rtsp.AuthBasic = 1;
                         }
 
+                        if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
+                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h) && UtilsHelper.IsIpAddr(h))
+                        {
+                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += h;
+                            }
+                            else
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h;
+                            }
+                        }
+
                         _zlmNewConfig.Hook.On_Shell_Login =
                             $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
                         _zlmNewConfig.Hook.On_Stream_Changed =
