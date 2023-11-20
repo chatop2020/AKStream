@@ -860,13 +860,13 @@ namespace AKStreamKeeper
                 Environment.Exit(0); //退出程序 
             }
 
-            ret = UtilsHelper.CheckFFmpegBin(_akStreamKeeperConfig.FFmpegPath);
+            /*ret = UtilsHelper.CheckFFmpegBin(_akStreamKeeperConfig.FFmpegPath);
             if (!ret)
             {
                 GCommon.Logger.Error(
                     $"[{LoggerHead}]->检测发现FFmpeg可执行文件{_akStreamKeeperConfig.FFmpegPath}不存在或者无法正常运行,系统无法运行");
                 Environment.Exit(0); //退出程序 
-            }
+            }*/
 
 
             ProcessHelper.KillProcess(_akStreamKeeperConfig.MediaServerPath); //启动前先删除掉所有流媒体进程
