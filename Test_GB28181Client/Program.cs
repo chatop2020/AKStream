@@ -1,4 +1,5 @@
-﻿using LibGB28181SipClient;
+﻿using System;
+using LibGB28181SipClient;
 
 namespace Test_GB28181Client
 {
@@ -6,6 +7,9 @@ namespace Test_GB28181Client
     {
         static void Main(string[] args)
         {
+            
+            Console.WriteLine("{0}", ("dxper".Equals("net")).ToString().ToUpper());
+
             SipClient sipClient = new SipClient();
         }
     }

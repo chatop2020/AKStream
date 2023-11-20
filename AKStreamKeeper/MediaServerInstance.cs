@@ -848,6 +848,8 @@ namespace AKStreamKeeper
                         Uri AKStreamWebUri = new Uri(Common.AkStreamKeeperConfig.AkStreamWebRegisterUrl);
                         string h = AKStreamWebUri.Host.Trim();
                         string p = AKStreamWebUri.Port.ToString();
+                        string h2 = _akStreamKeeperConfig.IpV4Address;
+                        string h3 = _akStreamKeeperConfig.Candidate;
 
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && File.Exists("/etc/hostname"))
                         {
@@ -943,6 +945,33 @@ namespace AKStreamKeeper
                                 _zlmNewConfig.Http.Allow_Ip_Range += "," + h;
                             }
                         }
+                        
+                        if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
+                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h2) && UtilsHelper.IsIpAddr(h2))
+                        {
+                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += h2;
+                            }
+                            else
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h2;
+                            }
+                        }
+                        
+                        if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
+                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h3) && UtilsHelper.IsIpAddr(h3))
+                        {
+                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += h3;
+                            }
+                            else
+                            {
+                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h3;
+                            }
+                        }
+
 
                         _zlmNewConfig.Hook.On_Shell_Login =
                             $"http://{h}:{p}/MediaServer/WebHook/OnShellLogin"; //shell鉴权
