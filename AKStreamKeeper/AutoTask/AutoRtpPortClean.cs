@@ -8,7 +8,7 @@ namespace AKStreamKeeper.AutoTask;
 
 public class AutoRtpPortClean
 {
-    /*public AutoRtpPortClean()
+    public AutoRtpPortClean()
     {
         new Thread(new ThreadStart(delegate
         {
@@ -20,7 +20,7 @@ public class AutoRtpPortClean
             {
             }
         })).Start();
-    }*/
+    }
 
 
     private void DeleteExpiredLogFiles()
