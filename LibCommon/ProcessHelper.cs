@@ -103,8 +103,6 @@ namespace LibCommon
 
                 using (Process process = new Process())
                 {
-                    string errorData = "";
-                    string outputData = "";
                     process.StartInfo.FileName = filePath;
                     process.StartInfo.UseShellExecute = false; //不使用shell以免出现操作系统shell出错
                     process.StartInfo.CreateNoWindow = true; //不显示窗口
@@ -112,20 +110,7 @@ namespace LibCommon
                     process.StartInfo.RedirectStandardError = true;
                     process.StartInfo.Arguments = escapedArgs;
 
-                    process.EnableRaisingEvents = true;
-                    process.ErrorDataReceived += (sender, eventArgs) =>
-                    {
-                        errorData += eventArgs.Data;
-                    };
-                    process.OutputDataReceived += (sender, eventArgs) =>
-                    {
-                        outputData += eventArgs.Data;
-                    };
-
                     bool result = process.Start();
-                    process.BeginErrorReadLine();
-                    process.BeginOutputReadLine();
-
                     if (result)
                     {
                         result = process.WaitForExit(milliseconds);
@@ -133,12 +118,8 @@ namespace LibCommon
 
                     if (result)
                     {
-                        stdOutput = outputData;
-                        stdError = errorData!;
-                    }
-                    else
-                    {
-                        stdError = errorData!;
+                        stdOutput = process.StandardOutput.ReadToEnd();
+                        stdError = process.StandardError.ReadToEnd()!;
                     }
 
                     return result;

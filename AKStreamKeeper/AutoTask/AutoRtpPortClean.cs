@@ -8,7 +8,7 @@ namespace AKStreamKeeper.AutoTask;
 
 public class AutoRtpPortClean
 {
-    public AutoRtpPortClean()
+    /*public AutoRtpPortClean()
     {
         new Thread(new ThreadStart(delegate
         {
@@ -20,7 +20,7 @@ public class AutoRtpPortClean
             {
             }
         })).Start();
-    }
+    }*/
 
 
     private void DeleteExpiredLogFiles()
@@ -104,6 +104,7 @@ public class AutoRtpPortClean
         GCommon.Logger.Debug($"[{Common.LoggerHead}]->创建Rtp端口清理自动任务");
         while (true)
         {
+            
             ResponseStruct rs = null;
 
             var ports = GetPortRptList(out rs);

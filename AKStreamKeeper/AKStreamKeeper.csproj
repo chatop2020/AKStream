@@ -24,5 +24,11 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Update="Config\AKStreamKeeper.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 
 </Project>

@@ -21,7 +21,7 @@ namespace LibSystemInfo
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 ProcessHelper tmpProcess = new ProcessHelper(null!, null!, null!);
-                tmpProcess.RunProcess("/sbin/route", "-n get default", 1000, out string std, out string err);
+                tmpProcess.RunProcess("/sbin/route", "-n get default", 2000, out string std, out string err);
                 bool isFound = false;
                 if (!string.IsNullOrEmpty(std))
                 {
