@@ -614,13 +614,8 @@ public class ZLMediaKitConfigNew
                 {
                     data["http"]["forwarded_ip_header"] = Http.Forwarded_Ip_Header.Trim();
                 }
-
-                if (!string.IsNullOrEmpty(Http.Allow_Cross_Domains))
-                {
-                    data["http"]["allow_cross_domains"] = Http.Allow_Cross_Domains.Trim();
-                }
-
-                data["http"]["allow_ip_range"] = Http.Allow_Ip_Range.Trim()+" ";
+                data["http"]["allow_cross_domains"] = " ";  //为了防止ip无法访问
+                data["http"]["allow_ip_range"] = Http.Allow_Ip_Range.Trim()+" ";//为了防止ip无法访问
             }
 
             #endregion
