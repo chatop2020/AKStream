@@ -44,7 +44,7 @@ namespace LibZLMediaKitMediaServer
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            string url = (_useSSL ? "https://" : "http://") + $"{_ipAddress}:{_webApiPort}{_baseUri}getThreadsLoad";
+            string url = (_useSSL ? "https://" : "http://") + $"{_ipAddress}:{_webApiPort}{_baseUri}getThreadsLoad?secret={_secret}";
             try
             {
                 var httpRet = NetHelper.HttpGetRequest(url, null, "utf-8", _httpClientTimeout);
@@ -112,7 +112,7 @@ namespace LibZLMediaKitMediaServer
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
 
-            string url = (_useSSL ? "https://" : "http://") + $"{_ipAddress}:{_webApiPort}{_baseUri}getWorkThreadsLoad";
+            string url = (_useSSL ? "https://" : "http://") + $"{_ipAddress}:{_webApiPort}{_baseUri}getWorkThreadsLoad?secret={_secret}";
             try
             {
                 var httpRet = NetHelper.HttpGetRequest(url, null, "utf-8", _httpClientTimeout);
