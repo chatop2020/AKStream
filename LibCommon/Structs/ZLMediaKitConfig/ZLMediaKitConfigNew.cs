@@ -620,10 +620,7 @@ public class ZLMediaKitConfigNew
                     data["http"]["allow_cross_domains"] = Http.Allow_Cross_Domains.Trim();
                 }
 
-                if (!string.IsNullOrEmpty(Http.Allow_Ip_Range))
-                {
-                    data["http"]["allow_ip_range"] = Http.Allow_Ip_Range.Trim();
-                }
+                data["http"]["allow_ip_range"] = Http.Allow_Ip_Range.Trim()+" ";
             }
 
             #endregion
