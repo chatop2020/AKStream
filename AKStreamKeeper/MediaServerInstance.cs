@@ -932,45 +932,7 @@ namespace AKStreamKeeper
                             _zlmNewConfig.Hook.On_Rtsp_Realm = "";
                             _zlmNewConfig.Rtsp.AuthBasic = 1;
                         }
-
-                        /*if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
-                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h) && UtilsHelper.IsIpAddr(h))
-                        {
-                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += h;
-                            }
-                            else
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h;
-                            }
-                        }
-
-                        if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
-                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h2) && UtilsHelper.IsIpAddr(h2))
-                        {
-                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += h2;
-                            }
-                            else
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h2;
-                            }
-                        }
-
-                        if (_zlmNewConfig != null && _zlmNewConfig.Http != null &&
-                            !_zlmNewConfig.Http.Allow_Ip_Range.Contains(h3) && UtilsHelper.IsIpAddr(h3))
-                        {
-                            if (_zlmNewConfig.Http.Allow_Ip_Range.EndsWith(","))
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += h3;
-                            }
-                            else
-                            {
-                                _zlmNewConfig.Http.Allow_Ip_Range += "," + h3;
-                            }
-                        }*/
+                        
                         if (_zlmNewConfig != null && _zlmNewConfig.Http != null)
                         {
                             _zlmNewConfig.Http.Allow_Ip_Range = ""; //把ip白名单去掉
