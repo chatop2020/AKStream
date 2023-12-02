@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
@@ -12,11 +14,26 @@ using LibZLMediaKitMediaServer;
 using LibZLMediaKitMediaServer.Structs.WebHookRequest;
 using LibZLMediaKitMediaServer.Structs.WebHookResponse;
 using LibZLMediaKitMediaServer.Structs.WebRequest.ZLMediaKit;
+using LibZLMediaKitMediaServer.Structs.WebResponse.ZLMediaKit;
 
 namespace AKStreamWeb.Services
 {
     public static class WebHookService
     {
+        
+        private  delegate void ForwardPushInfo(ReqForWebHookOnStreamChange msg,string url);
+        private  delegate void ForwardDestoryInfo(ReqForWebHookOnFlowReport msg,string url);
+
+        private static void ForwardPush(ReqForWebHookOnStreamChange msg, string url)
+        {
+            NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
+        }
+        private static void ForwardDestory(ReqForWebHookOnFlowReport msg, string url)
+        {
+            NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
+        }
+
+        
         /// <summary>
         /// 判断是否为回放流,如果找到返回obj信息
         /// </summary>
@@ -475,6 +492,20 @@ namespace AKStreamWeb.Services
 
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .Where(x => x.MediaServerId.Equals(req.MediaServerId)).First();
+
+                    if (videoChannel == null)
+                    {
+                        if ((!string.IsNullOrEmpty(Common.AkStreamWebConfig.ForwardUrlOut)) &&
+                            (UtilsHelper.IsUrl(Common.AkStreamWebConfig.ForwardUrlOut)) &&
+                            (Common.AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream) )
+                        {
+                            GCommon.Logger.Info(
+                                $"[{Common.LoggerHead}]->转发注销流信息->{Common.AkStreamWebConfig.ForwardUrlOut}->{JsonHelper.ToJson(req)}");
+
+                            Action<ReqForWebHookOnFlowReport,string> action = ForwardDestory;
+                            action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlOut,null,null);
+                        }
+                    }
                     if (videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
                         var sipDevice =
@@ -684,6 +715,22 @@ namespace AKStreamWeb.Services
                         .First();
                     if (videoChannel == null)
                     {
+                        ///对未纳入AKStream管理的流接入进行外部转发
+                        if ((!string.IsNullOrEmpty(Common.AkStreamWebConfig.ForwardUrlIn)) &&
+                            (UtilsHelper.IsUrl(Common.AkStreamWebConfig.ForwardUrlIn)) &&
+                            (req.Regist==true) &&
+                            (Common.AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream) && (
+                                (req.OriginType.Equals(OriginType.rtmp_push) ||
+                                 req.OriginType.Equals(OriginType.rtsp_push) ||
+                                 req.OriginType.Equals(OriginType.rtc_push))))
+                        {
+                            GCommon.Logger.Info(
+                                $"[{Common.LoggerHead}]->转发接入流信息->{Common.AkStreamWebConfig.ForwardUrlIn}->{JsonHelper.ToJson(req)}");
+
+                            Action<ReqForWebHookOnStreamChange,string> action = ForwardPush;
+                            action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlIn,null,null);
+                        }
+
                         return new ResToWebHookOnStreamChange()
                         {
                             Code = 0,

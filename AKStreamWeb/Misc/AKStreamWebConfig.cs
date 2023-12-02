@@ -19,6 +19,9 @@ namespace AKStreamWeb.Misc
         private string? _ZlmFlvPrefix = "live";
         private string? _listenIP = "127.0.0.1";
         private bool _localizationKingBaseDB = false;
+        private bool _forwardUnmanagedRtmpRtspRtcStream = true;
+        private string? _forwardUrlIn = "";
+        private string? _forwardUrlOut = "";
 
 
         /// <summary>
@@ -149,5 +152,32 @@ namespace AKStreamWeb.Misc
             get => _localizationKingBaseDB;
             set => _localizationKingBaseDB = value;
         }
+
+        /// <summary>
+        /// 是否向外部转发未管理的rtmp流(直播支持)
+        /// </summary>
+        public bool ForwardUnmanagedRtmpRtspRtcStream
+        {
+            get => _forwardUnmanagedRtmpRtspRtcStream;
+            set => _forwardUnmanagedRtmpRtspRtcStream = value;
+        }
+
+        /// <summary>
+        /// 流接入的转发地址
+        /// </summary>
+        public string ForwardUrlIn
+        {
+            get => _forwardUrlIn;
+            set => _forwardUrlIn = value;
+        }
+        /// <summary>
+        /// 流注销的转发地址
+        /// </summary>
+        public string ForwardUrlOut
+        {
+            get => _forwardUrlOut;
+            set => _forwardUrlOut = value;
+        }
+        
     }
 }
