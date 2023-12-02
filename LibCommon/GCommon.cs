@@ -28,6 +28,7 @@ namespace LibCommon
         public static string ConfigPath = BaseStartPath + "/Config/";
         public static string TmpPicsPath = BaseStartPath + "/.tmppics/"; //用于截图缓存
         private static Logger _logger = null;
+       
 
         public static Logger Logger
         {

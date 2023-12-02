@@ -219,6 +219,14 @@ namespace AKStreamWeb
                 SipClient.OnDeInviteChannel += SipClientProcess.DeInviteChannel;
             }
 
+            GCommon.Logger.Info($"[{LoggerHead}]->配置情况->未管理流转发功能->{(AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream?"开启":"关闭")}");
+            if (AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream)
+            {
+                GCommon.Logger.Info($"[{LoggerHead}]->配置情况->未管理流接入转发地址->{AkStreamWebConfig.ForwardUrlIn}");
+                GCommon.Logger.Info($"[{LoggerHead}]->配置情况->未管理流注销转发地址->{AkStreamWebConfig.ForwardUrlOut}");
+
+            }
+
             GCommon.Logger.Info($"[{LoggerHead}]->配置情况->是否启用Sip客户端->{AkStreamWebConfig.EnableGB28181Client}");
 
             if (AkStreamWebConfig.EnableGB28181Server == null || AkStreamWebConfig.EnableGB28181Server == true)

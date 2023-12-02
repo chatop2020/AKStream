@@ -11,6 +11,9 @@
   "EnableGB28181Server": true,
   "EnableGB28181Client": false,
   "ZlmFlvPrefix" : "live",
-  "ListenIp": "127.0.0.1"
-
+  "ListenIp": "127.0.0.1",
+  "ForwardUnmanagedRtmpRtspRtcStream": false,
+  "LocalizationKingBaseDb": false,
+  "ForwardUrlIn": "http://",
+  "ForwardUrlOut": "http://"
 }
