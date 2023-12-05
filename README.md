@@ -14,6 +14,7 @@
 * 数据库部分使用开源项目freeSql数据库类库，支持数据库类型众多，如sqlite、mssql等，建议使用Mysql 5.7以及以上版本。
 * AKStream将之前StreamNode的众多使用反馈做了集中处理与优化，使之更有适应性，可用性；比StreamNode在上体系更加完整，代码质量更高。
 * 2020-2-5增加国内gitee同步仓库，方便国内下载
+* AKStream是一个完善的接口平台,提供了几乎所有有关于NVR管理能力的API接口,有网友为AKStream实现了配套的UI,但仅仅只是Demo,是用来告诉你怎么调用AKStream相关接口,学习AKStream思想的一个工具,要真和自己业务相结合,需要自己实现前端UI和业务逻辑功能.
 * 请多多支持，多多Star,谢谢
 
 
@@ -38,6 +39,8 @@
 * AKStream has done centralized processing and optimization of many previous feedbacks of StreamNode to make it more adaptable and usable; it has a more complete system and higher code quality than StreamNode.
 
 * 2020-2-5 Increase the domestic gitee synchronization warehouse to facilitate domestic downloads
+
+* AKStream is a comprehensive API platform that offers nearly all API interfaces related to NVR management capabilities. Some enthusiasts have created a complementary UI for AKStream, but it's merely a demo intended to guide you on how to invoke AKStream APIs and serve as a tool for understanding the AKStream philosophy. To seamlessly integrate it with your own business, you'll need to develop the frontend UI and implement the business logic yourself.
 
 * Please support a lot, star a lot, thank you
 
