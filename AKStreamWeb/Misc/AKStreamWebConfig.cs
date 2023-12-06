@@ -22,6 +22,7 @@ namespace AKStreamWeb.Misc
         private bool _forwardUnmanagedRtmpRtspRtcStream = true;
         private string? _forwardUrlIn = "";
         private string? _forwardUrlOut = "";
+        private string? _forwardUrlOnRecord = "";
 
 
         /// <summary>
@@ -178,6 +179,14 @@ namespace AKStreamWeb.Misc
             get => _forwardUrlOut;
             set => _forwardUrlOut = value;
         }
-        
+
+        /// <summary>
+        /// 有录制消息的时候的转发
+        /// </summary>
+        public string ForwardUrlOnRecord
+        {
+            get => _forwardUrlOnRecord;
+            set => _forwardUrlOnRecord = value;
+        }
     }
 }
