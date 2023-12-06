@@ -20,13 +20,19 @@ namespace AKStreamWeb.Services
 {
     public static class WebHookService
     {
-        
+
+        private static void ForwardPush(string postMsg, string url)
+        {
+            NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(postMsg));
+        }
+        /*
         private  delegate void ForwardPushInfo(ReqForWebHookOnStreamChange msg,string url);
         private  delegate void ForwardDestoryInfo(ReqForWebHookOnFlowReport msg,string url);
 
         private delegate void ForwardOnRecordInfo(ReqForWebHookOnRecordMP4 msg, string url);
+        */
 
-        private static void ForwardPush(ReqForWebHookOnStreamChange msg, string url)
+        /*private static void ForwardPush(ReqForWebHookOnStreamChange msg, string url)
         {
             NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
         }
@@ -38,7 +44,7 @@ namespace AKStreamWeb.Services
         private static void ForwardRecord(ReqForWebHookOnRecordMP4 msg, string url)
         {
             NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
-        }
+        }*/
 
         
         /// <summary>
@@ -192,8 +198,10 @@ namespace AKStreamWeb.Services
                     GCommon.Logger.Info(
                         $"[{Common.LoggerHead}]->转发录制信息->{Common.AkStreamWebConfig.ForwardUrlOnRecord}->{JsonHelper.ToJson(req)}");
 
-                    Action<ReqForWebHookOnRecordMP4,string> action = ForwardRecord;
-                    action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlOnRecord,null,null);
+
+                    var postMsg = JsonHelper.ToJson(req);
+                    Task.Run(() => { ForwardPush(postMsg,Common.AkStreamWebConfig.ForwardUrlOnRecord); }); //抛线程出去处理
+
                 }
                 
                 return new ResToWebHookOnRecordMP4()
@@ -520,8 +528,9 @@ namespace AKStreamWeb.Services
                             GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->转发注销流信息->{Common.AkStreamWebConfig.ForwardUrlOut}->{JsonHelper.ToJson(req)}");
 
-                            Action<ReqForWebHookOnFlowReport,string> action = ForwardDestory;
-                            action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlOut,null,null);
+                            var postMsg = JsonHelper.ToJson(req);
+                            Task.Run(() => { ForwardPush(postMsg,Common.AkStreamWebConfig.ForwardUrlOut); }); //抛线程出去处理
+
                         }
                     }
                     if (videoChannel != null && videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
@@ -745,8 +754,9 @@ namespace AKStreamWeb.Services
                             GCommon.Logger.Info(
                                 $"[{Common.LoggerHead}]->转发接入流信息->{Common.AkStreamWebConfig.ForwardUrlIn}->{JsonHelper.ToJson(req)}");
 
-                            Action<ReqForWebHookOnStreamChange,string> action = ForwardPush;
-                            action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlIn,null,null);
+                            var postMsg = JsonHelper.ToJson(req);
+                            Task.Run(() => { ForwardPush(postMsg,Common.AkStreamWebConfig.ForwardUrlOut); }); //抛线程出去处理
+
                         }
 
                         return new ResToWebHookOnStreamChange()
