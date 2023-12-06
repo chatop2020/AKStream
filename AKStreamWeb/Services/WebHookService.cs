@@ -755,7 +755,7 @@ namespace AKStreamWeb.Services
                                 $"[{Common.LoggerHead}]->转发接入流信息->{Common.AkStreamWebConfig.ForwardUrlIn}->{JsonHelper.ToJson(req)}");
 
                             var postMsg = JsonHelper.ToJson(req);
-                            Task.Run(() => { ForwardPush(postMsg,Common.AkStreamWebConfig.ForwardUrlOut); }); //抛线程出去处理
+                            Task.Run(() => { ForwardPush(postMsg,Common.AkStreamWebConfig.ForwardUrlIn); }); //抛线程出去处理
 
                         }
 
