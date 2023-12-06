@@ -15,5 +15,6 @@
   "ForwardUnmanagedRtmpRtspRtcStream": false,
   "LocalizationKingBaseDb": false,
   "ForwardUrlIn": "http://",
-  "ForwardUrlOut": "http://"
+  "ForwardUrlOut": "http://",
+  "ForwardUrlOnRecord": "http://"
 }

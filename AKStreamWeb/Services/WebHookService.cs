@@ -24,11 +24,18 @@ namespace AKStreamWeb.Services
         private  delegate void ForwardPushInfo(ReqForWebHookOnStreamChange msg,string url);
         private  delegate void ForwardDestoryInfo(ReqForWebHookOnFlowReport msg,string url);
 
+        private delegate void ForwardOnRecordInfo(ReqForWebHookOnRecordMP4 msg, string url);
+
         private static void ForwardPush(ReqForWebHookOnStreamChange msg, string url)
         {
             NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
         }
         private static void ForwardDestory(ReqForWebHookOnFlowReport msg, string url)
+        {
+            NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
+        }
+        
+        private static void ForwardRecord(ReqForWebHookOnRecordMP4 msg, string url)
         {
             NetHelper.HttpPostRequest(url, null, JsonHelper.ToJson(msg));
         }
@@ -178,6 +185,17 @@ namespace AKStreamWeb.Services
 
             if (videoChannel == null)
             {
+                if ((!string.IsNullOrEmpty(Common.AkStreamWebConfig.ForwardUrlOut)) &&
+                    (UtilsHelper.IsUrl(Common.AkStreamWebConfig.ForwardUrlOut)) &&
+                    (Common.AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream) )
+                {
+                    GCommon.Logger.Info(
+                        $"[{Common.LoggerHead}]->转发录制信息->{Common.AkStreamWebConfig.ForwardUrlOnRecord}->{JsonHelper.ToJson(req)}");
+
+                    Action<ReqForWebHookOnRecordMP4,string> action = ForwardRecord;
+                    action.BeginInvoke(req,Common.AkStreamWebConfig.ForwardUrlOnRecord,null,null);
+                }
+                
                 return new ResToWebHookOnRecordMP4()
                 {
                     Code = 0,
@@ -940,11 +958,22 @@ namespace AKStreamWeb.Services
 
                 if (videoChannel == null)
                 {
-                    return new ResToWebHookOnPlay()
+                    if (Common.AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream)
                     {
-                        Code = -1,
-                        Msg = "feild",
-                    };
+                        return new ResToWebHookOnPlay()
+                        {
+                            Code = 0,
+                            Msg = "success",
+                        };  
+                    }
+                    else
+                    {
+                        return new ResToWebHookOnPlay()
+                        {
+                            Code = -1,
+                            Msg = "feild",
+                        };
+                    }
                 }
 
 
@@ -1057,13 +1086,42 @@ namespace AKStreamWeb.Services
                     .First();
                 if (videoChannel == null)
                 {
-                    return new ResToWebHookOnPublish()
+                    if (Common.AkStreamWebConfig.ForwardUnmanagedRtmpRtspRtcStream)
                     {
-                        Code = -1,
-                        Enable_Hls = false,
-                        Enable_Mp4 = false,
-                        Msg = "failed",
-                    };
+                        
+                        ResToWebHookOnPublish result = new ResToWebHookOnPublish();
+                        result.Code = 0;
+                        result.Msg = "success";
+                        result.Enable_Hls = true;
+                        result.Enable_Mp4 = false;
+                        result.Enable_Hls_Fmp4 = true;
+                        result.Enable_Rtsp = true;
+                        result.Enable_Rtmp = true;
+                        result.Enable_Ts = true;
+                        result.Enable_Fmp4 = true;
+                        result.Hls_Demand = true;
+                        result.Rtsp_Demand = false;
+                        result.Rtmp_Demand = false;
+                        result.Ts_Demand = true;
+                        result.Fmp4_Demand = true;
+                        result.Enable_Audio = true;
+                        result.Add_Mute_Audio = true;
+                        result.Mp4_Save_Path = "";
+                        result.Mp4_As_Player = false;
+                        result.Hls_Save_Path = "";
+                        result.Auto_Close = false;
+                        return result;
+                    }
+                    else
+                    {
+                        return new ResToWebHookOnPublish()
+                        {
+                            Code = -1,
+                            Enable_Hls = false,
+                            Enable_Mp4 = false,
+                            Msg = "failed",
+                        };
+                    }
                 }
 
                 if (videoChannel.Enabled == false || videoChannel.MediaServerId.Contains("unknown_server"))
