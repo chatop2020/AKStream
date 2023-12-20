@@ -16,5 +16,6 @@
   "LocalizationKingBaseDb": false,
   "ForwardUrlIn": "http://",
   "ForwardUrlOut": "http://",
-  "ForwardUrlOnRecord": "http://"
+  "ForwardUrlOnRecord": "http://",
+  "PushStreamIpGetUrl": ""
 }

@@ -23,6 +23,7 @@ namespace AKStreamWeb.Misc
         private string? _forwardUrlIn = "";
         private string? _forwardUrlOut = "";
         private string? _forwardUrlOnRecord = "";
+        private string? _pushStreamIpGetUrl = "";
 
 
         /// <summary>
@@ -187,6 +188,15 @@ namespace AKStreamWeb.Misc
         {
             get => _forwardUrlOnRecord;
             set => _forwardUrlOnRecord = value;
+        }
+
+        /// <summary>
+        /// GB28181获取设备推流地址的接口
+        /// </summary>
+        public string PushStreamIpGetUrl
+        {
+            get => _pushStreamIpGetUrl;
+            set => _pushStreamIpGetUrl = value;
         }
     }
 }
