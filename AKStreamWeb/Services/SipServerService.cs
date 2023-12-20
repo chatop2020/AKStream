@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AKStreamWeb.Misc;
 using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
 using LibCommon.Structs.GB28181;
 using LibCommon.Structs.GB28181.XML;
+using LibCommon.Structs.Other;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibGB28181SipServer;
@@ -686,6 +688,66 @@ namespace AKStreamWeb.Services
                 pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             }
 
+             string ip = pushMediaInfo.MediaServerIpAddress;
+            
+            if (!string.IsNullOrEmpty(Common.AkStreamWebConfig.PushStreamIpGetUrl) &&
+                UtilsHelper.IsUrl(Common.AkStreamWebConfig.PushStreamIpGetUrl))
+            {
+                string url = Common.AkStreamWebConfig.PushStreamIpGetUrl.Trim();
+              
+                try
+                {
+                    string reqData = JsonHelper.ToJson(new ReqPushStreamGetIP()
+                    {
+                        DeviceId = sipDevice.DeviceId,
+                    });
+                    Dictionary<string, string> headers = new Dictionary<string, string>();
+                  
+
+                    var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8",  Common.AkStreamWebConfig.HttpClientTimeoutSec*1000);
+                    if (!string.IsNullOrEmpty(httpRet))
+                    {
+                        if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_HttpClientTimeout,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                            };
+                            GCommon.Logger.Error(
+                                $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(rs)}");
+                        }
+                        else
+                        {
+
+                            var resRet = JsonHelper.FromJson<ResPushStreamGetIP>(httpRet);
+                            if (resRet != null && !string.IsNullOrEmpty(resRet.DeviceId) &&
+                                !string.IsNullOrEmpty(resRet.IpAddress))
+                            {
+                                ip = resRet.IpAddress.Trim();
+                                GCommon.Logger.Debug(
+                                    $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址成功，将执行返回中指定的ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(resRet)}");
+
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    GCommon.Logger.Error(
+                        $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(rs)}");
+                }
+            }
+            pushMediaInfo.MediaServerIpAddress=ip;//重新设置回去，如果成功获取，将会改写ip变量的值
+            
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
@@ -1094,6 +1156,66 @@ namespace AKStreamWeb.Services
             {
                 pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             }
+
+            string ip = pushMediaInfo.MediaServerIpAddress;
+            
+            if (!string.IsNullOrEmpty(Common.AkStreamWebConfig.PushStreamIpGetUrl) &&
+                UtilsHelper.IsUrl(Common.AkStreamWebConfig.PushStreamIpGetUrl))
+            {
+                string url = Common.AkStreamWebConfig.PushStreamIpGetUrl.Trim();
+              
+                try
+                {
+                    string reqData = JsonHelper.ToJson(new ReqPushStreamGetIP()
+                    {
+                        DeviceId = deviceId,
+                    });
+                    Dictionary<string, string> headers = new Dictionary<string, string>();
+                  
+
+                    var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8",  Common.AkStreamWebConfig.HttpClientTimeoutSec*1000);
+                    if (!string.IsNullOrEmpty(httpRet))
+                    {
+                        if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_HttpClientTimeout,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                            };
+                            GCommon.Logger.Error(
+                                $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                        }
+                        else
+                        {
+
+                            var resRet = JsonHelper.FromJson<ResPushStreamGetIP>(httpRet);
+                            if (resRet != null && !string.IsNullOrEmpty(resRet.DeviceId) &&
+                                !string.IsNullOrEmpty(resRet.IpAddress))
+                            {
+                                ip = resRet.IpAddress.Trim();
+                                GCommon.Logger.Debug(
+                                    $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址成功，将执行返回中指定的ip地址->{deviceId}-{channelId}->{JsonHelper.ToJson(resRet)}");
+
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    GCommon.Logger.Error(
+                        $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
+                }
+            }
+            pushMediaInfo.MediaServerIpAddress=ip;//重新设置回去，如果成功获取，将会改写ip变量的值
 
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
@@ -1708,6 +1830,66 @@ namespace AKStreamWeb.Services
                 pushMediaInfo.MediaServerIpAddress = mediaServer.IpV4Address;
             }
 
+             string ip = pushMediaInfo.MediaServerIpAddress;
+            
+            if (!string.IsNullOrEmpty(Common.AkStreamWebConfig.PushStreamIpGetUrl) &&
+                UtilsHelper.IsUrl(Common.AkStreamWebConfig.PushStreamIpGetUrl))
+            {
+                string url = Common.AkStreamWebConfig.PushStreamIpGetUrl.Trim();
+              
+                try
+                {
+                    string reqData = JsonHelper.ToJson(new ReqPushStreamGetIP()
+                    {
+                        DeviceId = sipDevice.DeviceId,
+                    });
+                    Dictionary<string, string> headers = new Dictionary<string, string>();
+                  
+
+                    var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8",  Common.AkStreamWebConfig.HttpClientTimeoutSec*1000);
+                    if (!string.IsNullOrEmpty(httpRet))
+                    {
+                        if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                        {
+                            rs = new ResponseStruct()
+                            {
+                                Code = ErrorNumber.Sys_HttpClientTimeout,
+                                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                            };
+                            GCommon.Logger.Error(
+                                $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(rs)}");
+                        }
+                        else
+                        {
+
+                            var resRet = JsonHelper.FromJson<ResPushStreamGetIP>(httpRet);
+                            if (resRet != null && !string.IsNullOrEmpty(resRet.DeviceId) &&
+                                !string.IsNullOrEmpty(resRet.IpAddress))
+                            {
+                                ip = resRet.IpAddress.Trim();
+                                GCommon.Logger.Debug(
+                                    $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址成功，将执行返回中指定的ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(resRet)}");
+
+                            }
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    GCommon.Logger.Error(
+                        $"[{Common.LoggerHead}]->请求Sip推流->获取指定流媒体服务器ip地址失败，将执行默认ip地址->{sipDevice.DeviceId}-{sipChannel.DeviceId}->{JsonHelper.ToJson(rs)}");
+                }
+            }
+            pushMediaInfo.MediaServerIpAddress=ip;//重新设置回去，如果成功获取，将会改写ip变量的值
+            
             pushMediaInfo.PushStreamSocketType =
                 videoChannel.RtpWithTcp == true ? PushStreamSocketType.TCP : PushStreamSocketType.UDP;
             try
