@@ -3,7 +3,7 @@
 -------
 # 感谢jetbrains提供免费的开发者授权证书!
 # Thanks to jetbrains for providing a free developer license
-<img src="https://stuhueleducn-my.sharepoint.com/:i:/g/personal/chatop_stu_huel_edu_cn/EdR0-NIcGOZKib1WYyIfKzwBP_GIssCnbCpaxwuoHKideQ?e=gv09tw" width="200" height="200" />
+<img src="https://i.ibb.co/cbvPfgM/jb-beam.png" width="200" height="200" />
 
 
 ![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
