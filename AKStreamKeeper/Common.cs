@@ -773,12 +773,20 @@ namespace AKStreamKeeper
                 }
 
                 string reqData = JsonHelper.ToJson(tmpKeepAlive, Formatting.Indented);
-
+#if (DEBUG)
+                GCommon.Logger.Debug(
+                    $"[{LoggerHead}]->向AKStreamWeb注册本机信息->{reqData}");
+#endif
                 try
                 {
                     var httpRet = NetHelper.HttpPostRequest(_akStreamKeeperConfig.AkStreamWebRegisterUrl, null, reqData,
                         "utf-8", _akStreamKeeperConfig.HttpClientTimeoutSec * 1000);
                     _sendDataTick = DateTime.Now;
+#if (DEBUG)
+                    GCommon.Logger.Debug(
+                        $"[{LoggerHead}]->AKStreamWeb注册本机信息回复内容->{httpRet}");
+#endif
+
                     if (!string.IsNullOrEmpty(httpRet))
                     {
                         if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))

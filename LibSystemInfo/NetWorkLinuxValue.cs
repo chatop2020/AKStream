@@ -29,7 +29,7 @@ namespace LibSystemInfo
                     Console.WriteLine("/usr/sbin/route->命令不存在，请用软连接生成/usr/sbin/route命令");
                 }
 
-                tmpProcess.RunProcess("/usr/sbin/route", "", 20000, out string std, out string err);
+                tmpProcess.RunProcess("/usr/sbin/route", "-n", 20000, out string std, out string err);
                 bool isFound = false;
                 if (!string.IsNullOrEmpty(std))
                 {
