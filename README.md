@@ -3,7 +3,7 @@
 -------
 # 感谢DartNoder提供免费的服务器给AKStream
 # Thanks to DartNoder for providing free servers to AKStream. Dear friends, if you have efficient server needs, you can consider DartNoder
-<a href='https://dartnode.com' _target="blank"><img src="https://i.ibb.co/cbvPfgM/jb-beam.png" width="200" height="200" /></a>
+<a href='https://dartnode.com' _target="blank"><img src="https://app.dartnode.com/assets/dash/images/brand/logo.png" width="200" height="200" /></a>
 # 感谢jetbrains提供免费的开发者授权证书!
 # Thanks to jetbrains for providing a free developer license
 <img src="https://i.ibb.co/cbvPfgM/jb-beam.png" width="200" height="200" />
