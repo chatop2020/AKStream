@@ -1,5 +1,5 @@
 #  AKStream介绍 
-## 技术交流QQ群：870526956   
+## 技术交流QQ群：870526956(满员中,正在清理) 
 ## 注意:本项目的相关资料与Wiki内容都只在GitHub更新,不会在Gitee更新(但是最新代码会同步提交到GitHub和Gitee),有需要最新文档和资料的朋友请移步GitHub 
 -------
 # 感谢DartNoder提供免费的服务器给AKStream
