@@ -9,6 +9,8 @@ public class ZLMediaKitConfigNew_RTMP
     private int? _keepAliveSecond;
     private ushort? _port;
     private ushort? _sslport;
+    private int? _directProxy = 1;
+    private int? _enhanced = 0;
 
     /// <summary>
     /// rtmp必须在此时间内完成握手，否则服务器会断开链接，单位秒
@@ -45,5 +47,23 @@ public class ZLMediaKitConfigNew_RTMP
     {
         get => _sslport;
         set => _sslport = value;
+    }
+
+    /// <summary>
+    /// rtmp是否直接代理模式
+    /// </summary>
+    public int? DirectProxy
+    {
+        get => _directProxy;
+        set => _directProxy = value;
+    }
+
+    /// <summary>
+    /// h265 rtmp打包采用增强型rtmp标准还是国内拓展标准
+    /// </summary>
+    public int? Enhanced
+    {
+        get => _enhanced;
+        set => _enhanced = value;
     }
 }

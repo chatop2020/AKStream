@@ -5,6 +5,7 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 [Serializable]
 public class ZLMediaKitConfigNew_RTC
 {
+    
     private string? _externIP;
     private ushort? _port;
     private string? _preferredCodecA;
@@ -12,6 +13,9 @@ public class ZLMediaKitConfigNew_RTC
     private int? _rembBitRate;
     private ushort? _tcpPort;
     private int? _timeoutSec;
+    private int? _start_bitrate = 0;
+    private int? _max_bitrate = 0;
+    private int? _min_bitrate = 0;
 
     /// <summary>
     /// rtc播放推流、播放超时时间
@@ -82,5 +86,32 @@ public class ZLMediaKitConfigNew_RTC
     {
         get => _preferredCodecV;
         set => _preferredCodecV = value;
+    }
+
+    /// <summary>
+    /// webrtc比特率设置
+    /// </summary>
+    public int? Start_Bitrate
+    {
+        get => _start_bitrate;
+        set => _start_bitrate = value;
+    }
+
+    /// <summary>
+    /// webrtc比特率设置
+    /// </summary>
+    public int? Max_Bitrate
+    {
+        get => _max_bitrate;
+        set => _max_bitrate = value;
+    }
+
+    /// <summary>
+    /// webrtc比特率设置
+    /// </summary>
+    public int? Min_Bitrate
+    {
+        get => _min_bitrate;
+        set => _min_bitrate = value;
     }
 }
