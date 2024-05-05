@@ -29,6 +29,7 @@ public class ZLMediaKitConfigNew_Protocol
     private int? _rtmp_demand;
     private int? _rtsp_demand;
     private int? _ts_demand;
+    private int? _paced_sender_ms=0;
 
     /// <summary>
     /// 转协议时，是否开启帧级时间戳覆盖
@@ -230,5 +231,15 @@ public class ZLMediaKitConfigNew_Protocol
     {
         get => _fmp4_demand;
         set => _fmp4_demand = value;
+    }
+
+    /// <summary>
+    /// #平滑发送定时器间隔，单位毫秒，置0则关闭；开启后影响cpu性能同时增加内存
+    /// #该配置开启后可以解决一些流发送不平滑导致zlmediakit转发也不平滑的问题
+    /// </summary>
+    public int? Paced_Sender_Ms
+    {
+        get => _paced_sender_ms;
+        set => _paced_sender_ms = value;
     }
 }

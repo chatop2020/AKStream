@@ -14,6 +14,8 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
     private string? _port_range;
     private string? _ps_pt;
     private int? _timeoutSec;
+    private int? _rtp_g711_dur_ms=100;
+    private int? _udp_recv_socket_buffer=4194304;
 
 
     /// <summary>
@@ -96,5 +98,25 @@ public class ZLMediaKitConfigNew_Rtp_Proxy
     {
         get => _gop_cache;
         set => _gop_cache = value;
+    }
+
+    /// <summary>
+    /// #国标发送g711 rtp 打包时，每个包的语音时长是多少，默认是100 ms，范围为20~180ms (gb28181-2016，c.2.4规定)，
+    /// #最好为20 的倍数，程序自动向20的倍数取整
+    /// </summary>
+    public int? Rtp_G711_Dur_Ms
+    {
+        get => _rtp_g711_dur_ms;
+        set => _rtp_g711_dur_ms = value;
+    }
+
+    /// <summary>
+    /// #udp接收数据socket buffer大小配置
+    /// #4*1024*1024=4196304
+    /// </summary>
+    public int? Udp_Recv_Socket_Buffer
+    {
+        get => _udp_recv_socket_buffer;
+        set => _udp_recv_socket_buffer = value;
     }
 }

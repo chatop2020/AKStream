@@ -12,6 +12,7 @@ public class ZLMediaKitConfigNew_HLS
     private int? _broadcastRecordTs;
     private int? _deleteDelaySec;
     private int? _segKeep;
+    private int? _fastRegister=1;
 
 
     /// <summary>
@@ -79,5 +80,14 @@ public class ZLMediaKitConfigNew_HLS
     {
         get => _segKeep;
         set => _segKeep = value;
+    }
+
+    /// <summary>
+    /// #如果设置为1，则第一个切片长度强制设置为1个GOP。当GOP小于segDur，可以提高首屏速度
+    /// </summary>
+    public int? FastRegister
+    {
+        get => _fastRegister;
+        set => _fastRegister = value;
     }
 }

@@ -5,6 +5,7 @@ namespace LibCommon.Structs.ZLMediaKitConfig;
 [Serializable]
 public class ZLMediaKitConfigNew_Hook
 {
+
     private float? _alive_interval;
     private int? _enable;
     private string? _on_flow_report;

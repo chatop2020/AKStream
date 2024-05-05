@@ -9,6 +9,7 @@ public class ZLMediaKitConfigNew_API
     private string? _secret;
     private string? _snapRoot;
     private string? _defaultSnap;
+    private string? _downloadRoot;
 
     /// <summary>
     /// 是否调试http api,启用调试后，会打印每次http请求的内容和回复
@@ -45,5 +46,14 @@ public class ZLMediaKitConfigNew_API
     {
         get => _defaultSnap;
         set => _defaultSnap = value;
+    }
+
+    /// <summary>
+    /// downloadFile http接口可访问文件的根目录，支持多个目录，不同目录通过分号(;)分隔
+    /// </summary>
+    public string? DownloadRoot
+    {
+        get => _downloadRoot;
+        set => _downloadRoot = value;
     }
 }
