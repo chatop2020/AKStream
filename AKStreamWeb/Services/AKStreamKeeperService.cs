@@ -9,6 +9,284 @@ namespace AKStreamWeb.Services
     public static class AKStreamKeeperService
     {
         /// <summary>
+        /// 删除文件列表
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="fileList"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static ResKeeperMoveFileList2BackStorage MoveFileList2BackStorage(string mediaServerId,
+            List<string> fileList,
+            out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            if (fileList == null || fileList.Count <= 0)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+
+            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
+            {
+                foreach (var disk in mediaServer.DisksUseable)
+                {
+                    if (disk.Value != 0)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_DiskExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        };
+                        GCommon.Logger.Warn(
+                            $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                        return null;
+                    }
+                }
+            }
+
+            var ret = mediaServer.KeeperWebApi.MoveFileList2BackStorage(out rs, fileList);
+            if (ret == null || !rs.Code.Equals(ErrorNumber.None))
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件列表失败->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return null;
+            }
+
+            GCommon.Logger.Info(
+                $"[{Common.LoggerHead}]->移动指定文件列表成功->{mediaServerId}->{JsonHelper.ToJson(fileList, Formatting.Indented)}->{JsonHelper.ToJson(ret)}");
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 移动指定文件到备份存储
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="filePath"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool MoveFile2BackStorage(string mediaServerId, string filePath, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (UtilsHelper.StringIsNullEx(filePath))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false ||
+                mediaServer.IsMediaServerRunning == false || mediaServer.WebApiHelper == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_NotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_NotRunning],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+
+            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
+            {
+                foreach (var disk in mediaServer.DisksUseable)
+                {
+                    if (disk.Value != 0)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_DiskExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                        };
+                        GCommon.Logger.Warn(
+                            $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                        return false;
+                    }
+                }
+            }
+
+            var ret = mediaServer.KeeperWebApi.MoveFile2BackStorage(out rs, filePath);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->移动指定文件失败->{mediaServerId}->{filePath}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            GCommon.Logger.Info($"[{Common.LoggerHead}]->移动指定文件成功->{mediaServerId}->{filePath}");
+
+            return ret;
+        }
+
+
+        /// <summary>
+        /// 备份磁盘挂载
+        /// </summary>
+        /// <param name="mediaServerId"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static bool MountBackStorage(string mediaServerId, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (UtilsHelper.StringIsNullEx(mediaServerId))
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_ParamsIsNotRight,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->" +
+                    $"挂载备份磁盘失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+
+            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Trim().Equals(mediaServerId.Trim()));
+            if (mediaServer == null)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_InstanceIsNull],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->挂载备份磁盘失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            if (mediaServer.KeeperWebApi == null || mediaServer.IsKeeperRunning == false)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->挂载备份磁盘失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return false;
+            }
+
+            var ret = mediaServer.KeeperWebApi.MountBackStorage(out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->挂载备份磁盘失败->{mediaServerId}->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+
+                return ret;
+            }
+
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->挂载备份磁盘执行完成->{mediaServerId}->执行情况->{ret}");
+
+            return ret;
+        }
+
+        /// <summary>
         /// 获取ffmpeg模板列表
         /// </summary>
         /// <param name="mediaServerId"></param>

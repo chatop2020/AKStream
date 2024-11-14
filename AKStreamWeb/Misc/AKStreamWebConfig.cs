@@ -24,6 +24,8 @@ namespace AKStreamWeb.Misc
         private string? _forwardUrlOut = "";
         private string? _forwardUrlOnRecord = "";
         private string? _pushStreamIpGetUrl = "";
+       
+  
 
 
         /// <summary>
@@ -198,5 +200,6 @@ namespace AKStreamWeb.Misc
             get => _pushStreamIpGetUrl;
             set => _pushStreamIpGetUrl = value;
         }
+        
     }
 }

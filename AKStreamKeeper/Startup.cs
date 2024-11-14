@@ -142,6 +142,75 @@ namespace AKStreamKeeper
             app.UseMiddleware<ExceptionMiddleware>(); //ExceptionMiddleware 加入管道
             app.UseAuthorization();
 
+            if (Common.AkStreamKeeperConfig.EnableBackStroage == true && !string.IsNullOrEmpty(
+                                                                          Common.AkStreamKeeperConfig
+                                                                              .BackStroageDevPath)
+                                                                      && !string.IsNullOrEmpty(Common
+                                                                          .AkStreamKeeperConfig.BackStroageFilePath))
+            {
+                if (!Directory.Exists(Common
+                        .AkStreamKeeperConfig.BackStroageFilePath))
+                {
+                    Directory.CreateDirectory(Common
+                        .AkStreamKeeperConfig.BackStroageFilePath);
+                }
+
+                int ret = -1;
+                try
+                {
+                    ret = UtilsHelper.DirAreMounttedAndWriteableForLinux(
+                        Common.AkStreamKeeperConfig.BackStroageFilePath);
+                    if (ret != 0)
+                    {
+                        try
+                        {
+                            UtilsHelper.UnmountDisk(Common.AkStreamKeeperConfig.BackStroageFilePath);
+                        }
+                        catch
+                        {
+                            ret = -1;
+                        }
+
+                        try
+                        {
+                            UtilsHelper.MountDisk(Common.AkStreamKeeperConfig.BackStroageDevPath,
+                                Common.AkStreamKeeperConfig.BackStroageFilePath);
+                            ret = 0;
+                        }
+                        catch
+                        {
+                            ret = -1;
+                        }
+                    }
+                }
+                catch
+                {
+                    ret = -1;
+                }
+
+                try
+                {
+                    if (ret == 0)
+                    {
+                        app.UseStaticFiles(new StaticFileOptions
+                        {
+                            FileProvider =
+                                new PhysicalFileProvider(Common.CutOrMergePath),
+                            OnPrepareResponse = (c) =>
+                            {
+                                c.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                            },
+                            RequestPath = new PathString("/BackStroage"),
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + "\r\n" + ex.StackTrace);
+                    return;
+                }
+            }
+
             if (!string.IsNullOrEmpty(Common.AkStreamKeeperConfig.CutMergeFilePath))
             {
                 try

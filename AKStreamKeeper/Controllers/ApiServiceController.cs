@@ -21,6 +21,66 @@ namespace AKStreamKeeper.Controllers
     public class ApiServiceController : ControllerBase
     {
         /// <summary>
+        /// 移动文件列表到备份存储
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="fileList"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("MoveFileList2BackStorage")]
+        [HttpPost]
+        public ResKeeperMoveFileList2BackStorage MoveFileList2BackStorage(
+            [FromHeader(Name = "AccessKey")] string AccessKey,
+            List<string> fileList)
+        {
+            ResponseStruct rs;
+            var ret = ApiService.MoveFileList2BackStorage(fileList, out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 移动文件到备份存储
+        /// </summary>
+        /// <param name="AccessKey"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        /// <exception cref="AkStreamException"></exception>
+        [Route("MoveFile2BackStorage")]
+        [HttpGet]
+        public bool MoveFile2BackStorage([FromHeader(Name = "AccessKey")] string AccessKey, string filePath)
+        {
+            ResponseStruct rs;
+            var ret = ApiService.MoveFile2BackStorage(filePath, out rs);
+            if (!ret || !rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        [Route("MountBackStorage")]
+        [HttpGet]
+        public bool MountBackStorage([FromHeader(Name = "AccessKey")] string AccessKey, string dirPath)
+        {
+            ResponseStruct rs;
+            var ret = Common.MediaServerInstance.MountBackStroage(out rs);
+            if (!rs.Code.Equals(ErrorNumber.None))
+            {
+                throw new AkStreamException(rs);
+            }
+
+            return ret;
+        }
+
+
+        /// <summary>
         /// 检查磁盘是否可写
         /// </summary>
         /// <param name="AccessKey"></param>

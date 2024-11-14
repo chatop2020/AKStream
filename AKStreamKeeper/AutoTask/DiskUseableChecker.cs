@@ -42,6 +42,27 @@ public class DiskUseableChecker
                         var ret = UtilsHelper.DirAreMounttedAndWriteableForLinux(path);
                         Common.DisksUseable.Add(path, ret);
                     }
+
+                    if (Common.AkStreamKeeperConfig.EnableBackStroage == true && !string.IsNullOrEmpty(
+                                                                                  Common.AkStreamKeeperConfig
+                                                                                      .BackStroageFilePath)
+                                                                              && !string.IsNullOrEmpty(Common
+                                                                                  .AkStreamKeeperConfig
+                                                                                  .BackStroageDevPath))
+                    {
+                        var ret = UtilsHelper.DirAreMounttedAndWriteableForLinux(Common.AkStreamKeeperConfig
+                            .BackStroageFilePath);
+                        if (ret != 0)
+                        {
+                            Common.DisksUseable.Add(Common.AkStreamKeeperConfig
+                                .BackStroageFilePath, 0);//做个假，认为他可用
+                        }
+                        else
+                        {
+                            Common.DisksUseable.Add(Common.AkStreamKeeperConfig
+                                .BackStroageFilePath, ret);
+                        }
+                    }
                 }
             }
             catch (Exception ex)

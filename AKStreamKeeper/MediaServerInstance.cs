@@ -302,6 +302,102 @@ namespace AKStreamKeeper
 
         public static event Common.MediaServerKilled OnMediaKilled = null!;
 
+        
+        /// <summary>
+        /// 挂载备份磁盘
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+
+        public bool MountBackStroage(out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                if (_akStreamKeeperConfig.EnableBackStroage == true && !string.IsNullOrEmpty(_akStreamKeeperConfig
+                                                                        .BackStroageDevPath)
+                                                                    && !string.IsNullOrEmpty(_akStreamKeeperConfig
+                                                                        .BackStroageFilePath))
+                {
+                    int ret = -1;
+                    try
+                    {
+                        ret = UtilsHelper.DirAreMounttedAndWriteableForLinux(_akStreamKeeperConfig.BackStroageFilePath);
+                        switch (ret)
+                        {
+                            case 0:
+                                return true;
+                                break;
+                            case -1:
+                                var b = UtilsHelper.MountDisk(_akStreamKeeperConfig.BackStroageDevPath,
+                                    _akStreamKeeperConfig.BackStroageFilePath);
+                                if (b)
+                                {
+                                    return true;
+                                }
+
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.MediaServer_DiskExcept,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                                    ExceptMessage = $"{_akStreamKeeperConfig.BackStroageFilePath}->{_akStreamKeeperConfig.BackStroageDevPath}->磁盘挂载失败",
+                                };
+                                return false;
+                                break;
+                            case -2:
+                                rs = new ResponseStruct()
+                                {
+                                    Code = ErrorNumber.MediaServer_DiskExcept,
+                                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                                    ExceptMessage = $"{_akStreamKeeperConfig.BackStroageFilePath}所在磁盘已挂载，但不可写入",
+                                };
+                                return false;
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.MediaServer_DiskExcept,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                            ExceptMessage = ex.Message,
+                            ExceptStackTrace = ex.StackTrace
+                        };
+                        return false;
+                    }
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_DiskExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+                    };
+                    return false;
+                }
+            }
+            else
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_SystemUnsupported,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_SystemUnsupported],
+                };
+                return false;
+            }
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.MediaServer_DiskExcept,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
+            };
+            return false;
+            
+        }
 
         /// <summary>
         /// 检查磁盘是否可写入
@@ -932,7 +1028,7 @@ namespace AKStreamKeeper
                             _zlmNewConfig.Hook.On_Rtsp_Realm = "";
                             _zlmNewConfig.Rtsp.AuthBasic = 1;
                         }
-                        
+
                         if (_zlmNewConfig != null && _zlmNewConfig.Http != null)
                         {
                             _zlmNewConfig.Http.Allow_Ip_Range = ""; //把ip白名单去掉

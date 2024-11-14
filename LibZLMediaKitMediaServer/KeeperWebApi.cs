@@ -50,6 +50,205 @@ namespace LibZLMediaKitMediaServer
 
 
         /// <summary>
+        /// 移动文件到备份存储
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public bool MoveFile2BackStorage(out ResponseStruct rs, string filePath)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            string url = $"{_baseUrl}/ApiService/MoveFile2BackStorage?filePath={filePath}";
+            try
+            {
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+                var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return false;
+                    }
+
+                    bool isOk = false;
+                    var ret = bool.TryParse(httpRet, out isOk);
+                    if (ret)
+                    {
+                        return isOk;
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = "",
+                    };
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// 批量移动文件到备份存储
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public ResKeeperMoveFileList2BackStorage MoveFileList2BackStorage(out ResponseStruct rs, List<string> req)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+
+            string url = $"{_baseUrl}/ApiService/MoveFileList2BackStorage";
+            try
+            {
+                string reqData = JsonHelper.ToJson(req);
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+
+                var httpRet = NetHelper.HttpPostRequest(url, headers, reqData, "utf-8", _httpClientTimeout * 12);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return null;
+                    }
+
+                    var resKeeperDeleteFileList = JsonHelper.FromJson<ResKeeperMoveFileList2BackStorage>(httpRet);
+                    if (resKeeperDeleteFileList != null)
+                    {
+                        return resKeeperDeleteFileList;
+                    }
+
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                        ExceptMessage = httpRet,
+                        ExceptStackTrace = "",
+                    };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 挂载备份磁盘
+        /// </summary>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public bool MountBackStorage(out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            string url = $"{_baseUrl}/ApiService/MountBackStorage";
+            try
+            {
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("AccessKey", _accessKey);
+                var httpRet = NetHelper.HttpGetRequest(url, headers, "utf-8", _httpClientTimeout);
+                if (!string.IsNullOrEmpty(httpRet))
+                {
+                    if (UtilsHelper.HttpClientResponseIsNetWorkError(httpRet))
+                    {
+                        rs = new ResponseStruct()
+                        {
+                            Code = ErrorNumber.Sys_HttpClientTimeout,
+                            Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_HttpClientTimeout],
+                        };
+                        return false;
+                    }
+
+                    bool ret = false;
+                    if (bool.TryParse(httpRet, out ret))
+                    {
+                        return ret;
+                    }
+
+                    return false;
+                }
+                else
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiExcept],
+                    ExceptMessage = ex.Message,
+                    ExceptStackTrace = ex.StackTrace,
+                };
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
         /// 检查磁盘是否可写
         /// </summary>
         /// <param name="dirPath"></param>
