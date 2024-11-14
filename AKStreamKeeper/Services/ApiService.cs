@@ -14,6 +14,110 @@ namespace AKStreamKeeper.Services
 {
     public static class ApiService
     {
+        
+       /// <summary>
+       /// 移动文件到备份存储
+       /// </summary>
+       /// <param name="filePath"></param>
+       /// <param name="rs"></param>
+       /// <returns></returns>
+        public static bool MoveFile2BackStorage(string filePath, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    File.Delete(filePath);
+                    GCommon.Logger.Info($"[{Common.LoggerHead}]->删除文件:{filePath}成功");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    rs = new ResponseStruct()
+                    {
+                        Code = ErrorNumber.None,
+                        Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+                        ExceptMessage = ex.Message,
+                        ExceptStackTrace = ex.StackTrace,
+                    };
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->删除文件:{filePath}失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                    return false;
+                }
+            }
+            else
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.Sys_SpecifiedFileNotExists,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_SpecifiedFileNotExists],
+                };
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->删除文件:{filePath}失败->{JsonHelper.ToJson(rs, Formatting.Indented)}");
+                return false;
+            }
+        }
+
+        
+        /// <summary>
+        /// 移动文件列表到备份存储
+        /// </summary>
+        /// <param name="fileList"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
+        public static ResKeeperMoveFileList2BackStorage MoveFileList2BackStorage(List<string> fileList, out ResponseStruct rs)
+        {
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.None,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+            };
+            var result = new List<string>();
+            if (fileList != null && fileList.Count > 0)
+            {
+                foreach (var path in fileList)
+                {
+                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    {
+                        try
+                        {
+                            File.Delete(path);
+                        }
+                        catch
+                        {
+                            result.Add(path);
+                        }
+                    }
+
+                    Thread.Sleep(10);
+                }
+
+                if (result.Count > 0)
+                {
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->批量删除文件时有部分文件没有被删除->{JsonHelper.ToJson(result, Formatting.Indented)}");
+                }
+
+                return new ResKeeperMoveFileList2BackStorage()
+                {
+                    PathList = result,
+                };
+            }
+
+            rs = new ResponseStruct()
+            {
+                Code = ErrorNumber.Sys_ParamsIsNotRight,
+                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_ParamsIsNotRight],
+            };
+            return new ResKeeperMoveFileList2BackStorage();
+        }
+        
+        
         /// <summary>
         /// 获取日志级别
         /// </summary>

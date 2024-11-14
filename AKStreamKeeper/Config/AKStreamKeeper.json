@@ -23,5 +23,8 @@
   "CheckLinuxDiskMount": false,
   "ZLMediakitSSLFilePath": "./sslfiles/",
   "ListenIp": "127.0.0.1",
-  "EnableRtspAuth": true
+  "EnableRtspAuth": true,
+  "EnableBackStroage": false,
+  "BackStroageDevPath": "",
+  "BackStroageFilePath": ""
 }

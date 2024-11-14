@@ -33,6 +33,10 @@ namespace AKStreamKeeper.Misc
         private string? _zLMediakitSSLFilePath;
         private string? _listenIP = "127.0.0.1";
         private bool? _enableRtspAuth = false;
+        private bool? _enableBackStroage = false;
+        private string? _backStroageDevPath = "";
+        private string? _backStroageFilePath="";
+        
 
 
         /// <summary>
@@ -252,6 +256,34 @@ namespace AKStreamKeeper.Misc
         {
             get => _enableRtspAuth;
             set => _enableRtspAuth = value;
+        }
+
+        /// <summary>
+        /// 是否启用备份存储
+        /// </summary>
+        public bool? EnableBackStroage
+        {
+            get => _enableBackStroage;
+            set => _enableBackStroage = value;
+        }
+
+        /// <summary>
+        /// 备份存储设备地址
+        /// </summary>
+        public string BackStroageDevPath
+        {
+            get => _backStroageDevPath;
+            set => _backStroageDevPath = value;
+        }
+
+        
+        /// <summary>
+        /// 备份存储路径
+        /// </summary>
+        public string BackStroageFilePath
+        {
+            get => _backStroageFilePath;
+            set => _backStroageFilePath = value;
         }
     }
 }

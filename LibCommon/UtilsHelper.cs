@@ -23,6 +23,71 @@ namespace LibCommon
     public static class UtilsHelper
     {
         /// <summary>
+        /// linux下解除磁盘挂载
+        /// </summary>
+        /// <param name="mountPoint"></param>
+        /// <returns></returns>
+        public static bool UnmountDisk(string mountPoint)
+        {
+            try
+            {
+                // 运行 umount 命令
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "sudo",
+                    Arguments = $"umount {mountPoint}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// linux下磁盘挂载
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="mountPoint"></param>
+        /// <returns></returns>
+        public static bool MountDisk(string device, string mountPoint)
+        {
+            try
+            {
+                // 运行 mount 命令
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "sudo",
+                    Arguments = $"mount {device} {mountPoint}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// 查找优先使用的config文件
         /// Config文件名同名，但后缀包含.local的将被优先使用
         /// 比如：AKStreamKeeperConfig.json这个配置文件，如果在同目录下发现有AKStreamKeeperConfig.json.local文件

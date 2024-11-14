@@ -378,6 +378,9 @@ namespace AKStreamKeeper
                 _akStreamKeeperConfig.CustomRecordPathList.Add("/disk3/record");
                 _akStreamKeeperConfig.MediaServerPath =
                     "请正确填写流媒体服务器(ZLMediaKit的MediaServer)的绝对路径，如/opt/MediaServer，并确保其已经执行过一次，在MediaServer的同级目录下已经生成了config.ini文件";
+                _akStreamKeeperConfig.EnableBackStroage = false;
+                _akStreamKeeperConfig.BackStroageDevPath = "备份存储的设备地址";
+                _akStreamKeeperConfig.BackStroageFilePath = "备份存储的路径";
                 try
                 {
                     string configStr = JsonHelper.ToJson(_akStreamKeeperConfig, Formatting.Indented);
@@ -756,6 +759,9 @@ namespace AKStreamKeeper
                 tmpKeepAlive.Version = Version;
                 tmpKeepAlive.ZlmBuildDateTime = MediaServerInstance.ZlmBuildDateTime;
                 tmpKeepAlive.CutMergeFilePath = _akStreamKeeperConfig.CutMergeFilePath;
+                tmpKeepAlive.EnableBackStroage=_akStreamKeeperConfig.EnableBackStroage;
+                tmpKeepAlive.BackStorageDevPath = _akStreamKeeperConfig.BackStroageDevPath;
+                tmpKeepAlive.BackStroageFilePath = _akStreamKeeperConfig.BackStroageFilePath;
                 lock (DisksUseable)
                 {
                     if (DisksUseable != null && DisksUseable.Count > 0)

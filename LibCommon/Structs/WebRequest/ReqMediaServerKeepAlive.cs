@@ -38,6 +38,9 @@ namespace LibCommon.Structs.WebRequest
         private DateTime? _zlmBuildDateTime;
         private Dictionary<string, int>? _disksUseable;
         private string? _cutMergeFilePath;
+        private bool? _enableBackStroage;
+        private string? _backStroageFilePath;
+        private string? _backStorageDevPath;
 
 
         /// <summary>
@@ -274,6 +277,33 @@ namespace LibCommon.Structs.WebRequest
         {
             get => _cutMergeFilePath;
             set => _cutMergeFilePath = value;
+        }
+
+        /// <summary>
+        /// 是否启用备份存储
+        /// </summary>
+        public bool? EnableBackStroage
+        {
+            get => _enableBackStroage;
+            set => _enableBackStroage = value;
+        }
+
+        /// <summary>
+        /// 备份存储文件路径
+        /// </summary>
+        public string? BackStroageFilePath
+        {
+            get => _backStroageFilePath;
+            set => _backStroageFilePath = value;
+        }
+
+        /// <summary>
+        /// 备份存储设备地址
+        /// </summary>
+        public string? BackStorageDevPath
+        {
+            get => _backStorageDevPath;
+            set => _backStorageDevPath = value;
         }
     }
 }
