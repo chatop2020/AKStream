@@ -1,0 +1,75 @@
+﻿FROM zlmediakit/zlmediakit:master AS zlmediakit
+
+# 使用 ubuntu 20.04 作为基础镜像
+FROM ubuntu:20.04
+
+# 设置环境变量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# 复制 ZLMediaKit 相关文件
+COPY --from=zlmediakit /opt/media/bin/MediaServer /opt/media/bin/
+COPY --from=zlmediakit /opt/media/bin/default.pem /opt/media/bin/
+COPY --from=zlmediakit /opt/media/conf/config.ini /opt/media/conf/
+COPY --from=zlmediakit /opt/media/bin/www/ /opt/media/bin/www/
+
+
+# 安装基础包和依赖
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+    wget \
+    software-properties-common \
+    curl \
+    gnupg \
+    lsb-release \
+    tzdata \
+    libssl-dev \
+    ffmpeg \
+    gcc \
+    g++ \
+    gdb && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# 安装 Microsoft 包签名密钥和源
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb
+
+# 安装 .NET SDK 和运行时
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    dotnet-sdk-6.0 \
+    net-tools \
+    aspnetcore-runtime-6.0 && \
+    # 清理 apt 缓存
+    apt-get autoremove -y && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# 设置工作目录和环境变量
+WORKDIR /opt/media/bin
+ENV PATH=/opt/media/bin:$PATH
+
+# 暴露服务端口
+# RTMP 端口
+EXPOSE 1935
+# RTSP 端口
+EXPOSE 554
+# HTTP 端口
+EXPOSE 80
+# HTTPS 端口
+EXPOSE 443
+# RTP 端口
+EXPOSE 10000/tcp
+EXPOSE 10000/udp
+# 其他端口
+EXPOSE 8000/tcp
+EXPOSE 8000/udp
+EXPOSE 9000/udp
+
+# 启动命令
+CMD ["./MediaServer","-s", "default.pem", "-c", "../conf/config.ini", "-l","0"]
