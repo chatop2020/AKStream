@@ -1434,9 +1434,9 @@ namespace AKStreamWeb.Services
                     tmpMediaServer.AKStreamKeeperVersion = req.Version;
                     tmpMediaServer.ZlmBuildDateTime = req.ZlmBuildDateTime;
                     tmpMediaServer.CutMergeFilePath = req.CutMergeFilePath;
-                    mediaServer.EnableBackStroage = req.EnableBackStroage;
-                    mediaServer.BackStroageFilePath = req.BackStroageFilePath;
-                    mediaServer.BackStorageDevPath = req.BackStorageDevPath;
+                    tmpMediaServer.EnableBackStroage = req.EnableBackStroage;
+                    tmpMediaServer.BackStroageFilePath = req.BackStroageFilePath;
+                    tmpMediaServer.BackStorageDevPath = req.BackStorageDevPath;
                     tmpMediaServer.DisksUseable.Clear();
                     if (req.DisksUseable != null && req.DisksUseable.Count > 0)
                     {

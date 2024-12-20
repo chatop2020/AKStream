@@ -98,6 +98,7 @@ namespace LibSystemInfo
                     switch (_operatingSystemType)
                     {
                         case OperatingSystemType.Windows:
+                            CPUWinLoadValue.Refresh();
                             _globalSystemInfo.CpuLoad = CPUWinLoadValue.CPULOAD;
                             _globalSystemInfo.NetWorkStat = NetWorkWinValue3.GetNetworkStat();
                             break;
