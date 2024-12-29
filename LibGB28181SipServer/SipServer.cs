@@ -491,17 +491,19 @@ namespace LibGB28181SipServer
                 media.MediaFormats.Add(psFormat);
                 media.MediaFormats.Add(h264Format);
                 media.AddExtra("a=recvonly");
-                if (Common.SipServerConfig.IsPassive != null && Common.SipServerConfig.IsPassive == false)
-                {
-                    media.AddExtra("a=setup:active"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
-                }
-                else
-                {
-                    media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
-                }
+                
 
                 if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
                 {
+                    if (Common.SipServerConfig.IsPassive != null && Common.SipServerConfig.IsPassive == false)
+                    {
+                        media.AddExtra("a=setup:active"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    }
+                    else
+                    {
+                        media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    }
+
                     media.Transport = "TCP/RTP/AVP";
                     media.AddExtra("a=connection:new");
                 }
@@ -557,17 +559,17 @@ namespace LibGB28181SipServer
                 media.MediaFormats.Add(h264Format);
                 media.AddExtra("a=recvonly");
 
-                if (Common.SipServerConfig.IsPassive != null && Common.SipServerConfig.IsPassive == false)
-                {
-                    media.AddExtra("a=setup:active"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
-                }
-                else
-                {
-                    media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
-                }
-
                 if (pushMediaInfo.PushStreamSocketType == PushStreamSocketType.TCP)
                 {
+                    if (Common.SipServerConfig.IsPassive != null && Common.SipServerConfig.IsPassive == false)
+                    {
+                        media.AddExtra("a=setup:active"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    }
+                    else
+                    {
+                        media.AddExtra("a=setup:passive"); //active：主动模式，由摄像头告知服务器监听哪个端口，passive：被动模式，服务器告知摄像头连接端口
+                    }
+
                     media.Transport = "TCP/RTP/AVP";
                     media.AddExtra("a=connection:new");
                 }
