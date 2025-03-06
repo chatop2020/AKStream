@@ -5,9 +5,6 @@
 # 感谢DartNoder提供免费的服务器给AKStream
 # Thanks to DartNoder for providing free servers to AKStream. Dear friends, if you have efficient server needs, you can consider DartNoder
 <a href='https://dartnode.com' _target="blank"><img src="https://i.ibb.co/5cPHFS5/WX20240121-210752-2x.png" width="158" height="49" /></a>
-# 感谢jetbrains提供免费的开发者授权证书!
-# Thanks to jetbrains for providing a free developer license
-<img src="https://i.ibb.co/cbvPfgM/jb-beam.png" width="200" height="200" />
 
 
 ![akstream](https://i.loli.net/2021/08/05/5IgjLfCoS9e7NRm.png)
