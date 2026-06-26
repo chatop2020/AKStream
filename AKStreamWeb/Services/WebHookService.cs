@@ -444,15 +444,9 @@ namespace AKStreamWeb.Services
 
             if (retobj != null && retobj.MediaServerStreamInfo != null)
             {
-                if (retobj.MediaServerStreamInfo.StopRecordWithAPI == false) //判断是否因为手工停止录制，如果手工停止录制就不需要再改变录制状态
-                {
-                    retobj.MediaServerStreamInfo.IsRecorded = true;
-                    lock (GCommon.Ldb.LiteDBLockObj)
-                    {
-                        GCommon.Ldb.VideoOnlineInfo.Update(retobj);
-                    }
-                }
-                else //如果是手工停止，则把手工停止属性重置到false
+                // OnRecordMp4 只表示某个 MP4 分片已经写完，不代表当前在线流仍在录制。
+                // IsRecorded 应该只由 StartRecord / StopRecord 维护，避免异常断流后旧分片回调污染新流状态。
+                if (retobj.MediaServerStreamInfo.StopRecordWithAPI == true)
                 {
                     retobj.MediaServerStreamInfo.StopRecordWithAPI = false;
                     lock (GCommon.Ldb.LiteDBLockObj)
@@ -461,6 +455,28 @@ namespace AKStreamWeb.Services
                     }
                 }
             }
+            //以下代码可能造成了录制状态混乱问题，流被快速重注册，zlm好像会返回最后时段的录制内容，所以造成了
+            //retobj.MediaServerStreamInfo.IsRecorded = true; 因此，在AutoRecord中的StartRecord不会被执行
+            //造成了这个流不会被录制的问题！所以改用上面的代码，在OnRecordMp4事件中不再处理IsRecorded的逻辑，因为StartRecord会进行处理
+            // if (retobj != null && retobj.MediaServerStreamInfo != null)
+            // {
+            //     if (retobj.MediaServerStreamInfo.StopRecordWithAPI == false) //判断是否因为手工停止录制，如果手工停止录制就不需要再改变录制状态
+            //     {
+            //          retobj.MediaServerStreamInfo.IsRecorded = true;
+            //          lock (GCommon.Ldb.LiteDBLockObj)
+            //          {
+            //              GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+            //          }
+            //     }
+            //     else //如果是手工停止，则把手工停止属性重置到false
+            //     {
+            //         retobj.MediaServerStreamInfo.StopRecordWithAPI = false;
+            //         lock (GCommon.Ldb.LiteDBLockObj)
+            //         {
+            //             GCommon.Ldb.VideoOnlineInfo.Update(retobj);
+            //         }
+            //     }
+            // }
 
 
             return new ResToWebHookOnRecordMP4()
