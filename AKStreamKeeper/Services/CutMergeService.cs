@@ -235,42 +235,45 @@ namespace AKStreamKeeper.Services
         private static string mergeProcess(ReqKeeperCutMergeTask task)
         {
             task.TaskStatus = MyTaskStatus.Mergeing;
-            string mergePath = Common.CutOrMergeTempPath + task.TaskId;
-            string outPutPath = Common.CutOrMergePath +
-                                DateTime.Now.Date.ToString("yyyy-MM-dd");
-            if (!Directory.Exists(outPutPath))
+
+            string mergePath = Path.Combine(Common.CutOrMergeTempPath, task.TaskId!);
+            string outPutPath = Path.Combine(Common.CutOrMergePath, DateTime.Now.ToString("yyyy-MM-dd"));
+
+            Directory.CreateDirectory(mergePath);
+            Directory.CreateDirectory(outPutPath);
+
+            string filesTxtPath = Path.Combine(mergePath, "files.txt");
+            string newFilePath = Path.Combine(outPutPath, $"{task.TaskId}_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}.mp4");
+
+            List<string> mergeStringList = task.CutMergeFileList!
+                .Where(x => x != null && !string.IsNullOrWhiteSpace(x.FilePath))
+                .Select(x => $"file '{EscapeFfmpegConcatPath(x.FilePath!)}'")
+                .ToList();
+
+            if (mergeStringList.Count <= 0)
             {
-                Directory.CreateDirectory(outPutPath);
+                GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(没有可合并的文件)->TaskId:{task.TaskId}");
+                return null!;
             }
 
-            List<string> mergeStringList = new List<string>();
-            for (int i = 0; i <= task.CutMergeFileList!.Count - 1; i++)
-            {
-                mergeStringList.Add("file '" + task.CutMergeFileList[i].FilePath + "'");
-            }
-
-            File.WriteAllLines(mergePath + "files.txt", mergeStringList);
-
-            string newFilePath = outPutPath + "/" + task.TaskId + "_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") +
-                                 ".mp4";
+            File.WriteAllLines(filesTxtPath, mergeStringList);
 
             string args = " -threads " + Common.FFmpegThreadCount +
-                          " -f concat -safe 0 -i " + mergePath +
-                          "files.txt" + " -c copy  -movflags faststart " + newFilePath;
+                          " -f concat -safe 0 -i \"" + filesTxtPath + "\"" +
+                          " -c copy -movflags faststart \"" + newFilePath + "\"";
 
             ProcessHelper tmpProcessHelper = new ProcessHelper(null, null, null);
             var retRun = tmpProcessHelper.RunProcess(Common.AkStreamKeeperConfig.FFmpegPath, args, 1000 * 60 * 30,
                 out string std,
                 out string err);
+
             task.ProcessPercentage += 40f;
 
             GCommon.Logger.Debug($"[{Common.LoggerHead}]->FFMPEG命令->{Common.AkStreamKeeperConfig.FFmpegPath}{args}");
-            GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(mergePath + "files.txt")}");
+            GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(filesTxtPath)}");
 
-            if (retRun && (!string.IsNullOrEmpty(std) || !string.IsNullOrEmpty(err)) &&
-                File.Exists(newFilePath))
+            if (retRun && File.Exists(newFilePath))
             {
-                long find = -1;
                 FileInfo fileInfo = new FileInfo(newFilePath);
                 if (fileInfo.Length > 10)
                 {
@@ -279,9 +282,67 @@ namespace AKStreamKeeper.Services
                 }
             }
 
-            GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(mergeProcess失败)->TaskId:{task.TaskId}->Error:{err}");
+            GCommon.Logger.Warn(
+                $"[{Common.LoggerHead}]->合并请求任务失败(mergeProcess失败)->TaskId:{task.TaskId}->Std:{std}->Error:{err}");
             return null!;
         }
+
+        private static string EscapeFfmpegConcatPath(string filePath)
+        {
+            return Path.GetFullPath(filePath)
+                .Replace("\\", "/")
+                .Replace("'", "'\\''");
+        }
+        // private static string mergeProcess(ReqKeeperCutMergeTask task)
+        // {
+        //     task.TaskStatus = MyTaskStatus.Mergeing;
+        //     string mergePath = Common.CutOrMergeTempPath + task.TaskId;
+        //     string outPutPath = Common.CutOrMergePath +
+        //                         DateTime.Now.Date.ToString("yyyy-MM-dd");
+        //     if (!Directory.Exists(outPutPath))
+        //     {
+        //         Directory.CreateDirectory(outPutPath);
+        //     }
+        //
+        //     List<string> mergeStringList = new List<string>();
+        //     for (int i = 0; i <= task.CutMergeFileList!.Count - 1; i++)
+        //     {
+        //         mergeStringList.Add("file '" + task.CutMergeFileList[i].FilePath + "'");
+        //     }
+        //
+        //     File.WriteAllLines(mergePath + "files.txt", mergeStringList);
+        //
+        //     string newFilePath = outPutPath + "/" + task.TaskId + "_" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") +
+        //                          ".mp4";
+        //
+        //     string args = " -threads " + Common.FFmpegThreadCount +
+        //                   " -f concat -safe 0 -i " + mergePath +
+        //                   "files.txt" + " -c copy  -movflags faststart " + newFilePath;
+        //
+        //     ProcessHelper tmpProcessHelper = new ProcessHelper(null, null, null);
+        //     var retRun = tmpProcessHelper.RunProcess(Common.AkStreamKeeperConfig.FFmpegPath, args, 1000 * 60 * 30,
+        //         out string std,
+        //         out string err);
+        //     task.ProcessPercentage += 40f;
+        //
+        //     GCommon.Logger.Debug($"[{Common.LoggerHead}]->FFMPEG命令->{Common.AkStreamKeeperConfig.FFmpegPath}{args}");
+        //     GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪文件列表->{File.ReadAllText(mergePath + "files.txt")}");
+        //
+        //     if (retRun && (!string.IsNullOrEmpty(std) || !string.IsNullOrEmpty(err)) &&
+        //         File.Exists(newFilePath))
+        //     {
+        //         long find = -1;
+        //         FileInfo fileInfo = new FileInfo(newFilePath);
+        //         if (fileInfo.Length > 10)
+        //         {
+        //             GCommon.Logger.Debug($"[{Common.LoggerHead}]->完成裁剪合并任务合并文件->TaskId:{task.TaskId}");
+        //             return newFilePath;
+        //         }
+        //     }
+        //
+        //     GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(mergeProcess失败)->TaskId:{task.TaskId}->Error:{err}");
+        //     return null!;
+        // }
 
         /// <summary>
         /// 对需要裁剪的视频进行裁剪，超时30分钟
@@ -359,32 +420,30 @@ namespace AKStreamKeeper.Services
         public static ResKeeperCutMergeTaskResponse CutMerge(ReqKeeperCutMergeTask task)
         {
             Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start(); //  开始监视代码运行时间
+            stopwatch.Start();
+
             string taskPath = "";
+
             if (task != null && task.CutMergeFileList != null && task.CutMergeFileList.Count > 0)
             {
-                taskPath = Common.CutOrMergeTempPath + task.TaskId;
-                if (!Directory.Exists(taskPath))
-                {
-                    Directory.CreateDirectory(taskPath);
-                }
+                taskPath = Path.Combine(Common.CutOrMergeTempPath, task.TaskId!);
+                Directory.CreateDirectory(taskPath);
 
                 try
                 {
-                    task = packageToTsStreamFile(task); //转ts文件
-
+                    task = packageToTsStreamFile(task);
 
                     task.TaskStatus = MyTaskStatus.Cutting;
 
                     List<CutMergeStruct> cutFileList = task.CutMergeFileList!
                         .FindAll(x => x.CutEndPos != null && x.CutStartPos != null).ToList();
+
                     for (int i = 0; i <= task.CutMergeFileList!.Count - 1; i++)
                     {
                         if (task.CutMergeFileList[i].CutStartPos != null && task.CutMergeFileList[i].CutEndPos != null)
                         {
                             task.ProcessPercentage += ((double)1 / (double)cutFileList.Count * 100f) * 0.15f;
 
-                            //做剪切
                             task.CutMergeFileList[i] = cutProcess(task.CutMergeFileList[i]);
                             Thread.Sleep(20);
                         }
@@ -394,8 +453,10 @@ namespace AKStreamKeeper.Services
 
                     task.ProcessPercentage = 100f;
                     task.TaskStatus = MyTaskStatus.Closed;
-                    stopwatch.Stop(); //  停止监视
+
+                    stopwatch.Stop();
                     TimeSpan timespan = stopwatch.Elapsed;
+
                     if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
                     {
                         long duration = -1;
@@ -403,6 +464,7 @@ namespace AKStreamKeeper.Services
 
                         FFmpegGetDuration.GetDuration(Common.AkStreamKeeperConfig.FFmpegPath, filePath, out duration,
                             out newPath);
+
                         var ret = CutMergeTaskStatusList.FindLast(x => x.TaskId == task.TaskId);
                         if (ret != null)
                         {
@@ -440,21 +502,133 @@ namespace AKStreamKeeper.Services
                 }
                 finally
                 {
-                    if (!string.IsNullOrEmpty(taskPath) && Directory.Exists(taskPath)) //清理战场
+                    try
                     {
-                        Directory.Delete(taskPath, true);
-                    }
+                        if (!string.IsNullOrEmpty(taskPath) && Directory.Exists(taskPath))
+                        {
+                            Directory.Delete(taskPath, true);
+                        }
 
-                    if (File.Exists(Common.CutOrMergeTempPath + task!.TaskId + "files.txt")
-                       ) //清理战场
+                        // 兼容旧版本错误拼接出来的 taskidfiles.txt，避免历史临时文件残留。
+                        if (task != null && !string.IsNullOrEmpty(task.TaskId))
+                        {
+                            string legacyFilesTxtPath =
+                                Path.Combine(Common.CutOrMergeTempPath, task.TaskId + "files.txt");
+                            if (File.Exists(legacyFilesTxtPath))
+                            {
+                                File.Delete(legacyFilesTxtPath);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
                     {
-                        File.Delete(Common.CutOrMergeTempPath + task!.TaskId + "files.txt");
+                        GCommon.Logger.Warn(
+                            $"[{Common.LoggerHead}]->清理裁剪合并临时目录失败->TaskId:{task?.TaskId}->Message:{ex.Message}");
                     }
                 }
             }
 
-
             return null!;
         }
+        // public static ResKeeperCutMergeTaskResponse CutMerge(ReqKeeperCutMergeTask task)
+        // {
+        //     Stopwatch stopwatch = new Stopwatch();
+        //     stopwatch.Start(); //  开始监视代码运行时间
+        //     string taskPath = "";
+        //     if (task != null && task.CutMergeFileList != null && task.CutMergeFileList.Count > 0)
+        //     {
+        //         taskPath = Common.CutOrMergeTempPath + task.TaskId;
+        //         if (!Directory.Exists(taskPath))
+        //         {
+        //             Directory.CreateDirectory(taskPath);
+        //         }
+        //
+        //         try
+        //         {
+        //             task = packageToTsStreamFile(task); //转ts文件
+        //
+        //
+        //             task.TaskStatus = MyTaskStatus.Cutting;
+        //
+        //             List<CutMergeStruct> cutFileList = task.CutMergeFileList!
+        //                 .FindAll(x => x.CutEndPos != null && x.CutStartPos != null).ToList();
+        //             for (int i = 0; i <= task.CutMergeFileList!.Count - 1; i++)
+        //             {
+        //                 if (task.CutMergeFileList[i].CutStartPos != null && task.CutMergeFileList[i].CutEndPos != null)
+        //                 {
+        //                     task.ProcessPercentage += ((double)1 / (double)cutFileList.Count * 100f) * 0.15f;
+        //
+        //                     //做剪切
+        //                     task.CutMergeFileList[i] = cutProcess(task.CutMergeFileList[i]);
+        //                     Thread.Sleep(20);
+        //                 }
+        //             }
+        //
+        //             string filePath = mergeProcess(task);
+        //
+        //             task.ProcessPercentage = 100f;
+        //             task.TaskStatus = MyTaskStatus.Closed;
+        //             stopwatch.Stop(); //  停止监视
+        //             TimeSpan timespan = stopwatch.Elapsed;
+        //             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+        //             {
+        //                 long duration = -1;
+        //                 string newPath = "";
+        //
+        //                 FFmpegGetDuration.GetDuration(Common.AkStreamKeeperConfig.FFmpegPath, filePath, out duration,
+        //                     out newPath);
+        //                 var ret = CutMergeTaskStatusList.FindLast(x => x.TaskId == task.TaskId);
+        //                 if (ret != null)
+        //                 {
+        //                 }
+        //
+        //                 GCommon.Logger.Debug($"[{Common.LoggerHead}]->裁剪合并任务成功->TaskId:{task.TaskId}");
+        //                 return new ResKeeperCutMergeTaskResponse
+        //                 {
+        //                     FilePath = newPath,
+        //                     FileSize = new FileInfo(filePath).Length,
+        //                     Duration = duration,
+        //                     Status = CutMergeRequestStatus.Succeed,
+        //                     Task = task,
+        //                     TimeConsuming = timespan.TotalMilliseconds,
+        //                 };
+        //             }
+        //
+        //             GCommon.Logger.Warn($"[{Common.LoggerHead}]->裁剪合并任务失败->TaskId:{task.TaskId}");
+        //
+        //             return new ResKeeperCutMergeTaskResponse
+        //             {
+        //                 FilePath = "",
+        //                 Status = CutMergeRequestStatus.Failed,
+        //                 FileSize = -1,
+        //                 Duration = -1,
+        //                 Task = task,
+        //                 TimeConsuming = timespan.TotalMilliseconds,
+        //             };
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             GCommon.Logger.Error(
+        //                 $"[{Common.LoggerHead}]->裁剪合并视频文件时出现异常->Message:{ex.Message}->StackTrace:{ex.StackTrace}");
+        //             return null!;
+        //         }
+        //         finally
+        //         {
+        //             if (!string.IsNullOrEmpty(taskPath) && Directory.Exists(taskPath)) //清理战场
+        //             {
+        //                 Directory.Delete(taskPath, true);
+        //             }
+        //
+        //             if (File.Exists(Common.CutOrMergeTempPath + task!.TaskId + "files.txt")
+        //                ) //清理战场
+        //             {
+        //                 File.Delete(Common.CutOrMergeTempPath + task!.TaskId + "files.txt");
+        //             }
+        //         }
+        //     }
+        //
+        //
+        //     return null!;
+        // }
     }
 }

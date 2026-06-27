@@ -279,319 +279,323 @@ namespace AKStreamWeb.Services
         /// <returns></returns>
         private static List<CutMergeStruct> AnalysisVideoFile(ReqKeeperCutOrMergeVideoFile rcmv, out ResponseStruct rs)
         {
-            rs = new ResponseStruct()
-            {
-                Code = ErrorNumber.None,
-                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
-            };
-            var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
-            if (mediaServer == null || mediaServer.KeeperWebApi == null || !mediaServer.IsKeeperRunning)
-            {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
-                };
-                return null;
-            }
-
-            int startPos = -1;
-            int endPos = -1;
-            DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
-            DateTime _end = DateTime.Parse(rcmv.EndTime.ToString("yyyy-MM-dd HH:mm:ss"));
-            var videoList = ORMHelper.Db.Select<RecordFile>()
-                 .Where(x => (x.StartTime <= _start && x.EndTime >= _start)
-                          || (x.StartTime <= _end && x.EndTime >= _end) ||
-                              (x.StartTime >= _start && x.EndTime <= _end))
-                .WhereIf(!string.IsNullOrEmpty(rcmv.MediaServerId),
-                    x => x.MediaServerId!.Trim().ToLower().Equals(rcmv.MediaServerId!.Trim().ToLower()))
-                .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
-                    x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower())).OrderBy(x => x.StartTime)
-                .ToList(); 
-
-            List<RecordFile> cutMegerList = new List<RecordFile>();
-            if (videoList != null && videoList.Count > 0)
-            {
-                for (int i = videoList.Count - 1; i >= 0; i--)
-                {
-                    if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
-                    {
-                        videoList[i] = null;
-                        continue;
-                    }
-
-                    if (!DateTime.TryParse(((DateTime)videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
-                            out _))
-                    {
-                        videoList[i] = null;
-                        continue;
-                    }
-
-                    if (!DateTime.TryParse(((DateTime)videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
-                            out _))
-                    {
-                        videoList[i] = null;
-                    }
-                }
-
-                UtilsHelper.RemoveNull(videoList);
-
-
-                for (int i = 0; i <= videoList.Count - 1; i++)
-                {
-                    var startInDb = DateTime.Parse(((DateTime)videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
-                    var endInDb = DateTime.Parse(((DateTime)videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
-                    if (startPos < 0)
-                    {
-                        if (_start >= startInDb && _start < endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
-                        {
-                            startPos = i;
-                        }
-                    }
-
-                    if (endPos < 0)
-                    {
-                        if (_end <= endInDb && _end >= startInDb) //如果_end小于等于视频结束时间，同时_end又大于等于视频开始时间，那么肯定就是结束位置 
-                        {
-                            endPos = i;
-                        }
-                    }
-
-                    if (startPos > -1 && endPos > -1)
-                    {
-                        break;
-                    }
-                }
-
-                if (startPos >= 0 && endPos >= 0) //如果开始和结束都找到了，就取这个范围内的视频
-                {
-                    cutMegerList = videoList.GetRange(startPos, endPos - startPos + 1);
-                }
-            }
-
-            if (cutMegerList != null && cutMegerList.Count > 0) //取到了要合并文件的列表
-            {
-                List<CutMergeStruct> cutMergeStructList = new List<CutMergeStruct>();
-                if (cutMegerList.Count == 1)
-                {
-                    CutMergeStruct tmpStruct = new CutMergeStruct();
-                    tmpStruct.DbId = cutMegerList[0].Id;
-                    tmpStruct.Duration = cutMegerList[0].Duration;
-                    tmpStruct.EndTime = cutMegerList[0].EndTime;
-                    tmpStruct.FilePath = cutMegerList[0].VideoPath;
-                    tmpStruct.FileSize = cutMegerList[0].FileSize;
-                    tmpStruct.StartTime = cutMegerList[0].StartTime;
-                    var tmpCutMeger = cutMegerList[0];
-                    DateTime tmpCutMegerStartTime =
-                        DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                    DateTime tmpCutMegerEndTime =
-                        DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                    if (tmpCutMegerStartTime <= _start)
-                    {
-                        TimeSpan ts = -tmpCutMegerStartTime.Subtract(_start); //视频的开始时间减去需要的开始时间，再取反
-                        TimeSpan ts2 = tmpCutMegerEndTime.Subtract(_start) + ts; //视频的结束时间减去需要的开始时间，再加上前面的值
-
-
-                        if (ts2.Hours <= 0 && ts2.Minutes <= 0 && ts2.Seconds <= 0) //如果时间ts2的各项都小于0，说明不需要裁剪
-                        {
-                            tmpStruct.CutStartPos = "00:00:00";
-                        }
-                        else //否则做裁剪参数设置
-                        {
-                            tmpStruct.CutStartPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                    ts.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                    ts.Seconds.ToString().PadLeft(2, '0');
-                        }
-                    }
-
-                    if (tmpCutMegerEndTime >= _end)
-                    {
-                        TimeSpan ts = tmpCutMegerEndTime.Subtract(_end);
-                        ts = (tmpCutMegerEndTime - tmpCutMegerStartTime).Subtract(ts);
-                        if (ts.Hours <= 0 && ts.Minutes <= 0 && ts.Seconds <= 0)
-                        {
-                            TimeSpan ts_tmp = new TimeSpan(0, 0, Convert.ToInt32(tmpStruct.Duration));
-
-                            tmpStruct.CutEndPos = ts_tmp.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                  ts_tmp.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                  ts_tmp.Seconds.ToString().PadLeft(2, '0');
-                        }
-                        else
-                        {
-                            tmpStruct.CutEndPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                  ts.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                  ts.Seconds.ToString().PadLeft(2, '0');
-                        }
-                    }
-
-
-                    //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
-                    var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
-                    var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
-                    var startD = DateTime.Parse(tmpStart);
-                    var endD = DateTime.Parse(tmpEnd);
-                    if (Math.Abs((endD - startD).TotalSeconds) <= 1)
-                    {
-                        startD = startD.AddSeconds(-1);
-                        tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
-                    }
-
-                    cutMergeStructList.Add(tmpStruct); //加入到处理列表中
-                }
-                else
-                {
-                    for (int i = 0; i <= cutMegerList.Count - 1; i++)
-                    {
-                        var tmpCutMeger = cutMegerList[i];
-                        if (tmpCutMeger != null && i == 0) //看第一个文件是否需要裁剪
-                        {
-                            DateTime tmpCutMegerStartTime =
-                                DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                            DateTime tmpCutMegerEndTime =
-                                DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-
-                            if (tmpCutMegerStartTime < _start && tmpCutMegerEndTime > _start
-                               ) //如果视频开始时间大于需要的开始时间，而视频结束时间大于需要的开始时间
-                            {
-                                TimeSpan ts = -tmpCutMegerStartTime.Subtract(_start); //视频的开始时间减去需要的开始时间，再取反
-                                TimeSpan ts2 = tmpCutMegerEndTime.Subtract(_start) + ts; //视频的结束时间减去需要的开始时间，再加上前面的值
-                                CutMergeStruct tmpStruct = new CutMergeStruct();
-                                tmpStruct.DbId = cutMegerList[i].Id;
-                                tmpStruct.Duration = cutMegerList[i].Duration;
-                                tmpStruct.EndTime = cutMegerList[i].EndTime;
-                                tmpStruct.FilePath = cutMegerList[i].VideoPath;
-                                tmpStruct.FileSize = cutMegerList[i].FileSize;
-                                tmpStruct.StartTime = cutMegerList[i].StartTime;
-
-                                if (ts2.Hours <= 0 && ts2.Minutes <= 0 && ts2.Seconds <= 0) //如果时间ts2的各项都小于0，说明不需要裁剪
-                                {
-                                    tmpStruct.CutEndPos = "";
-                                    tmpStruct.CutStartPos = "";
-                                }
-                                else //否则做裁剪参数设置
-                                {
-                                    tmpStruct.CutEndPos = ts2.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                          ts2.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                          ts2.Seconds.ToString().PadLeft(2, '0');
-                                    tmpStruct.CutStartPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                            ts.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                            ts.Seconds.ToString().PadLeft(2, '0');
-                                    //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
-                                    var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
-                                    var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
-                                    var startD = DateTime.Parse(tmpStart);
-                                    var endD = DateTime.Parse(tmpEnd);
-                                    if (Math.Abs((endD - startD).TotalSeconds) <= 1)
-                                    {
-                                        startD = startD.AddSeconds(-1);
-                                        tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
-                                    }
-                                }
-
-
-                                cutMergeStructList.Add(tmpStruct); //加入到处理列表中
-                            }
-                            else //如果视频时间大于等于需要的开始时间或者大于等于需要的结束时间，时间刚刚正好，直接加进来
-                            {
-                                CutMergeStruct tmpStruct = new CutMergeStruct()
-                                {
-                                    DbId = cutMegerList[i].Id,
-                                    CutEndPos = null,
-                                    CutStartPos = null,
-                                    Duration = cutMegerList[i].Duration,
-                                    EndTime = cutMegerList[i].EndTime,
-                                    FilePath = cutMegerList[i].VideoPath,
-                                    FileSize = cutMegerList[i].FileSize,
-                                    StartTime = cutMegerList[i].StartTime,
-                                };
-
-
-                                cutMergeStructList.Add(tmpStruct);
-                            }
-                        }
-                        else if (tmpCutMeger != null && i == cutMegerList.Count - 1) //处理最后一个视频，看是否需要裁剪，后续操作同上
-                        {
-                            DateTime tmpCutMegerStartTime =
-                                DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                            DateTime tmpCutMegerEndTime =
-                                DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
-                            if (tmpCutMegerEndTime > _end)
-                            {
-                                TimeSpan ts = tmpCutMegerEndTime.Subtract(_end);
-                                ts = (tmpCutMegerEndTime - tmpCutMegerStartTime).Subtract(ts);
-                                CutMergeStruct tmpStruct = new CutMergeStruct();
-                                tmpStruct.DbId = cutMegerList[i].Id;
-                                tmpStruct.Duration = cutMegerList[i].Duration;
-                                tmpStruct.EndTime = cutMegerList[i].EndTime;
-                                tmpStruct.FilePath = cutMegerList[i].VideoPath;
-                                tmpStruct.FileSize = cutMegerList[i].FileSize;
-                                tmpStruct.StartTime = cutMegerList[i].StartTime;
-                                if (ts.Hours <= 0 && ts.Minutes <= 0 && ts.Seconds <= 0)
-                                {
-                                    tmpStruct.CutEndPos = "";
-                                    tmpStruct.CutStartPos = "";
-                                }
-                                else
-                                {
-                                    tmpStruct.CutEndPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
-                                                          ts.Minutes.ToString().PadLeft(2, '0') + ":" +
-                                                          ts.Seconds.ToString().PadLeft(2, '0');
-                                    tmpStruct.CutStartPos = "00:00:00";
-                                }
-
-                                //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
-                                if (tmpStruct.CutEndPos.Equals("00:00:01"))
-                                {
-                                    tmpStruct.CutEndPos = "00:00:02";
-                                }
-
-
-                                cutMergeStructList.Add(tmpStruct);
-                            }
-                            else if (tmpCutMegerEndTime <= _end)
-                            {
-                                CutMergeStruct tmpStruct = new CutMergeStruct()
-                                {
-                                    DbId = cutMegerList[i].Id,
-                                    CutEndPos = null,
-                                    CutStartPos = null,
-                                    Duration = cutMegerList[i].Duration,
-                                    EndTime = cutMegerList[i].EndTime,
-                                    FilePath = cutMegerList[i].VideoPath,
-                                    FileSize = cutMegerList[i].FileSize,
-                                    StartTime = cutMegerList[i].StartTime,
-                                };
-                                cutMergeStructList.Add(tmpStruct);
-                            }
-                        }
-                        else //如果不是第一个也不是最后一个，就是中间部分，直接加进列表 
-                        {
-                            CutMergeStruct tmpStruct = new CutMergeStruct()
-                            {
-                                DbId = cutMegerList[i].Id,
-                                CutEndPos = null,
-                                CutStartPos = null,
-                                Duration = cutMegerList[i].Duration,
-                                EndTime = cutMegerList[i].EndTime,
-                                FilePath = cutMegerList[i].VideoPath,
-                                FileSize = cutMegerList[i].FileSize,
-                                StartTime = cutMegerList[i].StartTime,
-                            };
-                            cutMergeStructList.Add(tmpStruct);
-                        }
-                    }
-                }
-
-                return cutMergeStructList;
-            }
-
-            rs = new ResponseStruct() //报错，视频资源没有找到
-            {
-                Code = ErrorNumber.Sys_DvrCutMergeFileNotFound,
-                Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound],
-            };
-            return null!;
+            return DvrCutMergePlanBuilder.Build(rcmv, out rs);
         }
+        // private static List<CutMergeStruct> AnalysisVideoFile(ReqKeeperCutOrMergeVideoFile rcmv, out ResponseStruct rs)
+        // {
+        //     rs = new ResponseStruct()
+        //     {
+        //         Code = ErrorNumber.None,
+        //         Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+        //     };
+        //     var mediaServer = Common.MediaServerList.FindLast(x => x.MediaServerId.Equals(rcmv.MediaServerId));
+        //     if (mediaServer == null || mediaServer.KeeperWebApi == null || !mediaServer.IsKeeperRunning)
+        //     {
+        //         rs = new ResponseStruct()
+        //         {
+        //             Code = ErrorNumber.Sys_AKStreamKeeperNotRunning,
+        //             Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_AKStreamKeeperNotRunning],
+        //         };
+        //         return null;
+        //     }
+        //
+        //     int startPos = -1;
+        //     int endPos = -1;
+        //     DateTime _start = DateTime.Parse(rcmv.StartTime.ToString("yyyy-MM-dd HH:mm:ss"));
+        //     DateTime _end = DateTime.Parse(rcmv.EndTime.ToString("yyyy-MM-dd HH:mm:ss"));
+        //     var videoList = ORMHelper.Db.Select<RecordFile>()
+        //         .Where(x => (x.StartTime <= _start && x.EndTime >= _start)
+        //                     || (x.StartTime <= _end && x.EndTime >= _end) ||
+        //                     (x.StartTime >= _start && x.EndTime <= _end))
+        //         .WhereIf(!string.IsNullOrEmpty(rcmv.MediaServerId),
+        //             x => x.MediaServerId!.Trim().ToLower().Equals(rcmv.MediaServerId!.Trim().ToLower()))
+        //         .WhereIf(!string.IsNullOrEmpty(rcmv.MainId),
+        //             x => x.Streamid!.Trim().ToLower().Equals(rcmv.MainId!.Trim().ToLower())).OrderBy(x => x.StartTime)
+        //         .ToList();
+        //
+        //     List<RecordFile> cutMegerList = new List<RecordFile>();
+        //     if (videoList != null && videoList.Count > 0)
+        //     {
+        //         for (int i = videoList.Count - 1; i >= 0; i--)
+        //         {
+        //             if (!mediaServer.KeeperWebApi.FileExists(out _, videoList[i].VideoPath))
+        //             {
+        //                 videoList[i] = null;
+        //                 continue;
+        //             }
+        //
+        //             if (!DateTime.TryParse(((DateTime)videoList[i].StartTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+        //                     out _))
+        //             {
+        //                 videoList[i] = null;
+        //                 continue;
+        //             }
+        //
+        //             if (!DateTime.TryParse(((DateTime)videoList[i].EndTime!).ToString("yyyy-MM-dd HH:mm:ss"),
+        //                     out _))
+        //             {
+        //                 videoList[i] = null;
+        //             }
+        //         }
+        //
+        //         UtilsHelper.RemoveNull(videoList);
+        //
+        //
+        //         for (int i = 0; i <= videoList.Count - 1; i++)
+        //         {
+        //             var startInDb = DateTime.Parse(((DateTime)videoList[i].StartTime).ToString("yyyy-MM-dd HH:mm:ss"));
+        //             var endInDb = DateTime.Parse(((DateTime)videoList[i].EndTime).ToString("yyyy-MM-dd HH:mm:ss"));
+        //             if (startPos < 0)
+        //             {
+        //                 if (_start >= startInDb && _start < endInDb) //_start大于等于视频的开始时间，同时_start又小于等于视频结束时间，那么肯定就是节点开始
+        //                 {
+        //                     startPos = i;
+        //                 }
+        //             }
+        //
+        //             if (endPos < 0)
+        //             {
+        //                 if (_end <= endInDb && _end >= startInDb) //如果_end小于等于视频结束时间，同时_end又大于等于视频开始时间，那么肯定就是结束位置 
+        //                 {
+        //                     endPos = i;
+        //                 }
+        //             }
+        //
+        //             if (startPos > -1 && endPos > -1)
+        //             {
+        //                 break;
+        //             }
+        //         }
+        //
+        //         if (startPos >= 0 && endPos >= 0) //如果开始和结束都找到了，就取这个范围内的视频
+        //         {
+        //             cutMegerList = videoList.GetRange(startPos, endPos - startPos + 1);
+        //         }
+        //     }
+        //
+        //     if (cutMegerList != null && cutMegerList.Count > 0) //取到了要合并文件的列表
+        //     {
+        //         List<CutMergeStruct> cutMergeStructList = new List<CutMergeStruct>();
+        //         if (cutMegerList.Count == 1)
+        //         {
+        //             CutMergeStruct tmpStruct = new CutMergeStruct();
+        //             tmpStruct.DbId = cutMegerList[0].Id;
+        //             tmpStruct.Duration = cutMegerList[0].Duration;
+        //             tmpStruct.EndTime = cutMegerList[0].EndTime;
+        //             tmpStruct.FilePath = cutMegerList[0].VideoPath;
+        //             tmpStruct.FileSize = cutMegerList[0].FileSize;
+        //             tmpStruct.StartTime = cutMegerList[0].StartTime;
+        //             var tmpCutMeger = cutMegerList[0];
+        //             DateTime tmpCutMegerStartTime =
+        //                 DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //             DateTime tmpCutMegerEndTime =
+        //                 DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //             if (tmpCutMegerStartTime <= _start)
+        //             {
+        //                 TimeSpan ts = -tmpCutMegerStartTime.Subtract(_start); //视频的开始时间减去需要的开始时间，再取反
+        //                 TimeSpan ts2 = tmpCutMegerEndTime.Subtract(_start) + ts; //视频的结束时间减去需要的开始时间，再加上前面的值
+        //
+        //
+        //                 if (ts2.Hours <= 0 && ts2.Minutes <= 0 && ts2.Seconds <= 0) //如果时间ts2的各项都小于0，说明不需要裁剪
+        //                 {
+        //                     tmpStruct.CutStartPos = "00:00:00";
+        //                 }
+        //                 else //否则做裁剪参数设置
+        //                 {
+        //                     tmpStruct.CutStartPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                             ts.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                             ts.Seconds.ToString().PadLeft(2, '0');
+        //                 }
+        //             }
+        //
+        //             if (tmpCutMegerEndTime >= _end)
+        //             {
+        //                 TimeSpan ts = tmpCutMegerEndTime.Subtract(_end);
+        //                 ts = (tmpCutMegerEndTime - tmpCutMegerStartTime).Subtract(ts);
+        //                 if (ts.Hours <= 0 && ts.Minutes <= 0 && ts.Seconds <= 0)
+        //                 {
+        //                     TimeSpan ts_tmp = new TimeSpan(0, 0, Convert.ToInt32(tmpStruct.Duration));
+        //
+        //                     tmpStruct.CutEndPos = ts_tmp.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                           ts_tmp.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                           ts_tmp.Seconds.ToString().PadLeft(2, '0');
+        //                 }
+        //                 else
+        //                 {
+        //                     tmpStruct.CutEndPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                           ts.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                           ts.Seconds.ToString().PadLeft(2, '0');
+        //                 }
+        //             }
+        //
+        //
+        //             //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+        //             var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
+        //             var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
+        //             var startD = DateTime.Parse(tmpStart);
+        //             var endD = DateTime.Parse(tmpEnd);
+        //             if (Math.Abs((endD - startD).TotalSeconds) <= 1)
+        //             {
+        //                 startD = startD.AddSeconds(-1);
+        //                 tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
+        //             }
+        //
+        //             cutMergeStructList.Add(tmpStruct); //加入到处理列表中
+        //         }
+        //         else
+        //         {
+        //             for (int i = 0; i <= cutMegerList.Count - 1; i++)
+        //             {
+        //                 var tmpCutMeger = cutMegerList[i];
+        //                 if (tmpCutMeger != null && i == 0) //看第一个文件是否需要裁剪
+        //                 {
+        //                     DateTime tmpCutMegerStartTime =
+        //                         DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //                     DateTime tmpCutMegerEndTime =
+        //                         DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //
+        //                     if (tmpCutMegerStartTime < _start && tmpCutMegerEndTime > _start
+        //                        ) //如果视频开始时间大于需要的开始时间，而视频结束时间大于需要的开始时间
+        //                     {
+        //                         TimeSpan ts = -tmpCutMegerStartTime.Subtract(_start); //视频的开始时间减去需要的开始时间，再取反
+        //                         TimeSpan ts2 = tmpCutMegerEndTime.Subtract(_start) + ts; //视频的结束时间减去需要的开始时间，再加上前面的值
+        //                         CutMergeStruct tmpStruct = new CutMergeStruct();
+        //                         tmpStruct.DbId = cutMegerList[i].Id;
+        //                         tmpStruct.Duration = cutMegerList[i].Duration;
+        //                         tmpStruct.EndTime = cutMegerList[i].EndTime;
+        //                         tmpStruct.FilePath = cutMegerList[i].VideoPath;
+        //                         tmpStruct.FileSize = cutMegerList[i].FileSize;
+        //                         tmpStruct.StartTime = cutMegerList[i].StartTime;
+        //
+        //                         if (ts2.Hours <= 0 && ts2.Minutes <= 0 && ts2.Seconds <= 0) //如果时间ts2的各项都小于0，说明不需要裁剪
+        //                         {
+        //                             tmpStruct.CutEndPos = "";
+        //                             tmpStruct.CutStartPos = "";
+        //                         }
+        //                         else //否则做裁剪参数设置
+        //                         {
+        //                             tmpStruct.CutEndPos = ts2.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                                   ts2.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                                   ts2.Seconds.ToString().PadLeft(2, '0');
+        //                             tmpStruct.CutStartPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                                     ts.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                                     ts.Seconds.ToString().PadLeft(2, '0');
+        //                             //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+        //                             var tmpStart = "2021-04-07 " + tmpStruct.CutStartPos;
+        //                             var tmpEnd = "2021-04-07 " + tmpStruct.CutEndPos;
+        //                             var startD = DateTime.Parse(tmpStart);
+        //                             var endD = DateTime.Parse(tmpEnd);
+        //                             if (Math.Abs((endD - startD).TotalSeconds) <= 1)
+        //                             {
+        //                                 startD = startD.AddSeconds(-1);
+        //                                 tmpStruct.CutStartPos = startD.ToString("HH:mm:ss");
+        //                             }
+        //                         }
+        //
+        //
+        //                         cutMergeStructList.Add(tmpStruct); //加入到处理列表中
+        //                     }
+        //                     else //如果视频时间大于等于需要的开始时间或者大于等于需要的结束时间，时间刚刚正好，直接加进来
+        //                     {
+        //                         CutMergeStruct tmpStruct = new CutMergeStruct()
+        //                         {
+        //                             DbId = cutMegerList[i].Id,
+        //                             CutEndPos = null,
+        //                             CutStartPos = null,
+        //                             Duration = cutMegerList[i].Duration,
+        //                             EndTime = cutMegerList[i].EndTime,
+        //                             FilePath = cutMegerList[i].VideoPath,
+        //                             FileSize = cutMegerList[i].FileSize,
+        //                             StartTime = cutMegerList[i].StartTime,
+        //                         };
+        //
+        //
+        //                         cutMergeStructList.Add(tmpStruct);
+        //                     }
+        //                 }
+        //                 else if (tmpCutMeger != null && i == cutMegerList.Count - 1) //处理最后一个视频，看是否需要裁剪，后续操作同上
+        //                 {
+        //                     DateTime tmpCutMegerStartTime =
+        //                         DateTime.Parse(((DateTime)tmpCutMeger.StartTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //                     DateTime tmpCutMegerEndTime =
+        //                         DateTime.Parse(((DateTime)tmpCutMeger.EndTime!).ToString("yyyy-MM-dd HH:mm:ss"));
+        //                     if (tmpCutMegerEndTime > _end)
+        //                     {
+        //                         TimeSpan ts = tmpCutMegerEndTime.Subtract(_end);
+        //                         ts = (tmpCutMegerEndTime - tmpCutMegerStartTime).Subtract(ts);
+        //                         CutMergeStruct tmpStruct = new CutMergeStruct();
+        //                         tmpStruct.DbId = cutMegerList[i].Id;
+        //                         tmpStruct.Duration = cutMegerList[i].Duration;
+        //                         tmpStruct.EndTime = cutMegerList[i].EndTime;
+        //                         tmpStruct.FilePath = cutMegerList[i].VideoPath;
+        //                         tmpStruct.FileSize = cutMegerList[i].FileSize;
+        //                         tmpStruct.StartTime = cutMegerList[i].StartTime;
+        //                         if (ts.Hours <= 0 && ts.Minutes <= 0 && ts.Seconds <= 0)
+        //                         {
+        //                             tmpStruct.CutEndPos = "";
+        //                             tmpStruct.CutStartPos = "";
+        //                         }
+        //                         else
+        //                         {
+        //                             tmpStruct.CutEndPos = ts.Hours.ToString().PadLeft(2, '0') + ":" +
+        //                                                   ts.Minutes.ToString().PadLeft(2, '0') + ":" +
+        //                                                   ts.Seconds.ToString().PadLeft(2, '0');
+        //                             tmpStruct.CutStartPos = "00:00:00";
+        //                         }
+        //
+        //                         //如果只取一秒，ffmpeg执行好像会报错，因此这里碰到只有1秒的时候，则加一秒
+        //                         if (tmpStruct.CutEndPos.Equals("00:00:01"))
+        //                         {
+        //                             tmpStruct.CutEndPos = "00:00:02";
+        //                         }
+        //
+        //
+        //                         cutMergeStructList.Add(tmpStruct);
+        //                     }
+        //                     else if (tmpCutMegerEndTime <= _end)
+        //                     {
+        //                         CutMergeStruct tmpStruct = new CutMergeStruct()
+        //                         {
+        //                             DbId = cutMegerList[i].Id,
+        //                             CutEndPos = null,
+        //                             CutStartPos = null,
+        //                             Duration = cutMegerList[i].Duration,
+        //                             EndTime = cutMegerList[i].EndTime,
+        //                             FilePath = cutMegerList[i].VideoPath,
+        //                             FileSize = cutMegerList[i].FileSize,
+        //                             StartTime = cutMegerList[i].StartTime,
+        //                         };
+        //                         cutMergeStructList.Add(tmpStruct);
+        //                     }
+        //                 }
+        //                 else //如果不是第一个也不是最后一个，就是中间部分，直接加进列表 
+        //                 {
+        //                     CutMergeStruct tmpStruct = new CutMergeStruct()
+        //                     {
+        //                         DbId = cutMegerList[i].Id,
+        //                         CutEndPos = null,
+        //                         CutStartPos = null,
+        //                         Duration = cutMegerList[i].Duration,
+        //                         EndTime = cutMegerList[i].EndTime,
+        //                         FilePath = cutMegerList[i].VideoPath,
+        //                         FileSize = cutMegerList[i].FileSize,
+        //                         StartTime = cutMegerList[i].StartTime,
+        //                     };
+        //                     cutMergeStructList.Add(tmpStruct);
+        //                 }
+        //             }
+        //         }
+        //
+        //         return cutMergeStructList;
+        //     }
+        //
+        //     rs = new ResponseStruct() //报错，视频资源没有找到
+        //     {
+        //         Code = ErrorNumber.Sys_DvrCutMergeFileNotFound,
+        //         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound],
+        //     };
+        //     return null!;
+        // }
 
 
         /// <summary>
@@ -618,7 +622,8 @@ namespace AKStreamWeb.Services
                 return null!;
             }
 
-            if ((rcmv.EndTime - rcmv.StartTime).Minutes > 120) //超过120分钟不允许执行任务
+            var duration = rcmv.EndTime - rcmv.StartTime;
+            if (duration > TimeSpan.FromMinutes(120))
             {
                 rs = new ResponseStruct()
                 {
@@ -628,6 +633,17 @@ namespace AKStreamWeb.Services
 
                 return null!;
             }
+            
+            // if ((rcmv.EndTime - rcmv.StartTime).Minutes > 120) //超过120分钟不允许执行任务
+            // {
+            //     rs = new ResponseStruct()
+            //     {
+            //         Code = ErrorNumber.Sys_DvrCutMergeTimeLimit,
+            //         Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeTimeLimit],
+            //     };
+            //
+            //     return null!;
+            // }
 
             if (string.IsNullOrEmpty(rcmv.CallbackUrl) || !UtilsHelper.IsUrl(rcmv.CallbackUrl!))
             {
@@ -1553,7 +1569,12 @@ namespace AKStreamWeb.Services
                 {
                     GCommon.Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
 
+                    AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(mediaInfo, "StreamLiveExisting");
+
                     return mediaInfo.MediaServerStreamInfo;
+                    // GCommon.Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
+                    //
+                    // return mediaInfo.MediaServerStreamInfo;
                 }
 
                 switch (videoChannel.MethodByGetStream)
@@ -1994,10 +2015,18 @@ namespace AKStreamWeb.Services
                 task.Dispose();
             }
 
+
             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->请求FFMPEG代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
+            AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(videoChannelMediaInfo, "AddFFmpegStreamProxy");
+
             return videoChannelMediaInfo.MediaServerStreamInfo;
+
+            // GCommon.Logger.Info(
+            //     $"[{Common.LoggerHead}]->请求FFMPEG代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+            //
+            // return videoChannelMediaInfo.MediaServerStreamInfo;
         }
 
         /// <summary>
@@ -2297,7 +2326,14 @@ namespace AKStreamWeb.Services
             GCommon.Logger.Info(
                 $"[{Common.LoggerHead}]->请求内置代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
+            AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(videoChannelMediaInfo, "AddStreamProxy");
+
             return videoChannelMediaInfo.MediaServerStreamInfo;
+
+            // GCommon.Logger.Info(
+            //     $"[{Common.LoggerHead}]->请求内置代理视频流成功->{mediaServerId}->{mainId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+            //
+            // return videoChannelMediaInfo.MediaServerStreamInfo;
         }
 
         public static ResZLMediaKitStopRecord StopRecord(string mediaServerId, string mainId, out ResponseStruct rs)

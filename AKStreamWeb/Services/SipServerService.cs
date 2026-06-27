@@ -1047,9 +1047,16 @@ namespace AKStreamWeb.Services
 
             if (mediaInfo != null && mediaInfo.MediaServerStreamInfo != null)
             {
+                
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
 
+                AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(mediaInfo, "GB28181LiveVideoExisting");
+
                 return mediaInfo.MediaServerStreamInfo;
+                
+                // GCommon.Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
+                //
+                // return mediaInfo.MediaServerStreamInfo;
             }
 
 
@@ -1480,7 +1487,14 @@ namespace AKStreamWeb.Services
             GCommon.Logger.Debug(
                 $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
 
+            AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(videoChannelMediaInfo, "GB28181LiveVideo");
+
             return videoChannelMediaInfo.MediaServerStreamInfo;
+            
+            // GCommon.Logger.Debug(
+            //     $"[{Common.LoggerHead}]->请求Sip推流成功->{deviceId}-{channelId}->{JsonHelper.ToJson(videoChannelMediaInfo.MediaServerStreamInfo)}");
+            //
+            // return videoChannelMediaInfo.MediaServerStreamInfo;
         }
 
         /// <summary>
