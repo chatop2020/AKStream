@@ -683,7 +683,15 @@ namespace LibZLMediaKitMediaServer
             {
                 req.Secret = this._secret;
                 string reqData = JsonHelper.ToJson(req);
-                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout);
+                var timeoutSec = req.Timeout_Sec.HasValue && req.Timeout_Sec.Value > 0
+                    ? (int)Math.Ceiling(req.Timeout_Sec.Value) + 5
+                    : 15;
+
+                var httpTimeout = Math.Max(_httpClientTimeout, timeoutSec * 1000);
+
+                var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", httpTimeout);
+                
+               // var httpRet = NetHelper.HttpPostRequest(url, null, reqData, "utf-8", _httpClientTimeout);
                 if (!string.IsNullOrEmpty(httpRet))
                 {
                     //当发现有流已存在时断掉这个流

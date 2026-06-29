@@ -1050,6 +1050,11 @@ namespace AKStreamWeb.Services
                 
                 GCommon.Logger.Info($"[{Common.LoggerHead}]->请求Sip推流成功(此Sip通道本身就处于推流状态)->{deviceId}-{channelId}");
 
+                mediaInfo.AutoRecord = videoChannel.AutoRecord;
+                mediaInfo.AutoVideo = videoChannel.AutoVideo;
+                mediaInfo.RecordPlanName = videoChannel.RecordPlanName;
+                mediaInfo.RecordSecs = videoChannel.RecordSecs;
+                
                 AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(mediaInfo, "GB28181LiveVideoExisting");
 
                 return mediaInfo.MediaServerStreamInfo;
@@ -1379,6 +1384,8 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;
+            videoChannelMediaInfo.RecordPlanName = videoChannel.RecordPlanName;
+            videoChannelMediaInfo.RecordSecs = videoChannel.RecordSecs;
             videoChannelMediaInfo.ChannelId = videoChannel.ChannelId;
             videoChannelMediaInfo.ChannelName = videoChannel.ChannelName;
             videoChannelMediaInfo.CreateTime = videoChannel.CreateTime;

@@ -1569,6 +1569,12 @@ namespace AKStreamWeb.Services
                 {
                     GCommon.Logger.Info($"[{Common.LoggerHead}]->请求内置推流成功(此通道本身就处于推流状态)->{mainId}");
 
+                    
+                    mediaInfo.AutoRecord = videoChannel.AutoRecord;
+                    mediaInfo.AutoVideo = videoChannel.AutoVideo;
+                    mediaInfo.RecordPlanName = videoChannel.RecordPlanName;
+                    mediaInfo.RecordSecs = videoChannel.RecordSecs;
+                    
                     AutoRecordStartHelper.TryStartAutoRecordAfterStreamReady(mediaInfo, "StreamLiveExisting");
 
                     return mediaInfo.MediaServerStreamInfo;
@@ -1880,6 +1886,8 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;
+            videoChannelMediaInfo.RecordPlanName = videoChannel.RecordPlanName;
+            videoChannelMediaInfo.RecordSecs = videoChannel.RecordSecs;
             videoChannelMediaInfo.ChannelId = videoChannel.ChannelId;
             videoChannelMediaInfo.ChannelName = videoChannel.ChannelName;
             videoChannelMediaInfo.CreateTime = videoChannel.CreateTime;
@@ -2189,6 +2197,8 @@ namespace AKStreamWeb.Services
             videoChannelMediaInfo.Vhost = videoChannel.Vhost;
             videoChannelMediaInfo.AutoRecord = videoChannel.AutoRecord;
             videoChannelMediaInfo.AutoVideo = videoChannel.AutoVideo;
+            videoChannelMediaInfo.RecordPlanName = videoChannel.RecordPlanName;
+            videoChannelMediaInfo.RecordSecs = videoChannel.RecordSecs;
             videoChannelMediaInfo.ChannelId = videoChannel.ChannelId;
             videoChannelMediaInfo.ChannelName = videoChannel.ChannelName;
             videoChannelMediaInfo.CreateTime = videoChannel.CreateTime;
@@ -2366,9 +2376,22 @@ namespace AKStreamWeb.Services
             reqZLMediaKitStopRecord.Stream = videoChannel.MainId;
             reqZLMediaKitStopRecord.App = videoChannel.App;
             reqZLMediaKitStopRecord.Vhost = videoChannel.Vhost;
+            
             var ret = mediaServer.WebApiHelper.StopRecord(reqZLMediaKitStopRecord, out rs);
             if (ret == null || !rs.Code.Equals(ErrorNumber.None))
             {
+                return null;
+            }
+           
+
+            if (ret.Code != 0 || ret.Result != true)
+            {
+                rs = new ResponseStruct()
+                {
+                    Code = ErrorNumber.MediaServer_WebApiDataExcept,
+                    Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_WebApiDataExcept],
+                    ExceptMessage = ret.ToJson(),
+                };
                 return null;
             }
 

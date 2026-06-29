@@ -113,6 +113,21 @@ namespace LibCommon
             _jsonSettings.Converters.Add(new IpEndPointConverter());
         }
 
+        private static JsonSerializerSettings CreateSettings(MissingMemberHandling p)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = p,
+                NullValueHandling = NullValueHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            settings.Converters.Add(new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" });
+            settings.Converters.Add(new IpAddressConverter());
+            settings.Converters.Add(new IpEndPointConverter());
+
+            return settings;
+        }
 
         //格式化json字符串
         public static string ConvertJsonString(string str)
@@ -150,10 +165,9 @@ namespace LibCommon
         public static string ToJson(this object obj, Formatting formatting = Formatting.None,
             MissingMemberHandling p = MissingMemberHandling.Error)
         {
-            _jsonSettings.MissingMemberHandling = p;
             try
             {
-                return JsonConvert.SerializeObject(obj, formatting, _jsonSettings);
+                return JsonConvert.SerializeObject(obj, formatting, CreateSettings(p));
             }
             catch (Exception ex)
             {
@@ -161,6 +175,20 @@ namespace LibCommon
                 return null!;
             }
         }
+        // public static string ToJson(this object obj, Formatting formatting = Formatting.None,
+        //     MissingMemberHandling p = MissingMemberHandling.Error)
+        // {
+        //     _jsonSettings.MissingMemberHandling = p;
+        //     try
+        //     {
+        //         return JsonConvert.SerializeObject(obj, formatting, _jsonSettings);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         GCommon.Logger.Error($"[{_loggerHead}]->Json序列化异常->{ex.Message}\r\n{ex.StackTrace}");
+        //         return null!;
+        //     }
+        // }
 
         /// <summary>
         /// 将指定的 JSON 数据反序列化成指定对象。
@@ -170,20 +198,33 @@ namespace LibCommon
         /// <param name="p"></param>
         /// <returns></returns>
         /// MissingMemberHandling.Ignore实体类缺少字段时忽略它
+        ///
         public static T FromJson<T>(this string json, MissingMemberHandling p = MissingMemberHandling.Ignore)
         {
-            _jsonSettings.MissingMemberHandling = p;
-
             try
             {
-                return JsonConvert.DeserializeObject<T>(json, _jsonSettings)!;
+                return JsonConvert.DeserializeObject<T>(json, CreateSettings(p))!;
             }
             catch (Exception ex)
             {
                 GCommon.Logger.Error($"[{_loggerHead}]->Json返序列化异常->{ex.Message}\r\n{ex.StackTrace}\r\njson内容：{json}");
-
                 return default(T)!;
             }
         }
+        // public static T FromJson<T>(this string json, MissingMemberHandling p = MissingMemberHandling.Ignore)
+        // {
+        //     _jsonSettings.MissingMemberHandling = p;
+        //
+        //     try
+        //     {
+        //         return JsonConvert.DeserializeObject<T>(json, _jsonSettings)!;
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         GCommon.Logger.Error($"[{_loggerHead}]->Json返序列化异常->{ex.Message}\r\n{ex.StackTrace}\r\njson内容：{json}");
+        //
+        //         return default(T)!;
+        //     }
+        // }
     }
 }

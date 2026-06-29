@@ -716,6 +716,32 @@ namespace AKStreamWeb.Services
                 Close = false,
             };
         }
+        
+        
+        private static void TryStopMp4RecordWhenStreamUnregistered(ServerInstance mediaServer, ReqForWebHookOnStreamChange req)
+        {
+            try
+            {
+                var ret = mediaServer.WebApiHelper.StopRecord(new ReqZLMediaKitStopRecord()
+                {
+                    Type = 1,
+                    App = req.App,
+                    Stream = req.Stream,
+                    Vhost = req.Vhost,
+                }, out var rs);
+
+                if (ret == null || !rs.Code.Equals(ErrorNumber.None) || ret.Code != 0 || ret.Result != true)
+                {
+                    GCommon.Logger.Warn(
+                        $"[{Common.LoggerHead}]->流注销时停止MP4录制失败->{req.MediaServerId}->{req.App}->{req.Stream}->{rs.ToJson()}->{ret.ToJson()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->流注销时停止MP4录制异常->{req.MediaServerId}->{req.App}->{req.Stream}->{ex.Message}->{ex.StackTrace}");
+            }
+        }
 
         /// <summary>
         /// 当有流状态变化时
@@ -862,19 +888,7 @@ namespace AKStreamWeb.Services
 
                     #endregion
 
-                    try
-                    {
-                        ///如果是留移除，就要断掉录制
-                        mediaServer.WebApiHelper.StopRecord(new ReqZLMediaKitStopRecord()
-                        {
-                            App = req.App,
-                            Stream = req.Stream,
-                            Vhost = req.Vhost,
-                        }, out _);
-                    }
-                    catch
-                    {
-                    }
+                    TryStopMp4RecordWhenStreamUnregistered(mediaServer, req);
 
                     var videoChannel = ORMHelper.Db.Select<VideoChannel>().Where(x => x.MainId.Equals(req.Stream))
                         .First();
