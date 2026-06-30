@@ -12,6 +12,34 @@ public static class DvrCutMergePlanBuilder
 {
     private static readonly TimeSpan GapTolerance = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan MinClipDuration = TimeSpan.FromSeconds(2);
+    
+    
+    private static bool MatchIfProvided(string? actual, string? expected)
+    {
+        if (string.IsNullOrWhiteSpace(expected))
+            return true;
+
+        return Normalize(actual).Equals(Normalize(expected));
+    }
+
+    private static bool MatchVhostIfProvided(string? actual, string? expected)
+    {
+        if (string.IsNullOrWhiteSpace(expected))
+            return true;
+
+        var a = Normalize(actual);
+        var e = Normalize(expected);
+
+        if (e.Equals("__defaultvhost__"))
+            return string.IsNullOrWhiteSpace(a) || a.Equals("__defaultvhost__");
+
+        return a.Equals(e);
+    }
+
+    private static string Normalize(string? value)
+    {
+        return (value ?? "").Trim().ToLower();
+    }
 
     public static List<CutMergeStruct> Build(ReqKeeperCutOrMergeVideoFile req, out ResponseStruct rs)
     {
@@ -30,13 +58,29 @@ public static class DvrCutMergePlanBuilder
         var start = TrimToSecond(req.StartTime);
         var end = TrimToSecond(req.EndTime);
 
+        // var files = ORMHelper.Db.Select<RecordFile>()
+        //     .Where(x => x.StartTime < end && x.EndTime > start)
+        //     .WhereIf(!string.IsNullOrWhiteSpace(req.MediaServerId), x => x.MediaServerId!.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
+        //     .WhereIf(!string.IsNullOrWhiteSpace(req.MainId), x => x.Streamid!.Trim().ToLower().Equals(req.MainId!.Trim().ToLower()))
+        //     .WhereIf(!string.IsNullOrWhiteSpace(req.App), x => x.App != null && x.App.Trim().ToLower().Equals(req.App!.Trim().ToLower()))
+        //     .WhereIf(!string.IsNullOrWhiteSpace(req.Vhost), x => x.Vhost != null && x.Vhost.Trim().ToLower().Equals(req.Vhost!.Trim().ToLower()))
+        //     .OrderBy(x => x.StartTime)
+        //     .ToList();
+        
         var files = ORMHelper.Db.Select<RecordFile>()
             .Where(x => x.StartTime < end && x.EndTime > start)
-            .WhereIf(!string.IsNullOrWhiteSpace(req.MediaServerId), x => x.MediaServerId!.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
-            .WhereIf(!string.IsNullOrWhiteSpace(req.MainId), x => x.Streamid!.Trim().ToLower().Equals(req.MainId!.Trim().ToLower()))
-            .WhereIf(!string.IsNullOrWhiteSpace(req.App), x => x.App != null && x.App.Trim().ToLower().Equals(req.App!.Trim().ToLower()))
-            .WhereIf(!string.IsNullOrWhiteSpace(req.Vhost), x => x.Vhost != null && x.Vhost.Trim().ToLower().Equals(req.Vhost!.Trim().ToLower()))
+            .Where(x => x.Deleted == false || x.Deleted == null)
+            .WhereIf(!string.IsNullOrWhiteSpace(req.MediaServerId),
+                x => x.MediaServerId != null && x.MediaServerId.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
+            .WhereIf(!string.IsNullOrWhiteSpace(req.MainId),
+                x => (x.MainId != null && x.MainId.Trim().ToLower().Equals(req.MainId!.Trim().ToLower())) ||
+                     (x.Streamid != null && x.Streamid.Trim().ToLower().Equals(req.MainId!.Trim().ToLower())))
             .OrderBy(x => x.StartTime)
+            .ToList();
+
+        files = files
+            .Where(x => MatchIfProvided(x.App, req.App))
+            .Where(x => MatchVhostIfProvided(x.Vhost, req.Vhost))
             .ToList();
 
         var result = new List<CutMergeStruct>();
@@ -93,7 +137,16 @@ public static class DvrCutMergePlanBuilder
         }
 
         if (result.Count == 0)
-            return Fail(ErrorNumber.Sys_DvrCutMergeFileNotFound, out rs);
+        {
+            //return Fail(ErrorNumber.Sys_DvrCutMergeFileNotFound, out rs);
+            rs = new ResponseStruct
+            {
+                Code = ErrorNumber.Sys_DvrCutMergeFileNotFound,
+                Message =
+                    $"{ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound]}，数据库未找到覆盖录像:{req.MainId},{start:yyyy-MM-dd HH:mm:ss}~{end:yyyy-MM-dd HH:mm:ss}"
+            };
+            return null;
+        }
 
         if (coveredTo < end - GapTolerance)
             return MissingCoverage(coveredTo, end, out rs);
