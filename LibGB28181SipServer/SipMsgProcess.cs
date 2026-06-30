@@ -289,6 +289,53 @@ namespace LibGB28181SipServer
             }
         }
 
+        private static bool IsSameSipEndPoint(SIPEndPoint oldEndPoint, SIPEndPoint newEndPoint)
+        {
+            if (oldEndPoint == null || newEndPoint == null)
+            {
+                return false;
+            }
+
+            return oldEndPoint.Protocol == newEndPoint.Protocol
+                   && oldEndPoint.Port == newEndPoint.Port
+                   && oldEndPoint.Address.Equals(newEndPoint.Address);
+        }
+
+        private static bool RefreshSipDeviceTransport(
+            SipDevice sipDevice,
+            SIPChannel localSipChannel,
+            SIPEndPoint localSipEndPoint,
+            SIPEndPoint remoteEndPoint,
+            SIPRequest sipRequest)
+        {
+            var endpointChanged = !IsSameSipEndPoint(sipDevice.RemoteEndPoint, remoteEndPoint);
+
+            sipDevice.LocalSipEndPoint = localSipEndPoint;
+            sipDevice.RemoteEndPoint = remoteEndPoint;
+            sipDevice.SipChannelLayout = localSipChannel;
+            sipDevice.IpAddress = remoteEndPoint.Address;
+            sipDevice.Port = remoteEndPoint.Port;
+            sipDevice.LastSipRequest = sipRequest;
+
+            if (sipRequest.Header.Contact?.Count > 0)
+            {
+                sipDevice.ContactUri = sipRequest.Header.Contact[0].ContactURI;
+            }
+
+            if (sipDevice.SipChannels != null)
+            {
+                lock (sipDevice.SipChannelOptLock)
+                {
+                    foreach (var channel in sipDevice.SipChannels)
+                    {
+                        channel.LocalSipEndPoint = localSipEndPoint;
+                        channel.RemoteEndPoint = remoteEndPoint;
+                    }
+                }
+            }
+
+            return endpointChanged;
+        }
 
         /// <summary>
         /// 保持心跳时的回复
@@ -362,19 +409,29 @@ namespace LibGB28181SipServer
                                 tmpSipDevice.KeepAliveTimeSpentMS =
                                     (time - tmpSipDevice.KeepAliveTime).TotalMilliseconds;
                             }
-
+                            
                             tmpSipDevice.KeepAliveTime = time;
-                            if (tmpSipDevice.RemoteEndPoint != null &&
-                                tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
-                                tmpSipDevice.RemoteEndPoint.Protocol == SIPProtocolsEnum.udp
-                               ) //如果udp协议当endpoint发生变化时更新成新的
+                            if (RefreshSipDeviceTransport(tmpSipDevice, localSipChannel, localSipEndPoint, remoteEndPoint, sipRequest))
                             {
-                                //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
-                                tmpSipDevice.RemoteEndPoint = remoteEndPoint;
+                                GCommon.Logger.Info(
+                                    $"[{Common.LoggerHead}]->收到心跳时发现Sip设备连接端点变化，已刷新->{tmpSipDevice.DeviceId}->{remoteEndPoint}");
                             }
 
                             GCommon.Logger.Debug(
                                 $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的心跳->{sipRequest}");
+
+                            // tmpSipDevice.KeepAliveTime = time;
+                            // if (tmpSipDevice.RemoteEndPoint != null &&
+                            //     tmpSipDevice.RemoteEndPoint != remoteEndPoint &&
+                            //     tmpSipDevice.RemoteEndPoint.Protocol == SIPProtocolsEnum.udp
+                            //    ) //如果udp协议当endpoint发生变化时更新成新的
+                            // {
+                            //     //udp协议下，如果发现心跳中的remoteEndPoint与注册时的remoteEndPoint不同时，将心跳的remoteEndPoint秒换老的remoteEndPoint以保证nat穿透下Sip通讯的正常使用
+                            //     tmpSipDevice.RemoteEndPoint = remoteEndPoint;
+                            // }
+                            //
+                            // GCommon.Logger.Debug(
+                            //     $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的心跳->{sipRequest}");
                         }
                         else
                         {
@@ -772,23 +829,52 @@ namespace LibGB28181SipServer
                     }
                     else
                     {
-                        if ((DateTime.Now - tmpSipDevice.RegisterTime).TotalSeconds >
-                            Common.SIP_REGISTER_MIN_INTERVAL_SEC)
+                        var shouldNotifyRegister =
+                            (DateTime.Now - tmpSipDevice.RegisterTime).TotalSeconds > Common.SIP_REGISTER_MIN_INTERVAL_SEC;
+
+                        var endpointChanged = RefreshSipDeviceTransport(
+                            tmpSipDevice,
+                            localSipChannel,
+                            localSipEndPoint,
+                            remoteEndPoint,
+                            sipRequest);
+
+                        tmpSipDevice.RegisterTime = DateTime.Now;
+                        tmpSipDevice.KeepAliveTime = DateTime.Now;
+                        tmpSipDevice.KeepAliveLostTime = 0;
+
+                        if (shouldNotifyRegister || endpointChanged)
                         {
-                            tmpSipDevice.RegisterTime = DateTime.Now;
-
-                            Task.Run(() => { OnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice)); }); //抛线程出去处理
-
+                            Task.Run(() => { OnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice)); });
 
                             GCommon.Logger.Info(
-                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->已经更新注册时间，当前Sip设备数量:{Common.SipDevices.Count}个");
+                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->已刷新注册信息, EndpointChanged:{endpointChanged}, 当前Sip设备数量:{Common.SipDevices.Count}个");
                         }
                         else
                         {
                             GCommon.Logger.Debug(
-                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备异常注册请求->已忽略，当前Sip设备数量:{Common.SipDevices.Count}个");
+                                $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备重复注册请求->已刷新连接信息但不重复拉取目录, 当前Sip设备数量:{Common.SipDevices.Count}个");
                         }
                     }
+                    // else
+                    // {
+                    //     if ((DateTime.Now - tmpSipDevice.RegisterTime).TotalSeconds >
+                    //         Common.SIP_REGISTER_MIN_INTERVAL_SEC)
+                    //     {
+                    //         tmpSipDevice.RegisterTime = DateTime.Now;
+                    //
+                    //         Task.Run(() => { OnRegisterReceived?.Invoke(JsonHelper.ToJson(tmpSipDevice)); }); //抛线程出去处理
+                    //
+                    //
+                    //         GCommon.Logger.Info(
+                    //             $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备注册请求->{tmpSipDevice.DeviceId}->已经更新注册时间，当前Sip设备数量:{Common.SipDevices.Count}个");
+                    //     }
+                    //     else
+                    //     {
+                    //         GCommon.Logger.Debug(
+                    //             $"[{Common.LoggerHead}]->收到来自{remoteEndPoint}的Sip设备异常注册请求->已忽略，当前Sip设备数量:{Common.SipDevices.Count}个");
+                    //     }
+                    // }
                 }
             }
             else
