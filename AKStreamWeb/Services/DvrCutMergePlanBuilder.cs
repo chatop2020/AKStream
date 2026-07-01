@@ -12,8 +12,8 @@ public static class DvrCutMergePlanBuilder
 {
     private static readonly TimeSpan GapTolerance = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan MinClipDuration = TimeSpan.FromSeconds(2);
-    
-    
+
+
     private static bool MatchIfProvided(string? actual, string? expected)
     {
         if (string.IsNullOrWhiteSpace(expected))
@@ -41,11 +41,21 @@ public static class DvrCutMergePlanBuilder
         return (value ?? "").Trim().ToLower();
     }
 
+    private static void LogSkippedGap(string? mainId, DateTime from, DateTime to, string position)
+    {
+        if (to <= from + GapTolerance)
+            return;
+
+        GCommon.Logger.Warn(
+            $"[{Common.LoggerHead}]->裁剪合并{position}存在录像缺口，已跳过->MainId:{mainId}->缺口:{from:yyyy-MM-dd HH:mm:ss}~{to:yyyy-MM-dd HH:mm:ss}");
+    }
+
     public static List<CutMergeStruct> Build(ReqKeeperCutOrMergeVideoFile req, out ResponseStruct rs)
     {
         rs = new ResponseStruct { Code = ErrorNumber.None, Message = ErrorMessage.ErrorDic![ErrorNumber.None] };
 
-        if (req == null || string.IsNullOrWhiteSpace(req.MediaServerId) || string.IsNullOrWhiteSpace(req.MainId) || req.StartTime >= req.EndTime)
+        if (req == null || string.IsNullOrWhiteSpace(req.MediaServerId) || string.IsNullOrWhiteSpace(req.MainId) ||
+            req.StartTime >= req.EndTime)
             return Fail(ErrorNumber.Sys_ParamsIsNotRight, out rs);
 
         if ((req.EndTime - req.StartTime).TotalMinutes > 120)
@@ -58,20 +68,12 @@ public static class DvrCutMergePlanBuilder
         var start = TrimToSecond(req.StartTime);
         var end = TrimToSecond(req.EndTime);
 
-        // var files = ORMHelper.Db.Select<RecordFile>()
-        //     .Where(x => x.StartTime < end && x.EndTime > start)
-        //     .WhereIf(!string.IsNullOrWhiteSpace(req.MediaServerId), x => x.MediaServerId!.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
-        //     .WhereIf(!string.IsNullOrWhiteSpace(req.MainId), x => x.Streamid!.Trim().ToLower().Equals(req.MainId!.Trim().ToLower()))
-        //     .WhereIf(!string.IsNullOrWhiteSpace(req.App), x => x.App != null && x.App.Trim().ToLower().Equals(req.App!.Trim().ToLower()))
-        //     .WhereIf(!string.IsNullOrWhiteSpace(req.Vhost), x => x.Vhost != null && x.Vhost.Trim().ToLower().Equals(req.Vhost!.Trim().ToLower()))
-        //     .OrderBy(x => x.StartTime)
-        //     .ToList();
-        
         var files = ORMHelper.Db.Select<RecordFile>()
             .Where(x => x.StartTime < end && x.EndTime > start)
             .Where(x => x.Deleted == false || x.Deleted == null)
             .WhereIf(!string.IsNullOrWhiteSpace(req.MediaServerId),
-                x => x.MediaServerId != null && x.MediaServerId.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
+                x => x.MediaServerId != null &&
+                     x.MediaServerId.Trim().ToLower().Equals(req.MediaServerId!.Trim().ToLower()))
             .WhereIf(!string.IsNullOrWhiteSpace(req.MainId),
                 x => (x.MainId != null && x.MainId.Trim().ToLower().Equals(req.MainId!.Trim().ToLower())) ||
                      (x.Streamid != null && x.Streamid.Trim().ToLower().Equals(req.MainId!.Trim().ToLower())))
@@ -91,22 +93,27 @@ public static class DvrCutMergePlanBuilder
             if (file.StartTime == null || file.EndTime == null || string.IsNullOrWhiteSpace(file.VideoPath))
                 continue;
 
-            if (!mediaServer.KeeperWebApi.FileExists(out _, file.VideoPath))
-                continue;
-
             var fileStart = TrimToSecond(file.StartTime.Value);
             var fileEnd = TrimToSecond(file.EndTime.Value);
+
             if (fileEnd <= fileStart || fileEnd <= start || fileStart >= end)
                 continue;
 
-            if (result.Count == 0 && fileStart > start + GapTolerance)
-                return MissingCoverage(start, fileStart, out rs);
+            if (!mediaServer.KeeperWebApi.FileExists(out _, file.VideoPath))
+            {
+                GCommon.Logger.Warn(
+                    $"[{Common.LoggerHead}]->裁剪合并跳过不存在的录像文件->MainId:{req.MainId}->File:{file.VideoPath}");
+                continue;
+            }
 
-            if (result.Count > 0 && fileStart > coveredTo + GapTolerance)
-                return MissingCoverage(coveredTo, fileStart, out rs);
+            if (fileStart > coveredTo + GapTolerance)
+            {
+                LogSkippedGap(req.MainId, coveredTo, fileStart, result.Count == 0 ? "起始" : "中间");
+            }
 
             var segmentStart = Max(start, fileStart);
             var segmentEnd = Min(end, fileEnd);
+
             if (segmentEnd <= segmentStart)
                 continue;
 
@@ -117,6 +124,7 @@ public static class DvrCutMergePlanBuilder
             NormalizeSmallClip(ref cutStart, ref cutEnd, sourceDuration);
 
             var needCut = cutStart > TimeSpan.Zero || cutEnd < sourceDuration;
+
             result.Add(new CutMergeStruct
             {
                 DbId = file.Id,
@@ -138,18 +146,19 @@ public static class DvrCutMergePlanBuilder
 
         if (result.Count == 0)
         {
-            //return Fail(ErrorNumber.Sys_DvrCutMergeFileNotFound, out rs);
             rs = new ResponseStruct
             {
                 Code = ErrorNumber.Sys_DvrCutMergeFileNotFound,
                 Message =
-                    $"{ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound]}，数据库未找到覆盖录像:{req.MainId},{start:yyyy-MM-dd HH:mm:ss}~{end:yyyy-MM-dd HH:mm:ss}"
+                    $"{ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound]}，区间内未找到可用录像:{req.MainId},{start:yyyy-MM-dd HH:mm:ss}~{end:yyyy-MM-dd HH:mm:ss}"
             };
             return null;
         }
 
         if (coveredTo < end - GapTolerance)
-            return MissingCoverage(coveredTo, end, out rs);
+        {
+            LogSkippedGap(req.MainId, coveredTo, end, "结束");
+        }
 
         return result;
     }
@@ -159,7 +168,8 @@ public static class DvrCutMergePlanBuilder
         rs = new ResponseStruct
         {
             Code = ErrorNumber.Sys_DvrCutMergeFileNotFound,
-            Message = $"{ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound]}，缺口:{from:yyyy-MM-dd HH:mm:ss}~{to:yyyy-MM-dd HH:mm:ss}"
+            Message =
+                $"{ErrorMessage.ErrorDic![ErrorNumber.Sys_DvrCutMergeFileNotFound]}，缺口:{from:yyyy-MM-dd HH:mm:ss}~{to:yyyy-MM-dd HH:mm:ss}"
         };
         return null;
     }
