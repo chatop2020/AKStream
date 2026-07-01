@@ -227,6 +227,12 @@ namespace AKStreamKeeper.Services
             return task;
         }
 
+        
+        private static string EscapeProcessPath(string path)
+        {
+            return Path.GetFullPath(path).Replace("\\", "/");
+        }
+        
         /// <summary>
         /// 生成合并文件，并合并ts文件，同时输出mp4文件， -movflags faststart 标记是可让mp4在web上快速加载播放，超时30分钟
         /// </summary>
@@ -256,11 +262,24 @@ namespace AKStreamKeeper.Services
                 return null!;
             }
 
-            File.WriteAllLines(filesTxtPath, mergeStringList);
+            // File.WriteAllLines(filesTxtPath, mergeStringList);
 
+            // string args = " -threads " + Common.FFmpegThreadCount +
+            //               " -f concat -safe 0 -i \"" + filesTxtPath + "\"" +
+            //               " -c copy -movflags faststart \"" + newFilePath + "\"";
+            
+            File.WriteAllLines(filesTxtPath, mergeStringList, new System.Text.UTF8Encoding(false));
+
+            if (!File.Exists(filesTxtPath))
+            {
+                GCommon.Logger.Warn($"[{Common.LoggerHead}]->合并请求任务失败(files.txt未生成)->TaskId:{task.TaskId}->FilesTxt:{filesTxtPath}");
+                return null!;
+            }
+
+            
             string args = " -threads " + Common.FFmpegThreadCount +
-                          " -f concat -safe 0 -i \"" + filesTxtPath + "\"" +
-                          " -c copy -movflags faststart \"" + newFilePath + "\"";
+                          " -f concat -safe 0 -i " + EscapeProcessPath(filesTxtPath) +
+                          " -c copy -movflags faststart " + EscapeProcessPath(newFilePath);
 
             ProcessHelper tmpProcessHelper = new ProcessHelper(null, null, null);
             var retRun = tmpProcessHelper.RunProcess(Common.AkStreamKeeperConfig.FFmpegPath, args, 1000 * 60 * 30,
