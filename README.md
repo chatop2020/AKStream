@@ -3,6 +3,9 @@
 ## 注意:本项目的相关资料与Wiki内容都只在GitHub更新,不会在Gitee更新(但是最新代码会同步提交到GitHub和Gitee),有需要最新文档和资料的朋友请移步GitHub
 
 # 全新AKStream.Next 已经上线  官网地址 https://www.softnvr.com
+## AKStream.next 免费授权永久离线运行，拥有AKStream的所有功能，更加支持了很多新特性（最新版的GB28181支持；Onvif设备的自动发现；RTC会议室等等新功能）
+## AKStream.next 提供完整的二次开发接口对接能力，提供10万字的对接文档，助力二次开发顺利进行。
+## AKStream.next 作为AKStream的商业项目，在继续秉持AKStream免费的基础上向非商业用途开放了免费授权，可离线激活，并永久内网使用。
 
 -------
 # 感谢DartNoder提供免费的服务器给AKStream
@@ -33,6 +36,14 @@ WebSocket-fMP4/MP4等几乎全协议的互相转换以供第三方（APP,WEB,客
 * 请多多支持，多多Star,谢谢
 
 
+# The new AKStream.Next has been launched. The official website address is https://www.softnvr.com
+
+## AKStream.next is free and authorized to run offline permanently. It has all the functions of AKStream and supports many new features (the latest version of GB28181 support; automatic discovery of Onvif devices; RTC conference room and other new features)
+
+## AKStream.next provides complete secondary development interface docking capabilities and provides 100,000-word docking documents to help secondary development proceed smoothly.
+
+## AKStream.next As a commercial project of AKStream, it has opened up free authorization to non-commercial use on the basis of continuing to uphold AKStream's free status. It can be activated offline and used permanently on the intranet.
+
 * AKStream is a full-featured soft NVR interface platform. Soft NVR refers to the software-defined NVR (Network Video Recoder). After a year and a half of development, testinn
 g and tuning, AKStream has already possessed a certain value in use. It has a relatively good performance in terms of reliability and practicability. At the same time, becauss
 e AKStream is a completely open source software product, with the support of many netizens, the safety of AKStream has also been verified.
@@ -50,4 +61,3 @@ tp streaming, GB28181-PTZ control, built-in streaming proxy http, rtps, rtmp Pul
 * Support the screen to open in seconds, very low delay (within 500 milliseconds, the lowest can reach 100 milliseconds).
 
 * Provide a complete standard Restful WebApi interface for other languages to call.
-                                                                                                                                                                      
