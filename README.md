@@ -1,5 +1,6 @@
 #  AKStream介绍
 ## 技术交流QQ群：870526956(满员中,正在清理)
+## 群已满员,无法加新人,AKStream.next 群号可以在AKStream.next官网,提交用户问题反馈来获取AKStream.Next的群号
 ## 注意:本项目的相关资料与Wiki内容都只在GitHub更新,不会在Gitee更新(但是最新代码会同步提交到GitHub和Gitee),有需要最新文档和资料的朋友请移步GitHub
 
 # 全新AKStream.Next 已经上线  官网地址 https://www.softnvr.com
