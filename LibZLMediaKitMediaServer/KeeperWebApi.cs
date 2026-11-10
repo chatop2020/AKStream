@@ -7,7 +7,7 @@ using LibCommon.Structs.WebResponse.AKStreamKeeper;
 
 namespace LibZLMediaKitMediaServer
 {
-    public class KeeperWebApi
+    public partial class KeeperWebApi
     {
         private string _accessKey;
         private string _baseUrl;
@@ -1263,7 +1263,7 @@ namespace LibZLMediaKitMediaServer
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            string url = $"{_baseUrl}/ApiService/FileExists?filePath={filePath}";
+            string url = $"{_baseUrl}/ApiService/FileExists?filePath={HttpUtility.UrlEncode(filePath)}";
             try
             {
                 Dictionary<string, string> headers = new Dictionary<string, string>();

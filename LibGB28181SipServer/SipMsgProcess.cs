@@ -1110,6 +1110,11 @@ namespace LibGB28181SipServer
             {
                 case SIPResponseStatusCodesEnum.Ok:
                     method = sipResponse.Header.CSeqMethod;
+                    // BYE 与原 INVITE 共用 Call-ID，迟到的 INVITE 200 OK 不能充当停流成功应答。
+                    if (Common.NeedResponseRequests.TryGetValue(sipResponse.Header.CallId, out var waitingBye) &&
+                        waitingBye.SipRequest.Method == SIPMethodsEnum.BYE &&
+                        (method != SIPMethodsEnum.BYE || sipResponse.Header.CSeq != waitingBye.SipRequest.Header.CSeq))
+                        return;
                     ret = Common.NeedResponseRequests.TryRemove(sipResponse.Header.CallId,
                         out _task);
                     if (ret && _task != null)

@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace AKStreamKeeper.Services
 {
-    public static class ApiService
+    public static partial class ApiService
     {
         
        /// <summary>
@@ -143,6 +143,8 @@ namespace AKStreamKeeper.Services
         {
             lock (Common._getRtpPortLock)
             {
+                // 普通释放和自动清理都不能清除 BYE 失败的隔离；冷却到期也不能绕过。
+                if (!Common.RtpPortStops.CanReuse(port, DateTime.UtcNow)) return false;
                 var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(port));
                 if (portUsed != null)
                 {
@@ -187,6 +189,7 @@ namespace AKStreamKeeper.Services
             {
                 lock (Common._getRtpPortLock)
                 {
+                    var unavailable = Common.RtpPortStops.UnavailablePorts(DateTime.UtcNow);
                     IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
                     List<IPEndPoint> tcpIpEndPoints = ipProperties.GetActiveTcpListeners().ToList();
                     List<IPEndPoint> udpIpEndPoints = ipProperties.GetActiveUdpListeners().ToList();
@@ -200,6 +203,7 @@ namespace AKStreamKeeper.Services
 
                     if (minPort == maxPort)
                     {
+                        if (unavailable.Contains(minPort)) return 0;
                         var tcp = tcpIpEndPoints.FindLast(x => x.Port == minPort);
                         var udp = udpIpEndPoints.FindLast(x => x.Port == minPort);
                         var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(minPort));
@@ -236,6 +240,7 @@ namespace AKStreamKeeper.Services
 
                     for (ushort port = minPort; port <= maxPort; port++)
                     {
+                        if (unavailable.Contains(port)) continue;
                         if (UtilsHelper.IsOdd(port)) //如果是奇数则跳过
                         {
                             continue;
@@ -699,7 +704,13 @@ namespace AKStreamKeeper.Services
             {
                 foreach (var path in fileList)
                 {
-                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    var found = RecordingFileProbe.Exists(path, out var checkResult);
+                    if (checkResult.Code != ErrorNumber.None)
+                    {
+                        result.Add(path);
+                        continue;
+                    }
+                    if (found)
                     {
                         try
                         {
@@ -735,11 +746,11 @@ namespace AKStreamKeeper.Services
         }
 
         /// <summary>
-        /// 文件是否存在
+        /// 检查文件是否存在，同时保留文件系统错误；false 不等于设备上的录像已经丢失。
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="rs"></param>
-        /// <returns></returns>
+        /// <param name="filePath">文件完整路径。</param>
+        /// <param name="rs">父目录不可访问、权限或 I/O 错误时返回磁盘异常。</param>
+        /// <returns>文件条目存在时返回 true，其他结果必须结合 rs。</returns>
         public static bool FileExists(string filePath, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
@@ -747,7 +758,7 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            var found = File.Exists(filePath);
+            var found = RecordingFileProbe.Exists(filePath, out rs);
             GCommon.Logger.Debug($"[{Common.LoggerHead}]->检查文件是否存在:{filePath}:{found}");
             return found;
         }
@@ -765,7 +776,9 @@ namespace AKStreamKeeper.Services
                 Code = ErrorNumber.None,
                 Message = ErrorMessage.ErrorDic![ErrorNumber.None],
             };
-            if (File.Exists(filePath))
+            var found = RecordingFileProbe.Exists(filePath, out rs);
+            if (rs.Code != ErrorNumber.None) return false;
+            if (found)
             {
                 try
                 {
@@ -777,8 +790,8 @@ namespace AKStreamKeeper.Services
                 {
                     rs = new ResponseStruct()
                     {
-                        Code = ErrorNumber.None,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.None],
+                        Code = ErrorNumber.MediaServer_DiskExcept,
+                        Message = "删除录像文件失败，保留待清理记录。",
                         ExceptMessage = ex.Message,
                         ExceptStackTrace = ex.StackTrace,
                     };

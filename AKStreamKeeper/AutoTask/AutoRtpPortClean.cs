@@ -217,6 +217,10 @@ public class AutoRtpPortClean
         {
             ResponseStruct rs = null;
 
+            // 到期状态清理不依赖 Web 在线；失败保留原文件，下轮继续而不是退出维护线程。
+            try { Common.RtpPortStops.PruneExpired(DateTime.UtcNow); }
+            catch (Exception ex) { GCommon.Logger.Warn("清理停流冷却记录失败：" + ex.Message); }
+
             var ports = GetPortRptList(out rs);
             if (rs.Code != ErrorNumber.None)
             {
@@ -227,49 +231,8 @@ public class AutoRtpPortClean
                 GCommon.Logger.Debug($"[{Common.LoggerHead}]->获取在用Rtp端口列表->{JsonHelper.ToJson(ports)}");
                 if (ports != null)
                 {
-                    if (ports.Count == 0)
-                    {
-                        foreach (var pi in Common.PortInfoList)
-                        {
-                            lock (Common._getRtpPortLock)
-                            {
-                                var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port) && x.Useed);
-                                if (portUsed != null)
-                                {
-                                    portUsed.Useed = false;
-                                    GCommon.Logger.Info($"[{Common.LoggerHead}]->释放rtp端口成功:{pi.Port}");
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        foreach (var pi in Common.PortInfoList)
-                        {
-                            if (pi != null && pi.Useed && DateTime.Now >
-                                pi.DateTime.AddSeconds(Common.MediaServerInstance.AkStreamKeeperConfig.RtpPortCdTime))
-                            {
-                                if (!ports.Contains(pi.Port))
-                                {
-                                    GCommon.Logger.Debug($"[{Common.LoggerHead}]->自动释放Rtp端口->{JsonHelper.ToJson(pi)}");
-                                    ApiService.ReleaseRtpPort(pi.Port);
-                                }
-                                else
-                                {
-                                    lock (Common._getRtpPortLock)
-                                    {
-                                        var portUsed = Common.PortInfoList.FindLast(x => x.Port.Equals(pi.Port));
-                                        if (portUsed != null)
-                                        {
-                                            GCommon.Logger.Debug(
-                                                $"[{Common.LoggerHead}]->更新Rtp端口激活状态时间->{JsonHelper.ToJson(portUsed)}");
-                                            portUsed.DateTime = DateTime.Now; //更新端口，目前正在使用的时间
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    try { ApiService.CleanUnusedRtpPorts(ports); }
+                    catch (Exception ex) { GCommon.Logger.Warn("自动回收 RTP 端口失败，保留原占用：" + ex.Message); }
                 }
             }
 

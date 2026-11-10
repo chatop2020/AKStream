@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using LibCommon;
 using LibCommon.Enums;
@@ -207,10 +208,11 @@ namespace LibGB28181SipServer
 
 
         /// <summary>
-        /// 请求终止时实流
+        /// 等待原 dialog 的 BYE 应答。超时返回明确失败并移除本次等待，保留 dialog 供后续重试。
         /// </summary>
-        /// <param name="sipChannel"></param>
-        /// <returns></returns>
+        /// <param name="sipChannel">携带原 INVITE Call-ID 和 tags 的通道。</param>
+        /// <param name="rs">成功应答或等待超时的结果。</param>
+        /// <returns>对应 BYE 收到成功应答时返回 true。</returns>
         public bool DeInvite(SipChannel sipChannel, out ResponseStruct rs)
         {
             try
@@ -222,6 +224,9 @@ namespace LibGB28181SipServer
                 var isTimeout = _autoResetEvent.WaitOne(_timeout);
                 if (!isTimeout || !rs.Code.Equals(ErrorNumber.None))
                 {
+                    if (!isTimeout && rs.Code == ErrorNumber.None)
+                        rs = new ResponseStruct { Code = ErrorNumber.Sip_DeInviteExcept,
+                            Message = "BYE 应答等待超时，设备侧停流未确认。" };
                     string timeoutStr = rs.Code == ErrorNumber.None ? "操作超时(" + _timeout + "ms)" : "未知错误";
                     GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip代理结束推流失败->{JsonHelper.ToJson(rs)}->{timeoutStr}");
                     return false;
@@ -233,6 +238,13 @@ namespace LibGB28181SipServer
             }
             finally
             {
+                // 超时任务不能继续占用原 Call-ID，也不能让它的定时器删掉下一次重试。
+                var callId = sipChannel.InviteSipRequest?.Header.CallId;
+                if (callId != null && Common.NeedResponseRequests.TryGetValue(callId, out var pending) &&
+                    ReferenceEquals(pending.AutoResetEvent, _autoResetEvent) &&
+                    ((ICollection<KeyValuePair<string, NeedReturnTask>>)Common.NeedResponseRequests)
+                    .Remove(new KeyValuePair<string, NeedReturnTask>(callId, pending)))
+                    pending.Dispose();
                 Dispose();
             }
         }

@@ -17,6 +17,8 @@ namespace AKStreamKeeper.Attributes
         /// <param name="context"></param>
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            // 停流隔离接口携带用于重试的 SIP dialog，不能写入通用 HTTP 正文日志。
+            if (context.HttpContext.Request.Path.Value?.Contains("RtpPortStop", StringComparison.OrdinalIgnoreCase) == true) return;
             string info = $@"StatusCode:{context.HttpContext.Response.StatusCode}";
             string remoteIpAddr = context.HttpContext.Connection.RemoteIpAddress.ToString();
             try
@@ -47,6 +49,7 @@ namespace AKStreamKeeper.Attributes
         /// <param name="context"></param>
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            if (context.HttpContext.Request.Path.Value?.Contains("RtpPortStop", StringComparison.OrdinalIgnoreCase) == true) return;
             string remoteIpAddr = context.HttpContext.Connection.RemoteIpAddress.ToString();
             try
             {

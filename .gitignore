@@ -27,3 +27,5 @@ Thumbs.db
 .vscode/**
 .vs/**
 *.csproj.user
+**/RtpPortStops.json
+**/RtpPortStops.json.tmp

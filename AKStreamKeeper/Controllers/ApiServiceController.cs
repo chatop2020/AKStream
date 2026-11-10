@@ -18,7 +18,7 @@ namespace AKStreamKeeper.Controllers
     [ApiController]
     [Route("/ApiService")]
     [SwaggerTag("流媒体服务器相关接口")]
-    public class ApiServiceController : ControllerBase
+    public partial class ApiServiceController : ControllerBase
     {
         /// <summary>
         /// 移动文件列表到备份存储

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../AKStreamWeb/AKStreamWeb.csproj" />
+    <ProjectReference Include="../../AKStreamKeeper/AKStreamKeeper.csproj" />
+    <PackageReference Include="FreeSql.Provider.SqliteCore" Version="3.2.801" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.4" />
+  </ItemGroup>
+</Project>

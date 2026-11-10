@@ -67,6 +67,11 @@ namespace AKStreamKeeper
         /// </summary>
         public static List<PortInfo> PortInfoList = new List<PortInfo>();
 
+        /// <summary>接收端口停流隔离的唯一持久化来源，独立于启动时会被清空的在线流数据库。</summary>
+        public static RtpPortStopStore RtpPortStops => _rtpPortStops.Value;
+        private static readonly Lazy<RtpPortStopStore> _rtpPortStops = new Lazy<RtpPortStopStore>(() =>
+            new RtpPortStopStore(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(ConfigPath)), "RtpPortStops.json")));
+
         /// <summary>
         /// 申请的rtp端口(发送)放在这里，并记录时间，在一定时间内不允许使用，端口需要要冷却（20秒内）
         /// </summary>

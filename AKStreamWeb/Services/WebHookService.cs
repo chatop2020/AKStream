@@ -8,6 +8,7 @@ using LibCommon;
 using LibCommon.Enums;
 using LibCommon.Structs;
 using LibCommon.Structs.DBModels;
+using LibCommon.Structs.GB28181;
 using LibCommon.Structs.WebRequest;
 using LibCommon.Structs.WebResponse;
 using LibZLMediaKitMediaServer;
@@ -230,55 +231,14 @@ namespace AKStreamWeb.Services
 
             #endregion
 
-            bool diskuseage = true;
-            if (mediaServer.DisksUseable != null && mediaServer.DisksUseable.Count > 0)
-            {
-                foreach (var disk in mediaServer.DisksUseable)
+            var diskStatus = RecordingOrphanCleanup.StorageStatus(req.File_Path, mediaServer.DisksUseable);
+            if (diskStatus.HasValue && diskStatus.Value != 0)
+                throw new AkStreamException(new ResponseStruct
                 {
-                    if (disk.Value != 0)
-                    {
-                        diskuseage = false;
-                        GCommon.Logger.Error(
-                            $"[{Common.LoggerHead}]->磁盘挂载异常->{disk.Key}->异常代码：{disk.Value}->{JsonHelper.ToJson(req)}");
-                        break;
-                    }
-                }
-            }
-
-            if (!diskuseage)
-            {
-                ResponseStruct rs = null;
-                try
-                {
-                    try
-                    {
-                        AKStreamKeeperService.DeleteFileWithoutCheckDiskUseage(mediaServer.MediaServerId, req.File_Path,
-                            out _);
-                    }
-                    catch
-                    {
-                    }
-
-                    rs = new ResponseStruct()
-                    {
-                        Code = ErrorNumber.MediaServer_DiskExcept,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_DiskExcept],
-                        ExceptMessage = "录制文件异常，磁盘挂载异常",
-                        ExceptStackTrace =
-                            $"磁盘挂载异常不能实现文件录制功能->{JsonHelper.ToJson(req)}",
-                    };
-                    return new ResToWebHookOnRecordMP4()
-                    {
-                        Code = 0,
-                        Msg = "success"
-                    };
-                }
-
-                finally
-                {
-                    throw new AkStreamException(rs);
-                }
-            }
+                    Code = ErrorNumber.MediaServer_DiskExcept,
+                    Message = "录像所在磁盘异常，保留原文件，暂不写入录像索引。",
+                    ExceptMessage = $"Path:{req.File_Path}, DiskStatus:{diskStatus.Value}"
+                });
 
             var recordInfo = ORMHelper.Db.Select<RecordFile>().Where(x => x.Streamid.Equals(req.Stream) &&
                                                                           x.VideoPath.Equals(req.File_Path) &&
@@ -300,6 +260,14 @@ namespace AKStreamWeb.Services
                 };
             }
 
+            if (!RecordingOrphanCleanup.ValidRecordingMetadata(req.Time_Len, req.File_Size))
+                throw new AkStreamException(new ResponseStruct
+                {
+                    Code = ErrorNumber.MediaServer_RecordFileExcept,
+                    Message = "录制元数据异常，保留原文件，暂不写入录像索引。",
+                    ExceptMessage = $"Path:{req.File_Path}, Duration:{req.Time_Len}, FileSize:{req.File_Size}"
+                });
+
             var st = UtilsHelper.ConvertDateTimeToInt((long)req.Start_Time);
             DateTime currentTime = DateTime.Now;
             RecordFile tmpDvrVideo = new RecordFile();
@@ -315,42 +283,6 @@ namespace AKStreamWeb.Services
             tmpDvrVideo.EndTime = st.AddSeconds(_intLen);
             tmpDvrVideo.Duration = _intLen;
 
-
-            if (tmpDvrVideo.Duration <= 0 || req.File_Size > 103881427200) //大概720p下60个小时的录制量，单文件超过这个值，就不再保存
-            {
-                ResponseStruct rs = null;
-                try
-                {
-                    try
-                    {
-                        AKStreamKeeperService.DeleteFileWithoutCheckDiskUseage(mediaServer.MediaServerId,
-                            tmpDvrVideo.VideoPath, out _);
-                        // mediaServer.KeeperWebApi.DeleteFile(out _, tmpDvrVideo.VideoPath); //从磁盘中删除这个文件
-                    }
-                    catch
-                    {
-                    }
-
-                    rs = new ResponseStruct()
-                    {
-                        Code = ErrorNumber.MediaServer_RecordFileExcept,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.MediaServer_RecordFileExcept],
-                        ExceptMessage = "录制文件异常，视频时长为0或者单文件字节数过大",
-                        ExceptStackTrace =
-                            $"可能因为磁盘不可写，造成视频时长为0，或者单文件字节数超过103881427200相当于720p下单文件录制60个小时->{JsonHelper.ToJson(req)}",
-                    };
-                    return new ResToWebHookOnRecordMP4()
-                    {
-                        Code = 0,
-                        Msg = "success"
-                    };
-                }
-
-                finally
-                {
-                    throw new AkStreamException(rs);
-                }
-            }
 
             tmpDvrVideo.Undo = false;
             tmpDvrVideo.Deleted = false;
@@ -946,99 +878,27 @@ namespace AKStreamWeb.Services
                         .First();
                     if (videoChannel.DeviceStreamType == DeviceStreamType.GB28181)
                     {
-                        var sipDevice =
-                            LibGB28181SipServer.Common.SipDevices.FindLast(
-                                x => x.DeviceId.Equals(videoChannel.DeviceId));
-
-                        if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
+                        if (!Gb28181StreamStop.IsRunning(videoChannel.MediaServerId, videoChannel.MainId))
                         {
-                            var channel =
-                                sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                            if (channel != null)
-                            {
-                                SipServerService.TryDeInviteSipChannel(
-                                    channel,
-                                    $"OnStreamChanged流移除->{videoChannel.DeviceId}-{videoChannel.ChannelId}-{videoChannel.MainId}",
-                                    out _);
-                            }
-                        }
-                        // if (sipDevice != null && sipDevice.SipChannels != null && sipDevice.SipChannels.Count > 0)
-                        // {
-                        //     var channel =
-                        //         sipDevice.SipChannels.FindLast(x => x.DeviceId.Equals(videoChannel.ChannelId));
-                        //     if (channel != null)
-                        //     {
-                        //         channel.PushStatus = PushStatus.IDLE;
-                        //     }
-                        // }
-
-                        // try
-                        // {
-                        //     //gb28181异常断流时，要释放掉原来申请的rtp端口
-                        //     ushort? rtpPort;
-                        //     lock (GCommon.Ldb.LiteDBLockObj)
-                        //     {
-                        //         rtpPort = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                        //                 x.MediaServerId.Equals(videoChannel.MediaServerId) &&
-                        //                 x.MainId.Equals(videoChannel.MainId))
-                        //             .MediaServerStreamInfo!.RptPort;
-                        //     }
-                        //
-                        //     if (rtpPort != null && rtpPort > 0)
-                        //     {
-                        //         ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                        //         {
-                        //             Stream_Id = videoChannel.MainId,
-                        //         };
-                        //         mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
-                        //         mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        //             (ushort)rtpPort,
-                        //             out _); //释放rtp端口
-                        //     }
-                        // }
-                        // catch
-                        // {
-                        // }
-                        
-                        try
-                        {
-                            // gb28181异常断流时，要释放掉原来申请的rtp端口
-                            ushort? rtpPort = null;
+                            // 先捕获原 dialog 和端口，不能让延迟执行的任务读取后来 INVITE 的会话。
+                            var device = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId == videoChannel.DeviceId);
+                            var channel = device?.SipChannels?.FindLast(x => x.DeviceId == videoChannel.ChannelId);
+                            var snapshot = new SipChannel { ParentId = videoChannel.DeviceId, DeviceId = videoChannel.ChannelId };
+                            if (channel?.InviteSipRequest != null) snapshot.InviteSipRequest = channel.InviteSipRequest;
+                            if (channel?.InviteSipResponse != null) snapshot.InviteSipResponse = channel.InviteSipResponse;
+                            VideoChannelMediaInfo online;
                             lock (GCommon.Ldb.LiteDBLockObj)
+                                online = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MainId == videoChannel.MainId && x.MediaServerId == videoChannel.MediaServerId);
+                            var port = online?.MediaServerStreamInfo?.RptPort ?? channel?.RtpPort ?? req.OriginSock?.Local_Port ?? 0;
+                            System.Threading.Tasks.Task.Run(() =>
                             {
-                                var videoOnlineInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                                    x.MediaServerId.Equals(videoChannel.MediaServerId) &&
-                                    x.MainId.Equals(videoChannel.MainId));
-
-                                rtpPort = videoOnlineInfo?.MediaServerStreamInfo?.RptPort;
-                            }
-
-                            if (rtpPort != null && rtpPort > 0)
-                            {
-                                ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                                {
-                                    Stream_Id = videoChannel.MainId,
-                                };
-
-                                mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
-
-                                if (mediaServer.RandomPort == false)
-                                {
-                                    mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                        (ushort)rtpPort,
-                                        out _); //释放rtp端口
-                                }
-                            }
-                            else
-                            {
-                                GCommon.Logger.Info(
-                                    $"[{Common.LoggerHead}]->GB28181异常断流清理RTP端口时未找到有效端口，已跳过->{videoChannel.MediaServerId}->{videoChannel.MainId}");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            GCommon.Logger.Warn(
-                                $"[{Common.LoggerHead}]->GB28181异常断流清理RTP端口时发生异常->{videoChannel.MediaServerId}->{videoChannel.MainId}->{ex.Message}");
+                                if (videoChannel.DefaultRtpPort == true)
+                                    Gb28181StreamStop.StopShared(mediaServer, snapshot, videoChannel.MainId,
+                                        videoChannel.App, videoChannel.Vhost, out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                                else
+                                    Gb28181StreamStop.Stop(mediaServer, snapshot, port, videoChannel.MainId,
+                                        videoChannel.App, videoChannel.Vhost, false, out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                            });
                         }
                     }
 

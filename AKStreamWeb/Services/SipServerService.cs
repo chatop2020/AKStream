@@ -25,6 +25,10 @@ namespace AKStreamWeb.Services
         private static readonly ConcurrentDictionary<string, object> _gb28181LiveLocks =
             new ConcurrentDictionary<string, object>();
 
+        /// <summary>直播建立和停流共用同一条流的锁，避免旧清理与新 INVITE 同时修改接收服务。</summary>
+        internal static object GetLiveLock(string serverId, string stream) =>
+            _gb28181LiveLocks.GetOrAdd(serverId + ":" + stream, _ => new object());
+
         public static bool TryDeInviteSipChannel(SipChannel sipChannel, string reason, out ResponseStruct rs)
         {
             rs = new ResponseStruct()
@@ -70,10 +74,6 @@ namespace AKStreamWeb.Services
                 };
                 GCommon.Logger.Warn($"[{Common.LoggerHead}]->Sip BYE发送异常->{reason}->{JsonHelper.ToJson(rs)}");
                 return false;
-            }
-            finally
-            {
-                sipChannel.PushStatus = PushStatus.IDLE;
             }
         }
 
@@ -288,292 +288,85 @@ namespace AKStreamWeb.Services
 
 
         /// <summary>
-        /// 停止回放流
+        /// 停止指定设备录像回放。先持久化接收端口隔离，BYE 和本地关闭均确认后才进入冷却。
         /// </summary>
-        /// <param name="record"></param>
-        /// <param name="rs"></param>
-        /// <returns></returns>
-        /// <exception cref="AkStreamException"></exception>
+        /// <param name="taskId">原设备录像查询任务编号。</param>
+        /// <param name="ssrcId">该任务内回放流的十进制 SSRC。</param>
+        /// <param name="rs">未完全确认时保留失败原因，禁止被本地成功结果覆盖。</param>
+        /// <returns>设备侧及本地均确认停止时返回 true；否则端口继续隔离。</returns>
         public static bool StopLiveVideo(int taskId, string ssrcId, out ResponseStruct rs)
         {
-            ServerInstance mediaServer;
-            VideoChannel videoChannel;
-            SipDevice sipDevice;
-            SipChannel sipChannel;
-            RecordInfo.RecItem record = null;
-            rs = new ResponseStruct()
-            {
-                Code = ErrorNumber.None,
-                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
-            };
-
-            var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId.Equals(taskId));
-            if (row != null && row.RecItems != null && row.RecItems.Count > 0)
-            {
-                record = row.RecItems.FindLast(x => x.SsrcId.Equals(ssrcId));
-            }
-
+            var row = GCommon.VideoChannelRecordInfo.FindLast(x => x.TaskId == taskId);
+            var record = row?.RecItems?.FindLast(x => x.SsrcId == ssrcId);
             if (record == null)
             {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Sys_DB_RecordNotExists,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Sys_DB_RecordNotExists],
-                };
+                rs = new ResponseStruct { Code = ErrorNumber.Sys_DB_RecordNotExists,
+                    Message = ErrorMessage.ErrorDic[ErrorNumber.Sys_DB_RecordNotExists] };
                 return false;
             }
-
-            var ret = CheckIt(record.SipDevice.DeviceId, record.SipChannel.DeviceId, out rs, out mediaServer,
-                out videoChannel, out sipChannel,
-                out sipDevice);
-            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
+            var channel = record.SipChannel;
+            var video = ORMHelper.Db.Select<VideoChannel>().Where(x => x.DeviceId == record.SipDevice.DeviceId &&
+                x.ChannelId == channel.DeviceId).First();
+            var server = Common.MediaServerList.FindLast(x => x.MediaServerId == video?.MediaServerId);
+            if (server == null)
             {
-                GCommon.Logger.Warn(
-                    $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
-
+                rs = new ResponseStruct { Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = "未找到回放接收节点，不能确认停流。" };
                 return false;
             }
-
-            VideoChannelMediaInfo mediaInfo = null;
-
-            lock (GCommon.Ldb.LiteDBLockObj)
-            {
-                mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
-            }
-
-            if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
-            {
-                GCommon.Logger.Info(
-                    $"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}");
-
-                return true;
-            }
-
-            lock (GCommon.Ldb.LiteDBLockObj)
-            {
-                GCommon.Ldb.VideoOnlineInfo.DeleteMany(x =>
-                    x.MainId.Equals(record.Stream) && x.MediaServerId.Equals(videoChannel.MediaServerId));
-            }
-
-            try
-            {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
-                record.SipDevice = sipDevice;
-                record.SipChannel = sipChannel;
-                var retDeInvite = sipMethodProxy.DeInvite(record, out rs); //通知sip设备停止推流
-
-                ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
-                {
-                    App = mediaInfo.App,
-                    Force = true,
-                    Stream = mediaInfo.MediaServerStreamInfo.Stream,
-                    Vhost = mediaInfo.Vhost,
-                };
-                mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
-                if (videoChannel.DefaultRtpPort == false)
-                {
-                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                    {
-                        Stream_Id = record.Stream,
-                    };
-
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
-                    mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        (ushort)mediaInfo.MediaServerStreamInfo.RptPort,
-                        out rs); //释放rtp端口
-                }
-
-
-                if (!rs.Code.Equals(ErrorNumber.None))
-                {
-                    GCommon.Logger.Warn(
-                        $"[{Common.LoggerHead}]->停止Sip推回放流失败->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
-
-                    return false;
-                }
-
-
-                GCommon.Logger.Info(
-                    $"[{Common.LoggerHead}]->停止Sip推回放流成功->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{retDeInvite}");
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Other,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
-                    ExceptMessage = ex.Message,
-                    ExceptStackTrace = ex.StackTrace
-                };
-                throw new AkStreamException(rs);
-            }
+            var snapshot = new SipChannel { ParentId = record.SipDevice.DeviceId, DeviceId = channel.DeviceId };
+            if (record.InviteSipRequest != null) snapshot.InviteSipRequest = record.InviteSipRequest;
+            if (record.InviteSipResponse != null) snapshot.InviteSipResponse = record.InviteSipResponse;
+            var info = record.MediaServerStreamInfo;
+            var port = info?.RptPort ?? 0;
+            var result = video.DefaultRtpPort == true
+                ? Gb28181StreamStop.StopShared(server, snapshot, record.Stream, record.App, record.Vhost, out rs, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec)
+                : Gb28181StreamStop.Stop(server, snapshot, port, record.Stream, record.App, record.Vhost, true, out rs, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+            if (result) record.PushStatus = PushStatus.IDLE;
+            return result;
         }
 
         /// <summary>
-        /// 停止GB28181设备推流
+        /// 停止 GB28181 实时推流。在线媒体记录缺失也检查原 dialog 和接收服务；失败保存待重试任务。
         /// </summary>
-        /// <param name="deviceId"></param>
-        /// <param name="channelId"></param>
-        /// <param name="rs"></param>
-        /// <returns></returns>
+        /// <param name="deviceId">设备国标编号。</param>
+        /// <param name="channelId">通道国标编号。</param>
+        /// <param name="rs">包含 BYE 或接收服务清理失败原因。</param>
+        /// <returns>两侧均确认停止时返回 true；假定设备离线不能作为成功依据。</returns>
         public static bool StopLiveVideo(string deviceId, string channelId, out ResponseStruct rs)
         {
-            ServerInstance mediaServer;
-            VideoChannel videoChannel;
-            SipDevice sipDevice;
-            SipChannel sipChannel;
-            rs = new ResponseStruct()
+            // 设备离线不代表媒体接收已经关闭，停流不能以 SIP 在线列表存在为前提。
+            var video = ORMHelper.Db.Select<VideoChannel>().Where(x => x.DeviceId == deviceId && x.ChannelId == channelId).First();
+            var server = Common.MediaServerList.FindLast(x => x.MediaServerId == video?.MediaServerId);
+            if (video == null || server == null)
             {
-                Code = ErrorNumber.None,
-                Message = ErrorMessage.ErrorDic![ErrorNumber.None],
-            };
-            var ret = CheckIt(deviceId, channelId, out rs, out mediaServer, out videoChannel, out sipChannel,
-                out sipDevice);
-            if (ret == false || !rs.Code.Equals(ErrorNumber.None))
-            {
-                GCommon.Logger.Warn(
-                    $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
-
+                rs = new ResponseStruct { Code = ErrorNumber.MediaServer_InstanceIsNull,
+                    Message = "未找到通道或接收节点，不能确认停流。" };
                 return false;
             }
-
-            VideoChannelMediaInfo mediaInfo = null;
-
-            lock (GCommon.Ldb.LiteDBLockObj)
+            var gate = _gb28181LiveLocks.GetOrAdd($"{server.MediaServerId}:{video.MainId}", _ => new object());
+            lock (gate)
             {
-                mediaInfo = GCommon.Ldb.VideoOnlineInfo.FindOne(x =>
-                    x.MainId.Equals(videoChannel.MainId) && x.MediaServerId.Equals(videoChannel.MediaServerId));
-            }
-
-            if (mediaInfo == null || mediaInfo.MediaServerStreamInfo == null)
-            {
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功(此Sip通道本身就处于停止推流状态)->{deviceId}-{channelId}");
-
-                #region 保障zlm的流一定断开，rtp端口一定释放
-
-                try
+                var device = LibGB28181SipServer.Common.SipDevices.FindLast(x => x.DeviceId == deviceId);
+                var channel = device?.SipChannels?.FindLast(x => x.DeviceId == channelId)
+                    ?? new SipChannel { ParentId = deviceId, DeviceId = channelId };
+                VideoChannelMediaInfo info;
+                lock (GCommon.Ldb.LiteDBLockObj)
+                    info = GCommon.Ldb.VideoOnlineInfo.FindOne(x => x.MainId == video.MainId && x.MediaServerId == server.MediaServerId);
+                var port = info?.MediaServerStreamInfo?.RptPort ?? channel.RtpPort ?? 0;
+                var receiverAbsent = false;
+                if (port == 0 && video.DefaultRtpPort != true)
                 {
-                    var rs2 = new ResponseStruct()
-                    {
-                        Code = ErrorNumber.None,
-                        Message = ErrorMessage.ErrorDic![ErrorNumber.None],
-                    };
-                    var retRtp = mediaServer.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out rs2);
-                    if (retRtp != null && rs2.Code.Equals(ErrorNumber.None))
-                    {
-                        var found = false;
-
-                        foreach (var d in retRtp.Data)
-                        {
-                            if (d != null && !string.IsNullOrEmpty(d.Stream_Id))
-                            {
-                                if (d.Stream_Id.Trim().Equals(sipChannel.Stream.Trim()))
-                                {
-                                    found = true;
-                                    GCommon.Logger.Debug(
-                                        $"[{Common.LoggerHead}]->发现此流依然在MediaServer的Rtp列表中，要进行断开处理->{deviceId}-{channelId}-{d.Stream_Id}-{d.Port}");
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (found)
-                        {
-                            ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
-                            {
-                                App = sipChannel.App,
-                                Force = true,
-                                Stream = sipChannel.Stream,
-                                Vhost = sipChannel.Vhost
-                            };
-                            GCommon.Logger.Debug(
-                                $"[{Common.LoggerHead}]->重新构造断流请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseStreams, Formatting.Indented)}");
-
-                            mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs2); //关掉流  
-                            if (videoChannel.DefaultRtpPort == false)
-                            {
-                                ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                                {
-                                    Stream_Id = sipChannel.Stream,
-                                };
-                                GCommon.Logger.Debug(
-                                    $"[{Common.LoggerHead}]->重新构造关闭rtp服务请求->\r\n{JsonHelper.ToJson(reqZlMediaKitCloseRtpPort, Formatting.Indented)}");
-
-                                mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs2); //关掉rtp端口
-                                GCommon.Logger.Debug($"[{Common.LoggerHead}]->重新构造释放rtp端口请求->{sipChannel.RtpPort}");
-
-                                mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                    (ushort)sipChannel.RtpPort,
-                                    out rs2); //释放rtp端口
-                                GCommon.Logger.Debug(
-                                    $"[{Common.LoggerHead}]->重新断流执行返回情况->{JsonHelper.ToJson(rs2, Formatting.Indented)}");
-                            }
-                        }
-                    }
+                    var list = server.WebApiHelper.ListRtpServer(new ReqZLMediaKitRequestBase(), out var listResult);
+                    port = list?.Data?.FindLast(x => x.Stream_Id == video.MainId)?.Port ?? 0;
+                    receiverAbsent = listResult.Code == ErrorNumber.None && list?.Code == 0 && list.Data != null && port == 0;
                 }
-                catch
-                {
-                }
-
-                #endregion
-
-                return true;
-            }
-
-
-            try
-            {
-                SipMethodProxy sipMethodProxy = new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
-                var retDeInvite = sipMethodProxy.DeInvite(sipChannel, out rs); //通知sip设备停止推流
-
-                ReqZLMediaKitCloseStreams reqZlMediaKitCloseStreams = new ReqZLMediaKitCloseStreams()
-                {
-                    App = mediaInfo.App,
-                    Force = true,
-                    Stream = mediaInfo.MediaServerStreamInfo.Stream,
-                    Vhost = mediaInfo.Vhost,
-                };
-                mediaServer.WebApiHelper.CloseStreams(reqZlMediaKitCloseStreams, out rs); //关掉流
-                if (videoChannel.DefaultRtpPort == false)
-                {
-                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                    {
-                        Stream_Id = sipChannel.Stream,
-                    };
-
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out rs); //关掉rtp端口
-                    mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        (ushort)mediaInfo.MediaServerStreamInfo.RptPort,
-                        out rs); //释放rtp端口
-                }
-
-
-                if (!rs.Code.Equals(ErrorNumber.None))
-                {
-                    GCommon.Logger.Warn(
-                        $"[{Common.LoggerHead}]->停止Sip推流失败->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
-
-                    return false;
-                }
-
-
-                GCommon.Logger.Info($"[{Common.LoggerHead}]->停止Sip推流成功->{deviceId}-{channelId}->{retDeInvite}");
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                rs = new ResponseStruct()
-                {
-                    Code = ErrorNumber.Other,
-                    Message = ErrorMessage.ErrorDic![ErrorNumber.Other],
-                    ExceptMessage = ex.Message,
-                    ExceptStackTrace = ex.StackTrace
-                };
-                throw new AkStreamException(rs);
+                var result = video.DefaultRtpPort == true
+                    ? Gb28181StreamStop.StopShared(server, channel, video.MainId, video.App, video.Vhost, out rs, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec)
+                    : Gb28181StreamStop.Stop(server, channel, port, video.MainId, video.App, video.Vhost, false, out rs,
+                        Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec, receiverAbsent);
+                if (result) channel.PushStatus = PushStatus.IDLE;
+                return result;
             }
         }
 
@@ -733,6 +526,10 @@ namespace AKStreamWeb.Services
                 return null;
             }
 
+            record.MediaServerStreamInfo = new MediaServerStreamInfo
+            {
+                RptPort = openRtpPort.Port, Stream = record.Stream, App = record.App, Vhost = record.Vhost
+            };
             PushMediaInfo pushMediaInfo = new PushMediaInfo();
             pushMediaInfo.StreamPort = openRtpPort.Port;
             if (!string.IsNullOrEmpty(mediaServer.Candidate) && (UtilsHelper.IsIpAddr(mediaServer.Candidate) ||
@@ -870,53 +667,15 @@ namespace AKStreamWeb.Services
             var isTimeout = myWait.WaitOne(Common.AkStreamWebConfig.WaitEventTimeOutMSec);
             if (!isTimeout)
             {
-                try
-                {
-                    var mediaList =
-                        mediaServer.WebApiHelper.GetMediaList(new ReqZLMediaKitGetMediaList(), out rs);
-                    if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null &&
-                        mediaList.Data.Count > 0)
-                    {
-                        var media = mediaList.Data.FindLast(x => x.App.Equals(record.App) &&
-                                                                 x.Stream.Equals(record.Stream)
-                                                                 && x.Vhost.Equals(record.Vhost));
-                        if (media != null)
-                        {
-                            var tmp = new ReqZLMediaKitCloseStreams()
-                            {
-                                App = media.App,
-                                Force = true,
-                                Stream = videoChannel.MainId,
-                                Vhost = videoChannel.Vhost,
-                            };
-
-                            mediaServer.WebApiHelper.CloseStreams(tmp, out rs);
-                            SipMethodProxy sipMethodProxy =
-                                new SipMethodProxy(Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
-                            sipMethodProxy.DeInvite(record, out rs);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    GCommon.Logger.Error(
-                        $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时发现StreamList中已存在此流，实行断开时发生异常->{record.SipDevice.DeviceId}-{record.SipChannel.DeviceId}-{record.Stream}->{JsonHelper.ToJson(rs)}");
-                }
-
-                if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
-                    mediaServer.RandomPort == false) //失败时要关掉rtpserver
-                {
-                    ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                    {
-                        Stream_Id = openRtpPort.Stream,
-                    };
-
-                    mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
-                    mediaServer.KeeperWebApi.ReleaseRtpPort(
-                        openRtpPort.Port,
-                        out _); //释放rtp端口
-                }
-
+                var snapshot = new SipChannel { ParentId = record.SipDevice.DeviceId, DeviceId = record.SipChannel.DeviceId };
+                if (record.InviteSipRequest != null) snapshot.InviteSipRequest = record.InviteSipRequest;
+                if (record.InviteSipResponse != null) snapshot.InviteSipResponse = record.InviteSipResponse;
+                if (videoChannel.DefaultRtpPort == true)
+                    Gb28181StreamStop.StopShared(mediaServer, snapshot, record.Stream, record.App, record.Vhost,
+                        out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                else
+                    Gb28181StreamStop.Stop(mediaServer, snapshot, openRtpPort.Port, record.Stream, record.App, record.Vhost,
+                        true, out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
 
                 rs = new ResponseStruct()
                 {
@@ -1127,6 +886,15 @@ namespace AKStreamWeb.Services
                 }
 
 
+                var pendingStops = mediaServer.KeeperWebApi.GetPendingRtpPortStops(out rs);
+                if (pendingStops == null || rs.Code != ErrorNumber.None) return null;
+                if (pendingStops.Exists(x => x.MediaServerId == mediaServer.MediaServerId &&
+                    x.DeviceId == deviceId && x.ChannelId == channelId && !x.Playback))
+                {
+                    rs = new ResponseStruct { Code = ErrorNumber.Sip_DeInviteExcept,
+                        Message = "该通道上次停流尚未确认，接收端口保持隔离，请重试清理后再拉流。" };
+                    return null;
+                }
                 ResMediaServerOpenRtpPort openRtpPort;
                 if (rtpPort == null || rtpPort == 0) //如果没指定rtp端口，就申请一个
                 {
@@ -1220,6 +988,10 @@ namespace AKStreamWeb.Services
                     return null;
                 }
 
+                // 在线记录可能先被注销回调删除，原 dialog 必须始终保留实际接收端口。
+                sipChannel.RtpPort = openRtpPort.Port;
+                sipChannel.App = videoChannel.App;
+                sipChannel.Vhost = videoChannel.Vhost;
                 PushMediaInfo pushMediaInfo = new PushMediaInfo();
                 pushMediaInfo.StreamPort = openRtpPort.Port;
                 if (!string.IsNullOrEmpty(mediaServer.Candidate) && (UtilsHelper.IsIpAddr(mediaServer.Candidate) ||
@@ -1364,86 +1136,12 @@ namespace AKStreamWeb.Services
                         timeoutTask.Dispose();
                     }
 
-                    try
-                    {
-                        sipChannel.App = videoChannel.App;
-                        sipChannel.RtpPort = openRtpPort.Port;
-                        sipChannel.Vhost = videoChannel.Vhost;
-
-                        // OnPublish 超时说明 ZLM 没等到有效 RTP 流，但 SIP INVITE 可能已经被设备 200 OK。
-                        // 这里无论 ZLM 当前是否已形成流，都先尝试 BYE，避免设备侧残留旧 Invite 会话。
-                        TryDeInviteSipChannel(
-                            sipChannel,
-                            $"OnPublish超时->{deviceId}-{channelId}-{videoChannel.MainId}",
-                            out _);
-
-                        var mediaList =
-                            mediaServer.WebApiHelper.GetMediaList(new ReqZLMediaKitGetMediaList(), out _);
-                        if (mediaList != null && mediaList.Code == 0 && mediaList.Data != null &&
-                            mediaList.Data.Count > 0)
-                        {
-                            var media = mediaList.Data.FindLast(x => x.App.Equals(videoChannel.App) &&
-                                                                     x.Stream.Equals(videoChannel.MainId)
-                                                                     && x.Vhost.Equals(videoChannel.Vhost));
-                            if (media != null)
-                            {
-                                var tmp = new ReqZLMediaKitCloseStreams()
-                                {
-                                    App = media.App,
-                                    Force = true,
-                                    Stream = videoChannel.MainId,
-                                    Vhost = videoChannel.Vhost,
-                                };
-
-                                mediaServer.WebApiHelper.CloseStreams(tmp, out _);
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        GCommon.Logger.Error(
-                            $"[{Common.LoggerHead}]->ZLMediaKit On_Publish事件回调超时后执行清理时发生异常->{deviceId}-{channelId}->{JsonHelper.ToJson(rs)}");
-                    }
-                    
-                    if (videoChannel.DefaultRtpPort == false && openRtpPort != null) //失败时要关掉rtpserver
-                    {
-                        ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                        {
-                            Stream_Id = openRtpPort.Stream,
-                        };
-
-                        mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
-
-                        if (mediaServer.RandomPort == false)
-                        {
-                            mediaServer.KeeperWebApi.ReleaseRtpPort(
-                                openRtpPort.Port,
-                                out _); //释放rtp端口
-                        }
-                    }
-
-                    // if (videoChannel.DefaultRtpPort == false && openRtpPort != null &&
-                    //     mediaServer.RandomPort == false) //失败时要关掉rtpserver
-                    // {
-                    //     ReqZLMediaKitCloseRtpPort reqZlMediaKitCloseRtpPort = new ReqZLMediaKitCloseRtpPort()
-                    //     {
-                    //         Stream_Id = openRtpPort.Stream,
-                    //     };
-                    //
-                    //     mediaServer.WebApiHelper.CloseRtpPort(reqZlMediaKitCloseRtpPort, out _); //关掉rtp端口
-                    //     mediaServer.KeeperWebApi.ReleaseRtpPort(
-                    //         openRtpPort.Port,
-                    //         out _); //释放rtp端口
-                    // }
-
-                    try
-                    {
-                        MediaServerService.StreamStop(mediaServer.MediaServerId, videoChannel.MainId, out _);
-                    }
-                    catch
-                    {
-                        //
-                    }
+                    if (videoChannel.DefaultRtpPort == true)
+                        Gb28181StreamStop.StopShared(mediaServer, sipChannel, videoChannel.MainId,
+                            videoChannel.App, videoChannel.Vhost, out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
+                    else
+                        Gb28181StreamStop.Stop(mediaServer, sipChannel, openRtpPort.Port, videoChannel.MainId,
+                            videoChannel.App, videoChannel.Vhost, false, out _, Common.AkStreamWebConfig.WaitSipRequestTimeOutMSec);
 
                     rs = new ResponseStruct()
                     {
